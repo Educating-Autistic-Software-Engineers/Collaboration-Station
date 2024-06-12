@@ -79,6 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatPanel = document.getElementById('messages__container');
   const openChatBtn = document.getElementById('openChatBtn');
   const closeChatBtn = document.getElementById('closeChatBtn');
+  const projectsButton = document.getElementById('create__room__btn');
+  console.log(projectsButton,  "PM SDF")
 
   openChatBtn.addEventListener('click', () => {
       chatPanel.style.display = 'block';
@@ -91,4 +93,19 @@ document.addEventListener('DOMContentLoaded', () => {
       closeChatBtn.style.display='none';
       openChatBtn.style.display='block';
   });
+
+
+  // projectsButton.addEventListener('click', () => {
+  //   let email = sessionStorage.getItem('email'); 
+  //   console.log(email); 
+  //   window.location = 'projects.html?email=' + email;
+  // });
+
+
 });
+
+function onProjectsButtonClicked() {
+  let email = sessionStorage.getItem('email'); 
+    console.log(email); 
+    window.location = 'projects.html?email=' + email;
+}

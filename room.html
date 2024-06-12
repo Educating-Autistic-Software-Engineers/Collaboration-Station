@@ -18,7 +18,7 @@
             </button>
             <a href="projects.html"/>
                 <h3 id="logo">
-                    <!--<img src="./images/logo.png" alt="Site Logo">-->
+                    <img src="./images/logo.svg" alt="Site Logo">
                     <span>Collaboration Station</span>
                 </h3>
             </a>
@@ -32,10 +32,10 @@
             </a> -->
             <button id="closeChatBtn" class="close-chat-btn">&times;</button>
             <button id="openChatBtn" class="open-chat-btn">Chat</button>
-            <a class="nav__link" id="create__room__btn" href="projects.html">
+            <button class="nav__link" id="create__room__btn" onclick="onProjectsButtonClicked()">
                 Projects
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ede0e0" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6 13h-5v5h-2v-5h-5v-2h5v-5h2v5h5v2z"/></svg>
-            </a>
+            </button>
         </div>
     </header>
 
@@ -58,10 +58,10 @@
 
             <div id="stream__container">
 
-                <!--<div id="stream__box"></div>-->
+                <div id="stream__box"></div>
                 
                 
-                <iframe id="main-stream" src="vm/index.html?space=bark-noun-talk" title="Stream"></iframe>
+                <!-- <iframe id="main-stream" src="vm/index.html?space=bark-noun-talk" title="Stream"></iframe> -->
                 
                 <div class="stream__actions">
                     <button id="camera-btn" class="active">
@@ -95,9 +95,10 @@
     </div>
     
 </body>
-<script type="text/javascript" src="js/AgoraRTC_N-4.11.0.js"></script>
-<script type="text/javascript" src="js/agora-rtm-sdk-1.4.4.js"></script>
-<script type="text/javascript" src="js/room.js"></script>
-<script type="text/javascript" src="js/room_rtm.js"></script>
-<script type="text/javascript" src="js/room_rtc.js"></script>
+<script src="js/AgoraRTC_N-4.11.0.js"></script>
+<script src="js/agora-extension-vb.js"></script>
+<script src="js/agora-rtm-sdk-1.4.4.js"></script>
+<script src="js/room.js"></script>
+<script src="js/room_rtm.js"></script>
+<script src="js/room_rtc.js"></script>
 </html>

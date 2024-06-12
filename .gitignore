@@ -2,3 +2,6 @@ js/AgoraRTC_N-4.11.0.js
 js/agora-rtm-sdk-1.4.4.js
 js/room_rtm.js
 js/room_rtc.js
+CollabStation.zip
+node_modules/
+.env

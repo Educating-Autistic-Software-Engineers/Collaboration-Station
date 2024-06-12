@@ -1,4 +1,15 @@
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    const rest = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/getAllItems');
+    const res = await rest.json();
+    let requests= res.requests;
+    
+    for (person in requests) {
+        let row = createNewRow();
+        row.querySelector('#name-input').value = requests[person].name;
+        row.querySelector('#email-input').value = requests[person].email;
+        row.querySelector('.projects').innerText = requests[person].projects;
+    }
+
     const table = document.getElementById('projectTable');
     const saveProjectsBtn = document.getElementById('saveProjectsBtn');
     const addRowBtn = document.getElementById('addRowBtn');
@@ -27,7 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    addRowBtn.addEventListener('click', function() {
+    addRowBtn.addEventListener('click', createNewRow);
+
+    function createNewRow() {
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
         <td><input type="text" id="name-input" placeholder="Enter name"></td>
@@ -58,10 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         projectTable.querySelector('tbody').appendChild(newRow);
 
-        console.log(newRow)
         newRow.querySelector('#name-input').value = '';
         newRow.querySelector('#email-input').value = '';
-    });
+
+        return newRow;
+    }
 
 
     saveProjectsBtn.addEventListener('click', async () => {

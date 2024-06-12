@@ -45,7 +45,10 @@ form.addEventListener('submit', async (e) => {
             console.log(response);
             console.log(response.ok);
             const data = await response.json();
+            sessionStorage.setItem('display_name',data.name);
+            sessionStorage.setItem('email',data.requestId);
             console.log(data);
+            console.log(data.name);
             return data.requestId;
         } catch (error) {
             console.error('Error checking email:', error);
