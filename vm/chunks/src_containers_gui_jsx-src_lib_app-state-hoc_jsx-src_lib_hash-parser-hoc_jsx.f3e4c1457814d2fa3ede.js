@@ -34523,9 +34523,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   secrets: () => (/* binding */ secrets)
 /* harmony export */ });
 const secrets = {
-  "ablyKey": "DrrD1w.YeN3qw:pgwl4ogJ8pnit8xe4qIQqoz83eB0dEFTGBT2KkSgvho",
-  "publicAccessKey": "AKIAWWEABKYFNTDN3ZVY",
-  "privateAccessKey": "zFfBaeGdId/AYFzXLNAEaj+jzgWmsjH82keTfR6T",
+  "ablyKey": env.process.secrets.ablyKey,
+  "publicAccessKey": env.process.secrets.publicAccessKey,
+  "privateAccessKey": env.process.secrets.privateAccessKey,
   "ablySpaces": "DrrD1w.z2MVIw:IjkMIiUUlzPIaEVTFMjq1Hta827NRrE4Z79P0VtA3hI",
   "ablySpaces2": "DrrD1w.YeN3qw:pgwl4ogJ8pnit8xe4qIQqoz83eB0dEFTGBT2KkSgvho"
 };
