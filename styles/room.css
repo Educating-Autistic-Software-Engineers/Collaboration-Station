@@ -1,6 +1,5 @@
 #full_container {
-  margin-top: 74px;
-  height: calc(100vh - 74px);
+  height: 100vh;
   width: 100%;
   flex: 1;
   display: flex;
@@ -14,28 +13,36 @@
 }
 
 #stream__container {
-  display: flex;
-    flex-direction: vertical;
-    width: calc(100% - 300px);
-    height: 100%;
+    width: calc(100% - 310px);
+    height: 100vh;
 }
 
 #main-stream {
   height: 100%;
-  width: 100%;
-  
+  width: calc(100% - 305px);
 }
 
 
 #members__container {
-  background-color: #262625;
+  /* background-color: #262625;
   border-right: 1px solid #797a79;
   overflow-y: auto;
-  width: 0%;
-  max-width: 0px;
+  width: 40%;
+  max-width: 250px;
   position: flex;
   height: 100%;
-  z-index: 999;
+  z-index: 999; */
+
+  height: calc(100vh - 85px);
+  background-color: #262625;
+  right: 0;
+  position: absolute;
+  width: 100%;
+  max-width: 250px;
+  overflow-y: auto;
+  border-left: 1px solid #111;
+  display: none;
+  z-index: 1;
 }
   
 
@@ -92,13 +99,25 @@
 
 #messages__container {
   height: calc(100vh - 85px);
+  margin-top: 3;
   background-color: #262625;
   right: 0;
-  position: absolute;
+  position: relative;
   width: 100%;
   max-width: 300px;
   overflow-y: auto;
   border-left: 1px solid #111;
+  display: none;
+}
+
+#nav__links {
+  gap: 2rem;
+  padding: 20px;
+}
+
+#right_bar {
+  flex: 1;
+  position: relative;
 }
 
 #messages {
@@ -202,15 +221,26 @@
   border-radius: 0;
 }
 
-#streams__container{
-  display: flex;
+#stream__container{
+  /* display: flex;
+  flex-direction:column;
   flex-wrap: wrap;
-  gap: 2em;
-  justify-content: center;
+  gap: 2px;
+  justify-content: flex-start;
   align-items: center;
-  margin-top: 25px;
-  margin-bottom: 225px;
-  flex: 1;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  right: 0;
+  position: absolute; */
+
+  width: 100%;
+  height: calc(100vh - 40px);
+  background-color: #262625; /* Match the background of the message container */
+  border-left: 1px solid #111; /* Match the border of the message container */
+  overflow-y: auto; /* Allow scrolling if content overflows */
+  /* top: 0; Align the container to the top */
+  
+ 
 }
 
 .video__container{
@@ -218,11 +248,13 @@
   justify-content: center;
   align-items: center;
   border:2px solid #b366f9;
-  border-radius: 50%;
+  /* border-radius: 50%; */
   cursor: pointer;
   overflow: hidden;
-  height: 300px;
-  width: 300px;
+  height: 200px;
+  width: 200px;
+
+  
 
   background-image: url("/images/logo.png");
   background-repeat: no-repeat;
@@ -236,7 +268,7 @@
 }
 
 .video-player video{
-  border-radius: 50%;
+  /* border-radius: 50%; */
 }
 
 @media (max-width: 1400px) {
@@ -310,11 +342,11 @@
 
 .stream__actions {
   position: fixed;
-  bottom: 1rem;
+  top: 5px;
   border-radius: 8px;
   background-color: #1a1a1a60;
-  padding: 1rem;
-  left: 50%;
+  padding: 3px;
+  left: 45%;
   display: none;
   gap: 1rem;
   transform: translateX(-50%);
@@ -350,15 +382,24 @@
 
 #join-btn{
   background-color: #845695;
-  font-size: 18px;
-  padding: 25px 50px;
+  font-size: 12px;
+  padding: 12px 25px;
   border: none;
   color:#fff;
 
   position: fixed;
-  bottom: 1rem;
-  border-radius: 8px;
-  left:50%;
+  top: 5px;
+  border-radius: 4px;
+  left:45%;
   transform: translateX(-50%);
+  cursor: pointer;
+}
+
+.slider {
+  width: 100%;
+  height: 4px;
+  background-color: #007bff;
+  position: absolute;
+  left: 0;
   cursor: pointer;
 }

@@ -8,6 +8,17 @@ const chatContainer = document.getElementById('messages__container');
 const chatButton = document.getElementById('chat__button');
 
 let activeMemberContainer = false;
+let isDragging = false;
+
+
+const queryString = window.location.search
+const urlParams = new URLSearchParams(queryString)
+let roomId = urlParams.get('projectName')
+
+
+if (sessionStorage.getItem('email') == null) {
+  window.location.href = 'index.html';
+}
 
 memberButton.addEventListener('click', () => {
   if (activeMemberContainer) {
@@ -29,6 +40,7 @@ chatButton.addEventListener('click', () => {
   }
 
   activeChatContainer = !activeChatContainer;
+  moveSlider({clientY: 140}, true);
 });
 
 let displayFrame = document.getElementById('stream__box')
@@ -39,7 +51,7 @@ let expandVideoFrame = (e) => {
 
   let child = displayFrame.children[0]
   if(child){
-      document.getElementById('streams__container').appendChild(child)
+      document.getElementById('stream__container').appendChild(child)
   }
 
   displayFrame.style.display = 'block'
@@ -65,7 +77,7 @@ let hideDisplayFrame = () => {
     displayFrame.style.display = null
 
     let child = displayFrame.children[0]
-    document.getElementById('streams__container').appendChild(child)
+    document.getElementById('stream__container').appendChild(child)
 
     for(let i = 0; videoFrames.length > i; i++){
       videoFrames[i].style.height = '300px'
@@ -75,12 +87,50 @@ let hideDisplayFrame = () => {
 
 displayFrame.addEventListener('click', hideDisplayFrame)
 
-document.addEventListener('DOMContentLoaded', () => {
+function moveSlider(event, ov=false) {
+  const rightBar = document.getElementById('right_bar');
+  const streamContainer = document.getElementById('stream__container');
   const chatPanel = document.getElementById('messages__container');
+
+  if (!isDragging && !ov) return;
+  
+  const containerRect = rightBar.getBoundingClientRect();
+  let offsetY = event.clientY - containerRect.top;
+
+  if (offsetY < 140) offsetY = 140;
+  if (offsetY > containerRect.height) offsetY = containerRect.height;
+
+  const topHeight = offsetY - 80;
+  const bottomHeight = containerRect.height - offsetY;
+
+  streamContainer.style.height = topHeight + 'px';
+  chatPanel.style.height = bottomHeight + 'px';
+
+  slider.style.top = (offsetY - (slider.clientHeight / 2)) + 'px';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  
   const openChatBtn = document.getElementById('openChatBtn');
   const closeChatBtn = document.getElementById('closeChatBtn');
   const projectsButton = document.getElementById('create__room__btn');
-  console.log(projectsButton,  "PM SDF")
+  const slider = document.getElementById('slider');
+  const rightBar = document.getElementById('right_bar');
+  const streamContainer = document.getElementById('stream__container');
+  const chatPanel = document.getElementById('messages__container');
+  const iFrame = document.getElementById("main-stream");
+
+  iFrame.src = "vm/index.html?space=" + roomId.toString();
+
+  slider.addEventListener('mousedown', function (event) {
+    isDragging = true;
+  });
+
+  document.addEventListener('mousemove', moveSlider);
+
+  document.addEventListener('mouseup', function () {
+    isDragging = false;
+  });
 
   openChatBtn.addEventListener('click', () => {
       chatPanel.style.display = 'block';
@@ -106,6 +156,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function onProjectsButtonClicked() {
   let email = sessionStorage.getItem('email'); 
-    console.log(email); 
-    window.location = 'projects.html?email=' + email;
+  window.location = 'projects.html?email=' + email;
 }

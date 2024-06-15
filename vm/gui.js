@@ -198,13 +198,11 @@ import { SpacesProvider, SpaceProvider } from "@ably/spaces/react";
 const id = (0,nanoid__WEBPACK_IMPORTED_MODULE_14__.nanoid)();
 const spaceName = (0,_utils_helpers__WEBPACK_IMPORTED_MODULE_8__.getSpaceNameFromUrl)();
 const client = new ably__WEBPACK_IMPORTED_MODULE_7__.Realtime.Promise({
-  clientId: id,
-  key: _utils_Secrets_jsx__WEBPACK_IMPORTED_MODULE_11__.secrets.ablySpaces
+  authUrl: "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ably"
 });
 const spaces = new _ably_spaces__WEBPACK_IMPORTED_MODULE_6__["default"](client);
 const client2 = new ably__WEBPACK_IMPORTED_MODULE_7__.Realtime({
-  clientId: id,
-  key: _utils_Secrets_jsx__WEBPACK_IMPORTED_MODULE_11__.secrets.ablySpaces2
+  authUrl: "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ably"
 });
 
 /*
