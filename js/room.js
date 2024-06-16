@@ -13,7 +13,7 @@ let isDragging = false;
 
 const queryString = window.location.search
 const urlParams = new URLSearchParams(queryString)
-let roomId = urlParams.get('projectName')
+let roomId = urlParams.get('project')
 
 
 if (sessionStorage.getItem('email') == null) {

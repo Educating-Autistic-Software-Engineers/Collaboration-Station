@@ -1,7 +1,25 @@
+let rooms = [];
+
 document.addEventListener('DOMContentLoaded', async () => {
     const rest = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/getAllItems');
     const res = await rest.json();
     let requests= res.requests;
+
+    const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
+    const roomsj = await datresp.json();
+    rooms = roomsj.requests;
+    
+    const table = document.getElementById('projectTable');
+    const saveProjectsBtn = document.getElementById('saveProjectsBtn');
+    const addRowBtn = document.getElementById('addRowBtn');
+    const addProjectBtn = document.getElementById('addProjectBtn')
+    const projectList = document.getElementById('projectList')
+    const saveRoomsBtn = document.getElementById('saveRoomsBtn')
+
+    for (let room of rooms) {
+        let row = addProject(false);
+        row.innerHTML = room.name;
+    }
     
     for (person in requests) {
         let row = createNewRow();
@@ -10,23 +28,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         row.querySelector('.projects').innerText = requests[person].projects;
     }
 
-    const table = document.getElementById('projectTable');
-    const saveProjectsBtn = document.getElementById('saveProjectsBtn');
-    const addRowBtn = document.getElementById('addRowBtn');
-
-
     table.addEventListener('change', (e) => {
         if (e.target.classList.contains('project-select')) {
             const row = e.target.closest('tr');
-            const selectedProject = e.target.value;
+            const selectedProject = e.target.value.replace("<button></button>", "");
             const projectsCell = row.querySelector('.projects');
 
+            console.log(projectsCell.innerText, selectedProject);
             if (selectedProject && !projectsCell.innerText.includes(selectedProject)) {
                 projectsCell.innerText += projectsCell.innerText ? `, ${selectedProject}` : selectedProject;
             }
         }
         else if (e.target.classList.contains('project-remove')) {
-            const removeProject = e.target.value;
+            const removeProject = e.target.value.replace("<button></button>", "");
             const row = e.target.closest('tr');
             const projectsCell = row.querySelector('.projects');
             if (removeProject && projectsCell.innerText.includes(removeProject)) {
@@ -39,6 +53,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
     addRowBtn.addEventListener('click', createNewRow);
+    addProjectBtn.addEventListener('click', addProject);
 
     function createNewRow() {
         const newRow = document.createElement('tr');
@@ -47,36 +62,81 @@ document.addEventListener('DOMContentLoaded', async () => {
         <td><input type="email" id="email-input" placeholder="Enter email"></td>
         <td id="projects" class="projects"></td>
         <td>
-                <select class="project-select" id="project-select">
-                    <option value="">Select a project</option>
-                    <option value="Project 1">Project 1</option>
-                    <option value="Project 2">Project 2</option>
-                    <option value="Project 3">Project 3</option>
-                    <option value="Project 4">Project 4</option>
-                    <option value="Project 5">Project 5</option>
-                    <option value="Project 6">Project 6</option>
-                </select>
-            </td>
-            <td>
-                <select class="project-remove" id="project-remove">
-                    <option value="">Select a project</option>
-                    <option value="Project 1">Project 1</option>
-                    <option value="Project 2">Project 2</option>
-                    <option value="Project 3">Project 3</option>
-                    <option value="Project 4">Project 4</option>
-                    <option value="Project 5">Project 5</option>
-                    <option value="Project 6">Project 6</option>
-                </select>
-            </td>
+            <select class="project-select" id="project-select">
+                <option value="">Select a project</option>
+            </select>
+        </td>
+        <td>
+            <select class="project-remove" id="project-remove">
+                <option value="">Select a project</option>
+            </select>
+        </td>
         `;
         projectTable.querySelector('tbody').appendChild(newRow);
 
         newRow.querySelector('#name-input').value = '';
         newRow.querySelector('#email-input').value = '';
 
+        for (let room of rooms) {
+            const roomName = room.name.replace("Delete", '');
+            newRow.querySelector('.project-select').innerHTML += `<option value="${roomName}">${roomName}</option>`;
+            newRow.querySelector('.project-remove').innerHTML += `<option value="${roomName}">${roomName}</option>`;
+        }
+
         return newRow;
     }
 
+    function addProject(createNewEntry=true) {
+        const newProjectLi = document.createElement('li');
+        const deleteButton = document.createElement('button');
+        // make deleteButton display to the right of newProjectLi
+        deleteButton.innerHTML = 'Delete';
+        deleteButton.onclick = () => {
+            projectList.removeChild(newProjectLi);
+            rooms = rooms.filter(room => room.name !== newProjectLi.innerHTML);
+        }
+
+        let name = document.getElementById('projectName').value
+        newProjectLi.innerHTML = name;
+        newProjectLi.appendChild(deleteButton);
+        projectList.appendChild(newProjectLi);
+
+        if (createNewEntry) {
+            let maxRoomId = 530425233;
+            for (let room of rooms) {
+                if ( Number(room.room_id) > maxRoomId) {
+                    maxRoomId = Number(room.room_id);
+                }
+            }
+            rooms.push({ room_id: String(Number(maxRoomId)+1), name: name });
+        }
+        return newProjectLi;
+    }
+
+    saveRoomsBtn.addEventListener('click', async () => {
+
+        try {
+            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(rooms) 
+            });
+
+            if (!response.ok) {
+                alert('Failed to save rooms.');
+                return
+            }
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while saving rooms.');
+        }
+        //refresh page
+        location.reload();
+
+    })
 
     saveProjectsBtn.addEventListener('click', async () => {
         const rows = table.querySelectorAll('tbody tr');
@@ -91,7 +151,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.log(name);
             const email = row.querySelector('#email-input').value;
             //console.log(row.querySelectorAll('#project-select'));
-            const projects = row.querySelector('#projects').innerHTML;//.map(select => select.value);
+            console.log(row.querySelector('#projects').innerHTML, getRoomIDbyNames(row.querySelector('#projects').innerHTML))
+            const projects = getRoomIDbyNames(row.querySelector('#projects').innerHTML);
             return { name, email, projects };
         });
 
@@ -105,8 +166,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
 
             console.log(response);
-            console.log(JSON.stringify(data));
-            console.log(response.ok);
 
             if (response.ok) {
                 alert('Projects saved successfully!');
@@ -115,10 +174,21 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         } catch (error) {
             console.error('Error:', error);
-            alert('An error occurred while saving projects.');
+            alert('An error occurred while saving.');
         }
     });
 });
 
-
+function getRoomIDbyNames(names) {
+    let roomIDs = [];
+    names = names.split(', ');
+    for (let name of names) {
+        for (let room of rooms) {
+            if (room.name === name) {
+                roomIDs.push(room.room_id);
+            }
+        }
+    }
+    return roomIDs.join(", ");
+}
 

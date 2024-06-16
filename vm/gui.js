@@ -132,7 +132,11 @@ const CursorOverlay = _ref => {
     id: "live-cursors",
     ref: liveCursors,
     className: (_index_css__WEBPACK_IMPORTED_MODULE_6___default().app)
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_ConditionalApp_jsx__WEBPACK_IMPORTED_MODULE_9__["default"], null));
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_ConditionalApp_jsx__WEBPACK_IMPORTED_MODULE_9__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_utils_useCursor_jsx__WEBPACK_IMPORTED_MODULE_4__.YourCursor, {
+    self: self,
+    parentRef: liveCursors,
+    className: (_index_css__WEBPACK_IMPORTED_MODULE_6___default().overlay)
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_utils_useCursor_jsx__WEBPACK_IMPORTED_MODULE_4__.MemberCursors, null));
   /*
   <YourCursor self={self} parentRef={liveCursors} className={styles.overlay} />
           <MemberCursors />
@@ -471,18 +475,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   YourCursor: () => (/* binding */ YourCursor)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _ably_spaces_react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ably/spaces/react */ "./node_modules/@ably/spaces/dist/mjs/react/index.js");
+/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
 /* harmony import */ var _CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CursorSvg.jsx */ "./src/utils/CursorSvg.jsx");
-/* harmony import */ var _useTrackCursor_jsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./useTrackCursor.jsx */ "./src/utils/useTrackCursor.jsx");
-/* harmony import */ var _Cursors_module_css__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./Cursors.module.css */ "./src/utils/Cursors.module.css");
-/* harmony import */ var _Cursors_module_css__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(_Cursors_module_css__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var _Cursors_module_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Cursors.module.css */ "./src/utils/Cursors.module.css");
+/* harmony import */ var _Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3__);
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 
 
 
 
-
-// 💡 This component is used to render the cursor of the user
-
+const channel = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.ablyInstance.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.ablySpace);
 const YourCursor = _ref => {
   let {
     self,
@@ -494,10 +500,12 @@ const YourCursor = _ref => {
   });
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     const handleMouseMove = event => {
-      setPosition({
+      const newPosition = {
         x: event.clientX,
         y: event.clientY
-      });
+      };
+      setPosition(newPosition);
+      channel.publish('cursor', JSON.stringify(newPosition));
     };
     window.addEventListener('mousemove', handleMouseMove);
 
@@ -506,169 +514,64 @@ const YourCursor = _ref => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, []);
-  console.log(position);
   const cursorColor = "#FF0000";
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_4___default().cursor),
-    onMouseMove: e => {},
-    style: {
-      top: "".concat((position === null || position === void 0 ? void 0 : position.y) || 0, "px"),
-      left: "".concat((position === null || position === void 0 ? void 0 : position.x) || 0, "px")
-    }
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
-    cursorColor: cursorColor
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    style: {
-      backgroundColor: cursorColor
-    },
-    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_4___default().cursorName)
-  }, "You"));
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null);
+  // return (
+  //     <div
+  //         className={styles.cursor}
+  //         style={{
+  //             top: `${position.y}px`,
+  //             left: `${position.x}px`,
+  //         }}
+  //     >
+  //         <CursorSvg cursorColor={cursorColor} />
+  //         <div style={{ backgroundColor: cursorColor }} className={styles.cursorName}>
+  //             You
+  //         </div>
+  //     </div>
+  // );
 };
-const YourCursor2 = _ref2 => {
-  let {
-    self,
-    parentRef
-  } = _ref2;
-  const [cursorPosition, setCursorPosition] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
-  const handleSelfCursorMove = (0,_useTrackCursor_jsx__WEBPACK_IMPORTED_MODULE_3__["default"])(setCursorPosition, parentRef);
-  console.log(self, cursorPosition, "DSFHIOSDFH");
-  if (!self) {
-    return null;
-  }
-  if (!cursorPosition || cursorPosition.state === "leave") return null;
-  const {
-    cursorColor
-  } = self.profileData.userColors;
-  console.log(cursorColor, "DSFHIOSDFH");
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_4___default().cursor),
-    onMouseMove: e => handleSelfCursorMove(e),
-    style: {
-      top: "".concat((cursorPosition === null || cursorPosition === void 0 ? void 0 : cursorPosition.top) || 0, "px"),
-      left: "".concat((cursorPosition === null || cursorPosition === void 0 ? void 0 : cursorPosition.left) || 0, "px")
-    }
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
-    cursorColor: cursorColor
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    style: {
-      backgroundColor: cursorColor
-    },
-    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_4___default().cursorName)
-  }, "You"));
-};
-// 💡 This component is used to render the cursors of other users in the space
 const MemberCursors = () => {
-  const {
-    cursors
-  } = (0,_ably_spaces_react__WEBPACK_IMPORTED_MODULE_1__.useCursors)({
-    returnCursors: true
-  });
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, Object.values(cursors).map(data => {
-    const cursorUpdate = data.cursorUpdate;
-    const member = data.member;
-    if (cursorUpdate.data.state === "leave") return;
-    const {
-      cursorColor
-    } = member.profileData.userColors;
-    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-      key: member.connectionId,
-      id: "member-cursor-".concat(member.connectionId),
-      className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_4___default().cursor),
-      style: {
-        left: "".concat(cursorUpdate.position.x, "px"),
-        top: "".concat(cursorUpdate.position.y, "px")
-      }
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
-      cursorColor: cursorColor
-    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-      style: {
-        backgroundColor: cursorColor
-      },
-      className: "".concat((_Cursors_module_css__WEBPACK_IMPORTED_MODULE_4___default().cursorName), " member-cursor")
-    }, member.profileData.name));
-  }));
-};
-
-
-/***/ }),
-
-/***/ "./src/utils/useTrackCursor.jsx":
-/*!**************************************!*\
-  !*** ./src/utils/useTrackCursor.jsx ***!
-  \**************************************/
-/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
-/* harmony export */ });
-/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
-/* harmony import */ var _ably_spaces_react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @ably/spaces/react */ "./node_modules/@ably/spaces/dist/mjs/react/index.js");
-
-
-// 💡 This hook is used to get the cursor position of the user and update the cursor position in the space
-const useTrackCursor = (setCursorPosition, parentRef) => {
-  const {
-    set
-  } = (0,_ably_spaces_react__WEBPACK_IMPORTED_MODULE_1__.useCursors)();
-  let handleSelfCursorMove = () => {};
+  const [cursors, setCursors] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({});
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
-    if (!set) return;
-    const container = document.querySelector("#live-cursors");
-    // 💡 This function is used to update the cursor position in the space
-    const handleSelfCursorMove = e => {
-      if (!document.hasFocus()) return;
-      const liveCursorsDiv = parentRef.current;
-      const bounds = liveCursorsDiv === null || liveCursorsDiv === void 0 ? void 0 : liveCursorsDiv.getBoundingClientRect();
-      if (!bounds) return;
-      let relativeLeftPosition = e.clientX - bounds.left;
-      let relativeTopPosition = e.clientY - bounds.top;
-      if (e.clientX < bounds.left) relativeLeftPosition = -100;
-      if (e.clientX > bounds.right) relativeLeftPosition = bounds.right;
-      if (e.clientY < bounds.top) relativeTopPosition = -100;
-      if (e.clientY > bounds.bottom) relativeTopPosition = bounds.bottom;
-      setCursorPosition({
-        left: relativeLeftPosition,
-        top: relativeTopPosition,
-        state: "move"
-      });
-      set({
-        position: {
-          x: relativeLeftPosition,
-          y: relativeTopPosition
-        },
-        data: {
-          state: "move"
+    const handleCursorMessage = message => {
+      const {
+        clientId,
+        data
+      } = message;
+      const position = JSON.parse(data);
+      setCursors(prevCursors => _objectSpread(_objectSpread({}, prevCursors), {}, {
+        [clientId]: {
+          position,
+          cursorColor: "#00FF00",
+          name: clientId
         }
-      });
+      }));
     };
-    const handleSelfCursorLeave = e => {
-      setCursorPosition({
-        left: 0,
-        top: 0,
-        state: "leave"
-      });
-      set({
-        position: {
-          x: 0,
-          y: 0
-        },
-        data: {
-          state: "leave"
-        }
-      });
-    };
-    container.addEventListener("mousemove", handleSelfCursorMove);
-    container.addEventListener("mouseleave", handleSelfCursorLeave);
+    channel.subscribe('cursor', handleCursorMessage);
+
+    // Cleanup the subscription on component unmount
     return () => {
-      container.removeEventListener("mousemove", handleSelfCursorMove);
-      container.removeEventListener("mouseleave", handleSelfCursorLeave);
+      channel.unsubscribe('cursor', handleCursorMessage);
     };
-  }, [set]);
-  return handleSelfCursorMove;
+  }, []);
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, Object.values(cursors).map((member, index) => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    key: index,
+    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursor),
+    style: {
+      top: "".concat(member.position.y, "px"),
+      left: "".concat(member.position.x, "px")
+    }
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
+    cursorColor: member.cursorColor
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    style: {
+      backgroundColor: member.cursorColor
+    },
+    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursorName)
+  }, member.name))));
 };
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (useTrackCursor);
+
 
 /***/ }),
 

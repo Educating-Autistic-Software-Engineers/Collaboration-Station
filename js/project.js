@@ -26,15 +26,26 @@ const targetEmail = roomId;
 
 let roomList = [];
 
+if (sessionStorage.getItem('email') == null) {
+    window.location.href = 'index.html';
+}
+
+roomDict = {}
+
 async function load() {
-    console.log(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${targetEmail}`)
+    const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
+    const roomsj = await datresp.json();
+    rooms = roomsj.requests;
+    for (let room of rooms) {
+        roomDict[room.room_id] = room;
+    }
+
     try {
         const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${targetEmail}`);
         console.log(response);
         console.log(response.ok);
         const data = await response.json();
         roomList = data.projects.split(", ");
-        console.log("data", roomList);
     } catch (error) {
         console.error('Error checking email:', error);
     }
@@ -49,18 +60,58 @@ function displayTiles() {
     roomList.forEach(room => {
         const tile = document.createElement('div');
         tile.className = 'tile';
-        tile.textContent = room.replace(/([A-Z])/g, ' $1').trim(); // Format room name
+        console.log(roomDict, room)
+        tile.textContent = roomDict[room].name.replace(/([A-Z])/g, ' $1').trim(); // Format room name
         tile.onclick = () => openProject(room);
         tileContainer.appendChild(tile);
     });
+    const addProjectBtn = document.createElement('div');
+    addProjectBtn.className = 'tile';
+    tileContainer.appendChild(addProjectBtn);
+    addProjectBtn.innerHTML = `
+        <p>Add Project</p>
+        <input id="addProjectEntry" style="width: 70%;"></input>
+    `
+    const textEntry = addProjectBtn.querySelector('#addProjectEntry');
+    textEntry.addEventListener('click', (event) => event.stopPropagation());
+    addProjectBtn.onclick = () => createNewProject(textEntry.value);
+    // addProjectBtn.getElementById('addProjectEntry').style = "display: none;"
 }
 
+async function createNewProject(text) {
+    if (text == '') {
+        return;
+    }
 
+    const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
+    const roomsj = await datresp.json();
+    let rooms = roomsj.requests;
+
+    let maxRoomId = 530425233;
+    for (let room of rooms) {
+        if ( Number(room.room_id) > maxRoomId) {
+            maxRoomId = Number(room.room_id);
+        }
+    }
+    rooms.push({ room_id: String(Number(maxRoomId)+1), name: text });
+    // const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+    //     method: 'POST',
+    //     headers: {
+    //         'Content-Type': 'application/json'
+    //     },
+    //     body: JSON.stringify(rooms) 
+    // });
+    // if (!response.ok) {
+    //     alert('Failed to save rooms.');
+    //     return
+    // }
+    // location.reload();
+}
 
 function openProject(projectName) {
     // alert('Opening ' + projectName);
     // window.location=`room.html?projectName=${projectName}`;
-    window.location.href=`room.html?projectName=${projectName}`;
+    window.location.href=`room.html?project=${projectName}`;
     // Here you can add the code to redirect to a different page or load project details
     // For example: window.location.href = 'project1.html';
 }
