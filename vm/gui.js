@@ -128,13 +128,16 @@ const CursorOverlay = _ref => {
   cursorUpdate(spaces);
   */
 
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  let uname = urlParams.get('name');
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     id: "live-cursors",
     ref: liveCursors,
     className: (_index_css__WEBPACK_IMPORTED_MODULE_6___default().app)
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_ConditionalApp_jsx__WEBPACK_IMPORTED_MODULE_9__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_utils_useCursor_jsx__WEBPACK_IMPORTED_MODULE_4__.YourCursor, {
-    self: self,
-    parentRef: liveCursors,
+    self: 3,
+    name: uname,
     className: (_index_css__WEBPACK_IMPORTED_MODULE_6___default().overlay)
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_utils_useCursor_jsx__WEBPACK_IMPORTED_MODULE_4__.MemberCursors, null));
   /*
@@ -488,16 +491,23 @@ function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = 
 
 
 
+let thisName;
 const channel = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.ablyInstance.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.ablySpace);
 const YourCursor = _ref => {
   let {
     self,
-    parentRef
+    name
   } = _ref;
   const [position, setPosition] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
     x: 0,
     y: 0
   });
+  const latestPosition = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(position);
+  let cachedPosition = {
+    x: 0,
+    y: 0
+  };
+  thisName = name;
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     const handleMouseMove = event => {
       const newPosition = {
@@ -505,31 +515,39 @@ const YourCursor = _ref => {
         y: event.clientY
       };
       setPosition(newPosition);
-      channel.publish('cursor', JSON.stringify(newPosition));
+      latestPosition.current = newPosition;
     };
     window.addEventListener('mousemove', handleMouseMove);
+    const intervalId = setInterval(() => {
+      if (JSON.stringify(cachedPosition) === JSON.stringify(latestPosition.current)) return;
+      cachedPosition = latestPosition.current;
+      channel.publish('cursor', JSON.stringify({
+        clientId: name,
+        position: latestPosition.current
+      }));
+    }, 200);
 
-    // Cleanup the event listener on component unmount
+    // Cleanup the event listener and interval on component unmount
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
+      clearInterval(intervalId);
     };
-  }, []);
+  }, [self]);
   const cursorColor = "#FF0000";
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null);
-  // return (
-  //     <div
-  //         className={styles.cursor}
-  //         style={{
-  //             top: `${position.y}px`,
-  //             left: `${position.x}px`,
-  //         }}
-  //     >
-  //         <CursorSvg cursorColor={cursorColor} />
-  //         <div style={{ backgroundColor: cursorColor }} className={styles.cursorName}>
-  //             You
-  //         </div>
-  //     </div>
-  // );
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursor),
+    style: {
+      top: "".concat(position.y, "px"),
+      left: "".concat(position.x, "px")
+    }
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
+    cursorColor: cursorColor
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    style: {
+      backgroundColor: cursorColor
+    },
+    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursorName)
+  }, "You"));
 };
 const MemberCursors = () => {
   const [cursors, setCursors] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({});
@@ -537,9 +555,9 @@ const MemberCursors = () => {
     const handleCursorMessage = message => {
       const {
         clientId,
-        data
-      } = message;
-      const position = JSON.parse(data);
+        position
+      } = JSON.parse(message.data);
+      if (clientId === thisName) return;
       setCursors(prevCursors => _objectSpread(_objectSpread({}, prevCursors), {}, {
         [clientId]: {
           position,

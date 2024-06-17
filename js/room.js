@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const chatPanel = document.getElementById('messages__container');
   const iFrame = document.getElementById("main-stream");
 
-  iFrame.src = "vm/index.html?space=" + roomId.toString();
+  iFrame.src = "vm/index.html?space=" + roomId.toString() + "&name=" + sessionStorage.getItem('display_name');
 
   slider.addEventListener('mousedown', function (event) {
     isDragging = true;

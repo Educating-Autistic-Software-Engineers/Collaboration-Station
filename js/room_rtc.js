@@ -12,13 +12,7 @@ let client;
 let rtmClient;
 let channel;
  
-const queryString = window.location.search
-console.log(queryString);
-const urlParams = new URLSearchParams(queryString)
-console.log(urlParams);
 //let roomId = urlParams.get('room')
-let roomId = urlParams.get('projectName')
-console.log(roomId);
  
 if(!roomId){
     roomId = 'main'
@@ -99,6 +93,7 @@ const applyVirtualBackground = async (track) => {
 };
  
 let joinStream = async () => {
+    console.log("Hisdf")
     document.getElementById('join-btn').style.display = 'none'
     document.getElementsByClassName('stream__actions')[0].style.display = 'flex'
  
@@ -124,6 +119,7 @@ let joinStream = async () => {
     localTracks[1].play(`user-${uid}`)
     await client.publish([localTracks[0], localTracks[1]])
 }
+joinStream()
  
 let switchToCamera = async () => {
     let player = `<div class="video__container" id="user-container-${uid}">
