@@ -58,6 +58,9 @@ function displayTiles() {
     console.log("og", roomList)
     const tileContainer = document.getElementById('tileContainer');
     roomList.forEach(room => {
+        if (room == "" || room == " ") {
+            return;
+        }
         const tile = document.createElement('div');
         tile.className = 'tile';
         console.log(roomDict, room)
@@ -97,20 +100,30 @@ async function addProject(){
     
     console.log("going inside");
 
+    let maxRoomId = 530425233;
+    for (let room of rooms) {
+        if ( Number(room.room_id) > maxRoomId) {
+            maxRoomId = Number(room.room_id);
+        }
+    }
+    const newRoomId = String(Number(maxRoomId)+1)
+
+    const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${targetEmail}`);
+    const data = await response.json();
+    console.log(data)
+
     try {
         console.log("inside");
-        console.log(roomId);
-        console.log(projectName);
+        console.log(roomId); 
 
         const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
-
             },
             body: JSON.stringify({
-                email:roomId,
-                projects:projectName
+                email: roomId,
+                projects: newRoomId
             }) 
         });
 
@@ -118,60 +131,54 @@ async function addProject(){
         console.error('Error:', error);
         alert('An error occurred while saving.');
     }
-    let maxRoomId = 530425233;
-        for (let room of rooms) {
-            if ( Number(room.room_id) > maxRoomId) {
-                maxRoomId = Number(room.room_id);
-            }
+
+    rooms.push({ room_id: newRoomId, name: projectName });
+    addProjectBtn.onclick = () => openProject(newRoomId)
+
+    try {
+        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(rooms) 
+        });
+
+        if (!response.ok) {
+            alert('Failed to save rooms.');
+            return
         }
-        rooms.push({ room_id: String(Number(maxRoomId)+1), name: projectName });
-
-        try {
-            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(rooms) 
-            });
-
-            if (!response.ok) {
-                alert('Failed to save rooms.');
-                return
-            }
-            
-        } catch (error) {
-            console.error('Error:', error);
-            alert('An error occurred while saving rooms.');
-        }
-        //refresh page
-    
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while saving rooms.');
+    }
+    //refresh page
 
 
-    
 
-        // try {
-        //     const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json'
-        //         },
-        //         body: JSON.stringify(rooms) 
-        //     });
 
-        //     if (!response.ok) {
-        //         alert('Failed to save rooms.');
-        //         return
-        //     }
-            
-        // } catch (error) {
-        //     console.error('Error:', error);
-        //     alert('An error occurred while saving rooms.');
-        // }
-        // //refresh page
-        // location.reload();
 
-   
+    // try {
+    //     const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify(rooms) 
+    //     });
+
+    //     if (!response.ok) {
+    //         alert('Failed to save rooms.');
+    //         return
+    //     }
+        
+    // } catch (error) {
+    //     console.error('Error:', error);
+    //     alert('An error occurred while saving rooms.');
+    // }
+    // //refresh page
+    // location.reload();
 
 
 
@@ -207,10 +214,10 @@ async function createNewProject(text) {
     // location.reload();
 }
 
-function openProject(projectName) {
+function openProject(projectId) {
     // alert('Opening ' + projectName);
     // window.location=`room.html?projectName=${projectName}`;
-    window.location.href=`room.html?project=${projectName}`;
+    window.location.href=`room.html?project=${projectId}`;
     // Here you can add the code to redirect to a different page or load project details
     // For example: window.location.href = 'project1.html';
 }

@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
     const roomsj = await datresp.json();
     rooms = roomsj.requests;
+    roomDict = {}
+    for (let room of rooms) {
+        roomDict[String(room.room_id)] = room;
+    }
     
     const table = document.getElementById('projectTable');
     const saveProjectsBtn = document.getElementById('saveProjectsBtn');
@@ -20,12 +24,19 @@ document.addEventListener('DOMContentLoaded', async () => {
         let row = addProject(false);
         row.innerHTML = room.name;
     }
+
+    console.log(roomDict, requests)
     
-    for (person in requests) {
+    for (let person of requests) {
         let row = createNewRow();
-        row.querySelector('#name-input').value = requests[person].name;
-        row.querySelector('#email-input').value = requests[person].email;
-        row.querySelector('.projects').innerText = requests[person].projects;
+        row.querySelector('#name-input').value = person.name;
+        row.querySelector('#email-input').value = person.email;
+        if (person.projects == '') {
+            continue;
+        }
+        row.querySelector('.projects').innerText = person.projects.split(', ').map(projectID => {
+            return roomDict[String(projectID)].name;
+        }).join(", ");
     }
 
     table.addEventListener('change', (e) => {
