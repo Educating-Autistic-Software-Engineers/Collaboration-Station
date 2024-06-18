@@ -65,17 +65,116 @@ function displayTiles() {
         tile.onclick = () => openProject(room);
         tileContainer.appendChild(tile);
     });
+    // const addProjectBtn = document.createElement('div');
+    // addProjectBtn.className = 'tile';
+    // tileContainer.appendChild(addProjectBtn);
+    // addProjectBtn.innerHTML = `
+    //     <p>Add Project</p>
+    //     <input id="addProjectEntry" style="width: 70%;"></input>
+    // `
+    // const textEntry = addProjectBtn.querySelector('#addProjectEntry');
+    // textEntry.addEventListener('click', (event) => event.stopPropagation());
+    // addProjectBtn.onclick = () => createNewProject(textEntry.value);
+    // addProjectBtn.getElementById('addProjectEntry').style = "display: none;"
+}
+
+async function addProject(){
+    console.log("Triggered");
     const addProjectBtn = document.createElement('div');
     addProjectBtn.className = 'tile';
     tileContainer.appendChild(addProjectBtn);
+    let projectName=prompt('Enter your project name');
+    console.log(projectName);
+    
+
     addProjectBtn.innerHTML = `
-        <p>Add Project</p>
-        <input id="addProjectEntry" style="width: 70%;"></input>
+        <p>${projectName}</p>
     `
-    const textEntry = addProjectBtn.querySelector('#addProjectEntry');
-    textEntry.addEventListener('click', (event) => event.stopPropagation());
-    addProjectBtn.onclick = () => createNewProject(textEntry.value);
-    // addProjectBtn.getElementById('addProjectEntry').style = "display: none;"
+    // document.getElementById("addProjectEntry").innerHTML=projectName;
+    // const textEntry = addProjectBtn.querySelector('#addProjectEntry');
+    // textEntry.addEventListener('click', (event) => event.stopPropagation());
+    // addProjectBtn.onclick = () => createNewProject(textEntry.value);
+    
+    console.log("going inside");
+
+    try {
+        console.log("inside");
+        console.log(roomId);
+        console.log(projectName);
+
+        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+
+            },
+            body: JSON.stringify({
+                email:roomId,
+                projects:projectName
+            }) 
+        });
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while saving.');
+    }
+    let maxRoomId = 530425233;
+        for (let room of rooms) {
+            if ( Number(room.room_id) > maxRoomId) {
+                maxRoomId = Number(room.room_id);
+            }
+        }
+        rooms.push({ room_id: String(Number(maxRoomId)+1), name: projectName });
+
+        try {
+            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(rooms) 
+            });
+
+            if (!response.ok) {
+                alert('Failed to save rooms.');
+                return
+            }
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred while saving rooms.');
+        }
+        //refresh page
+    
+
+
+    
+
+        // try {
+        //     const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json'
+        //         },
+        //         body: JSON.stringify(rooms) 
+        //     });
+
+        //     if (!response.ok) {
+        //         alert('Failed to save rooms.');
+        //         return
+        //     }
+            
+        // } catch (error) {
+        //     console.error('Error:', error);
+        //     alert('An error occurred while saving rooms.');
+        // }
+        // //refresh page
+        // location.reload();
+
+   
+
+
+
 }
 
 async function createNewProject(text) {

@@ -3535,18 +3535,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const DeleteButton = props => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-  "aria-label": "Delete",
-  className: classnames__WEBPACK_IMPORTED_MODULE_1___default()((_delete_button_css__WEBPACK_IMPORTED_MODULE_2___default().deleteButton), props.className),
-  role: "button",
-  tabIndex: props.tabIndex,
-  onClick: props.onClick
-}, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-  className: (_delete_button_css__WEBPACK_IMPORTED_MODULE_2___default().deleteButtonVisible)
-}, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("img", {
-  className: (_delete_button_css__WEBPACK_IMPORTED_MODULE_2___default().deleteIcon),
-  src: _icon_delete_svg__WEBPACK_IMPORTED_MODULE_3__
-})));
+const DeleteButton = props => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null);
 DeleteButton.propTypes = {
   className: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().string),
   onClick: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func).isRequired,
@@ -4551,7 +4540,8 @@ const GUIComponent = props => {
       stageSize: stageSize,
       theme: theme,
       vm: vm,
-      id: "blocks"
+      id: "blocks",
+      onActivateBlockTab: onActivateTab
     })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_box_box_jsx__WEBPACK_IMPORTED_MODULE_16__["default"], {
       className: (_gui_css__WEBPACK_IMPORTED_MODULE_32___default().extensionButtonContainer)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
@@ -4958,7 +4948,6 @@ class LibraryComponent extends react__WEBPACK_IMPORTED_MODULE_2__.Component {
       selectedTag: ALL_TAG.tag,
       loaded: false
     };
-    this.getFilteredData();
   }
   componentDidMount() {
     // Allow the spinner to display before loading the content
@@ -4968,6 +4957,7 @@ class LibraryComponent extends react__WEBPACK_IMPORTED_MODULE_2__.Component {
       });
     });
     if (this.props.setStopHandler) this.props.setStopHandler(this.handlePlayingEnd);
+    //console.log(JSON.stringify(this.getFilteredData()));
   }
   componentDidUpdate(prevProps, prevState) {
     if (prevState.filterQuery !== this.state.filterQuery || prevState.selectedTag !== this.state.selectedTag) {
@@ -5064,6 +5054,7 @@ class LibraryComponent extends react__WEBPACK_IMPORTED_MODULE_2__.Component {
     this.filteredDataRef = ref;
   }
   render() {
+    //console.log( JSON.stringify(this.getFilteredData()[3]))
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_containers_modal_jsx__WEBPACK_IMPORTED_MODULE_5__["default"], {
       fullScreen: true,
       contentLabel: this.props.title,
@@ -5112,7 +5103,8 @@ class LibraryComponent extends react__WEBPACK_IMPORTED_MODULE_2__.Component {
       showPlayButton: this.props.showPlayButton,
       onMouseEnter: this.handleMouseEnter,
       onMouseLeave: this.handleMouseLeave,
-      onSelect: this.handleSelect
+      onSelect: this.handleSelect,
+      parent: this
     })) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
       className: (_library_css__WEBPACK_IMPORTED_MODULE_10___default().spinnerWrapper)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_spinner_spinner_jsx__WEBPACK_IMPORTED_MODULE_9__["default"], {
@@ -12547,6 +12539,7 @@ let hasInited = false;
 let flag1 = false;
 let flag2 = false;
 let stopEmission = false;
+let lastTempId = 0;
 class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   constructor(props) {
     super(props);
@@ -12570,6 +12563,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         yield ably.connection.once("connected");
         _this.load();
         console.log("connected to Ably");
+        console.log(_components_library_library_jsx__WEBPACK_IMPORTED_MODULE_36__["default"].costumeIdsToData);
       }
     })();
   }
@@ -12737,7 +12731,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this2.idToAll = {};
         _this2.amountOfBlocks = 0;
         yield channel.subscribe('event', message => _this2.recieveInformation(message));
-        //await channel.subscribe('onSelect', (message) => this.spriteOnSelect(message));
+        yield channel.subscribe('onSelect', message => _this2.spriteOnSelect(message));
       }
     })();
   }
@@ -12746,12 +12740,16 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     return _asyncToGenerator(function* () {
       //if (blockEmission) {return}
 
-      let id = JSON.parse(msg.data).num;
-      console.log(msg, id);
-
-      //blockEmission = true;
-      _this3.props.onSelect(id);
-      //blockEmission = false;
+      const data = JSON.parse(msg.data);
+      let id = data.num;
+      console.log('ablySDFSDF', data, id);
+      const eventInfo = data.data;
+      _this3.stopEmission = true;
+      console.log(JSON.stringify(eventInfo));
+      _this3.props.vm.addSprite(JSON.stringify(eventInfo)).then(() => {
+        _this3.props.onActivateBlockTab(0);
+      });
+      _this3.stopEmission = false;
     })();
   }
   load() {
@@ -12781,6 +12779,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const jsonString = decoder.decode(concatenated);
         const data = JSON.parse(jsonString);
         _this4.props.vm.loadProject(data);
+
+        //this.props.vm.editingTarget.setCostume(1);
       } catch (error) {
         console.error('Error fetching data from S3:', error);
       }
@@ -12882,6 +12882,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this6.queue.push(message);
         return;
       }
+      console.log('player', message.target);
 
       //console.log(this.queue, this.queue.length, "sending");
       _this6.queue.push(message);
@@ -12899,7 +12900,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     })();
   }
   enableEmission() {
-    this.stopEmission = false;
+    if (this.stopEmission) {
+      this.stopEmission = false;
+      //console.log('rico', lastTempId)
+      //this.props.vm.setEditingTarget(lastTempId);
+    }
   }
   recieveInformation(message) {
     var _this7 = this;
@@ -12915,6 +12920,16 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           return;
         }
       }
+      let ogTarget = _this7.props.vm.editingTarget;
+      lastTempId = ogTarget.id;
+      console.log("og", ogTarget);
+      const tmpTarget = _this7.props.vm.runtime.getSpriteTargetByName(data.target);
+      _this7.props.vm.setEditingTarget(tmpTarget.id);
+      console.log(tmpTarget.id, ogTarget.id);
+
+      //wait like 0.1 seconds
+      // await new Promise(resolve => setTimeout(resolve, 10000));
+
       if (_this7.workspace.getBlockById(data.event.blockId) == null && data.event.type != "create") {
         console.log(message, "discarded because block does not exist");
         return;
@@ -12925,19 +12940,20 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this7.holdingBlock = false;
       }
       console.log(message, "recieved");
-      let ogTarget = _this7.props.vm.editingTarget;
-      _this7.props.vm.editingTarget = _this7.props.vm.runtime.getSpriteTargetByName(data.target);
-      _this7.props.vm.runtime._editingTarget = _this7.props.vm.editingTarget;
       const event = _this7.ScratchBlocks.Events.fromJson(data.event, _this7.workspace);
-      const qselect = document.querySelector('.blocklyWorkspace');
       try {
         //console.log(this.ScratchBlocks)
         //this.ScratchBlocks.serialization.load();
         _this7.stopEmission = true;
         if (!(event.type == "ui")) {
+          // console.log("running")
+          // console.log(event)
+          // console.log(this.props.vm.runtime.getSpriteTargetByName("Sprite1"))
+          // console.log(data.target, this.props.vm.editingTarget)
           yield event.run(true); // handles block
         } else {
           _this7.props.vm.editingTarget.blocks.blocklyListen(event); //runs the block
+          //this.props.vm.setEditingTarget(ogTarget.id);
         }
       } catch (e) {
         console.error(e);
@@ -12945,8 +12961,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       if (event.type == "ui") {
         _this7.stopEmission = false;
       }
-      _this7.props.vm.editingTarget = ogTarget;
-      _this7.props.vm.runtime._editingTarget = _this7.props.vm.editingTarget;
+
+      // this.props.vm.editingTarget = ogTarget;
+      // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
+      // this.props.vm.setEditingTarget(ogTarget.id);
     })();
   }
   attachVM() {
@@ -13837,8 +13855,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_25___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_25__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_26___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_26__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash.bindall */ "./node_modules/lodash.bindall/index.js");
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash_bindall__WEBPACK_IMPORTED_MODULE_1__);
@@ -13866,6 +13884,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _components_action_menu_icon_search_svg__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../components/action-menu/icon--search.svg */ "./src/components/action-menu/icon--search.svg");
 /* harmony import */ var _lib_libraries_costumes_json__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../lib/libraries/costumes.json */ "./src/lib/libraries/costumes.json");
 /* harmony import */ var _lib_libraries_backdrops_json__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../lib/libraries/backdrops.json */ "./src/lib/libraries/backdrops.json");
+/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -13896,6 +13915,14 @@ function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = 
 
 
 
+
+
+
+// import {ablyInstance, ablyChannel} from '../lib/ably';
+
+const channel = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_25__.ablyInstance.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_25__.ablySpace);
+
+// const channel = ablyInstance.channels.get(ablyChannel);
 
 let messages = (0,react_intl__WEBPACK_IMPORTED_MODULE_2__.defineMessages)({
   addLibraryBackdropMsg: {
@@ -13943,6 +13970,7 @@ class CostumeTab extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         selectedCostumeIndex: 0
       };
     }
+    channel.subscribe('deleteCostume', msg => this.deleteCostume(msg));
   }
   componentWillReceiveProps(nextProps) {
     const {
@@ -13974,12 +14002,18 @@ class CostumeTab extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     }
   }
   handleSelectCostume(costumeIndex) {
+    console.log("BRUH");
     this.props.vm.editingTarget.setCostume(costumeIndex);
     this.setState({
       selectedCostumeIndex: costumeIndex
     });
   }
   handleDeleteCostume(costumeIndex) {
+    console.log('ablylol', costumeIndex);
+    channel.publish('deleteCostume', JSON.stringify(costumeIndex));
+  }
+  deleteCostume(msg) {
+    const costumeIndex = JSON.parse(msg.data);
     const restoreCostumeFun = this.props.vm.deleteCostume(costumeIndex);
     this.props.dispatchUpdateRestore({
       restoreFun: restoreCostumeFun,
@@ -14158,30 +14192,30 @@ class CostumeTab extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
   }
 }
 CostumeTab.propTypes = {
-  dispatchUpdateRestore: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().func),
-  editingTarget: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().string),
+  dispatchUpdateRestore: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().func),
+  editingTarget: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().string),
   intl: react_intl__WEBPACK_IMPORTED_MODULE_2__.intlShape,
-  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().bool),
-  onActivateSoundsTab: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().func).isRequired,
-  onCloseImporting: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().func).isRequired,
-  onNewLibraryBackdropClick: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().func).isRequired,
-  onNewLibraryCostumeClick: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().func).isRequired,
-  onShowImporting: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().func).isRequired,
-  sprites: prop_types__WEBPACK_IMPORTED_MODULE_25___default().shape({
-    id: prop_types__WEBPACK_IMPORTED_MODULE_25___default().shape({
-      costumes: prop_types__WEBPACK_IMPORTED_MODULE_25___default().arrayOf(prop_types__WEBPACK_IMPORTED_MODULE_25___default().shape({
-        url: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().string),
-        name: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().string).isRequired,
-        skinId: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().number)
+  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().bool),
+  onActivateSoundsTab: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().func).isRequired,
+  onCloseImporting: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().func).isRequired,
+  onNewLibraryBackdropClick: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().func).isRequired,
+  onNewLibraryCostumeClick: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().func).isRequired,
+  onShowImporting: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().func).isRequired,
+  sprites: prop_types__WEBPACK_IMPORTED_MODULE_26___default().shape({
+    id: prop_types__WEBPACK_IMPORTED_MODULE_26___default().shape({
+      costumes: prop_types__WEBPACK_IMPORTED_MODULE_26___default().arrayOf(prop_types__WEBPACK_IMPORTED_MODULE_26___default().shape({
+        url: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().string),
+        name: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().string).isRequired,
+        skinId: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().number)
       }))
     })
   }),
-  stage: prop_types__WEBPACK_IMPORTED_MODULE_25___default().shape({
-    sounds: prop_types__WEBPACK_IMPORTED_MODULE_25___default().arrayOf(prop_types__WEBPACK_IMPORTED_MODULE_25___default().shape({
-      name: (prop_types__WEBPACK_IMPORTED_MODULE_25___default().string).isRequired
+  stage: prop_types__WEBPACK_IMPORTED_MODULE_26___default().shape({
+    sounds: prop_types__WEBPACK_IMPORTED_MODULE_26___default().arrayOf(prop_types__WEBPACK_IMPORTED_MODULE_26___default().shape({
+      name: (prop_types__WEBPACK_IMPORTED_MODULE_26___default().string).isRequired
     }))
   }),
-  vm: prop_types__WEBPACK_IMPORTED_MODULE_25___default().instanceOf((scratch_vm__WEBPACK_IMPORTED_MODULE_3___default()))
+  vm: prop_types__WEBPACK_IMPORTED_MODULE_26___default().instanceOf((scratch_vm__WEBPACK_IMPORTED_MODULE_3___default()))
 };
 const mapStateToProps = state => ({
   editingTarget: state.scratchGui.targets.editingTarget,
@@ -15282,7 +15316,6 @@ class LibraryItem extends react__WEBPACK_IMPORTED_MODULE_1__.PureComponent {
     if (this.id != data.index) {
       return;
     }
-    console.log(this.props);
     let onum = data.num;
     console.log(onum);
     //this.props.onSelect(onum);
@@ -15297,12 +15330,14 @@ class LibraryItem extends react__WEBPACK_IMPORTED_MODULE_1__.PureComponent {
     var _this2 = this;
     return _asyncToGenerator(function* () {
       e.persist();
-      console.log(e);
+      _this2.props.parent.handleClose();
+      const data = _this2.props.parent.getFilteredData();
       if (!_this2.props.disabled) {
         e.preventDefault();
         yield channel.publish('onSelect', JSON.stringify({
           'num': _this2.props.id,
-          'index': _this2.id
+          'index': _this2.id,
+          'data': data[_this2.props.id]
         }));
       }
     })();
@@ -20081,6 +20116,7 @@ class TargetPane extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
     });
   }
   handleSelectSprite(id) {
+    console.log(id);
     this.props.vm.setEditingTarget(id);
     if (this.props.stage && id !== this.props.stage.id) {
       this.props.onHighlightTarget(id);
@@ -42941,4 +42977,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.0072e7ea93f7de0e9bbf.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.5291f9ac505e0ee8066e.js.map
