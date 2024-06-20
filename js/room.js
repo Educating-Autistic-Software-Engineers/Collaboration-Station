@@ -7,6 +7,11 @@ const memberButton = document.getElementById('members__button');
 const chatContainer = document.getElementById('messages__container');
 const chatButton = document.getElementById('chat__button');
 
+const rightBar = document.getElementById('right_bar');
+const streamContainer = document.getElementById('stream__container');
+const chatPanel = document.getElementById('messages__container');
+const containerRect = rightBar.getBoundingClientRect()
+
 let activeMemberContainer = false;
 let isDragging = false;
 
@@ -15,6 +20,15 @@ const queryString = window.location.search
 const urlParams = new URLSearchParams(queryString)
 let roomId = urlParams.get('project')
 
+let roomDict = {}
+async function load() {
+  const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
+  const roomsj = await datresp.json();
+  const rooms = roomsj.requests;
+  for (let room of rooms) {
+    roomDict[room.room_id] = room;
+  }
+}
 
 if (sessionStorage.getItem('email') == null) {
   window.location.href = 'index.html';
@@ -40,9 +54,14 @@ chatButton.addEventListener('click', () => {
   }
 
   activeChatContainer = !activeChatContainer;
-  moveSlider({clientY: 140}, true);
+  if (activeChatContainer) {
+    moveSlider({clientY: 140}, true);
+  } else {
+    moveSlider({clientY: containerRect.height}, true);
+  }
 });
 
+moveSlider({clientY: containerRect.height}, true);
 let displayFrame = document.getElementById('stream__box')
 let videoFrames = document.getElementsByClassName('video__container')
 let userIdInDisplayFrame = null;
@@ -88,19 +107,20 @@ let hideDisplayFrame = () => {
 displayFrame.addEventListener('click', hideDisplayFrame)
 
 function moveSlider(event, ov=false) {
-  const rightBar = document.getElementById('right_bar');
-  const streamContainer = document.getElementById('stream__container');
-  const chatPanel = document.getElementById('messages__container');
 
   if (!isDragging && !ov) return;
   
-  const containerRect = rightBar.getBoundingClientRect();
+  //const containerRect = rightBar.getBoundingClientRect();
   let offsetY = event.clientY - containerRect.top;
 
-  if (offsetY < 140) offsetY = 140;
-  if (offsetY > containerRect.height) offsetY = containerRect.height;
+  if (offsetY < 200) offsetY = 200;
+  if (offsetY > containerRect.height * 0.8 && !ov) offsetY = containerRect.height *0.8;
 
-  const topHeight = offsetY - 80;
+  setSliderPosition(offsetY);
+}
+
+function setSliderPosition(offsetY) {
+  const topHeight = offsetY - 163;
   const bottomHeight = containerRect.height - offsetY;
 
   streamContainer.style.height = topHeight + 'px';
@@ -109,16 +129,17 @@ function moveSlider(event, ov=false) {
   slider.style.top = (offsetY - (slider.clientHeight / 2)) + 'px';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await load()
   
   const openChatBtn = document.getElementById('openChatBtn');
   const closeChatBtn = document.getElementById('closeChatBtn');
   const projectsButton = document.getElementById('create__room__btn');
   const slider = document.getElementById('slider');
-  const rightBar = document.getElementById('right_bar');
-  const streamContainer = document.getElementById('stream__container');
-  const chatPanel = document.getElementById('messages__container');
   const iFrame = document.getElementById("main-stream");
+  const projectNameTextEdit = document.getElementById('room_label');
+
+  projectNameTextEdit.value = roomDict[roomId].name;
 
   iFrame.src = "vm/index.html?space=" + roomId.toString() + "&name=" + sessionStorage.getItem('display_name');
 

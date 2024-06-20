@@ -549,8 +549,15 @@ const YourCursor = _ref => {
     className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursorName)
   }, "You"));
 };
+const hashCode = function hashCode(s) {
+  return s.split("").reduce(function (a, b) {
+    a = (a << 5) - a + b.charCodeAt(0);
+    return a & a;
+  }, 0);
+};
 const MemberCursors = () => {
   const [cursors, setCursors] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({});
+  const randomColors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF"];
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     const handleCursorMessage = message => {
       const {
@@ -561,7 +568,7 @@ const MemberCursors = () => {
       setCursors(prevCursors => _objectSpread(_objectSpread({}, prevCursors), {}, {
         [clientId]: {
           position,
-          cursorColor: "#00FF00",
+          cursorColor: randomColors[hashCode(clientId) % randomColors.length],
           name: clientId
         }
       }));
