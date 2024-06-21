@@ -36,62 +36,16 @@ Installation
 > git clone https://github.com/Educating-Autistic-Software-Engineers/collaborationStation.git
 > cd collaboration-station
 
-2. Install dependencies:
+2. Run the repository:
 
-npm install
-Running the Project
-1. Start MongoDB:
-
-brew services start mongodb-community@6.0
-
-2. Start the server:
-
-npm start
-
-3. Open your browser and navigate to:
-
-http://localhost:3000
-
-
-3. Usage
-Registering a New User
-Open the registration form on the home page.
-Enter a username and password.
-Click the "Register" button.
-Upon successful registration, you will be redirected to the lobby page.
-Logging In
-Open the login form on the home page.
-Enter your username and password.
-Click the "Login" button.
-Upon successful login, you will be redirected to the lobby page.
-Using Single Sign-On (SSO)
-Click the "Login with Auth0" link on the home page.
-You will be redirected to the Auth0 login page.
-Log in with your social account (eg. Google).
-Upon successful login, you will be redirected to the lobby page.
-Navigating the Lobby and Rooms
-The lobby page allows you to join or create new rooms.
-Once in a room, you can collaborate with other users using the real-time features provided by Agora.
-
-4. Key Files and Directories
-/auth: Contains backend code for authentication, server setup, and user model.
-/mumble2: Contains files related to the collaborative environment using Agora.
-
-
-5. Auth0 Integration
-Setting Up Auth0
-Sign up for an Auth0 account.
-Create a new application in the Auth0 dashboard.
-Configure the callback URL to http://localhost:3000/callback.
-Configuring Auth0 in the Project
-Update the authConfig object in server.js with your Auth0 domain, client ID, and client secret.
+> Run index.html in a web browser
 
 6. Agora Integration
 Setting Up Agora
 Sign up for an Agora account.
 Create a new project in the Agora dashboard to get your App ID.
 Configuring Agora in the Project
-Add your Agora App ID to the relevant JavaScript files in the /mumble2/js directory.
+Add your Agora App ID to the relevant JavaScript files in the /js directory.
 
 7. Contributing
 Contribution Guidelines
