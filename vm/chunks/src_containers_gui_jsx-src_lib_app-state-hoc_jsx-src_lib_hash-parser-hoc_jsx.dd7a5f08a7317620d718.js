@@ -10476,7 +10476,7 @@ const StageComponent = props => {
     }
   }, boxProps)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_box_box_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
     className: (_stage_css__WEBPACK_IMPORTED_MODULE_12___default().monitorWrapper)
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_containers_monitor_list_jsx__WEBPACK_IMPORTED_MODULE_5__["default"], {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     draggable: useEditorDragStyle,
     stageSize: stageDimensions
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_box_box_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
@@ -12577,7 +12577,15 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         this.sendInformation(ev);
         this.queue.length = 0;
       }
-    }, 75);
+    }, 50);
+    setInterval(() => {
+      // console.log(this.ScratchBlocks.WorkspaceDragger.prototype);
+      // let fun = this.ScratchBlocks.WorkspaceDragger.prototype.updateScroll_.bind(this.ScratchBlocks.WorkspaceDragger.prototype);
+      // fun(3,4);
+      // try {
+      //     console.log('routine',this.props.vm.runtime.getSpriteTargetByName("Sprite2").sprite['costumes'][0].assetId)
+      // } catch (e) {}
+    }, 500);
     console.log("constructed");
   }
   initAbly() {
@@ -12794,10 +12802,32 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       const isVector = data.isVector;
       const costumeIndex = data.selectedIdx;
       if (isVector) {
-        _this4.props.vm.updateSvg(costumeIndex, image, rotationCenterX, rotationCenterY);
+        _this4.props.vm.updateSvg(costumeIndex, image, rotationCenterX, rotationCenterY, data.editingTarget);
       } else {
         _this4.props.vm.updateBitmap(costumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */);
       }
+      const target = _this4.props.vm.editingTarget;
+      const assetId = target.sprite['costumes'][costumeIndex].assetId;
+      const targetURL = "https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/images?fileName=".concat(assetId, ".svg");
+      const res = yield fetch(targetURL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'image/svg+xml'
+        },
+        body: image
+      });
+      const res2 = yield fetch("https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/assetID", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: "[".concat(JSON.stringify({
+          assetID: assetId,
+          isCustom: "True"
+        }), "]")
+      });
+      console.log(res2);
+      console.log('post', assetId);
     })();
   }
   load() {
@@ -12826,36 +12856,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const concatenated = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []));
         const jsonString = decoder.decode(concatenated);
         const data = JSON.parse(jsonString);
-        _this5.props.vm.loadProject(data);
+        yield _this5.props.vm.loadProject(data);
 
         //this.props.vm.editingTarget.setCostume(1);
       } catch (error) {
         console.error('Error fetching data from S3:', error);
       }
+
+      // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Apple");
+      // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Taco");
+
       _this5.stopEmission = false;
       return;
-      try {
-        _this5.props.vm.loadProject(JSON.parse('{"targets":[{"isStage":true,"name":"Stage","variables":{"`jEk@4|i[#Fk?(8x)AV.-my variable":["my variable",0]},"lists":{},"broadcasts":{},"blocks":{},"comments":{},"currentCostume":0,"costumes":[{"name":"backdrop1","dataFormat":"svg","assetId":"cd21514d0531fdffb22204e0ec5ed84a","md5ext":"cd21514d0531fdffb22204e0ec5ed84a.svg","rotationCenterX":240,"rotationCenterY":180}],"sounds":[{"name":"pop","assetId":"83a9787d4cb6f3b7632b4ddfebf74367","dataFormat":"wav","format":"","rate":48000,"sampleCount":1124,"md5ext":"83a9787d4cb6f3b7632b4ddfebf74367.wav"}],"volume":100,"layerOrder":0,"tempo":60,"videoTransparency":50,"videoState":"on","textToSpeechLanguage":null},{"isStage":false,"name":"Sprite1","variables":{},"lists":{},"broadcasts":{},"blocks":{"S4oK%;yykT[:kPVE`NFV":{"opcode":"event_whenflagclicked","next":"wCbbM|x*~E=/G=`;x=6w","parent":null,"inputs":{},"fields":{},"shadow":false,"topLevel":true,"x":140,"y":300},"wCbbM|x*~E=/G=`;x=6w":{"opcode":"control_forever","next":null,"parent":"S4oK%;yykT[:kPVE`NFV","inputs":{"SUBSTACK":[2,"W+yyUkzEM4aJ_%vY%t{5"]},"fields":{},"shadow":false,"topLevel":false},"W+yyUkzEM4aJ_%vY%t{5":{"opcode":"motion_movesteps","next":null,"parent":"wCbbM|x*~E=/G=`;x=6w","inputs":{"STEPS":[1,[4,"10"]]},"fields":{},"shadow":false,"topLevel":false},"c?s3VfG__bR-`::H-y$m":{"opcode":"motion_glideto","next":null,"parent":null,"inputs":{"SECS":[1,[4,"1"]],"TO":[1,"*,]WR]2Lv?O]F{C:j|h7"]},"fields":{},"shadow":false,"topLevel":true,"x":-358,"y":431},"*,]WR]2Lv?O]F{C:j|h7":{"opcode":"motion_glideto_menu","next":null,"parent":"c?s3VfG__bR-`::H-y$m","inputs":{},"fields":{"TO":["_random_",null]},"shadow":true,"topLevel":false}},"comments":{},"currentCostume":0,"costumes":[{"name":"costume1","bitmapResolution":1,"dataFormat":"svg","assetId":"bcf454acf82e4504149f7ffe07081dbc","md5ext":"bcf454acf82e4504149f7ffe07081dbc.svg","rotationCenterX":48,"rotationCenterY":50},{"name":"costume2","bitmapResolution":1,"dataFormat":"svg","assetId":"0fb9be3e8397c983338cb71dc84d0b25","md5ext":"0fb9be3e8397c983338cb71dc84d0b25.svg","rotationCenterX":46,"rotationCenterY":53}],"sounds":[{"name":"Meow","assetId":"83c36d806dc92327b9e7049a565c6bff","dataFormat":"wav","format":"","rate":48000,"sampleCount":40682,"md5ext":"83c36d806dc92327b9e7049a565c6bff.wav"}],"volume":100,"layerOrder":1,"visible":true,"x":135.2941176470588,"y":12.941176470588236,"size":100,"direction":90,"draggable":false,"rotationStyle":"all around"},{"isStage":false,"name":"Sprite2","variables":{},"lists":{},"broadcasts":{},"blocks":{"6uNQBhr]*mkF=[4^:S?n":{"opcode":"control_forever","next":null,"parent":null,"inputs":{},"fields":{},"shadow":false,"topLevel":true,"x":150,"y":169}},"comments":{},"currentCostume":0,"costumes":[{"name":"costume1","bitmapResolution":1,"dataFormat":"svg","assetId":"f9735c2ba8726ff35190cdbc9db99e61","md5ext":"f9735c2ba8726ff35190cdbc9db99e61.svg","rotationCenterX":233.15970879661072,"rotationCenterY":111.55723461857536}],"sounds":[{"name":"pop","assetId":"83a9787d4cb6f3b7632b4ddfebf74367","dataFormat":"wav","format":"","rate":48000,"sampleCount":1124,"md5ext":"83a9787d4cb6f3b7632b4ddfebf74367.wav"}],"volume":100,"layerOrder":2,"visible":true,"x":36,"y":28,"size":100,"direction":90,"draggable":false,"rotationStyle":"all around"}],"monitors":[],"extensions":[],"meta":{"semver":"3.0.0","vm":"4.2.0","agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:126.0) Gecko/20100101 Firefox/126.0"}}'));
-      } catch (error) {
-        console.error('Error checking email:', error);
-      }
-      return;
-      try {
-        const response = yield fetch("https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/save");
-        console.log(response);
-        console.log(response.ok);
-        const data = yield response.json();
-        const info = data.requests;
-        for (let ssheet of info) {
-          const sheet = JSON.parse(ssheet)["scratchblockid"];
-          console.log(sheet);
-          _this5.props.vm.loadProject(sheet);
-        }
-        //console.log(data);
-        //return data.requestId;
-      } catch (error) {
-        console.error('Error checking email:', error);
-      }
     })();
   }
   ret() {
@@ -12870,33 +12882,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         body: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace + "~|@^|@|~" + s
       });
       return;
-
-      /*
-      let s = JSON.stringify(this.props.vm.toJSON(), null, 2);
-       fs.writeFile("example.json", s, (err) => {
-          if (err) {
-              console.error('Error writing to file:', err);
-          } else {
-              console.log('JSON file written successfully');
-          }
-      });
-      */
-
-      return;
-      try {
-        const response = yield fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register', {
-          method: 'POST',
-          body: s
-        });
-        if (response.ok) {
-          alert('Projects saved successfully!');
-        } else {
-          alert('Failed to save projects.');
-        }
-      } catch (error) {
-        //console.error('Error:', error);
-        //alert('An error occurred while saving projects.');
-      }
     })();
   }
 
@@ -12905,6 +12890,17 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   sendInformation(eve) {
     var _this7 = this;
     return _asyncToGenerator(function* () {
+      let parentID = -1;
+      let childIDX = -1;
+      if (eve.element == "field") {
+        const parentBlock = _this7.workspace.getBlockById(eve.blockId).parentBlock_;
+        parentID = parentBlock.id;
+        for (let childBlock of parentBlock.childBlocks_) {
+          if (childBlock.id == eve.blockId) {
+            childIDX = parentBlock.childBlocks_.indexOf(childBlock);
+          }
+        }
+      }
       if (_this7.stopEmission || _this7.holdingBlock) {
         return;
       }
@@ -12952,7 +12948,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       const message = {
         uid: nid,
         target: _this7.props.vm.editingTarget.sprite.name,
-        messages: _this7.queue
+        messages: _this7.queue,
+        parentID: parentID,
+        childIDX: childIDX
       };
       _this7.queueFurtherSends = true;
       yield channel.publish('event', JSON.stringify(message));
@@ -12987,6 +12985,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       const tmpTarget = _this8.props.vm.runtime.getSpriteTargetByName(data.target);
       _this8.props.vm.setEditingTarget(tmpTarget.id);
       for (let message of data.messages) {
+        // this is for text entries; for some reason their IDs get changed when saved.
+        // so, it sends the index of the parent node (a normal block) and the index of the child node to extract the text entry box
+        if (data.parentID != -1) {
+          message.blockId = _this8.workspace.getBlockById(data.parentID).childBlocks_[data.childIDX].id;
+        }
         console.log('parsing!!', message);
         yield _this8.parseEvent(message);
       }
@@ -13006,10 +13009,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       //     }
       // }
 
+      // if (event.type == "change") {
+      //     this.find_closest(event)
+      // }
+
       if (_this9.workspace.getBlockById(event.blockId) == null && event.type != "create") {
         console.log(event, "discarded because block does not exist");
         // refresh page
-        window.location.reload();
+        yield _this9.load();
         return;
       }
       if (event.type == "create") {
@@ -13042,9 +13049,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     })();
   }
   attachVM() {
+    var _this10 = this;
     let oldEWU = this.props.vm.emitWorkspaceUpdate.bind(this.props.vm);
     this.props.vm.emitWorkspaceUpdate = function () {
-      console.log("Hi");
       oldEWU();
     };
     this.workspace.addChangeListener(this.props.vm.blockListener);
@@ -13060,6 +13067,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.props.vm.addListener('BLOCK_GLOW_OFF', this.onBlockGlowOff);
     this.props.vm.addListener('VISUAL_REPORT', this.onVisualReport);
     this.props.vm.addListener('workspaceUpdate', this.onWorkspaceUpdate);
+    this.props.vm.addListener('workspaceUpdate', () => {
+      sessionStorage.setItem('editingTarget', this.props.vm.editingTarget.sprite.name);
+      console.log("moved to ", this.props.vm.editingTarget.sprite.name);
+    });
     this.props.vm.addListener('targetsUpdate', this.onTargetsUpdate);
     this.props.vm.addListener('MONITORS_UPDATE', this.handleMonitorsUpdate);
     this.props.vm.addListener('EXTENSION_ADDED', this.handleExtensionAdded);
@@ -13076,16 +13087,205 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       };
     }();
     channel.subscribe('newSprite', message => ogAddSprite(JSON.parse(message.data)));
+    let ogAddBackdrop = this.props.vm.addBackdrop.bind(this.props.vm);
+    this.props.vm.addBackdrop = /*#__PURE__*/function () {
+      var _ref2 = _asyncToGenerator(function* (md5, vmBackdrop) {
+        console.log('new backdrop');
+        const msg = {
+          m5: md5,
+          vmb: vmBackdrop
+        };
+        channel.publish('newBackdrop', JSON.stringify(msg));
+      });
+      return function (_x2, _x3) {
+        return _ref2.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('newBackdrop', message => {
+      const d = JSON.parse(message.data);
+      ogAddBackdrop(d.m5, d.vmb);
+    });
+    let ogRenameSprite = this.props.vm.renameSprite.bind(this.props.vm);
+    this.props.vm.renameSprite = /*#__PURE__*/function () {
+      var _ref3 = _asyncToGenerator(function* (id, name) {
+        const msg = {
+          id: id,
+          name: name
+        };
+        channel.publish('renameSprite', JSON.stringify(msg));
+      });
+      return function (_x4, _x5) {
+        return _ref3.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('renameSprite', message => {
+      const d = JSON.parse(message.data);
+      ogRenameSprite(d.id, d.name);
+    });
+    let ogDuplicateSprite = this.props.vm.duplicateSprite.bind(this.props.vm);
+    this.props.vm.duplicateSprite = /*#__PURE__*/function () {
+      var _ref4 = _asyncToGenerator(function* (id) {
+        return channel.publish('duplicateSprite', JSON.stringify(id));
+      });
+      return function (_x6) {
+        return _ref4.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('duplicateSprite', message => {
+      ogDuplicateSprite(JSON.parse(message.data));
+    });
+    let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
+    this.props.vm.deleteSound = /*#__PURE__*/function () {
+      var _ref5 = _asyncToGenerator(function* (soundIndex) {
+        const ret = yield channel.publish('deleteSound', JSON.stringify(soundIndex));
+        return ret;
+      });
+      return function (_x7) {
+        return _ref5.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('deleteSound', message => {
+      ogDeleteSound(JSON.parse(message.data));
+    });
+    let ogAddSound = this.props.vm.addSound.bind(this.props.vm);
+    this.props.vm.addSound = /*#__PURE__*/function () {
+      var _ref6 = _asyncToGenerator(function* (sound, idx) {
+        const msg = {
+          sound: sound,
+          idx: idx
+        };
+        return channel.publish('addSound', JSON.stringify(msg));
+      });
+      return function (_x8, _x9) {
+        return _ref6.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('addSound', message => {
+      const d = JSON.parse(message.data);
+      ogAddSound(d.sound, d.idx);
+    });
+    let ogRenameSound = this.props.vm.renameSound.bind(this.props.vm);
+    this.props.vm.renameSound = /*#__PURE__*/function () {
+      var _ref7 = _asyncToGenerator(function* (soundIndex, newName) {
+        const msg = {
+          soundIndex: soundIndex,
+          newName: newName
+        };
+        channel.publish('renameSound', JSON.stringify(msg));
+      });
+      return function (_x10, _x11) {
+        return _ref7.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('renameSound', message => {
+      const d = JSON.parse(message.data);
+      ogRenameSound(d.soundIndex, d.newName);
+    });
+    let ogDeleteCostume = this.props.vm.deleteCostume.bind(this.props.vm);
+    this.props.vm.deleteCostume = /*#__PURE__*/function () {
+      var _ref8 = _asyncToGenerator(function* (costumeIndex) {
+        const ret = yield channel.publish('deleteCostume', JSON.stringify(costumeIndex));
+        return ret;
+      });
+      return function (_x12) {
+        return _ref8.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('deleteCostume', message => {
+      ogDeleteCostume(JSON.parse(message.data));
+    });
+    let ogAddCostumeFromLibrary = this.props.vm.addCostumeFromLibrary.bind(this.props.vm);
+    this.props.vm.addCostumeFromLibrary = /*#__PURE__*/function () {
+      var _ref9 = _asyncToGenerator(function* (md5, costumeOBject) {
+        const msg = {
+          md5: md5,
+          costumeOBject: costumeOBject
+        };
+        return channel.publish('addCostumeFromLibrary', JSON.stringify(msg));
+      });
+      return function (_x13, _x14) {
+        return _ref9.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('addCostumeFromLibrary', message => {
+      const d = JSON.parse(message.data);
+      ogAddCostumeFromLibrary(d.md5, d.costumeOBject);
+    });
+    let ogDupeCostume = this.props.vm.duplicateCostume.bind(this.props.vm);
+    this.props.vm.duplicateCostume = /*#__PURE__*/function () {
+      var _ref10 = _asyncToGenerator(function* (costumeIndex) {
+        const ret = yield channel.publish('duplicateCostume', JSON.stringify(costumeIndex));
+        return ret;
+      });
+      return function (_x15) {
+        return _ref10.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('duplicateCostume', message => {
+      ogDupeCostume(JSON.parse(message.data));
+    });
 
-    // let ogPostSpriteInfo = () => {
-    //     this.props.vm.postSpriteInfo.bind(this.props.vm)();
-    //     this.props.vm.renderer.draw();
-    // };
-    // this.props.vm.postSpriteInfo = async (data) => {
-    //     channel.publish('spriteInfo', JSON.stringify(data));
-    // }
-    // channel.subscribe('spriteInfo', (message) => ogPostSpriteInfo(JSON.parse(message.data)));
-
+    //let ogRenameCostume = this.props.vm.renameCostume.bind(this.props.vm);
+    this.props.vm.renameCostume = /*#__PURE__*/function () {
+      var _ref11 = _asyncToGenerator(function (costumeIndex, newName) {
+        let spriteName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
+        return function* () {
+          if (spriteName == null) spriteName = _this10.props.vm.editingTarget.sprite.name;
+          const msg = {
+            costumeIndex: costumeIndex,
+            newName: newName,
+            spriteName: spriteName
+          };
+          channel.publish('renameCostume', JSON.stringify(msg));
+        }();
+      });
+      return function (_x16, _x17) {
+        return _ref11.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('renameCostume', message => {
+      const d = JSON.parse(message.data);
+      this.props.vm.runtime.getSpriteTargetByName(d.spriteName).renameCostume(d.costumeIndex, d.newName);
+      this.props.vm.emitTargetsUpdate();
+    });
+    let ogAddCostume = this.props.vm.addCostume.bind(this.props.vm);
+    this.props.vm.addCostume = function (md5, costumeOBject, optTarget, optVersion) {
+      const msg = {
+        md5: md5,
+        costumeOBject: costumeOBject,
+        optTarget: optTarget,
+        optVersion: optVersion
+      };
+      return channel.publish('addCostume', JSON.stringify(msg));
+    };
+    channel.subscribe('addCostume', message => {
+      const d = JSON.parse(message.data);
+      ogAddCostume(d.md5, d.costumeOBject, d.optTarget, d.optVersion);
+    });
+    this.props.vm.updateSvg = function (costumeIndex, svg, rotationCenterX, rotationCenterY) {
+      let targetName = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "";
+      console.log(this);
+      var target;
+      if (targetName == "") target = this.editingTarget;else target = this.runtime.getSpriteTargetByName(targetName);
+      const costume = target.getCostumes()[costumeIndex];
+      if (costume && costume.broken) delete costume.broken;
+      if (costume && this.runtime && this.runtime.renderer) {
+        costume.rotationCenterX = rotationCenterX;
+        costume.rotationCenterY = rotationCenterY;
+        this.runtime.renderer.updateSVGSkin(costume.skinId, svg, [rotationCenterX, rotationCenterY]);
+        costume.size = this.runtime.renderer.getSkinSize(costume.skinId);
+      }
+      const storage = this.runtime.storage;
+      // If we're in here, we've edited an svg in the vector editor,
+      // so the dataFormat should be 'svg'
+      costume.dataFormat = storage.DataFormat.SVG;
+      costume.bitmapResolution = 1;
+      costume.asset = storage.createAsset(storage.AssetType.ImageVector, costume.dataFormat, new TextEncoder().encode(svg), null, true // generate md5
+      );
+      costume.assetId = costume.asset.assetId;
+      costume.md5 = "".concat(costume.assetId, ".").concat(costume.dataFormat);
+      this.emitTargetsUpdate();
+    }.bind(this.props.vm);
     this.initInformation.bind(this)();
   }
   detachVM() {
@@ -13288,6 +13488,16 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   }
   setBlocks(blocks) {
     this.blocks = blocks;
+
+    // MARKER
+    const ogUpdateScroll = this.ScratchBlocks.WorkspaceDragger.prototype.updateScroll_;
+    this.ScratchBlocks.WorkspaceDragger.prototype.updateScroll_ = function (x, y) {
+      (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.setDragRelative)({
+        x: x,
+        y: y
+      });
+      ogUpdateScroll.call(this, x, y);
+    };
   }
   handlePromptStart(message, defaultValue, callback, optTitle, optVarType) {
     const p = {
@@ -13439,7 +13649,7 @@ Blocks.defaultOptions = {
   grid: {
     spacing: 40,
     length: 2,
-    colour: '#ddd'
+    colour: '#999'
   },
   comments: true,
   collapse: false,
@@ -14096,14 +14306,12 @@ class CostumeTab extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     }
   }
   handleSelectCostume(costumeIndex) {
-    console.log("BRUH");
     this.props.vm.editingTarget.setCostume(costumeIndex);
     this.setState({
       selectedCostumeIndex: costumeIndex
     });
   }
   handleDeleteCostume(costumeIndex) {
-    console.log('ablylol', costumeIndex);
     channel.publish('deleteCostume', JSON.stringify(costumeIndex));
   }
   deleteCostume(msg) {
@@ -16462,6 +16670,8 @@ const _excluded = ["selectedCostumeIndex", "vm"];
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } } return target; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 
 
@@ -16487,14 +16697,21 @@ class PaintEditorWrapper extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     channel.publish('renameCostume', JSON.stringify(msg));
   }
   handleUpdateImage(isVector, image, rotationCenterX, rotationCenterY) {
-    const msg = {
-      image: image,
-      rotationCenterX: rotationCenterX,
-      rotationCenterY: rotationCenterY,
-      isVector: isVector,
-      selectedIdx: this.props.selectedCostumeIndex
-    };
-    channel.publish('imageUpdated', JSON.stringify(msg));
+    var _this = this;
+    return _asyncToGenerator(function* () {
+      const target = _this.props.vm.editingTarget;
+      const assetId = target.sprite['costumes'][_this.props.selectedCostumeIndex].assetId;
+      console.log('pre', assetId);
+      const msg = {
+        editingTarget: _this.props.vm.editingTarget.sprite.name,
+        image: image,
+        rotationCenterX: rotationCenterX,
+        rotationCenterY: rotationCenterY,
+        isVector: isVector,
+        selectedIdx: _this.props.selectedCostumeIndex
+      };
+      yield channel.publish('imageUpdated', JSON.stringify(msg));
+    })();
   }
   render() {
     if (!this.props.imageId) return null;
@@ -18874,7 +19091,8 @@ class SpriteSelectorItem extends react__WEBPACK_IMPORTED_MODULE_1__.PureComponen
       onDrag: this.handleDrag,
       onDragEnd: this.handleDragEnd
     });
-    channel.subscribe('deleteSprite', this.deleteSprite.bind(this));
+
+    //channel.subscribe('deleteSprite', this.deleteSprite.bind(this));
   }
   componentDidMount() {
     document.addEventListener('touchend', this.handleTouchEnd);
@@ -18938,15 +19156,8 @@ class SpriteSelectorItem extends react__WEBPACK_IMPORTED_MODULE_1__.PureComponen
     }
   }
   handleDelete(e) {
-    console.log('ok', this.props.id);
     e.stopPropagation(); // To prevent from bubbling back to handleClick
-    const spriteName = this.props.vm.runtime.getTargetById(this.props.id).sprite.name;
-    channel.publish('deleteSprite', spriteName);
-  }
-  deleteSprite(msg) {
-    let pid = this.props.vm.runtime.getSpriteTargetByName(msg.data).id;
-    console.log("theocracy", pid, msg.data);
-    this.props.onDeleteButtonClick(pid);
+    this.props.onDeleteButtonClick(this.props.id);
   }
   handleDuplicate(e) {
     e.stopPropagation(); // To prevent from bubbling back to handleClick
@@ -22815,6 +23026,7 @@ const cloudManagerHOC = function cloudManagerHOC(WrappedComponent) {
       return this.cloudProvider && !!this.cloudProvider.connection;
     }
     connectToCloud() {
+      console.log("WHAT THE FUCK IS LIFE");
       this.cloudProvider = new _lib_cloud_provider__WEBPACK_IMPORTED_MODULE_4__["default"](this.props.cloudHost, this.props.vm, this.props.username, this.props.projectId);
       this.props.vm.setCloudProvider(this.cloudProvider);
     }
@@ -22950,6 +23162,7 @@ class CloudProvider {
    */
   openConnection() {
     this.connectionAttempts += 1;
+    console.log("AAAAAAAAAAA");
     try {
       this.connection = new WebSocket((location.protocol === 'http:' ? 'ws://' : 'wss://') + this.cloudHost);
     } catch (e) {
@@ -22967,6 +23180,7 @@ class CloudProvider {
     // Error is always followed by close, which handles reconnect logic.
   }
   onMessage(event) {
+    console.log("OOOOO HAIII");
     const messageString = event.data;
     // Multiple commands can be received, newline separated
     messageString.split('\n').forEach(message => {
@@ -23030,6 +23244,7 @@ class CloudProvider {
    * @param {string} dataNewName The new name for the cloud variable (if renaming)
    */
   writeToServer(methodName, dataName, dataValue, dataNewName) {
+    console.log("Post");
     const msg = {};
     msg.method = methodName;
     msg.user = this.username;
@@ -23911,13 +24126,15 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash.bindall */ "./node_modules/lodash.bindall/index.js");
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash_bindall__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_5__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var lodash_omit__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lodash.omit */ "./node_modules/lodash.omit/index.js");
 /* harmony import */ var lodash_omit__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(lodash_omit__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+
 
 
 
@@ -24009,22 +24226,24 @@ const DropAreaHOC = function DropAreaHOC(dragTypes) {
         const componentProps = lodash_omit__WEBPACK_IMPORTED_MODULE_2___default()(this.props, ['onDrop', 'dragInfo', 'componentRef']);
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(WrappedComponent, _extends({
           containerRef: this.setRef,
-          dragOver: this.state.dragOver
+          dragOver: this.state.dragOver,
+          onMouseEnter: () => (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_4__.setHover)(true),
+          onMouseLeave: () => (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_4__.setHover)(false)
         }, componentProps));
       }
     }
     DropAreaWrapper.propTypes = {
-      componentRef: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
-      dragInfo: prop_types__WEBPACK_IMPORTED_MODULE_4___default().shape({
-        currentOffset: prop_types__WEBPACK_IMPORTED_MODULE_4___default().shape({
-          x: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number),
-          y: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number)
+      componentRef: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().func),
+      dragInfo: prop_types__WEBPACK_IMPORTED_MODULE_5___default().shape({
+        currentOffset: prop_types__WEBPACK_IMPORTED_MODULE_5___default().shape({
+          x: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().number),
+          y: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().number)
         }),
-        dragType: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().string),
-        dragging: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().bool),
-        index: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number)
+        dragType: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().string),
+        dragging: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().bool),
+        index: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().number)
       }),
-      onDrop: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func)
+      onDrop: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().func)
     };
     const mapStateToProps = state => ({
       dragInfo: state.scratchGui.assetDrag
@@ -29906,6 +30125,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! scratch-storage */ "./node_modules/scratch-storage/dist/web/scratch-storage.js");
 /* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(scratch_storage__WEBPACK_IMPORTED_MODULE_0__);
 /* harmony import */ var _default_project__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./default-project */ "./src/lib/default-project/index.js");
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 
 
@@ -29917,6 +30138,36 @@ class Storage extends (scratch_storage__WEBPACK_IMPORTED_MODULE_0___default()) {
   constructor() {
     super();
     this.cacheDefaultProject();
+    this.updateCustomAssets();
+  }
+  updateCustomAssets() {
+    var _this = this;
+    return _asyncToGenerator(function* () {
+      _this.assets = {};
+      const response = yield fetch("https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/assetID", {
+        method: 'GET'
+      });
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder('utf-8');
+      let chunks = [];
+      while (true) {
+        const {
+          done,
+          value
+        } = yield reader.read();
+        if (done) {
+          break;
+        }
+        chunks.push(value);
+      }
+      const concatenated = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []));
+      const jsonString = decoder.decode(concatenated);
+      const data = JSON.parse(JSON.parse(jsonString));
+      for (const asset of data) {
+        console.log(asset);
+        _this.assets[asset.assetID] = asset;
+      }
+    })();
   }
   addOfficialScratchWebStores() {
     this.addWebStore([this.AssetType.Project], this.getProjectGetConfig.bind(this), this.getProjectCreateConfig.bind(this), this.getProjectUpdateConfig.bind(this));
@@ -29954,10 +30205,15 @@ class Storage extends (scratch_storage__WEBPACK_IMPORTED_MODULE_0___default()) {
     this.assetHost = assetHost;
   }
   getAssetGetConfig(asset) {
+    console.log(this.assets, asset);
+    if (asset.assetId in this.assets) {
+      console.log("AINT IT SO");
+      return "https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/images?fileName=".concat(asset.assetId, ".").concat(asset.dataFormat);
+    }
     return "".concat(this.assetHost, "/internalapi/asset/").concat(asset.assetId, ".").concat(asset.dataFormat, "/get/");
+    console.log("loading >> ".concat(this.assetHost, "/internalapi/asset/").concat(asset.assetId, ".").concat(asset.dataFormat, "/get/"));
   }
   getAssetCreateConfig(asset) {
-    console.log(asset);
     return {
       // There is no such thing as updating assets, but storage assumes it
       // should update if there is an assetId, and the asset store uses the
@@ -34648,7 +34904,11 @@ const updateMetrics = function updateMetrics(metrics) {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   ablyInstance: () => (/* binding */ ablyInstance),
-/* harmony export */   ablySpace: () => (/* binding */ ablySpace)
+/* harmony export */   ablySpace: () => (/* binding */ ablySpace),
+/* harmony export */   getDragRelative: () => (/* binding */ getDragRelative),
+/* harmony export */   getHover: () => (/* binding */ getHover),
+/* harmony export */   setDragRelative: () => (/* binding */ setDragRelative),
+/* harmony export */   setHover: () => (/* binding */ setHover)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var ably__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ably */ "./node_modules/ably/build/ably-commonjs.js");
@@ -34660,9 +34920,26 @@ __webpack_require__.r(__webpack_exports__);
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const ablySpace = urlParams.get('space').toString();
+let dragRelative = {
+  x: 0,
+  y: 0
+};
+let isHovering = false;
 const ablyInstance = new ably__WEBPACK_IMPORTED_MODULE_1__.Realtime.Promise({
   authUrl: "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ably"
 });
+const setDragRelative = val => {
+  dragRelative = val;
+};
+const getDragRelative = () => {
+  return dragRelative;
+};
+const setHover = val => {
+  isHovering = val;
+};
+const getHover = () => {
+  return isHovering;
+};
 
 /***/ }),
 
@@ -43093,4 +43370,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.9be8eeb3b2eb08feef44.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.dd7a5f08a7317620d718.js.map

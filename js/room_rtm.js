@@ -10,14 +10,25 @@ let handleMemberJoined = async (MemberId) => {
 }
 
 let addMemberToDom = async (MemberId) => {
-    let {name} = await rtmClient.getUserAttributesByKeys(MemberId, ['name'])
-
+    // let {name} = await rtmClient.getUserAttributesByKeys(MemberId, ['name'])
+    let attribute = await rtmClient.getUserAttributesByKeys(MemberId, ['name','nameColor'])
+    let name= attribute.name;
+    let memberColor= attribute.nameColor;
+    console.log("yagbchjnjakca c m",memberColor);
+    console.log("yagbchjnjakca c m",name);
+    // let memberColor= 'blue';
+ 
+    console.log(rtmClient.getUserAttributesByKeys());
+    console.log(rtmClient.getUserAttributesByKeys(MemberId,['name']));
+    console.log("Get the name",name);
+ 
     let membersWrapper = document.getElementById('member__list')
     let memberItem = `<div class="member__wrapper" id="member__${MemberId}__wrapper">
                         <span class="green__icon"></span>
-                        <p class="member_name">${name}</p>
+                        <p class="member_name" id="rtmName" style="color:${memberColor}";>${name}</p>
+                        <button class="remove__btn" onclick="removeParticipant('${MemberId}')">Remove</button>
                     </div>`
-
+ 
     membersWrapper.insertAdjacentHTML('beforeend', memberItem)
 }
 
@@ -54,7 +65,7 @@ let handleChannelMessage = async (messageData, MemberId) => {
     let data = JSON.parse(messageData.text)
 
     if(data.type === 'chat'){
-        addMessageToDom(data.displayName, data.message)
+        addMessageToDom(data.displayName, data.message,data.color)
     }
 
     if(data.type === 'user_left'){
@@ -68,15 +79,46 @@ let handleChannelMessage = async (messageData, MemberId) => {
                 videoFrames[i].style.width = '300px'
             }
         }
+        
     }
+    
+    if (data.type === 'remove' && data.target === uid) {
+        alert('You have been removed from the channel.');
+        let email=sessionStorage.getItem('email')
+        window.location.href = `projects.html?email=${email}`;
+        await leaveStream();
+    }
+    
+    
 }
+
+
+let removeParticipant = async (MemberId) => {
+    try {
+        // Send a message to all participants about the removal
+        await channel.sendMessage({ text: JSON.stringify({ type: 'remove', target: MemberId }) });
+    
+        delete remoteUsers[MemberId]
+        console.log(remoteUsers);
+        console.log(remoteUsers.length);
+        document.getElementById(`user-container-${MemberId}`).remove()
+
+    
+        let { name } = await rtmClient.getUserAttributesByKeys(MemberId, ['name']);
+        addBotMessageToDom(`${name} has been removed from the channel.`);
+    } catch (error) {
+        console.error('Error removing participant:', error);
+    }
+};
+window.removeParticipant = removeParticipant;
+
 
 let sendMessage = async (e) => {
     e.preventDefault()
 
     let message = e.target.message.value
-    channel.sendMessage({text:JSON.stringify({'type':'chat', 'message':message, 'displayName':displayName})})
-    addMessageToDom(displayName, message)
+    channel.sendMessage({text:JSON.stringify({'type':'chat', 'message':message, 'displayName':displayName,'color':randomColor})})
+    addMessageToDom(displayName, message,randomColor)
     e.target.reset()
 
     try {
@@ -121,12 +163,12 @@ let sendMessage = async (e) => {
     }
 }
 
-let addMessageToDom = (name, message) => {
+let addMessageToDom = (name, message,color) => {
     let messagesWrapper = document.getElementById('messages')
 
     let newMessage = `<div class="message__wrapper">
                         <div class="message__body">
-                            <strong class="message__author">${name}</strong>
+                            <strong class="message__author" style=color:${color}>${name}</strong>
                             <p class="message__text">${message}</p>
                         </div>
                     </div>`
@@ -145,7 +187,7 @@ let addBotMessageToDom = (botMessage) => {
 
     let newMessage = `<div class="message__wrapper">
                         <div class="message__body__bot">
-                            <strong class="message__author__bot">🤖 Mumble Bot</strong>
+                            <strong class="message__author__bot">🤖 CollabStation Bot</strong>
                             <p class="message__text__bot">${botMessage}</p>
                         </div>
                     </div>`

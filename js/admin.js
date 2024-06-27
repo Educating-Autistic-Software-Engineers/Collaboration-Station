@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         newRow.querySelector('#name-input').value = '';
         newRow.querySelector('#email-input').value = '';
 
+        console.log(rooms)
         for (let room of rooms) {
             const roomName = room.name.replace("Delete", '');
             newRow.querySelector('.project-select').innerHTML += `<option value="${roomName}">${roomName}</option>`;

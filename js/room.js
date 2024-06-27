@@ -10,7 +10,7 @@ const chatButton = document.getElementById('chat__button');
 const rightBar = document.getElementById('right_bar');
 const streamContainer = document.getElementById('stream__container');
 const chatPanel = document.getElementById('messages__container');
-const containerRect = rightBar.getBoundingClientRect()
+let containerRect = rightBar.getBoundingClientRect()
 
 let activeMemberContainer = false;
 let isDragging = false;
@@ -55,7 +55,7 @@ chatButton.addEventListener('click', () => {
 
   activeChatContainer = !activeChatContainer;
   if (activeChatContainer) {
-    moveSlider({clientY: 140}, true);
+    moveSlider({clientY: 350}, true);
   } else {
     moveSlider({clientY: containerRect.height}, true);
   }
@@ -79,8 +79,8 @@ let expandVideoFrame = (e) => {
 
   for(let i = 0; videoFrames.length > i; i++){
     if(videoFrames[i].id != userIdInDisplayFrame){
-      videoFrames[i].style.height = '100px'
-      videoFrames[i].style.width = '100px'
+      videoFrames[i].style.height = '132px'
+      videoFrames[i].style.width = '132px'
     }
   }
 
@@ -109,8 +109,9 @@ displayFrame.addEventListener('click', hideDisplayFrame)
 function moveSlider(event, ov=false) {
 
   if (!isDragging && !ov) return;
+
+  containerRect = rightBar.getBoundingClientRect()
   
-  //const containerRect = rightBar.getBoundingClientRect();
   let offsetY = event.clientY - containerRect.top;
 
   if (offsetY < 200) offsetY = 200;
@@ -120,8 +121,8 @@ function moveSlider(event, ov=false) {
 }
 
 function setSliderPosition(offsetY) {
-  const topHeight = offsetY - 163;
-  const bottomHeight = containerRect.height - offsetY;
+  const topHeight = offsetY - 100;
+  const bottomHeight = containerRect.height - offsetY - 60;
 
   streamContainer.style.height = topHeight + 'px';
   chatPanel.style.height = bottomHeight + 'px';
@@ -137,11 +138,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const projectsButton = document.getElementById('create__room__btn');
   const slider = document.getElementById('slider');
   const iFrame = document.getElementById("main-stream");
-  const projectNameTextEdit = document.getElementById('room_label');
+  // const projectNameTextEdit = document.getElementById('room_label');
 
-  projectNameTextEdit.value = roomDict[roomId].name;
+  // projectNameTextEdit.value = roomDict[roomId].name;
 
-  iFrame.src = "vm/index.html?space=" + roomId.toString() + "&name=" + sessionStorage.getItem('display_name');
+  iFrame.src = "vm/index.html?space=" + roomId.toString() + "&name=" + sessionStorage.getItem('display_name') + "&color=" + sessionStorage.getItem("cursorColor");
 
   slider.addEventListener('mousedown', function (event) {
     isDragging = true;
@@ -153,17 +154,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     isDragging = false;
   });
 
-  openChatBtn.addEventListener('click', () => {
-      chatPanel.style.display = 'block';
-      openChatBtn.style.display="none";
-      closeChatBtn.style.display="block";
-  });
+  chatPanel.style.height = (containerRect.height - offsetY - 60) + 'px';
 
-  closeChatBtn.addEventListener('click', () => {
-      chatPanel.style.display = 'none';
-      closeChatBtn.style.display='none';
-      openChatBtn.style.display='block';
-  });
+  // openChatBtn.addEventListener('click', () => {
+  //     chatPanel.style.display = 'block';
+  //     openChatBtn.style.display="none";
+  //     closeChatBtn.style.display="block";
+  // });
+
+  // closeChatBtn.addEventListener('click', () => {
+  //     chatPanel.style.display = 'none';
+  //     closeChatBtn.style.display='none';
+  //     openChatBtn.style.display='block';
+  // });
 
 
   // projectsButton.addEventListener('click', () => {

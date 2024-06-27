@@ -1,4 +1,4 @@
-const APP_ID = "55e60ad04a574adbb35bea51b7aa0f83"
+const APP_ID = 
  
 let uid = sessionStorage.getItem('uid')
 if(!uid){
@@ -17,6 +17,18 @@ let channel;
 if(!roomId){
     roomId = 'main'
 }
+
+const colors = [
+    'red', 'green', 'blue', 'yellow', 'orange', 'purple',
+    'pink', 'brown', 'black', 'orange', 'gray', 'cyan', 'magenta'
+];
+ 
+function getRandomColor() {
+    const randomIndex = Math.floor(Math.random() * colors.length);
+    return colors[randomIndex];
+}
+let randomColor=getRandomColor();
+sessionStorage.setItem('randomColor', randomColor)
  
 let displayName = sessionStorage.getItem('display_name')
 console.log("dp is", displayName)
@@ -36,6 +48,7 @@ let joinRoomInit = async () => {
     await rtmClient.login({uid,token})
  
     await rtmClient.addOrUpdateLocalUserAttributes({'name':displayName})
+    await rtmClient.addOrUpdateLocalUserAttributes({'nameColor':randomColor})
  
     channel = await rtmClient.createChannel(roomId)
     await channel.join()
@@ -49,6 +62,8 @@ let joinRoomInit = async () => {
  
     client = AgoraRTC.createClient({mode:'rtc', codec:'vp8'})
     await client.join(APP_ID, roomId, token, uid)
+
+    joinStream()
  
     client.on('user-published', handleUserPublished)
     client.on('user-left', handleUserLeft)
@@ -56,6 +71,7 @@ let joinRoomInit = async () => {
     client.enableAudioVolumeIndicator();
     client.on('volume-indicator', handleVolumeIndicator);
 }
+
  
 const handleVolumeIndicator = volumes => {
     volumes.forEach(volume => {
@@ -105,9 +121,11 @@ let joinStream = async () => {
  
     let player = `<div class="video__container" id="user-container-${uid}">
                    
-                    <div class="video-player" id="user-${uid}"></div>
+                    <div class="video-player" id="user-${uid}">
+                    <div id="member_name" >${sessionStorage.getItem("display_name")}</div></div>
+                   
                  </div>
-                 <div>${sessionStorage.getItem("display_name")}</div>
+                 
                  `
                  
  
@@ -119,7 +137,7 @@ let joinStream = async () => {
     localTracks[1].play(`user-${uid}`)
     await client.publish([localTracks[0], localTracks[1]])
 }
-joinStream()
+
  
 let switchToCamera = async () => {
     let player = `<div class="video__container" id="user-container-${uid}">
@@ -132,27 +150,37 @@ let switchToCamera = async () => {
     await localTracks[1].setMuted(true)
  
     document.getElementById('mic-btn').classList.remove('active')
-    document.getElementById('screen-btn').classList.remove('active')
+    // document.getElementById('screen-btn').classList.remove('active')
  
     localTracks[1].play(`user-${uid}`)
     await client.publish([localTracks[1]])
 }
- 
+
+
 let handleUserPublished = async (user, mediaType) => {
+ 
+ 
     remoteUsers[user.uid] = user
  
-    console.log("length",remoteUsers.length);
-    console.log(mediaType);
-    console.log(remoteUsers[user.uid]);
+ 
+    let {name} = await rtmClient.getUserAttributesByKeys(user.uid, ['name'])
+ 
+    console.log(name);
+ 
  
     await client.subscribe(user, mediaType)
  
     let player = document.getElementById(`user-container-${user.uid}`)
     if(player === null){
+        let memberName= name || "Unknown User"
         player = `<div class="video__container" id="user-container-${user.uid}">
-                <div class="video-player" id="user-${user.uid}"></div>
+                <div class="video-player" id="user-${user.uid}">
+                <div id="remote-member_name">${memberName}</div>
+                <button class="remove__btn" style="display: none;" onclick="removeParticipant('${user.uid}')">Remove</button>
+                </div>
+               
             </div>
-            <div>${sessionStorage.getItem("display_name")}</div>`
+            `
  
         document.getElementById('stream__container').insertAdjacentHTML('beforeend', player)
         document.getElementById(`user-container-${user.uid}`).addEventListener('click', expandVideoFrame)
@@ -304,9 +332,9 @@ let leaveStream = async (e) => {
  
 document.getElementById('camera-btn').addEventListener('click', toggleCamera)
 document.getElementById('mic-btn').addEventListener('click', toggleMic)
-document.getElementById('screen-btn').addEventListener('click', toggleScreen)
-document.getElementById('join-btn').addEventListener('click', joinStream)
-document.getElementById('leave-btn').addEventListener('click', leaveStream)
+// document.getElementById('screen-btn').addEventListener('click', toggleScreen)
+// document.getElementById('join-btn').addEventListener('click', joinStream)
+//document.getElementById('leave-btn').addEventListener('click', leaveStream)
  
  
 joinRoomInit()

@@ -519,11 +519,26 @@ const YourCursor = _ref => {
     };
     window.addEventListener('mousemove', handleMouseMove);
     const intervalId = setInterval(() => {
-      if (JSON.stringify(cachedPosition) === JSON.stringify(latestPosition.current)) return;
-      cachedPosition = latestPosition.current;
+      const dragPos = (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.getHover)() ? (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.getDragRelative)() : {
+        x: 0,
+        y: 0
+      };
+      const globalPosition = {
+        x: latestPosition.current.x + dragPos.x,
+        y: latestPosition.current.y + dragPos.y
+      };
+      // console.log(JSON.stringify(cachedPosition) === JSON.stringify(globalPosition))
+
+      if (JSON.stringify(cachedPosition) === JSON.stringify(globalPosition)) return;
+      cachedPosition = globalPosition;
+
+      //console.log(document.getElementById('totalsize').getBoundingClientRect());
+
       channel.publish('cursor', JSON.stringify({
+        target: sessionStorage.getItem("editingTarget"),
         clientId: name,
-        position: latestPosition.current
+        position: globalPosition,
+        hovering: (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.getHover)()
       }));
     }, 200);
 
@@ -557,18 +572,34 @@ const hashCode = function hashCode(s) {
 };
 const MemberCursors = () => {
   const [cursors, setCursors] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({});
-  const randomColors = ["#FF0000", "#00FF00", "#0000FF", "#FFFF00", "#FF00FF", "#00FFFF"];
+  const randomColors = ["red", "green", "blue", "yellow", "salmon"];
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     const handleCursorMessage = message => {
       const {
         clientId,
-        position
+        position,
+        hovering,
+        target
       } = JSON.parse(message.data);
       if (clientId === thisName) return;
+      let isInvisible = false;
+      const dragPos = hovering ? (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.getDragRelative)() : {
+        x: 0,
+        y: 0
+      };
+      let relposition = {
+        x: position.x - dragPos.x,
+        y: position.y - dragPos.y
+      };
+      console.log(relposition);
+      if (relposition.x < 312 || relposition.y < 90 || target != sessionStorage.getItem("editingTarget")) {
+        isInvisible = true;
+      }
+      const color = isInvisible ? "#ffffff00" : randomColors[hashCode(clientId) % randomColors.length];
       setCursors(prevCursors => _objectSpread(_objectSpread({}, prevCursors), {}, {
         [clientId]: {
-          position,
-          cursorColor: randomColors[hashCode(clientId) % randomColors.length],
+          relposition,
+          cursorColor: color,
           name: clientId
         }
       }));
@@ -584,8 +615,8 @@ const MemberCursors = () => {
     key: index,
     className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursor),
     style: {
-      top: "".concat(member.position.y, "px"),
-      left: "".concat(member.position.x, "px")
+      top: "".concat(member.relposition.y, "px"),
+      left: "".concat(member.relposition.x, "px")
     }
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
     cursorColor: member.cursorColor

@@ -58,27 +58,33 @@ function displayTiles() {
     console.log("og", roomList)
     const tileContainer = document.getElementById('tileContainer');
     roomList.forEach(room => {
-        if (room == "" || room == " ") {
+        console.log(room, roomDict)
+        // check if room is in roomDict:
+        if (!(room in roomDict)) {
+            return;
+        }
+        if (room == "" || room == " " || !roomDict[room].name) {
             return;
         }
         const tile = document.createElement('div');
         tile.className = 'tile';
-        console.log(roomDict, room)
         tile.textContent = roomDict[room].name.replace(/([A-Z])/g, ' $1').trim(); // Format room name
         tile.onclick = () => openProject(room);
         tileContainer.appendChild(tile);
     });
-    // const addProjectBtn = document.createElement('div');
-    // addProjectBtn.className = 'tile';
-    // tileContainer.appendChild(addProjectBtn);
-    // addProjectBtn.innerHTML = `
-    //     <p>Add Project</p>
-    //     <input id="addProjectEntry" style="width: 70%;"></input>
-    // `
-    // const textEntry = addProjectBtn.querySelector('#addProjectEntry');
-    // textEntry.addEventListener('click', (event) => event.stopPropagation());
-    // addProjectBtn.onclick = () => createNewProject(textEntry.value);
-    // addProjectBtn.getElementById('addProjectEntry').style = "display: none;"
+    const addProjectBtn = document.createElement('div');
+    addProjectBtn.className = 'tile';
+    console.log("addProjectBtn", addProjectBtn)
+    tileContainer.appendChild(addProjectBtn);
+    addProjectBtn.innerHTML = `
+        <b>Add Project</b>
+    `
+    addProjectBtn.onclick = () => {
+        // remove add project button
+        tileContainer.removeChild(addProjectBtn);
+        addProject()
+        tileContainer.appendChild(addProjectBtn);
+    };
 }
 
 async function addProject(){
@@ -87,7 +93,10 @@ async function addProject(){
     addProjectBtn.className = 'tile';
     tileContainer.appendChild(addProjectBtn);
     let projectName=prompt('Enter your project name');
-    console.log(projectName);
+
+    if (projectName == null || projectName == "") {
+        return;
+    }
     
 
     addProjectBtn.innerHTML = `
@@ -153,8 +162,7 @@ async function addProject(){
         console.error('Error:', error);
         alert('An error occurred while saving rooms.');
     }
-    //refresh page
-
+    
 
 
 
