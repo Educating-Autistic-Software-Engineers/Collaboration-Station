@@ -3535,9 +3535,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-function onDeleteClicked(ogOnClick) {
-  ogOnClick();
-}
 const DeleteButton = props => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
   "aria-label": "Delete",
   className: classnames__WEBPACK_IMPORTED_MODULE_1___default()((_delete_button_css__WEBPACK_IMPORTED_MODULE_2___default().deleteButton), props.className),
@@ -4429,6 +4426,7 @@ const GUIComponent = props => {
     minWidth: _lib_layout_constants__WEBPACK_IMPORTED_MODULE_29__["default"].fullSizeMinWidth
   }, isFullSize => {
     const stageSize = (0,_lib_screen_utils__WEBPACK_IMPORTED_MODULE_30__.resolveStageSize)(stageSizeMode, isFullSize);
+    console.log('stageSize', stageSize);
     return isPlayerOnly ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_containers_stage_wrapper_jsx__WEBPACK_IMPORTED_MODULE_14__["default"], {
       isFullScreen: isFullScreen,
       isRendererSupported: isRendererSupported,
@@ -10476,7 +10474,7 @@ const StageComponent = props => {
     }
   }, boxProps)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_box_box_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
     className: (_stage_css__WEBPACK_IMPORTED_MODULE_12___default().monitorWrapper)
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_containers_monitor_list_jsx__WEBPACK_IMPORTED_MODULE_5__["default"], {
     draggable: useEditorDragStyle,
     stageSize: stageDimensions
   })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_box_box_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
@@ -12555,18 +12553,42 @@ let hasInited = false;
 let flag1 = false;
 let flag2 = false;
 let stopEmission = false;
-let lastTempId = 0;
 class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   constructor(props) {
     super(props);
+    sessionStorage.setItem("dragRelative", JSON.stringify({
+      x: 0,
+      y: 0
+    }));
     this.ScratchBlocks = (0,_lib_blocks__WEBPACK_IMPORTED_MODULE_5__["default"])(props.vm, false);
+
+    // MARKER
+    // const ogUpdateScroll = this.ScratchBlocks.WorkspaceDragger.prototype.updateScroll_;
+
+    // this.ScratchBlocks.WorkspaceDragger.prototype.updateScroll_ = function (x,y) {
+    //     //console.log(x, y)
+    //     //console.log( this.ScratchBlocks.WorkspaceDragger.prototype.handlePosition_ )
+    //     console.log(this.workspace)
+    //     setDragRelative({x: x, y: y});
+    //     ogUpdateScroll.call(this, x, y);
+    // }.bind(this)
+
+    // const ogWorkspaceDragger = this.ScratchBlocks.WorkspaceDragger.bind(this.ScratchBlocks)
+    // this.ScratchBlocks.WorkspaceDragger = function(workspace) {
+    //     console.log("THIS IS WORKSPACE DRAGGER", workspace)
+    //     ogWorkspaceDragger(workspace);
+    // }.bind(this.ScratchBlocks)
+
     lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['attachVM', 'detachVM', 'getToolboxXML', 'handleCategorySelected', 'handleConnectionModalStart', 'handleDrop', 'handleStatusButtonUpdate', 'handleOpenSoundRecorder', 'handlePromptStart', 'handlePromptCallback', 'handlePromptClose', 'handleCustomProceduresClose', 'onScriptGlowOn', 'onScriptGlowOff', 'onBlockGlowOn', 'onBlockGlowOff', 'handleMonitorsUpdate', 'handleExtensionAdded', 'handleBlocksInfoUpdate', 'onTargetsUpdate', 'onVisualReport', 'onWorkspaceUpdate', 'onWorkspaceMetricsChange', 'setBlocks', 'setLocale']);
     this.ScratchBlocks.prompt = this.handlePromptStart;
     this.ScratchBlocks.statusButtonCallback = this.handleConnectionModalStart;
     this.ScratchBlocks.recordSoundCallback = this.handleOpenSoundRecorder;
     this.state = {
+      width: 0,
+      height: 0,
       prompt: null
     };
+    this.myRef = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_4__.createRef();
     this.onTargetsUpdate = lodash_debounce__WEBPACK_IMPORTED_MODULE_1___default()(this.onTargetsUpdate, 100);
     this.toolboxUpdateQueue = [];
     setInterval(() => {
@@ -12576,6 +12598,15 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         ev.recordUndo = true;
         this.sendInformation(ev);
         this.queue.length = 0;
+      }
+      const scale = this.workspace.scale / 0.675;
+      const dragRelative = {
+        x: this.workspace.scrollX * scale,
+        y: this.workspace.scrollY * scale
+      };
+      if (sessionStorage.getItem("dragRelative") != JSON.stringify(dragRelative)) {
+        //console.log("dragged", dragRelative)
+        sessionStorage.setItem("dragRelative", JSON.stringify(dragRelative));
       }
     }, 50);
     setInterval(() => {
@@ -12596,7 +12627,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         yield ably.connection.once("connected");
         _this.load();
         console.log("connected to Ably");
-        console.log(_components_library_library_jsx__WEBPACK_IMPORTED_MODULE_36__["default"].costumeIdsToData);
+        //console.log(LibraryComponent.costumeIdsToData);
       }
     })();
   }
@@ -12651,6 +12682,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       this.setLocale();
     }
     this.initAbly();
+    this.updateDimensions();
+    window.addEventListener('resize', this.updateDimensions);
   }
   shouldComponentUpdate(nextProps, nextState) {
     return this.state.prompt !== nextState.prompt || this.props.isVisible !== nextProps.isVisible || this._renderedToolboxXML !== nextProps.toolboxXML || this.props.extensionLibraryVisible !== nextProps.extensionLibraryVisible || this.props.customProceduresVisible !== nextProps.customProceduresVisible || this.props.locale !== nextProps.locale || this.props.anyModalVisible !== nextProps.anyModalVisible || this.props.stageSize !== nextProps.stageSize;
@@ -12691,6 +12724,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     } else {
       this.workspace.setVisible(false);
     }
+    this.updateDimensions();
   }
   componentWillUnmount() {
     this.detachVM();
@@ -12699,12 +12733,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
     // Clear the flyout blocks so that they can be recreated on mount.
     this.props.vm.clearFlyoutBlocks();
+    window.removeEventListener('resize', this.updateDimensions);
   }
   requestToolboxUpdate() {
     clearTimeout(this.toolboxUpdateTimeout);
     this.toolboxUpdateTimeout = setTimeout(() => {
       this.updateToolbox();
     }, 0);
+  }
+  updateDimensions() {
+    const rect = JSON.stringify(JSON.parse(JSON.stringify(this.blocks.getBoundingClientRect())));
+    sessionStorage.setItem('blocksRect', rect);
+    //console.log('block dimensions set to', rect)
   }
   setLocale() {
     this.ScratchBlocks.ScratchMsgs.setLocale(this.props.locale);
@@ -12756,13 +12796,22 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     var _this2 = this;
     return _asyncToGenerator(function* () {
       if (!hasInited) {
+        _this2.queueWorkspaceUpdate = false;
+        _this2.pauseWorkspaceUpdate = false;
         _this2.queueFurtherSends = false;
         _this2.stopEmission = false;
         _this2.holdingBlock = false;
+        _this2.lastBlockId = "";
+        _this2.lastBlockType = "";
+        _this2.lastTempId = "";
+        _this2.randomIndex = 0;
         hasInited = true;
+        _this2.varCallbackFunc = function (a, b, c) {
+          console.log(a, b, c, "callback var trigged early");
+        };
         _this2.backlog = [];
         _this2.queue = [];
-        _this2.blocks = [];
+        //this.blocks = [];
         _this2.idToAll = {};
         _this2.amountOfBlocks = 0;
         yield channel.subscribe('event', message => _this2.recieveInformation(message));
@@ -12772,6 +12821,23 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           const data = JSON.parse(message.data);
           _this2.props.vm.renameCostume(data.costumeIndex, data.name);
         });
+        yield channel.subscribe('preRefresh', /*#__PURE__*/function () {
+          var _ref = _asyncToGenerator(function* (message) {
+            yield _this2.save();
+          });
+          return function (_x) {
+            return _ref.apply(this, arguments);
+          };
+        }());
+        yield channel.subscribe('newJoin', _this2.newUserJoined.bind(_this2));
+        // await channel.subscribe('varPrompt', (message) => {
+        //     const data = JSON.parse(message.data);
+        //     this.varCallbackFunc(data.a, data.b, data.c);
+        // })
+        //await channel.subscribe('promptStart', this.handlePrompt.bind(this))
+        //await channel.subscribe('promptSubmitted', this.handlePromptSubmitted.bind(this))
+
+        yield channel.publish('newJoin', "");
       }
     })();
   }
@@ -12873,7 +12939,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   ret() {
     return 3;
   }
-  save(_event) {
+  save() {
     var _this6 = this;
     return _asyncToGenerator(function* () {
       const s = JSON.stringify(_this6.props.vm.toJSON());
@@ -12894,14 +12960,27 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       let childIDX = -1;
       if (eve.element == "field") {
         const parentBlock = _this7.workspace.getBlockById(eve.blockId).parentBlock_;
-        parentID = parentBlock.id;
-        for (let childBlock of parentBlock.childBlocks_) {
-          if (childBlock.id == eve.blockId) {
-            childIDX = parentBlock.childBlocks_.indexOf(childBlock);
+        if (!!parentBlock) {
+          parentID = parentBlock.id;
+          for (let childBlock of parentBlock.childBlocks_) {
+            if (childBlock.id == eve.blockId) {
+              childIDX = parentBlock.childBlocks_.indexOf(childBlock);
+            }
           }
         }
       }
-      if (_this7.stopEmission || _this7.holdingBlock) {
+      if (_this7.stopEmission) {
+        //console.log("Stopped emission")
+        if (_this7.lastBlockId == eve.blockId && _this7.lastBlockType == eve.type) {
+          _this7.stopEmission = false;
+          if (_this7.lastTempId != "") {
+            yield _this7.endRecieveChain(_this7.lastTempId);
+            _this7.lastTempId = "";
+          }
+        }
+        return;
+      }
+      if (_this7.holdingBlock) {
         return;
       }
       //console.log(eve.element, eve.recordUndo, eve.group, eve)
@@ -12915,17 +12994,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // this is if an event happens while an event is being sent to the server;
       // we queue the event to be sent after the current event is sent
       // this is not correlated with the other this.queue system
+      let singleMessage = eve.toJson();
       if (_this7.queueFurtherSends) {
-        console.log("backlogged", eve);
-        _this7.backlog.push(eve);
+        console.log("backlogged", singleMessage);
+        _this7.backlog.push(singleMessage);
         return;
       }
-      let singleMessage = eve.toJson();
 
       // we queue moves because they can follow other moves to snap blocks together and we want to send these together
       // to avoid visual artifacts
       if (eve.type == "move") {
         if (_this7.queue.length == 0) {
+          // debugger
           console.log(singleMessage, "queueing move");
           _this7.queue.push(singleMessage);
           return;
@@ -12933,10 +13013,20 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
 
       // we queue the create event because it has to immediately be moved after
-      if (eve.type == "create") {
-        console.log(singleMessage, "queueing create");
+      if (eve.type == "create" || eve.element == "click") {
+        console.log(singleMessage, eve.type == "create" ? "queueing create" : "queueing other");
         _this7.queue.push(singleMessage);
         return;
+      }
+      if (eve.type == "change" && eve.name == "BROADCAST_OPTION") {
+        var _this7$props$vm$runti, _this7$props$vm$runti2;
+        singleMessage.broadcastInfo = {
+          broadcastName: (_this7$props$vm$runti = _this7.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this7$props$vm$runti === void 0 ? void 0 : _this7$props$vm$runti.name,
+          broadcastId: (_this7$props$vm$runti2 = _this7.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this7$props$vm$runti2 === void 0 ? void 0 : _this7$props$vm$runti2.id
+        };
+      }
+      if (eve.type == "comment_create") {
+        singleMessage.commentXY = eve.xy;
       }
 
       //console.log(this.queue, this.queue.length, "sending");
@@ -12945,117 +13035,195 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       //console.log(this.queue, this.queue.length, "sending");
 
       console.log('len', _this7.queue.length);
+      yield _this7.sendArray(_this7.queue, parentID, childIDX);
+      _this7.queue.length = 0;
+      console.log("query back", _this7.backlog);
+      while (_this7.backlog.length > 0) {
+        const tmp = _this7.backlog;
+        _this7.backlog = [];
+        yield _this7.sendArray(tmp, parentID, childIDX);
+      }
+      _this7.save.bind(_this7)();
+    })();
+  }
+  sendArray(arr) {
+    var _this8 = this;
+    let parentID = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+    let childIDX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
+    return _asyncToGenerator(function* () {
       const message = {
         uid: nid,
-        target: _this7.props.vm.editingTarget.sprite.name,
-        messages: _this7.queue,
+        target: _this8.props.vm.editingTarget.sprite.name,
+        messages: arr,
         parentID: parentID,
-        childIDX: childIDX
+        childIDX: childIDX,
+        rIDX: _this8.randomIndex
       };
-      _this7.queueFurtherSends = true;
+      console.log("sending array", message);
+      _this8.queueFurtherSends = true;
       yield channel.publish('event', JSON.stringify(message));
-      _this7.queueFurtherSends = false;
-      console.log("equeue");
-      _this7.queue.length = 0;
-      if (isTimeToSave) {
-        _this7.save.bind(_this7)(eve);
-      }
-      if (_this7.backlog.length > 0) {
-        _this7.sendInformation(_this7.backlog.shift());
-      }
+      _this8.queueFurtherSends = false;
     })();
   }
   enableEmission() {
     if (this.stopEmission) {
-      this.stopEmission = false;
+      // this.stopEmission = false;
+      // console.log("stopped emission")
       //console.log('rico', lastTempId)
       //this.props.vm.setEditingTarget(lastTempId);
     }
   }
   recieveInformation(message) {
-    var _this8 = this;
+    var _this9 = this;
     return _asyncToGenerator(function* () {
       let data = JSON.parse(message.data);
+      console.log("data recieved", data);
       if (data.uid == nid) {
         console.log("discarding");
         return;
       }
-      let ogTarget = _this8.props.vm.editingTarget;
-      lastTempId = ogTarget.id;
-      const tmpTarget = _this8.props.vm.runtime.getSpriteTargetByName(data.target);
-      _this8.props.vm.setEditingTarget(tmpTarget.id);
+      _this9.randomIndex = data.rIDX;
+      const targetName = data.target;
+      let ogTarget = _this9.props.vm.editingTarget;
+      _this9.lastTempId = ogTarget.id;
+      const tmpTarget = _this9.getTargetByName(data.target);
+      console.log(tmpTarget, "target");
+      // this.props.vm.editingTarget = tmpTarget;
+      // this.props.vm.emitTargetsUpdate(false)
+      // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget);
+      // this.disableWorkspaceUpdate()
+      _this9.props.vm.setEditingTarget(tmpTarget.id);
       for (let message of data.messages) {
         // this is for text entries; for some reason their IDs get changed when saved.
         // so, it sends the index of the parent node (a normal block) and the index of the child node to extract the text entry box
         if (data.parentID != -1) {
-          message.blockId = _this8.workspace.getBlockById(data.parentID).childBlocks_[data.childIDX].id;
+          message.blockId = _this9.workspace.getBlockById(data.parentID).childBlocks_[data.childIDX].id;
         }
-        console.log('parsing!!', message);
-        yield _this8.parseEvent(message);
+        yield _this9.parseEvent(message, targetName);
       }
+      console.log("finished parsing");
 
-      // this.props.vm.editingTarget = ogTarget;
+      // this.enableWorkspaceUpdate();
+      // this.props.vm.editingTarget = ogTarget
       // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
-      // this.props.vm.setEditingTarget(ogTarget.id);
+      // console.log("set to", this.props.vm.editingTarget.sprite.name)
+      // this.enableWorkspaceUpdate();
+    })();
+  }
+  endRecieveChain(originalTargetId) {
+    var _this10 = this;
+    return _asyncToGenerator(function* () {
+      const ogTarget = _this10.props.vm.runtime.getTargetById(originalTargetId);
+      // this.props.vm.editingTarget = ogTarget;
+      // this.props.vm.emitTargetsUpdate(false)
+      // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget);
+      _this10.props.vm.setEditingTarget(ogTarget.id);
+      // this.enableWorkspaceUpdate()
+      console.log("OG TARGET SET");
     })();
   }
   parseEvent(event) {
-    var _this9 = this;
+    var _this11 = this;
+    let targetName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
     return _asyncToGenerator(function* () {
-      // if (this.stopEmission) {
-      //     this.stopEmission = false;
-      //     if (event.type != "delete") {
-      //         return;
-      //     }
-      // }
+      console.log('parsing!!', event);
+      if (targetName == "") {
+        targetName = _this11.props.vm.editingTarget.sprite.name;
+      }
+      if (event.type == "comment_change") {
+        event.newValue = event.newContents;
+      }
 
-      // if (event.type == "change") {
-      //     this.find_closest(event)
-      // }
+      // const ogTarget = this.props.vm.editingTarget;
+      // const tmpTarget = this.getTargetByName(targetName);
 
-      if (_this9.workspace.getBlockById(event.blockId) == null && event.type != "create") {
+      // this.props.vm.editingTarget = tmpTarget;
+      // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
+      // this.props.vm.setEditingTarget(tmpTarget.id);
+      // this.disableWorkspaceUpdate();
+
+      if (_this11.workspace.getBlockById(event.blockId) == null && event.type != "create") {
         console.log(event, "discarded because block does not exist");
         // refresh page
-        yield _this9.load();
+        // await channel.publish('preRefresh', "");
+        // await new Promise(r => setTimeout(r, 200));
+        yield _this11.load();
         return;
       }
       if (event.type == "create") {
-        _this9.holdingBlock = true;
+        _this11.holdingBlock = true;
       } else if (event.type == "move") {
-        _this9.holdingBlock = false;
+        _this11.holdingBlock = false;
       }
-      console.log(event, "recieved");
-      const eventInstance = _this9.ScratchBlocks.Events.fromJson(event, _this9.workspace);
+
+      //console.log(event, "recieved")
+
+      const eventInstance = _this11.ScratchBlocks.Events.fromJson(event, _this11.workspace);
+      if (event.type == "comment_create") {
+        eventInstance.xy = event.commentXY;
+      }
       try {
-        //console.log(this.ScratchBlocks)
-        //this.ScratchBlocks.serialization.load();
-        _this9.stopEmission = true;
-        if (eventInstance.type != "ui") {
-          // console.log("running")
-          // console.log(event)
-          // console.log(this.props.vm.runtime.getSpriteTargetByName("Sprite1"))
-          // console.log(data.target, this.props.vm.editingTarget)
-          yield eventInstance.run(true); // handles block
+        console.log("is have broadcast info", !!event.broadcastInfo, event.broadcastInfo);
+        _this11.stopEmission = true;
+        if (!!event.broadcastInfo) {
+          console.log("WHAHAHAH");
+          const broadcastEvent = {
+            isCloud: false,
+            isLocal: false,
+            type: "var_create",
+            varId: event.broadcastInfo.broadcastId,
+            varName: event.broadcastInfo.broadcastName,
+            varType: "broadcast_msg"
+          };
+          _this11.props.vm.blockListener(broadcastEvent);
+          const newEvent = _this11.ScratchBlocks.Events.fromJson(broadcastEvent, _this11.workspace);
+          yield newEvent.run(true);
+        }
+        if (eventInstance.type == "ui") {
+          _this11.props.vm.editingTarget.blocks.blocklyListen(eventInstance); //runs the block
         } else {
-          _this9.props.vm.editingTarget.blocks.blocklyListen(eventInstance); //runs the block
-          //this.props.vm.setEditingTarget(ogTarget.id);
+          yield eventInstance.run(true); // handles block
+          _this11.lastBlockId = event.blockId;
+          _this11.lastBlockType = event.type;
         }
       } catch (e) {
         console.error(e);
       }
+      console.log("done");
       if (eventInstance.type == "ui") {
-        _this9.stopEmission = false;
+        _this11.stopEmission = false;
       }
+
+      // this.props.vm.editingTarget = ogTarget;
+      // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
+      // this.enableWorkspaceUpdate();
     })();
   }
+  disableWorkspaceUpdate() {
+    this.pauseWorkspaceUpdate = true;
+  }
+  enableWorkspaceUpdate() {
+    this.pauseWorkspaceUpdate = false;
+    if (this.queueWorkspaceUpdate) {
+      this.queueWorkspaceUpdate = false;
+      this.props.vm.emitWorkspaceUpdate();
+    }
+  }
   attachVM() {
-    var _this10 = this;
+    var _this12 = this;
     let oldEWU = this.props.vm.emitWorkspaceUpdate.bind(this.props.vm);
     this.props.vm.emitWorkspaceUpdate = function () {
+      if (this.pauseWorkspaceUpdate) {
+        this.queueWorkspaceUpdate = true;
+        return;
+      }
       oldEWU();
     };
     this.workspace.addChangeListener(this.props.vm.blockListener);
-    this.workspace.addChangeListener(this.sendInformation.bind(this));
+    this.workspace.addChangeListener(eve => {
+      //console.log('forced',eve)
+      this.sendInformation.bind(this)(eve);
+    });
     this.workspace.addChangeListener(this.enableEmission.bind(this));
     //this.workspace.addChangeListener(this.save.bind(this))
     this.flyoutWorkspace = this.workspace.getFlyout().getWorkspace();
@@ -13079,26 +13247,49 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.props.vm.addListener('PERIPHERAL_DISCONNECTED', this.handleStatusButtonUpdate);
     let ogAddSprite = this.props.vm.addSprite.bind(this.props.vm);
     this.props.vm.addSprite = /*#__PURE__*/function () {
-      var _ref = _asyncToGenerator(function* (data) {
+      var _ref2 = _asyncToGenerator(function* (data) {
         channel.publish('newSprite', JSON.stringify(data));
       });
-      return function (_x) {
-        return _ref.apply(this, arguments);
+      return function (_x2) {
+        return _ref2.apply(this, arguments);
       };
     }();
-    channel.subscribe('newSprite', message => ogAddSprite(JSON.parse(message.data)));
+    channel.subscribe('newSprite', /*#__PURE__*/function () {
+      var _ref3 = _asyncToGenerator(function* (message) {
+        const ogName = _this12.props.vm.editingTarget.sprite.name;
+        yield ogAddSprite(JSON.parse(message.data));
+        _this12.props.vm.editingTarget = _this12.getTargetByName(ogName);
+        _this12.props.vm.runtime.setEditingTarget(_this12.props.vm.editingTarget);
+      });
+      return function (_x3) {
+        return _ref3.apply(this, arguments);
+      };
+    }());
+    let ogDeleteSprite = this.props.vm.deleteSprite.bind(this.props.vm);
+    this.props.vm.deleteSprite = targetID => {
+      // find instance
+      const name = this.props.vm.runtime.getTargetById(targetID).sprite.name;
+      channel.publish('deleteSprite', JSON.stringify(name));
+    };
+    channel.subscribe('deleteSprite', message => {
+      const name = JSON.parse(message.data);
+      const id = this.getTargetByName(name).id;
+      ogDeleteSprite(id);
+      // if (ogName != name) {
+      //     this.props.vm.setEditingTarget(this.props.vm.runtime.getSpriteTargetByName(ogName).id);
+      // }
+    });
     let ogAddBackdrop = this.props.vm.addBackdrop.bind(this.props.vm);
     this.props.vm.addBackdrop = /*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator(function* (md5, vmBackdrop) {
-        console.log('new backdrop');
+      var _ref4 = _asyncToGenerator(function* (md5, vmBackdrop) {
         const msg = {
           m5: md5,
           vmb: vmBackdrop
         };
         channel.publish('newBackdrop', JSON.stringify(msg));
       });
-      return function (_x2, _x3) {
-        return _ref2.apply(this, arguments);
+      return function (_x4, _x5) {
+        return _ref4.apply(this, arguments);
       };
     }();
     channel.subscribe('newBackdrop', message => {
@@ -13107,104 +13298,182 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogRenameSprite = this.props.vm.renameSprite.bind(this.props.vm);
     this.props.vm.renameSprite = /*#__PURE__*/function () {
-      var _ref3 = _asyncToGenerator(function* (id, name) {
+      var _ref5 = _asyncToGenerator(function* (id, name) {
+        const spriteName = _this12.props.vm.runtime.getTargetById(id).sprite.name;
         const msg = {
-          id: id,
+          spriteName: spriteName,
           name: name
         };
         channel.publish('renameSprite', JSON.stringify(msg));
       });
-      return function (_x4, _x5) {
-        return _ref3.apply(this, arguments);
+      return function (_x6, _x7) {
+        return _ref5.apply(this, arguments);
       };
     }();
     channel.subscribe('renameSprite', message => {
       const d = JSON.parse(message.data);
-      ogRenameSprite(d.id, d.name);
+      ogRenameSprite(this.getTargetByName(d.spriteName).id, d.name);
     });
     let ogDuplicateSprite = this.props.vm.duplicateSprite.bind(this.props.vm);
     this.props.vm.duplicateSprite = /*#__PURE__*/function () {
-      var _ref4 = _asyncToGenerator(function* (id) {
-        return channel.publish('duplicateSprite', JSON.stringify(id));
+      var _ref6 = _asyncToGenerator(function* (id) {
+        const name = _this12.props.vm.runtime.getTargetById(id).sprite.name;
+        return channel.publish('duplicateSprite', JSON.stringify(name));
       });
-      return function (_x6) {
-        return _ref4.apply(this, arguments);
+      return function (_x8) {
+        return _ref6.apply(this, arguments);
       };
     }();
     channel.subscribe('duplicateSprite', message => {
-      ogDuplicateSprite(JSON.parse(message.data));
+      const name = JSON.parse(message.data);
+      const id = this.getTargetByName(name).id;
+      ogDuplicateSprite(id);
     });
-    let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
+    let ogSpriteInfo = this.props.vm.postSpriteInfo;
+    this.props.vm.postSpriteInfo = /*#__PURE__*/function () {
+      var _ref7 = _asyncToGenerator(function* (data) {
+        const name = _this12.props.vm.editingTarget.sprite.name;
+        const msg = {
+          name: name,
+          data: data
+        };
+        yield channel.publish('spriteInfo', JSON.stringify(msg));
+      });
+      return function (_x9) {
+        return _ref7.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('spriteInfo', message => {
+      const d = JSON.parse(message.data);
+      this.getTargetByName(d.name).postSpriteInfo(d.data);
+      this.props.vm.runtime.emitProjectChanged();
+    });
+
+    // const ogVMemit = this.props.vm.runtime.emit.bind(this.props.vm.runtime)
+    // this.props.vm.runtime.emit = (a1, a2) => {
+    //     if (a1 == "ANSWER") {
+    //         channel.publish('vmemit', JSON.stringify({a1: a1, a2: a2}));
+    //     } else {
+    //         ogVMemit(a1, a2);
+    //     }
+    // }
+    // channel.subscribe('vmemit', (message) => {
+    //     const d = JSON.parse(message.data);
+    //     ogVMemit(d.a1, d.a2);
+    // });
+
+    //let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
     this.props.vm.deleteSound = /*#__PURE__*/function () {
-      var _ref5 = _asyncToGenerator(function* (soundIndex) {
-        const ret = yield channel.publish('deleteSound', JSON.stringify(soundIndex));
+      var _ref8 = _asyncToGenerator(function* (soundIndex) {
+        const name = _this12.props.vm.runtime.editingTarget.sprite.name;
+        const msg = {
+          soundIndex: soundIndex,
+          name: name
+        };
+        const ret = yield channel.publish('deleteSound', JSON.stringify(msg));
         return ret;
       });
-      return function (_x7) {
-        return _ref5.apply(this, arguments);
+      return function (_x10) {
+        return _ref8.apply(this, arguments);
       };
     }();
     channel.subscribe('deleteSound', message => {
-      ogDeleteSound(JSON.parse(message.data));
+      const d = JSON.parse(message.data);
+      const soundIndex = d.soundIndex;
+      const target = this.getTargetByName(d.name);
+      const deletedSound = target.deleteSound(soundIndex);
+      if (deletedSound) {
+        this.runtime.emitProjectChanged();
+        const restoreFun = () => {
+          target.addSound(deletedSound);
+          this.emitTargetsUpdate();
+        };
+        return restoreFun;
+      }
+      return null;
     });
     let ogAddSound = this.props.vm.addSound.bind(this.props.vm);
     this.props.vm.addSound = /*#__PURE__*/function () {
-      var _ref6 = _asyncToGenerator(function* (sound, idx) {
-        const msg = {
-          sound: sound,
-          idx: idx
-        };
-        return channel.publish('addSound', JSON.stringify(msg));
+      var _ref9 = _asyncToGenerator(function (sound) {
+        let idx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "AMONGUSLMAO";
+        return function* () {
+          const name = idx == "AMONGUSLMAO" ? _this12.props.vm.editingTarget.sprite.name : _this12.props.vm.runtime.getTargetById(idx).sprite.name;
+          const msg = {
+            sound: sound,
+            spriteName: name
+          };
+          return channel.publish('addSound', JSON.stringify(msg));
+        }();
       });
-      return function (_x8, _x9) {
-        return _ref6.apply(this, arguments);
+      return function (_x11) {
+        return _ref9.apply(this, arguments);
       };
     }();
     channel.subscribe('addSound', message => {
       const d = JSON.parse(message.data);
-      ogAddSound(d.sound, d.idx);
+      ogAddSound(d.sound, this.getTargetByName(d.spriteName).id);
     });
     let ogRenameSound = this.props.vm.renameSound.bind(this.props.vm);
     this.props.vm.renameSound = /*#__PURE__*/function () {
-      var _ref7 = _asyncToGenerator(function* (soundIndex, newName) {
+      var _ref10 = _asyncToGenerator(function* (soundIndex, newName) {
         const msg = {
           soundIndex: soundIndex,
-          newName: newName
+          newName: newName,
+          spriteName: _this12.props.vm.editingTarget.sprite.name
         };
         channel.publish('renameSound', JSON.stringify(msg));
       });
-      return function (_x10, _x11) {
-        return _ref7.apply(this, arguments);
+      return function (_x12, _x13) {
+        return _ref10.apply(this, arguments);
       };
     }();
     channel.subscribe('renameSound', message => {
       const d = JSON.parse(message.data);
-      ogRenameSound(d.soundIndex, d.newName);
+      const target = this.getTargetByName(d.spriteName);
+      target.renameSound(d.soundIndex, d.newName);
+      this.props.vm.emitTargetsUpdate();
     });
-    let ogDeleteCostume = this.props.vm.deleteCostume.bind(this.props.vm);
     this.props.vm.deleteCostume = /*#__PURE__*/function () {
-      var _ref8 = _asyncToGenerator(function* (costumeIndex) {
-        const ret = yield channel.publish('deleteCostume', JSON.stringify(costumeIndex));
+      var _ref11 = _asyncToGenerator(function* (costumeIndex) {
+        const spriteName = _this12.props.vm.editingTarget.sprite.name;
+        const msg = {
+          costumeIndex: costumeIndex,
+          spriteName: spriteName
+        };
+        const ret = yield channel.publish('deleteCostume', JSON.stringify(msg));
         return ret;
       });
-      return function (_x12) {
-        return _ref8.apply(this, arguments);
+      return function (_x14) {
+        return _ref11.apply(this, arguments);
       };
     }();
     channel.subscribe('deleteCostume', message => {
-      ogDeleteCostume(JSON.parse(message.data));
+      const data = JSON.parse(message.data);
+      const costumeIndex = data.costumeIndex;
+      // getTargetForStage
+      const target = this.getTargetByName(data.spriteName);
+      console.log("deleted costume", costumeIndex, target);
+      const deletedCostume = target.deleteCostume(costumeIndex);
+      if (deletedCostume) {
+        this.runtime.emitProjectChanged();
+        return () => {
+          target.addCostume(deletedCostume);
+          this.emitTargetsUpdate();
+        };
+      }
+      return null;
     });
     let ogAddCostumeFromLibrary = this.props.vm.addCostumeFromLibrary.bind(this.props.vm);
     this.props.vm.addCostumeFromLibrary = /*#__PURE__*/function () {
-      var _ref9 = _asyncToGenerator(function* (md5, costumeOBject) {
+      var _ref12 = _asyncToGenerator(function* (md5, costumeOBject) {
         const msg = {
           md5: md5,
           costumeOBject: costumeOBject
         };
         return channel.publish('addCostumeFromLibrary', JSON.stringify(msg));
       });
-      return function (_x13, _x14) {
-        return _ref9.apply(this, arguments);
+      return function (_x15, _x16) {
+        return _ref12.apply(this, arguments);
       };
     }();
     channel.subscribe('addCostumeFromLibrary', message => {
@@ -13213,12 +13482,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogDupeCostume = this.props.vm.duplicateCostume.bind(this.props.vm);
     this.props.vm.duplicateCostume = /*#__PURE__*/function () {
-      var _ref10 = _asyncToGenerator(function* (costumeIndex) {
+      var _ref13 = _asyncToGenerator(function* (costumeIndex) {
         const ret = yield channel.publish('duplicateCostume', JSON.stringify(costumeIndex));
         return ret;
       });
-      return function (_x15) {
-        return _ref10.apply(this, arguments);
+      return function (_x17) {
+        return _ref13.apply(this, arguments);
       };
     }();
     channel.subscribe('duplicateCostume', message => {
@@ -13227,26 +13496,27 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
     //let ogRenameCostume = this.props.vm.renameCostume.bind(this.props.vm);
     this.props.vm.renameCostume = /*#__PURE__*/function () {
-      var _ref11 = _asyncToGenerator(function (costumeIndex, newName) {
-        let spriteName = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : null;
-        return function* () {
-          if (spriteName == null) spriteName = _this10.props.vm.editingTarget.sprite.name;
-          const msg = {
-            costumeIndex: costumeIndex,
-            newName: newName,
-            spriteName: spriteName
-          };
-          channel.publish('renameCostume', JSON.stringify(msg));
-        }();
+      var _ref14 = _asyncToGenerator(function* (costumeIndex, newName) {
+        const spriteName = _this12.props.vm.editingTarget.sprite.name;
+        const msg = {
+          costumeIndex: costumeIndex,
+          newName: newName,
+          spriteName: spriteName
+        };
+        channel.publish('renameCostume', JSON.stringify(msg));
       });
-      return function (_x16, _x17) {
-        return _ref11.apply(this, arguments);
+      return function (_x18, _x19) {
+        return _ref14.apply(this, arguments);
       };
     }();
     channel.subscribe('renameCostume', message => {
       const d = JSON.parse(message.data);
-      this.props.vm.runtime.getSpriteTargetByName(d.spriteName).renameCostume(d.costumeIndex, d.newName);
+      this.getTargetByName(d.spriteName).renameCostume(d.costumeIndex, d.newName);
       this.props.vm.emitTargetsUpdate();
+    });
+    channel.subscribe('selectCostume', message => {
+      const data = JSON.parse(message.data);
+      this.getTargetByName(data.spriteName).setCostume(data.costumeIndex);
     });
     let ogAddCostume = this.props.vm.addCostume.bind(this.props.vm);
     this.props.vm.addCostume = function (md5, costumeOBject, optTarget, optVersion) {
@@ -13262,9 +13532,42 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       const d = JSON.parse(message.data);
       ogAddCostume(d.md5, d.costumeOBject, d.optTarget, d.optVersion);
     });
+
+    // this.props.vm.createVariable = function(id,name,type,isCloud) {
+    //     console.log("VARIABLE MADE")
+    //     // const msg = {id: id, name: name, type: type, isCloud: isCloud};
+    //     // return channel.publish('createVariable', JSON.stringify(msg));
+    // }
+
+    const ogCreateVar = this.workspace.createVariable.bind(this.workspace);
+    this.workspace.createVariable = function (name, opt_type, opt_id, opt_isLocal, opt_isCloud) {
+      //console.log("VARIABLE MADE", name)
+      ogCreateVar(name, opt_type, opt_id, opt_isLocal, opt_isCloud);
+      const msg = {
+        name: name,
+        opt_type: opt_type,
+        opt_id: opt_id,
+        opt_isLocal: opt_isLocal,
+        opt_isCloud: opt_isCloud,
+        uid: nid
+      };
+      channel.publish('createVariable', JSON.stringify(msg));
+    };
+    channel.subscribe('createVariable', message => {
+      const d = JSON.parse(message.data);
+      if (d.uid == nid) {
+        return;
+      }
+      ogCreateVar(d.name, d.opt_type, d.opt_id, d.opt_isLocal, d.opt_isCloud);
+    });
+
+    // this.workspace.prototype.createVariable = function(id,name,sf,type,isCloud) {
+    //     console.log("MADE VARIABLE")
+    // }
+
     this.props.vm.updateSvg = function (costumeIndex, svg, rotationCenterX, rotationCenterY) {
       let targetName = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "";
-      console.log(this);
+      //console.log(this)
       var target;
       if (targetName == "") target = this.editingTarget;else target = this.runtime.getSpriteTargetByName(targetName);
       const costume = target.getCostumes()[costumeIndex];
@@ -13286,7 +13589,55 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       costume.md5 = "".concat(costume.assetId, ".").concat(costume.dataFormat);
       this.emitTargetsUpdate();
     }.bind(this.props.vm);
+
+    // console.log(this.props.vm.runtime._primitives)
+    // console.log(this.props.vm.runtime._hats)
+
+    this.props.vm.runtime._primitives['motion_goto'] = function (args, util) {
+      const xmul = Math.abs((this.randomIndex * 2539301 + 26923) % 633280);
+      const randomFloat1 = xmul * xmul % 101 / 100;
+      const randomFloat2 = Math.abs((this.randomIndex * 49142293 - 2525382) % 626925393) % 101 / 100;
+      const randomPosition = [480 * (randomFloat1 - 0.5), 360 * (randomFloat2 - 0.5)];
+      const targetXY = args.TO == "_random_" ? randomPosition : this._getTargetXY(args.TO, util);
+      //console.log(this.props.vm.runtime.STAGE_WIDTH, randomFloat1, targetXY, args.TO, this.randomIndex)
+      if (targetXY) {
+        util.target.setXY(targetXY[0], targetXY[1]);
+      }
+      this.randomIndex += 1;
+    }.bind(this);
+
+    // this.props.vm.runtime._primitives['sensing_resettimer'] = function (args, util) {
+    //     debugger
+    //     console.log(args, util)
+    // }
+
+    //console.log("WHAT", this.props.vm.runtime.defaultBlockPackages.scratch3_motion)
+
     this.initInformation.bind(this)();
+    //this.props.vm.clearFlyoutBlocks()
+  }
+  _getTargetXY(targetName, util) {
+    let targetX = 0;
+    let targetY = 0;
+    if (targetName === '_mouse_') {
+      targetX = util.ioQuery('mouse', 'getScratchX');
+      targetY = util.ioQuery('mouse', 'getScratchY');
+    } else {
+      targetName = Cast.toString(targetName);
+      const goToTarget = this.runtime.getSpriteTargetByName(targetName);
+      if (!goToTarget) return;
+      targetX = goToTarget.x;
+      targetY = goToTarget.y;
+    }
+    return [targetX, targetY];
+  }
+  getTargetByName(name) {
+    return name == "Stage" ? this.props.vm.runtime.getTargetForStage() : this.props.vm.runtime.getSpriteTargetByName(name);
+  }
+  newUserJoined(msg) {
+    console.log("JOINED!!");
+    // console.log(this.props.vm.runtime.execute.blockUtility)
+    // this.props.vm.runtime.execute.blockUtility.ioQuery('clock', 'resetProjectTimer')
   }
   detachVM() {
     this.props.vm.removeListener('SCRIPT_GLOW_ON', this.onScriptGlowOn);
@@ -13488,18 +13839,15 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   }
   setBlocks(blocks) {
     this.blocks = blocks;
-
-    // MARKER
-    const ogUpdateScroll = this.ScratchBlocks.WorkspaceDragger.prototype.updateScroll_;
-    this.ScratchBlocks.WorkspaceDragger.prototype.updateScroll_ = function (x, y) {
-      (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.setDragRelative)({
-        x: x,
-        y: y
-      });
-      ogUpdateScroll.call(this, x, y);
-    };
   }
   handlePromptStart(message, defaultValue, callback, optTitle, optVarType) {
+    //     const msg = {message:message, defaultValue:defaultValue, optTitle:optTitle, optVarType:optVarType};
+    //     await channel.publish('promptStart', JSON.stringify(msg));
+    // }
+    // handlePrompt(msg) {
+    //     const callback = this.ScratchBlocks.Variables.createVariable
+    //     const {message, defaultValue, optTitle, optVarType} = JSON.parse(msg.data);
+    console.log(callback);
     const p = {
       prompt: {
         callback,
@@ -13530,7 +13878,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
    * and additional potentially conflicting variable names from the VM
    * to the variable validation prompt callback used in scratch-blocks.
    */
+
   handlePromptCallback(input, variableOptions) {
+    // const kkk = function(d,e,k){k=k||{};var g="local"===k.scope||!1;k=k.isCloud||!1;e=e||[];if(d=f(d,a,g?[]:e,k,b)){var h;a.getPotentialVariableMap()&&c&&(h=Blockly.Variables.realizePotentialVar(d,c,a,!1));h||(h=a.createVariable(d,c,null,g,k));g=a.isFlyout?a:a.getFlyout();h=h.getId();g.setCheckboxState&&g.setCheckboxState(h,!0);b&&b(h);}else b&&b(null);};kkk("fdsafsd","my variable",{"scope":"global","isCloud":false})
+    // console.log(variableOptions, JSON.stringify(variableOptions))
+    // console.log("const kkk = " + this.state.prompt.callback.toString()+`kkk(${input},${this.props.vm.runtime.getAllVarNamesOfType(this.state.prompt.varType)},${JSON.stringify(variableOptions)})`)
+    // console.log(eval("const kkk = " + this.state.prompt.callback.toString()+`;kkk("${input}","${this.props.vm.runtime.getAllVarNamesOfType(this.state.prompt.varType)}",${JSON.stringify(variableOptions)})`))
+    // console.log(this.state.prompt.callback, this.ScratchBlocks.Variables.createVariable, input, variableOptions)
     this.state.prompt.callback(input, this.props.vm.runtime.getAllVarNamesOfType(this.state.prompt.varType), variableOptions);
     this.handlePromptClose();
   }
@@ -14306,12 +14660,22 @@ class CostumeTab extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     }
   }
   handleSelectCostume(costumeIndex) {
-    this.props.vm.editingTarget.setCostume(costumeIndex);
+    const msg = {
+      spriteName: this.props.vm.editingTarget.sprite.name,
+      costumeIndex: costumeIndex
+    };
+    channel.publish('selectCostume', JSON.stringify(msg));
     this.setState({
       selectedCostumeIndex: costumeIndex
     });
   }
   handleDeleteCostume(costumeIndex) {
+    const restoreCostumeFun = this.props.vm.deleteCostume(costumeIndex);
+    this.props.dispatchUpdateRestore({
+      restoreFun: restoreCostumeFun,
+      deletedItem: 'Costume'
+    });
+    return;
     channel.publish('deleteCostume', JSON.stringify(costumeIndex));
   }
   deleteCostume(msg) {
@@ -17178,16 +17542,19 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash.bindall */ "./node_modules/lodash.bindall/index.js");
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash_bindall__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var _components_question_question_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/question/question.jsx */ "./src/components/question/question.jsx");
+/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
 
 
 
 
+
+const ablyChannel = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_3__.ablyInstance.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_3__.ablySpace);
 class Question extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
   constructor(props) {
     super(props);
@@ -17195,17 +17562,23 @@ class Question extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     this.state = {
       answer: ''
     };
+    ablyChannel.subscribe('changeAnswer', message => {
+      this.setState({
+        answer: JSON.parse(message.data)
+      });
+    });
+    ablyChannel.subscribe('submitAnswer', message => {
+      this.props.onQuestionAnswered(JSON.parse(message.data));
+    });
   }
   handleChange(e) {
-    this.setState({
-      answer: e.target.value
-    });
+    ablyChannel.publish('changeAnswer', JSON.stringify(e.target.value));
   }
   handleKeyPress(event) {
     if (event.key === 'Enter') this.handleSubmit();
   }
   handleSubmit() {
-    this.props.onQuestionAnswered(this.state.answer);
+    ablyChannel.publish('submitAnswer', JSON.stringify(this.state.answer));
   }
   render() {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_question_question_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
@@ -17218,8 +17591,8 @@ class Question extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
   }
 }
 Question.propTypes = {
-  onQuestionAnswered: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func).isRequired,
-  question: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().string)
+  onQuestionAnswered: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func).isRequired,
+  question: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().string)
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (Question);
 
@@ -18919,10 +19292,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash.bindall */ "./node_modules/lodash.bindall/index.js");
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash_bindall__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _components_sprite_info_sprite_info_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/sprite-info/sprite-info.jsx */ "./src/components/sprite-info/sprite-info.jsx");
+/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -18933,18 +19307,23 @@ function _extends() { _extends = Object.assign ? Object.assign.bind() : function
 
 
 
+
+const ablyChannel = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_3__.ablyInstance.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_3__.ablySpace);
 class SpriteInfo extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
   constructor(props) {
     super(props);
     lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['handleClickVisible', 'handleClickNotVisible']);
+    ablyChannel.subscribe('changeVisibility', message => {
+      this.props.onChangeVisibility(JSON.parse(message.data));
+    });
   }
   handleClickVisible(e) {
     e.preventDefault();
-    this.props.onChangeVisibility(true);
+    ablyChannel.publish('changeVisibility', JSON.stringify(true));
   }
   handleClickNotVisible(e) {
     e.preventDefault();
-    this.props.onChangeVisibility(false);
+    ablyChannel.publish('changeVisibility', JSON.stringify(false));
   }
   render() {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_components_sprite_info_sprite_info_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], _extends({}, this.props, {
@@ -18954,14 +19333,14 @@ class SpriteInfo extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
   }
 }
 SpriteInfo.propTypes = _objectSpread(_objectSpread({}, _components_sprite_info_sprite_info_jsx__WEBPACK_IMPORTED_MODULE_2__["default"].propTypes), {}, {
-  onChangeDirection: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
-  onChangeName: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
-  onChangeSize: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
-  onChangeVisibility: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
-  onChangeX: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
-  onChangeY: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
-  x: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().number),
-  y: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().number)
+  onChangeDirection: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
+  onChangeName: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
+  onChangeSize: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
+  onChangeVisibility: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
+  onChangeX: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
+  onChangeY: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
+  x: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number),
+  y: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number)
 });
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SpriteInfo);
 
@@ -19717,11 +20096,12 @@ class Stage extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
     });
   }
   handleQuestionAnswered(answer) {
+    var _this = this;
     this.setState({
       question: null
-    }, () => {
-      this.props.vm.runtime.emit('ANSWER', answer);
-    });
+    }, /*#__PURE__*/_asyncToGenerator(function* () {
+      yield _this.props.vm.runtime.emit('ANSWER', answer);
+    }));
   }
   startColorPickingLoop() {
     this.intervalId = setInterval(() => {
@@ -19736,22 +20116,22 @@ class Stage extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
     clearInterval(this.intervalId);
   }
   handleCursor(e) {
-    var _this = this;
+    var _this2 = this;
     return _asyncToGenerator(function* () {
-      _this.miters++;
+      _this2.miters++;
       const {
         x,
         y
       } = (0,_lib_touch_utils__WEBPACK_IMPORTED_MODULE_6__.getEventXY)(e);
       // Set editing target from cursor position, if clicking on a sprite.
-      const mousePosition = [x - _this.rect.left, y - _this.rect.top];
-      if (_this.miters % 10 != 1) {
-        _this.onMouseMove(e);
+      const mousePosition = [x - _this2.rect.left, y - _this2.rect.top];
+      if (_this2.miters % 10 != 1) {
+        _this2.onMouseMove(e);
         return;
       }
       ;
       if (mousePosition[0] < 0) {
-        _this.onMouseMove(e);
+        _this2.onMouseMove(e);
         return;
       }
       yield channel.publish('mousemove', JSON.stringify(e));
@@ -19774,61 +20154,61 @@ class Stage extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
     return JSON.stringify(obj, null, 2);
   }
   attachMouseEvents(canvas) {
-    var _this2 = this;
+    var _this3 = this;
     return _asyncToGenerator(function* () {
-      yield channel.subscribe('mouseup', message => _this2.onMouseUp(JSON.parse(message.data)));
-      yield channel.subscribe('touchend', message => _this2.onMouseUp(JSON.parse(message.data)));
-      yield channel.subscribe('mousedown', message => _this2.onMouseDown(JSON.parse(message.data)));
-      yield channel.subscribe('touchstart', message => _this2.onMouseDown(JSON.parse(message.data)));
+      yield channel.subscribe('mouseup', message => _this3.onMouseUp(JSON.parse(message.data)));
+      yield channel.subscribe('touchend', message => _this3.onMouseUp(JSON.parse(message.data)));
+      yield channel.subscribe('mousedown', message => _this3.onMouseDown(JSON.parse(message.data)));
+      yield channel.subscribe('touchstart', message => _this3.onMouseDown(JSON.parse(message.data)));
       document.addEventListener('mouseup', /*#__PURE__*/function () {
-        var _ref = _asyncToGenerator(function* (e) {
-          yield channel.publish('mouseup', _this2.stringifyMouseEvent(e));
+        var _ref2 = _asyncToGenerator(function* (e) {
+          yield channel.publish('mouseup', _this3.stringifyMouseEvent(e));
         });
         return function (_x) {
-          return _ref.apply(this, arguments);
-        };
-      }());
-      document.addEventListener('touchend', /*#__PURE__*/function () {
-        var _ref2 = _asyncToGenerator(function* (e) {
-          yield channel.publish('touchend', _this2.stringifyMouseEvent(e));
-        });
-        return function (_x2) {
           return _ref2.apply(this, arguments);
         };
       }());
-      canvas.addEventListener('mousedown', /*#__PURE__*/function () {
+      document.addEventListener('touchend', /*#__PURE__*/function () {
         var _ref3 = _asyncToGenerator(function* (e) {
-          yield channel.publish('mousedown', _this2.stringifyMouseEvent(e));
+          yield channel.publish('touchend', _this3.stringifyMouseEvent(e));
         });
-        return function (_x3) {
+        return function (_x2) {
           return _ref3.apply(this, arguments);
         };
       }());
-      canvas.addEventListener('touchstart', /*#__PURE__*/function () {
+      canvas.addEventListener('mousedown', /*#__PURE__*/function () {
         var _ref4 = _asyncToGenerator(function* (e) {
-          yield channel.publish('touchstart', _this2.stringifyMouseEvent(e));
+          yield channel.publish('mousedown', _this3.stringifyMouseEvent(e));
         });
-        return function (_x4) {
+        return function (_x3) {
           return _ref4.apply(this, arguments);
         };
       }());
-      _this2.miters = 0;
-      yield channel.subscribe('mousemove', message => _this2.onMouseMove(message));
-      yield channel.subscribe('touchmove', message => _this2.onMouseMove(message));
-      document.addEventListener('mousemove', /*#__PURE__*/function () {
+      canvas.addEventListener('touchstart', /*#__PURE__*/function () {
         var _ref5 = _asyncToGenerator(function* (e) {
-          return _this2.handleCursor(e);
+          yield channel.publish('touchstart', _this3.stringifyMouseEvent(e));
         });
-        return function (_x5) {
+        return function (_x4) {
           return _ref5.apply(this, arguments);
         };
       }());
-      document.addEventListener('touchmove', /*#__PURE__*/function () {
+      _this3.miters = 0;
+      yield channel.subscribe('mousemove', message => _this3.onMouseMove(message));
+      yield channel.subscribe('touchmove', message => _this3.onMouseMove(message));
+      document.addEventListener('mousemove', /*#__PURE__*/function () {
         var _ref6 = _asyncToGenerator(function* (e) {
-          return _this2.handleCursor(e);
+          return _this3.handleCursor(e);
+        });
+        return function (_x5) {
+          return _ref6.apply(this, arguments);
+        };
+      }());
+      document.addEventListener('touchmove', /*#__PURE__*/function () {
+        var _ref7 = _asyncToGenerator(function* (e) {
+          return _this3.handleCursor(e);
         });
         return function (_x6) {
-          return _ref6.apply(this, arguments);
+          return _ref7.apply(this, arguments);
         };
       }());
 
@@ -19843,7 +20223,7 @@ class Stage extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
       //document.addEventListener('touchend', this.onMouseUp);
       //canvas.addEventListener('mousedown', this.onMouseDown);
       //canvas.addEventListener('touchstart', this.onMouseDown);
-      canvas.addEventListener('wheel', _this2.onWheel);
+      canvas.addEventListener('wheel', _this3.onWheel);
     })();
   }
   detachMouseEvents(canvas) {
@@ -22770,6 +23150,7 @@ __webpack_require__.r(__webpack_exports__);
     const random = ScratchBlocks.ScratchMsgs.translate('MOTION_GOTO_RANDOM', 'random position');
     const mouse = ScratchBlocks.ScratchMsgs.translate('MOTION_GOTO_POINTER', 'mouse-pointer');
     const json = jsonForMenuBlock('TO', spriteMenu, motionColors, [[random, '_random_'], [mouse, '_mouse_']]);
+    //console.log("WHAT IS THIS", json)
     this.jsonInit(json);
   };
   ScratchBlocks.Blocks.motion_glideto_menu.init = function () {
@@ -23026,7 +23407,6 @@ const cloudManagerHOC = function cloudManagerHOC(WrappedComponent) {
       return this.cloudProvider && !!this.cloudProvider.connection;
     }
     connectToCloud() {
-      console.log("WHAT THE FUCK IS LIFE");
       this.cloudProvider = new _lib_cloud_provider__WEBPACK_IMPORTED_MODULE_4__["default"](this.props.cloudHost, this.props.vm, this.props.username, this.props.projectId);
       this.props.vm.setCloudProvider(this.cloudProvider);
     }
@@ -24126,15 +24506,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash.bindall */ "./node_modules/lodash.bindall/index.js");
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash_bindall__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var lodash_omit__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lodash.omit */ "./node_modules/lodash.omit/index.js");
 /* harmony import */ var lodash_omit__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(lodash_omit__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
-
 
 
 
@@ -24226,24 +24604,22 @@ const DropAreaHOC = function DropAreaHOC(dragTypes) {
         const componentProps = lodash_omit__WEBPACK_IMPORTED_MODULE_2___default()(this.props, ['onDrop', 'dragInfo', 'componentRef']);
         return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(WrappedComponent, _extends({
           containerRef: this.setRef,
-          dragOver: this.state.dragOver,
-          onMouseEnter: () => (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_4__.setHover)(true),
-          onMouseLeave: () => (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_4__.setHover)(false)
+          dragOver: this.state.dragOver
         }, componentProps));
       }
     }
     DropAreaWrapper.propTypes = {
-      componentRef: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().func),
-      dragInfo: prop_types__WEBPACK_IMPORTED_MODULE_5___default().shape({
-        currentOffset: prop_types__WEBPACK_IMPORTED_MODULE_5___default().shape({
-          x: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().number),
-          y: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().number)
+      componentRef: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
+      dragInfo: prop_types__WEBPACK_IMPORTED_MODULE_4___default().shape({
+        currentOffset: prop_types__WEBPACK_IMPORTED_MODULE_4___default().shape({
+          x: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number),
+          y: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number)
         }),
-        dragType: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().string),
-        dragging: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().bool),
-        index: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().number)
+        dragType: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().string),
+        dragging: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().bool),
+        index: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number)
       }),
-      onDrop: (prop_types__WEBPACK_IMPORTED_MODULE_5___default().func)
+      onDrop: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func)
     };
     const mapStateToProps = state => ({
       dragInfo: state.scratchGui.assetDrag
@@ -29431,16 +29807,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
 /* harmony export */ });
-const data = [0.72, 0.45, 0.2, 0.41, 0.47, 0.86, 0.98, 0.83, 0.100, 0.21, 0.38, 0.87, 0.15, 0.35, 0.88, 0.52, 0.58, 0.60, 0.75, 0.55, 0.28, 0.89, 0.94, 0.53, 0.56, 0.96, 0.79, 0.17, 0.39, 0.93, 0.30, 0.84, 0.99, 0.3, 0.31, 0.11, 0.13, 0.68, 0.6, 0.4, 0.54, 0.64, 0.59, 0.71, 0.78, 0.49, 0.5, 0.16, 0.8, 0.69, 0.50, 0.33, 0.19, 0.66, 0.9, 0.61, 0.36, 0.27, 0.81, 0.25, 0.48, 0.73, 0.77, 0.92, 0.24, 0.37, 0.95, 0.65, 0.29, 0.34, 0.85, 0.12, 0.32, 0.80, 0.44, 0.46, 0.51, 0.57, 0.90, 0.14, 0.63, 0.7, 0.23, 0.97, 0.67, 0.20, 0.74, 0.22, 0.43, 0.70, 0.1, 0.62, 0.91, 0.42, 0.26, 0.40, 0.82, 0.10, 0.18, 0.76];
-let i = 0;
 const randomizeSpritePosition = spriteObject => {
-  i += 1;
-  if (i > 100) {
-    i = 0;
-  }
   // https://github.com/LLK/scratch-flash/blob/689f3c79a7e8b2e98f5be80056d877f303a8d8ba/src/Scratch.as#L1385
-  spriteObject.x = Math.floor(200 * 2 * (data[i] - 0.5) - 100);
-  spriteObject.y = Math.floor(100 * 2 * (data[i] - 0.5) - 50);
+  spriteObject.x = 0;
+  spriteObject.y = 0;
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (randomizeSpritePosition);
 
@@ -30207,7 +30577,6 @@ class Storage extends (scratch_storage__WEBPACK_IMPORTED_MODULE_0___default()) {
   getAssetGetConfig(asset) {
     console.log(this.assets, asset);
     if (asset.assetId in this.assets) {
-      console.log("AINT IT SO");
       return "https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/images?fileName=".concat(asset.assetId, ".").concat(asset.dataFormat);
     }
     return "".concat(this.assetHost, "/internalapi/asset/").concat(asset.assetId, ".").concat(asset.dataFormat, "/get/");
@@ -32651,6 +33020,7 @@ const reducer = function reducer(state, action) {
   }
 };
 const activateTab = function activateTab(tab) {
+  sessionStorage.setItem('activeTabIndex', tab);
   return {
     type: ACTIVATE_TAB,
     activeTabIndex: tab
@@ -34905,10 +35275,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   ablyInstance: () => (/* binding */ ablyInstance),
 /* harmony export */   ablySpace: () => (/* binding */ ablySpace),
-/* harmony export */   getDragRelative: () => (/* binding */ getDragRelative),
-/* harmony export */   getHover: () => (/* binding */ getHover),
-/* harmony export */   setDragRelative: () => (/* binding */ setDragRelative),
-/* harmony export */   setHover: () => (/* binding */ setHover)
+/* harmony export */   cursorColor: () => (/* binding */ cursorColor)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var ably__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ably */ "./node_modules/ably/build/ably-commonjs.js");
@@ -34920,26 +35287,10 @@ __webpack_require__.r(__webpack_exports__);
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const ablySpace = urlParams.get('space').toString();
-let dragRelative = {
-  x: 0,
-  y: 0
-};
-let isHovering = false;
+const cursorColor = urlParams.get('color').toString();
 const ablyInstance = new ably__WEBPACK_IMPORTED_MODULE_1__.Realtime.Promise({
   authUrl: "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ably"
 });
-const setDragRelative = val => {
-  dragRelative = val;
-};
-const getDragRelative = () => {
-  return dragRelative;
-};
-const setHover = val => {
-  isHovering = val;
-};
-const getHover = () => {
-  return isHovering;
-};
 
 /***/ }),
 
@@ -43370,4 +43721,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.dd7a5f08a7317620d718.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.d576fa54a979ee0afe5e.js.map

@@ -10,7 +10,11 @@ const chatButton = document.getElementById('chat__button');
 const rightBar = document.getElementById('right_bar');
 const streamContainer = document.getElementById('stream__container');
 const chatPanel = document.getElementById('messages__container');
+const expandBtn = document.getElementById('expand-btn');
+const revertBtn = document.getElementById('revert-btn');
+const mainStream= document.getElementById('main-stream')
 let containerRect = rightBar.getBoundingClientRect()
+
 
 let activeMemberContainer = false;
 let isDragging = false;
@@ -33,35 +37,48 @@ async function load() {
 if (sessionStorage.getItem('email') == null) {
   window.location.href = 'index.html';
 }
+let activeChatContainer = false;
 
-memberButton.addEventListener('click', () => {
+
+memberButton.addEventListener('click', toggleMembers);
+
+function toggleMembers() {
   if (activeMemberContainer) {
     memberContainer.style.display = 'none';
   } else {
     memberContainer.style.display = 'block';
   }
 
+  if (activeChatContainer) {
+    toggleChat(true);
+  }
+
   activeMemberContainer = !activeMemberContainer;
-});
+}
 
-let activeChatContainer = false;
 
-chatButton.addEventListener('click', () => {
+chatButton.addEventListener('click', toggleChat);
+
+function toggleChat (influenceMembers=false) {
   if (activeChatContainer) {
     chatContainer.style.display = 'none';
   } else {
     chatContainer.style.display = 'block';
   }
 
+  if (activeMemberContainer && influenceMembers) {
+    toggleMembers();
+  }
+
   activeChatContainer = !activeChatContainer;
   if (activeChatContainer) {
-    moveSlider({clientY: 350}, true);
+    moveSlider({clientY: containerRect.height*0.5}, true);
   } else {
-    moveSlider({clientY: containerRect.height}, true);
+    moveSlider({clientY: containerRect.height-20}, true);
   }
-});
+}
 
-moveSlider({clientY: containerRect.height}, true);
+moveSlider({clientY: containerRect.height-20}, true);
 let displayFrame = document.getElementById('stream__box')
 let videoFrames = document.getElementsByClassName('video__container')
 let userIdInDisplayFrame = null;
@@ -79,8 +96,8 @@ let expandVideoFrame = (e) => {
 
   for(let i = 0; videoFrames.length > i; i++){
     if(videoFrames[i].id != userIdInDisplayFrame){
-      videoFrames[i].style.height = '132px'
-      videoFrames[i].style.width = '132px'
+      videoFrames[i].style.height = '136px'
+      videoFrames[i].style.width = '136px'
     }
   }
 
@@ -109,6 +126,11 @@ displayFrame.addEventListener('click', hideDisplayFrame)
 function moveSlider(event, ov=false) {
 
   if (!isDragging && !ov) return;
+  if (activeChatContainer) {
+    slider.style.display = 'block'
+  } else {
+    slider.style.display = 'none'
+  }
 
   containerRect = rightBar.getBoundingClientRect()
   
@@ -120,6 +142,11 @@ function moveSlider(event, ov=false) {
   setSliderPosition(offsetY);
 }
 
+window.addEventListener('resize', ()=>{
+  toggleChat();
+  toggleChat(); // this works. please don't touch
+});
+
 function setSliderPosition(offsetY) {
   const topHeight = offsetY - 100;
   const bottomHeight = containerRect.height - offsetY - 60;
@@ -127,7 +154,7 @@ function setSliderPosition(offsetY) {
   streamContainer.style.height = topHeight + 'px';
   chatPanel.style.height = bottomHeight + 'px';
 
-  slider.style.top = (offsetY - (slider.clientHeight / 2)) + 'px';
+  slider.style.top = (offsetY - (slider.clientHeight / 2)) - 20 + 'px';
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -142,7 +169,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // projectNameTextEdit.value = roomDict[roomId].name;
 
-  iFrame.src = "vm/index.html?space=" + roomId.toString() + "&name=" + sessionStorage.getItem('display_name') + "&color=" + sessionStorage.getItem("cursorColor");
+  iFrame.src = "vm/index.html?space=" + roomId.toString() + "&name=" + sessionStorage.getItem('display_name') + "&color=" + sessionStorage.getItem("randomColor");
 
   slider.addEventListener('mousedown', function (event) {
     isDragging = true;
@@ -182,3 +209,36 @@ function onProjectsButtonClicked() {
   let email = sessionStorage.getItem('email'); 
   window.location = 'projects.html?email=' + email;
 }
+
+expandBtn.addEventListener('click', () => {
+  // roomContainer.classList.add('expanded');
+  mainStream.style.width='10000000%';
+  rightBar.style.display = 'none';
+  expandBtn.style.display = 'none';
+  revertBtn.style.display = 'block';
+});
+
+revertBtn.addEventListener('click', () => {
+  // roomContainer.classList.remove('expanded');
+  mainStream.style.width='100%';
+  expandBtn.style.display = 'block';
+  rightBar.style.display = 'block';
+  revertBtn.style.display = 'none';
+});
+
+// Set up inactivity timeout
+let inactivityTimeout;
+const inactivityDuration = 3 * 60 * 60 * 1000//15 * 60 * 1000; // 15 minutes
+
+function resetInactivityTimeout() {
+  clearTimeout(inactivityTimeout);
+  inactivityTimeout = setTimeout(() => {
+    window.location.href = `projects.html?email=${sessionStorage.getItem("email")}`; // Redirect to another page
+  }, inactivityDuration);
+}
+
+// Reset timeout on any mouse movement
+document.addEventListener('mousemove', resetInactivityTimeout);
+
+// Initialize the timeout
+resetInactivityTimeout();

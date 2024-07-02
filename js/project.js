@@ -67,17 +67,22 @@ function displayTiles() {
             return;
         }
         const tile = document.createElement('div');
+        const img = document.createElement('img');
         tile.className = 'tile';
         tile.textContent = roomDict[room].name.replace(/([A-Z])/g, ' $1').trim(); // Format room name
         tile.onclick = () => openProject(room);
         tileContainer.appendChild(tile);
+        tile.appendChild(img);
+        //tileContainer.innerHTML += `<p>${roomDict[room].name}</p>`;
+        // img.src = 'images/draw.png';
+        // img.id = 'draw_image';
     });
     const addProjectBtn = document.createElement('div');
     addProjectBtn.className = 'tile';
     console.log("addProjectBtn", addProjectBtn)
     tileContainer.appendChild(addProjectBtn);
     addProjectBtn.innerHTML = `
-        <b>Add Project</b>
+        <b style="font-size:99px;">+</b>
     `
     addProjectBtn.onclick = () => {
         // remove add project button
@@ -88,16 +93,15 @@ function displayTiles() {
 }
 
 async function addProject(){
-    console.log("Triggered");
-    const addProjectBtn = document.createElement('div');
-    addProjectBtn.className = 'tile';
-    tileContainer.appendChild(addProjectBtn);
-    let projectName=prompt('Enter your project name');
-
+    
+    let projectName = prompt('Enter your project name');
     if (projectName == null || projectName == "") {
         return;
     }
     
+    const addProjectBtn = document.createElement('div');
+    addProjectBtn.className = 'tile';
+    tileContainer.appendChild(addProjectBtn);
 
     addProjectBtn.innerHTML = `
         <p>${projectName}</p>

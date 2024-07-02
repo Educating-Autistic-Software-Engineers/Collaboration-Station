@@ -1,4 +1,4 @@
-const APP_ID = 
+const APP_ID = "f4b000a748014380a3512b717414362c"
  
 let uid = sessionStorage.getItem('uid')
 if(!uid){
@@ -20,7 +20,7 @@ if(!roomId){
 
 const colors = [
     'red', 'green', 'blue', 'yellow', 'orange', 'purple',
-    'pink', 'brown', 'black', 'orange', 'gray', 'cyan', 'magenta'
+    'pink', 'cyan'
 ];
  
 function getRandomColor() {
@@ -32,6 +32,8 @@ sessionStorage.setItem('randomColor', randomColor)
  
 let displayName = sessionStorage.getItem('display_name')
 console.log("dp is", displayName)
+
+let activeSpeaker = null;
  
 let localTracks = []
 let remoteUsers = {}
@@ -70,19 +72,64 @@ let joinRoomInit = async () => {
  
     client.enableAudioVolumeIndicator();
     client.on('volume-indicator', handleVolumeIndicator);
+    
 }
 
- 
-const handleVolumeIndicator = volumes => {
+
+function handleVolumeIndicator(volumes) {
+    let highestVolume = -Infinity;
+    let newActiveSpeaker = null;
+
     volumes.forEach(volume => {
-        let playerElement = (uid == volume.uid) ? document.getElementById(`user-container-${uid}`) : document.getElementById(`user-container-${volume.uid}`);
-        if (volume.level > 5) {
-            playerElement.classList.add("highlight");
-        } else {
-            playerElement.classList.remove("highlight");
+        if (volume.level > highestVolume) {
+            highestVolume = volume.level;
+            newActiveSpeaker = volume.uid;
         }
     });
-};
+    
+    const threshold = 5;
+
+    if (newActiveSpeaker !== activeSpeaker) {
+        if (activeSpeaker) {
+            let previousSpeakerElement = document.getElementById(`user-container-${activeSpeaker}`);
+            if (previousSpeakerElement) {
+                previousSpeakerElement.classList.remove('highlight');
+            }
+        }
+
+        activeSpeaker = newActiveSpeaker;
+
+        if (activeSpeaker) {
+            let currentSpeakerElement = document.getElementById(`user-container-${activeSpeaker}`);
+            if (currentSpeakerElement) {
+                currentSpeakerElement.classList.add('highlight');
+            }
+        }
+    }
+
+    if (highestVolume <= threshold && activeSpeaker) {
+        let currentSpeakerElement = document.getElementById(`user-container-${activeSpeaker}`);
+        if (currentSpeakerElement) {
+            currentSpeakerElement.classList.remove('highlight');
+        }
+        activeSpeaker = null;
+    }
+
+}
+
+// const handleVolumeIndicator = () => {
+//     client.enableAudioVolumeIndicator();
+//     client.on("volume-indicator", volumes => {
+//         volumes.forEach(volume => {
+//             let playerElement = (uid == volume.uid) ? document.getElementById(`user-container-${uid}`) : document.getElementById(`user-container-${volume.uid}`);
+//             if (volume.level > 5) {
+//                 playerElement.classList.add("highlight");
+//             } else {
+//                 playerElement.classList.remove("highlight");
+//             }
+//         });
+//     });
+// };
  
 const applyVirtualBackground = async (track) => {
     // await virtualBackgroundExtension.load();
@@ -117,7 +164,12 @@ let joinStream = async () => {
         width:{min:640, ideal:1920, max:1920},
         height:{min:480, ideal:1080, max:1080}
     }})
- 
+
+    let role=sessionStorage.getItem('role')
+    console.log('ROLEIS', role);
+    if(role==='TA') {
+        document.getElementById("mute-all-btn").style.display='block'
+    }
  
     let player = `<div class="video__container" id="user-container-${uid}">
                    
@@ -224,14 +276,19 @@ let handleUserLeft = async (user) => {
  
 let toggleMic = async (e) => {
     let button = e.currentTarget
+
+    console.log(e);
  
     if(localTracks[0].muted){
         await localTracks[0].setMuted(false)
+        console.log(localTracks[0]);
+        // localTracks[0]._mediaStreamTrack.enabled = true;
         button.classList.add('active')
  
        
     }else{
         await localTracks[0].setMuted(true)
+        // localTracks[0]._mediaStreamTrack.enabled = false;
         button.classList.remove('active')
     }
 }

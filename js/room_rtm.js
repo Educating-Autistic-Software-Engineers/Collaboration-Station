@@ -18,17 +18,19 @@ let addMemberToDom = async (MemberId) => {
     console.log("yagbchjnjakca c m",name);
     // let memberColor= 'blue';
  
-    console.log(rtmClient.getUserAttributesByKeys());
-    console.log(rtmClient.getUserAttributesByKeys(MemberId,['name']));
-    console.log("Get the name",name);
+    // console.log(rtmClient.getUserAttributesByKeys());
+    // console.log(rtmClient.getUserAttributesByKeys(MemberId,['name']));
+    // console.log("Get the name",name);
  
     let membersWrapper = document.getElementById('member__list')
+    let role=sessionStorage.getItem('role');
+    let removeButton = role === 'TA' && (MemberId != uid) ? `<button class="remove__btn" onclick="removeParticipant('${MemberId}')">Remove</button>` : '';
     let memberItem = `<div class="member__wrapper" id="member__${MemberId}__wrapper">
                         <span class="green__icon"></span>
                         <p class="member_name" id="rtmName" style="color:${memberColor}";>${name}</p>
-                        <button class="remove__btn" onclick="removeParticipant('${MemberId}')">Remove</button>
+                        ${removeButton}
                     </div>`
- 
+                    // <button class="remove__btn" onclick="removeParticipant('${MemberId}')">Remove</button>
     membersWrapper.insertAdjacentHTML('beforeend', memberItem)
 }
 
@@ -54,6 +56,8 @@ let removeMemberFromDom = async (MemberId) => {
 
 let getMembers = async () => {
     let members = await channel.getMembers()
+    console.log(members);
+    console.log(members.length);
     updateMemberTotal(members)
     for (let i = 0; members.length > i; i++){
         addMemberToDom(members[i])
@@ -63,6 +67,8 @@ let getMembers = async () => {
 let handleChannelMessage = async (messageData, MemberId) => {
     console.log('A new message was received')
     let data = JSON.parse(messageData.text)
+
+    console.log("DATA", data);
 
     if(data.type === 'chat'){
         addMessageToDom(data.displayName, data.message,data.color)
@@ -88,6 +94,23 @@ let handleChannelMessage = async (messageData, MemberId) => {
         window.location.href = `projects.html?email=${email}`;
         await leaveStream();
     }
+
+    if (data.type === 'mute') {
+        // Mute the remote user's audio track
+        if (localTracks[0]) {
+            await localTracks[0].setMuted(true);
+            localTracks[0]._mediaStreamTrack.enabled = false;
+        }
+        alert('You have been muted by the TA.');
+    }
+    //  else if (data.type === 'unmute' && data.target === uid) {
+    //     // Unmute the remote user's audio track
+    //     if (localTracks[0]) {
+    //         await localTracks[0].setMuted(false);
+    //         localTracks[0]._mediaStreamTrack.enabled = true;
+    //     }
+    //     alert('You have been unmuted by the TA.');
+    // }
     
     
 }
@@ -112,6 +135,40 @@ let removeParticipant = async (MemberId) => {
 };
 window.removeParticipant = removeParticipant;
 
+
+async function muteAllParticipants(){
+
+    
+    // const members = await channel.getMembers();
+    // members.forEach(async member => {
+    //     if (member !== uid) { // Skip muting the local user (TA)
+    //         console.log("insideMember")
+    //         const remoteUser = remoteUsers[member];
+    //         if (remoteUser && remoteUser.audioTrack) {
+    //             console.log("inside Mute")
+    //             console.log(remoteUser)
+    //             remoteUser.audioTrack.setVolume(0); // Mute remote user's audio track
+    //         }
+    //     }
+    // });
+
+    await channel.sendMessage({ text: JSON.stringify({ type: 'mute' }) });
+
+    for (const member in remoteUsers) {
+        console.log('aghsadf', member, remoteUsers, remoteUsers[member]);
+        if (member !== uid) { // Skip muting the local user (TA)
+            const remoteUser = remoteUsers[member];
+            if (remoteUser && remoteUser.audioTrack) {
+                if (remoteUser && remoteUser.audioTrack && remoteUser.audioTrack._mediaStreamTrack) {
+                    // remoteUser.audioTrack._mediaStreamTrack.enabled = false; // Mute the audio track
+                //    remoteUser.localTracks[0].setMuted(true);
+                    document.getElementById('mic-btn').classList.remove('active')
+                }
+            }
+        }
+        alert('All participants have been muted.'); 
+    }
+}
 
 let sendMessage = async (e) => {
     e.preventDefault()

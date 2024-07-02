@@ -295,7 +295,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const onClickLogo = () => {
-  window.location = 'https://scratch.mit.edu';
+  window.open('https://www.edase.org', '_blank');
 };
 const handleTelemetryModalCancel = () => {
   (0,_lib_log_js__WEBPACK_IMPORTED_MODULE_6__["default"])('User canceled telemetry modal');
@@ -482,6 +482,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CursorSvg.jsx */ "./src/utils/CursorSvg.jsx");
 /* harmony import */ var _Cursors_module_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Cursors.module.css */ "./src/utils/Cursors.module.css");
 /* harmony import */ var _Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var core_js_core_object__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! core-js/core/object */ "./node_modules/core-js/core/object.js");
+/* harmony import */ var core_js_core_object__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(core_js_core_object__WEBPACK_IMPORTED_MODULE_4__);
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -491,8 +493,21 @@ function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = 
 
 
 
+
 let thisName;
+const cursorWidth = 90; // width of your cursor SVG
+const cursorHeight = 60; // height of your cursor SVG
+
 const channel = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.ablyInstance.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.ablySpace);
+sessionStorage.setItem('blocksRect', JSON.stringify({
+  x: 0,
+  y: 0,
+  right: 0,
+  bottom: 0
+}));
+const clampPosition = (position, maxPosition, elementSize) => {
+  return Math.max(0, Math.min(position, maxPosition - elementSize));
+};
 const YourCursor = _ref => {
   let {
     self,
@@ -519,16 +534,25 @@ const YourCursor = _ref => {
     };
     window.addEventListener('mousemove', handleMouseMove);
     const intervalId = setInterval(() => {
-      const dragPos = (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.getHover)() ? (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.getDragRelative)() : {
+      const tabIndex = sessionStorage.getItem("activeTabIndex");
+      const blockRect = JSON.parse(sessionStorage.getItem('blocksRect'));
+      let isHovering = latestPosition.current.x < blockRect.right; // && latestPosition.y > blockRect.y
+      if (Number(tabIndex) > 0.5) {
+        isHovering = false;
+      }
+
+      //console.log(tabIndex)
+
+      //console.log(blockRect, latestPosition.current.x, blockRect.right, isHovering)
+
+      const dragPos = isHovering ? JSON.parse(sessionStorage.getItem("dragRelative")) : {
         x: 0,
         y: 0
       };
       const globalPosition = {
-        x: latestPosition.current.x + dragPos.x,
-        y: latestPosition.current.y + dragPos.y
+        x: latestPosition.current.x - dragPos.x,
+        y: latestPosition.current.y - dragPos.y
       };
-      // console.log(JSON.stringify(cachedPosition) === JSON.stringify(globalPosition))
-
       if (JSON.stringify(cachedPosition) === JSON.stringify(globalPosition)) return;
       cachedPosition = globalPosition;
 
@@ -536,9 +560,16 @@ const YourCursor = _ref => {
 
       channel.publish('cursor', JSON.stringify({
         target: sessionStorage.getItem("editingTarget"),
+        tabIndex: tabIndex,
         clientId: name,
         position: globalPosition,
-        hovering: (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.getHover)()
+        hovering: isHovering,
+        color: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.cursorColor,
+        ogWindow: {
+          innerWidth: window.innerWidth,
+          innerHeight: window.innerHeight
+        },
+        rect: sessionStorage.getItem("blocksRect")
       }));
     }, 200);
 
@@ -548,18 +579,25 @@ const YourCursor = _ref => {
       clearInterval(intervalId);
     };
   }, [self]);
-  const cursorColor = "#FF0000";
+
+  // Get the viewport dimensions
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+
+  // Clamp the positions
+  const clampedX = clampPosition(position.x, viewportWidth, cursorWidth);
+  const clampedY = clampPosition(position.y, viewportHeight, cursorHeight);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursor),
     style: {
-      top: "".concat(position.y, "px"),
-      left: "".concat(position.x, "px")
+      top: "".concat(clampedY, "px"),
+      left: "".concat(clampedX, "px")
     }
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
-    cursorColor: cursorColor
+    cursorColor: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.cursorColor
   }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     style: {
-      backgroundColor: cursorColor
+      backgroundColor: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.cursorColor
     },
     className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursorName)
   }, "You"));
@@ -572,34 +610,52 @@ const hashCode = function hashCode(s) {
 };
 const MemberCursors = () => {
   const [cursors, setCursors] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({});
-  const randomColors = ["red", "green", "blue", "yellow", "salmon"];
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     const handleCursorMessage = message => {
       const {
         clientId,
         position,
         hovering,
-        target
+        target,
+        color,
+        tabIndex,
+        ogWindow,
+        rect
       } = JSON.parse(message.data);
       if (clientId === thisName) return;
+      const ogRect = JSON.parse(rect);
+      const blockRect = JSON.parse(sessionStorage.getItem('blocksRect'));
       let isInvisible = false;
-      const dragPos = hovering ? (0,_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.getDragRelative)() : {
+      const dragOffset = JSON.parse(sessionStorage.getItem("dragRelative"));
+      const dragPos = hovering && !(position.x + dragOffset.x < 312) ? dragOffset : {
         x: 0,
         y: 0
       };
       let relposition = {
-        x: position.x - dragPos.x,
-        y: position.y - dragPos.y
+        x: position.x + dragPos.x,
+        y: position.y + dragPos.y
       };
-      console.log(relposition);
-      if (relposition.x < 312 || relposition.y < 90 || target != sessionStorage.getItem("editingTarget")) {
+      //console.log('rel', relposition)
+
+      // top left is (312, 90)
+      //relposition.x < 312 || relposition.y < 90
+
+      if (hovering) {
+        if (relposition.x < blockRect.x || relposition.y < blockRect.y || relposition.x > blockRect.right || relposition.y > blockRect.bottom) {
+          isInvisible = true;
+        }
+      } else {
+        const xScale = (window.innerWidth - blockRect.right) / (ogWindow.innerWidth - ogRect.right);
+        relposition.x = (relposition.x - ogRect.right) * xScale + blockRect.right;
+      }
+      if (target != sessionStorage.getItem("editingTarget") || sessionStorage.getItem("activeTabIndex") != tabIndex) {
         isInvisible = true;
       }
-      const color = isInvisible ? "#ffffff00" : randomColors[hashCode(clientId) % randomColors.length];
+      const actualColor = isInvisible ? "#ffffff00" : color;
       setCursors(prevCursors => _objectSpread(_objectSpread({}, prevCursors), {}, {
         [clientId]: {
           relposition,
-          cursorColor: color,
+          cursorColor: actualColor,
           name: clientId
         }
       }));
@@ -611,21 +667,30 @@ const MemberCursors = () => {
       channel.unsubscribe('cursor', handleCursorMessage);
     };
   }, []);
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, Object.values(cursors).map((member, index) => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    key: index,
-    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursor),
-    style: {
-      top: "".concat(member.relposition.y, "px"),
-      left: "".concat(member.relposition.x, "px")
-    }
-  }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
-    cursorColor: member.cursorColor
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-    style: {
-      backgroundColor: member.cursorColor
-    },
-    className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursorName)
-  }, member.name))));
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, Object.values(cursors).map((member, index) => {
+    // Get the viewport dimensions
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    // Clamp the positions
+    const clampedX = clampPosition(member.relposition.x, viewportWidth, cursorWidth);
+    const clampedY = clampPosition(member.relposition.y, viewportHeight, cursorHeight);
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+      key: index,
+      className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursor),
+      style: {
+        top: "".concat(clampedY, "px"),
+        left: "".concat(clampedX, "px")
+      }
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
+      cursorColor: member.cursorColor
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+      style: {
+        backgroundColor: member.cursorColor
+      },
+      className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursorName)
+    }, member.cursorColor === "#ffffff00" ? "" : member.name));
+  }));
 };
 
 
@@ -805,7 +870,7 @@ if(false) {}
 },
 /******/ __webpack_require__ => { // webpackRuntimeModules
 /******/ var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-/******/ __webpack_require__.O(0, ["vendors-node_modules_microbit_microbit-universal-hex_dist_esm5_universal-hex_js-node_modules_-e1a150","vendors-node_modules_core-js_fn_array_includes_js-node_modules_intl_index_js-node_modules_abl-bc6f29","src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx"], () => (__webpack_exec__("./src/playground/index.jsx")));
+/******/ __webpack_require__.O(0, ["vendors-node_modules_microbit_microbit-universal-hex_dist_esm5_universal-hex_js-node_modules_-e1a150","vendors-node_modules_core-js_core_object_js-node_modules_core-js_fn_array_includes_js-node_mo-7eb68d","src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx"], () => (__webpack_exec__("./src/playground/index.jsx")));
 /******/ var __webpack_exports__ = __webpack_require__.O();
 /******/ return __webpack_exports__;
 /******/ }

@@ -24,6 +24,7 @@ form.addEventListener("submit", async (e) => {
 
       sessionStorage.setItem('display_name',data.name);
       sessionStorage.setItem('email',data.requestId);
+      sessionStorage.setItem('role',data.role);
 
       window.location = `projects.html?email=${email}`;
     }

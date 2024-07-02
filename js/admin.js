@@ -28,9 +28,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.log(roomDict, requests)
     
     for (let person of requests) {
+        console.log(person);
         let row = createNewRow();
         row.querySelector('#name-input').value = person.name;
         row.querySelector('#email-input').value = person.email;
+        row.querySelector('#role').value = person.role;
+        sessionStorage.setItem("role",row.querySelector('#role').value);
+        
         if (person.projects == '') {
             continue;
         }
@@ -69,8 +73,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function createNewRow() {
         const newRow = document.createElement('tr');
         newRow.innerHTML = `
-        <td><input type="text" id="name-input" placeholder="Enter name"></td>
-        <td><input type="email" id="email-input" placeholder="Enter email"></td>
+        <td><input type="text" id="name-input" placeholder="Enter name" disabled></td>
+        <td><input type="email" id="email-input" placeholder="Enter email" disabled></td>
         <td id="projects" class="projects"></td>
         <td>
             <select class="project-select" id="project-select">
@@ -82,6 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <option value="">Select a project</option>
             </select>
         </td>
+        <td><input type="text" id="role" placeholder="Enter role" disabled></td>
         `;
         projectTable.querySelector('tbody').appendChild(newRow);
 
@@ -165,7 +170,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             //console.log(row.querySelectorAll('#project-select'));
             console.log(row.querySelector('#projects').innerHTML, getRoomIDbyNames(row.querySelector('#projects').innerHTML))
             const projects = getRoomIDbyNames(row.querySelector('#projects').innerHTML);
-            return { name, email, projects };
+            const role = row.querySelector('#role').value;
+            console.log(role);
+            return { name, email, projects,role };
         });
 
         try {

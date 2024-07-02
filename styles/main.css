@@ -26,6 +26,10 @@
   background: #845695;
 }
 
+#draw_image {
+  scale: 0.01;
+}
+
 body {
   background-color: #1a1a1a;
   color: #fff;
