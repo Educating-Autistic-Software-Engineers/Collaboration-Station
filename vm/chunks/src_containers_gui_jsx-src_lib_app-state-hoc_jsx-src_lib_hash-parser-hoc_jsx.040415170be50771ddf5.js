@@ -12610,26 +12610,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
     }, 35);
     setInterval(() => {
-      // console.log(this.ScratchBlocks.WorkspaceDragger.prototype);
-      // let fun = this.ScratchBlocks.WorkspaceDragger.prototype.updateScroll_.bind(this.ScratchBlocks.WorkspaceDragger.prototype);
-      // fun(3,4);
-      // try {
-      //     console.log('routine',this.props.vm.runtime.getSpriteTargetByName("Sprite2").sprite['costumes'][0].assetId)
-      // } catch (e) {}
-    }, 500);
+      this.save();
+    }, 5 * 60 * 1000);
     console.log("constructed");
-  }
-  initAbly() {
-    var _this = this;
-    return _asyncToGenerator(function* () {
-      if (!flag1) {
-        flag1 = true;
-        yield ably.connection.once("connected");
-        _this.load();
-        console.log("connected to Ably");
-        //console.log(LibraryComponent.costumeIdsToData);
-      }
-    })();
   }
   componentDidMount() {
     this.ScratchBlocks = (0,_lib_blocks__WEBPACK_IMPORTED_MODULE_5__["default"])(this.props.vm, this.props.useCatBlocks);
@@ -12681,7 +12664,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     if (this.props.isVisible) {
       this.setLocale();
     }
-    this.initAbly();
     this.updateDimensions();
     window.addEventListener('resize', this.updateDimensions);
   }
@@ -12793,44 +12775,45 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
   }
   initInformation() {
-    var _this2 = this;
+    var _this = this;
     return _asyncToGenerator(function* () {
       if (!hasInited) {
-        _this2.hasLoadedFully = false;
-        _this2.queueWorkspaceUpdate = false;
-        _this2.pauseWorkspaceUpdate = false;
-        _this2.queueFurtherSends = false;
-        _this2.stopEmission = false;
-        _this2.holdingBlock = false;
-        _this2.lastBlockId = "";
-        _this2.lastBlockType = "";
-        _this2.lastTempId = "";
-        _this2.randomIndex = 0;
+        _this.hasLoadedFully = false;
+        _this.hasLoadedInitially = false;
+        _this.queueWorkspaceUpdate = false;
+        _this.pauseWorkspaceUpdate = false;
+        _this.queueFurtherSends = false;
+        _this.stopEmission = false;
+        _this.holdingBlock = false;
+        _this.lastBlockId = "";
+        _this.lastBlockType = "";
+        _this.lastTempId = "";
+        _this.randomIndex = 0;
         hasInited = true;
-        _this2.varCallbackFunc = function (a, b, c) {
+        _this.varCallbackFunc = function (a, b, c) {
           console.log(a, b, c, "callback var trigged early");
         };
-        _this2.backlog = [];
-        _this2.queue = [];
+        _this.backlog = [];
+        _this.queue = [];
         //this.blocks = [];
-        _this2.idToAll = {};
-        _this2.amountOfBlocks = 0;
-        yield channel.subscribe('event', message => _this2.recieveInformation(message));
+        _this.idToAll = {};
+        _this.amountOfBlocks = 0;
+        yield ably.connection.once("connected");
+        console.log("connected to Ably");
+        yield channel.subscribe('event', message => _this.recieveInformation(message));
         //await channel.subscribe('onSelect', (message) => this.spriteOnSelect(message));
-        yield channel.subscribe('imageUpdated', message => _this2.imageUpdated(message));
+        yield channel.subscribe('imageUpdated', message => _this.imageUpdated(message));
         yield channel.subscribe('renameCostume', message => {
           const data = JSON.parse(message.data);
-          _this2.props.vm.renameCostume(data.costumeIndex, data.name);
+          _this.props.vm.renameCostume(data.costumeIndex, data.name);
         });
-        yield channel.subscribe('preRefresh', /*#__PURE__*/function () {
-          var _ref = _asyncToGenerator(function* (message) {
-            yield _this2.save();
-          });
-          return function (_x) {
-            return _ref.apply(this, arguments);
-          };
-        }());
-        yield channel.subscribe('newJoin', _this2.newUserJoined.bind(_this2));
+        yield channel.subscribe('newJoin', _this.newUserJoined.bind(_this));
+        yield channel.subscribe('goodForLoad', msg => {
+          if (!_this.hasLoadedInitially) {
+            _this.load();
+            _this.hasLoadedInitially = true;
+          }
+        });
         // await channel.subscribe('varPrompt', (message) => {
         //     const data = JSON.parse(message.data);
         //     this.varCallbackFunc(data.a, data.b, data.c);
@@ -12838,12 +12821,41 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         //await channel.subscribe('promptStart', this.handlePrompt.bind(this))
         //await channel.subscribe('promptSubmitted', this.handlePromptSubmitted.bind(this))
 
-        yield channel.publish('newJoin', "");
+        // await channel.attach();
+        // const presenceSet = await channel.presence.get();
+
+        // Ensure the channel is attached
+        yield channel.attach();
+
+        // Fetch the presence data
+        const presenceSet = yield channel.presence.get();
+        console.log("prescence", presenceSet);
+        if (presenceSet.length > 0) {
+          //console.log("presence set", presenceSet)
+          yield channel.subscribe('goodForLoad', /*#__PURE__*/function () {
+            var _ref = _asyncToGenerator(function* (msg) {
+              if (!_this.hasLoadedInitially) {
+                yield _this.load();
+                _this.hasLoadedInitially = true;
+              }
+            });
+            return function (_x) {
+              return _ref.apply(this, arguments);
+            };
+          }());
+          yield channel.publish('newJoin', JSON.stringify({
+            uid: nid
+          }));
+        } else {
+          yield _this.load();
+        }
+        yield channel.presence.enter();
+        _this.hasLoadedFully = true;
       }
     })();
   }
   spriteOnSelect(msg) {
-    var _this3 = this;
+    var _this2 = this;
     return _asyncToGenerator(function* () {
       //if (blockEmission) {return}
 
@@ -12851,16 +12863,16 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       let id = data.num;
       console.log('ablySDFSDF', data, id);
       const eventInfo = data.data;
-      _this3.stopEmission = true;
+      _this2.stopEmission = true;
       console.log(JSON.stringify(eventInfo));
-      _this3.props.vm.addSprite(JSON.stringify(eventInfo)).then(() => {
-        _this3.props.onActivateBlockTab(0);
+      _this2.props.vm.addSprite(JSON.stringify(eventInfo)).then(() => {
+        _this2.props.onActivateBlockTab(0);
       });
-      _this3.stopEmission = false;
+      _this2.stopEmission = false;
     })();
   }
   imageUpdated(msg) {
-    var _this4 = this;
+    var _this3 = this;
     return _asyncToGenerator(function* () {
       const data = JSON.parse(msg.data);
       const image = data.image;
@@ -12869,11 +12881,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       const isVector = data.isVector;
       const costumeIndex = data.selectedIdx;
       if (isVector) {
-        _this4.props.vm.updateSvg(costumeIndex, image, rotationCenterX, rotationCenterY, data.editingTarget);
+        _this3.props.vm.updateSvg(costumeIndex, image, rotationCenterX, rotationCenterY, data.editingTarget);
       } else {
-        _this4.props.vm.updateBitmap(costumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */);
+        _this3.props.vm.updateBitmap(costumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */);
       }
-      const target = _this4.props.vm.editingTarget;
+      const target = _this3.props.vm.editingTarget;
       const assetId = target.sprite['costumes'][costumeIndex].assetId;
       const targetURL = "https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/images?fileName=".concat(assetId, ".svg");
       const res = yield fetch(targetURL, {
@@ -12898,10 +12910,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     })();
   }
   load() {
-    var _this5 = this;
+    var _this4 = this;
     return _asyncToGenerator(function* () {
       try {
-        _this5.stopEmission = true;
+        _this4.stopEmission = true;
 
         //const decoder = 
         const response = yield fetch("https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/s3-storage?space=" + _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace, {
@@ -12923,7 +12935,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const concatenated = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []));
         const jsonString = decoder.decode(concatenated);
         const data = JSON.parse(jsonString);
-        yield _this5.props.vm.loadProject(data);
+        yield _this4.props.vm.loadProject(data);
 
         //this.props.vm.editingTarget.setCostume(1);
       } catch (error) {
@@ -12933,8 +12945,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Apple");
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Taco");
 
-      _this5.stopEmission = false;
-      _this5.hasLoadedFully = true;
+      _this4.stopEmission = false;
       return;
     })();
   }
@@ -12942,28 +12953,28 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     return 3;
   }
   save() {
-    var _this6 = this;
+    var _this5 = this;
     return _asyncToGenerator(function* () {
-      const s = JSON.stringify(_this6.props.vm.toJSON());
-      const response = yield fetch('https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/s3-storage', {
+      const s = JSON.stringify(_this5.props.vm.toJSON());
+      console.log("SAVED!!!");
+      yield fetch('https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/s3-storage', {
         method: 'POST',
         body: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace + "~|@^|@|~" + s
       });
-      return;
     })();
   }
 
   // heavily edited from https://github.com/BlockliveScratch/Blocklive/blob/master/extension/scripts/editor.js#L834
 
   sendInformation(eve) {
-    var _this7 = this;
+    var _this6 = this;
     return _asyncToGenerator(function* () {
       let parentID = -1;
       let childIDX = -1;
 
       // handing field events since they don't have a consistent blockId
       if (eve.element == "field") {
-        const parentBlock = _this7.workspace.getBlockById(eve.blockId).parentBlock_;
+        const parentBlock = _this6.workspace.getBlockById(eve.blockId).parentBlock_;
         if (!!parentBlock) {
           parentID = parentBlock.id;
           for (let childBlock of parentBlock.childBlocks_) {
@@ -12973,18 +12984,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           }
         }
       }
-      if (_this7.stopEmission) {
+      if (_this6.stopEmission) {
         //console.log("Stopped emission")
-        if (_this7.lastBlockId == eve.blockId && _this7.lastBlockType == eve.type) {
-          _this7.stopEmission = false;
-          if (_this7.lastTempId != "") {
-            _this7.endRecieveChain(_this7.lastTempId);
-            _this7.lastTempId = "";
+        if (_this6.lastBlockId == eve.blockId && _this6.lastBlockType == eve.type) {
+          _this6.stopEmission = false;
+          if (_this6.lastTempId != "") {
+            _this6.revertToOriginalTarget();
+            _this6.lastTempId = "";
           }
         }
         return;
       }
-      if (_this7.holdingBlock) {
+      if (_this6.holdingBlock) {
         return;
       }
       //console.log(eve.element, eve.recordUndo, eve.group, eve)
@@ -12999,19 +13010,19 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // we queue the event to be sent after the current event is sent
       // this is not correlated with the other this.queue system
       let singleMessage = eve.toJson();
-      if (_this7.queueFurtherSends || _this7.queueWhileOnDifferentTarget) {
+      if (_this6.queueFurtherSends || _this6.queueWhileOnDifferentTarget) {
         console.log("backlogged", singleMessage);
-        _this7.backlog.push(singleMessage);
+        _this6.backlog.push(singleMessage);
         return;
       }
 
       // we queue moves because they can follow other moves to snap blocks together and we want to send these together
       // to avoid visual artifacts
       if (eve.type == "move") {
-        if (_this7.queue.length == 0) {
+        if (_this6.queue.length == 0) {
           // debugger
           console.log(singleMessage, "queueing move");
-          _this7.queue.push(singleMessage);
+          _this6.queue.push(singleMessage);
           return;
         }
       }
@@ -13019,14 +13030,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // we queue the create event because it has to immediately be moved after
       if (eve.type == "create" || eve.element == "click") {
         console.log(singleMessage, eve.type == "create" ? "queueing create" : "queueing other");
-        _this7.queue.push(singleMessage);
+        _this6.queue.push(singleMessage);
         return;
       }
       if (eve.type == "change" && eve.name == "BROADCAST_OPTION") {
-        var _this7$props$vm$runti, _this7$props$vm$runti2;
+        var _this6$props$vm$runti, _this6$props$vm$runti2;
         singleMessage.broadcastInfo = {
-          broadcastName: (_this7$props$vm$runti = _this7.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this7$props$vm$runti === void 0 ? void 0 : _this7$props$vm$runti.name,
-          broadcastId: (_this7$props$vm$runti2 = _this7.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this7$props$vm$runti2 === void 0 ? void 0 : _this7$props$vm$runti2.id
+          broadcastName: (_this6$props$vm$runti = _this6.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this6$props$vm$runti === void 0 ? void 0 : _this6$props$vm$runti.name,
+          broadcastId: (_this6$props$vm$runti2 = _this6.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this6$props$vm$runti2 === void 0 ? void 0 : _this6$props$vm$runti2.id
         };
       }
       if (eve.type == "comment_create") {
@@ -13034,35 +13045,36 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
 
       //console.log(this.queue, this.queue.length, "sending");
-      _this7.queue.push(singleMessage);
+      _this6.queue.push(singleMessage);
       console.log('pushing to queue', singleMessage);
       //console.log(this.queue, this.queue.length, "sending");
 
-      console.log('sending array of length: ', _this7.queue.length);
-      yield _this7.sendArray(_this7.queue, parentID, childIDX);
-      _this7.queue.length = 0;
-      console.log("sending backlog:", _this7.backlog);
-      yield _this7.sendBacklog(parentID, childIDX);
-      _this7.save.bind(_this7)();
+      console.log('sending array of length: ', _this6.queue.length);
+      yield _this6.sendArray(_this6.queue, parentID, childIDX);
+      _this6.queue.length = 0;
+      console.log("sending backlog:", _this6.backlog);
+      yield _this6.sendBacklog(parentID, childIDX);
+
+      //this.save.bind(this)();
     })();
   }
   sendArray(arr) {
-    var _this8 = this;
+    var _this7 = this;
     let parentID = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
     let childIDX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
     return _asyncToGenerator(function* () {
       const message = {
         uid: nid,
-        target: _this8.props.vm.editingTarget.sprite.name,
+        target: _this7.props.vm.editingTarget.sprite.name,
         messages: arr,
         parentID: parentID,
         childIDX: childIDX,
-        rIDX: _this8.randomIndex
+        rIDX: _this7.randomIndex
       };
       console.log("sending array", message);
-      _this8.queueFurtherSends = true;
+      _this7.queueFurtherSends = true;
       yield channel.publish('event', JSON.stringify(message));
-      _this8.queueFurtherSends = false;
+      _this7.queueFurtherSends = false;
     })();
   }
   enableEmission() {
@@ -13122,10 +13134,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //console.log(">>" ,this.pauseWorkspaceUpdate)
     // this.props.vm.setEditingTarget(tmpTarget.id);
   }
-  endRecieveChain(originalTargetId) {
-    var _this9 = this;
+  revertToOriginalTarget() {
+    var _this8 = this;
     this.stopEmission = false;
-    const ogTarget = this.props.vm.runtime.getTargetById(originalTargetId);
+    const ogTarget = this.props.vm.runtime.getTargetById(this.lastTempId);
     // this.props.vm.editingTarget = ogTarget;
     // this.props.vm.emitTargetsUpdate(false)
     // this.props.vm.emitWorkspaceUpdate();
@@ -13133,15 +13145,15 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //wait 0.5 seconds
     // this.queueWhileOnDifferentTarget = true;
     setTimeout( /*#__PURE__*/_asyncToGenerator(function* () {
-      if (ogTarget.id === _this9.props.vm.editingTarget.id) {
+      if (ogTarget.id === _this8.props.vm.editingTarget.id) {
         return;
       }
       // this.queueWhileOnDifferentTarget = false;
       // this.queueFurtherSends = true;
       // await this.sendBacklog();
       // this.queueFurtherSends = false;
-      _this9.enableWorkspaceUpdate();
-      _this9.props.vm.setEditingTarget(ogTarget.id);
+      _this8.enableWorkspaceUpdate();
+      _this8.props.vm.setEditingTarget(ogTarget.id);
       console.log("OG TARGET SET");
     }), 1);
   }
@@ -13172,7 +13184,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // await channel.publish('preRefresh', "");
       // await new Promise(r => setTimeout(r, 200));
       // await this.load();
-      endRecieveChain(this.lastTempId);
+      this.revertToOriginalTarget();
       return;
     }
     if (event.type == "create") {
@@ -13190,7 +13202,15 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
     try {
       console.log("is have broadcast info", !!event.broadcastInfo, event.broadcastInfo);
+
+      // check if event is a create block (procedure) event
       this.stopEmission = true;
+      let isProcedureDefinition = eventInstance.type == "delete" && this.workspace.getBlockById(event.blockId).type == "procedures_definition";
+      if (eventInstance.type == "create" && event.xml.indexOf("mutation proccode") != -1) {
+        isProcedureDefinition = true;
+      }
+
+      // if event is a broadcast event, we have to manually run the block once more for some reason
       if (!!event.broadcastInfo) {
         console.log("WHAHAHAH");
         const broadcastEvent = {
@@ -13212,12 +13232,17 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         this.lastBlockId = event.blockId;
         this.lastBlockType = event.type;
       }
+
+      // for create function events, we have to refresh workspace to show new functions
+      if (isProcedureDefinition) {
+        this.workspace.getToolbox().refreshSelection();
+      }
     } catch (e) {
       console.error(e);
     }
     console.log("done");
     if (eventInstance.type == "ui") {
-      this.endRecieveChain(this.lastTempId);
+      this.revertToOriginalTarget();
     }
 
     // this.props.vm.editingTarget = ogTarget;
@@ -13237,19 +13262,19 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
   }
   sendBacklog() {
-    var _this10 = this;
+    var _this9 = this;
     let parentID = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
     let childIDX = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
     return _asyncToGenerator(function* () {
-      while (_this10.backlog.length > 0) {
-        const tmp = _this10.backlog;
-        _this10.backlog = [];
-        yield _this10.sendArray(tmp, parentID, childIDX);
+      while (_this9.backlog.length > 0) {
+        const tmp = _this9.backlog;
+        _this9.backlog = [];
+        yield _this9.sendArray(tmp, parentID, childIDX);
       }
     })();
   }
   attachVM() {
-    var _this11 = this;
+    var _this10 = this;
     let oldEWU = this.props.vm.emitWorkspaceUpdate.bind(this.props.vm);
     this.props.vm.emitWorkspaceUpdate = function () {
       if (this.pauseWorkspaceUpdate) {
@@ -13315,9 +13340,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           return;
         }
         const input = data.input;
-        const ogName = _this11.props.vm.editingTarget.sprite.name;
+        const ogName = _this10.props.vm.editingTarget.sprite.name;
         yield ogAddSprite(input);
-        _this11.props.vm.setEditingTarget(_this11.getTargetByName(ogName).id);
+        _this10.props.vm.setEditingTarget(_this10.getTargetByName(ogName).id);
         // this.props.vm.editingTarget = this.getTargetByName(ogName);
         // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget); 
       });
@@ -13359,11 +13384,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogRenameSprite = this.props.vm.renameSprite.bind(this.props.vm);
     this.props.vm.renameSprite = /*#__PURE__*/function () {
       var _ref5 = _asyncToGenerator(function* (id, name) {
-        const spriteName = _this11.props.vm.runtime.getTargetById(id).sprite.name;
-        while ( true && _this11.hasLoadedFully) {
+        const spriteName = _this10.props.vm.runtime.getTargetById(id).sprite.name;
+        while ( true && _this10.hasLoadedFully) {
           let isDuplicate = false;
-          for (let target of _this11.props.vm.runtime.targets) {
-            if (target.sprite.name == name) {
+          for (let target of _this10.props.vm.runtime.targets) {
+            if (target.sprite.name == name && target.sprite.name != spriteName) {
               name = incrementStringNumber(name);
               isDuplicate = true;
               console.log("DUPLICAATE");
@@ -13391,7 +13416,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogDuplicateSprite = this.props.vm.duplicateSprite.bind(this.props.vm);
     this.props.vm.duplicateSprite = /*#__PURE__*/function () {
       var _ref6 = _asyncToGenerator(function* (id) {
-        const name = _this11.props.vm.runtime.getTargetById(id).sprite.name;
+        const name = _this10.props.vm.runtime.getTargetById(id).sprite.name;
         return channel.publish('duplicateSprite', JSON.stringify(name));
       });
       return function (_x7) {
@@ -13406,7 +13431,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogSpriteInfo = this.props.vm.postSpriteInfo;
     this.props.vm.postSpriteInfo = /*#__PURE__*/function () {
       var _ref7 = _asyncToGenerator(function* (data) {
-        const name = _this11.props.vm.editingTarget.sprite.name;
+        let name = _this10.props.vm.editingTarget.sprite.name;
+        if (_this10.props.vm._dragTarget) {
+          name = _this10.props.vm._dragTarget.sprite.name;
+        }
         const msg = {
           name: name,
           data: data
@@ -13439,7 +13467,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
     this.props.vm.deleteSound = /*#__PURE__*/function () {
       var _ref8 = _asyncToGenerator(function* (soundIndex) {
-        const name = _this11.props.vm.runtime.editingTarget.sprite.name;
+        const name = _this10.props.vm.runtime.editingTarget.sprite.name;
         const msg = {
           soundIndex: soundIndex,
           name: name
@@ -13471,7 +13499,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       var _ref9 = _asyncToGenerator(function (sound) {
         let idx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "AMONGUSLMAO";
         return function* () {
-          const name = idx == "AMONGUSLMAO" ? _this11.props.vm.editingTarget.sprite.name : _this11.props.vm.runtime.getTargetById(idx).sprite.name;
+          const name = idx == "AMONGUSLMAO" ? _this10.props.vm.editingTarget.sprite.name : _this10.props.vm.runtime.getTargetById(idx).sprite.name;
           const msg = {
             sound: sound,
             spriteName: name
@@ -13493,7 +13521,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const msg = {
           soundIndex: soundIndex,
           newName: newName,
-          spriteName: _this11.props.vm.editingTarget.sprite.name
+          spriteName: _this10.props.vm.editingTarget.sprite.name
         };
         channel.publish('renameSound', JSON.stringify(msg));
       });
@@ -13509,7 +13537,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     this.props.vm.deleteCostume = /*#__PURE__*/function () {
       var _ref11 = _asyncToGenerator(function* (costumeIndex) {
-        const spriteName = _this11.props.vm.editingTarget.sprite.name;
+        const spriteName = _this10.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           spriteName: spriteName
@@ -13571,7 +13599,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //let ogRenameCostume = this.props.vm.renameCostume.bind(this.props.vm);
     this.props.vm.renameCostume = /*#__PURE__*/function () {
       var _ref14 = _asyncToGenerator(function* (costumeIndex, newName) {
-        const spriteName = _this11.props.vm.editingTarget.sprite.name;
+        const spriteName = _this10.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           newName: newName,
@@ -13667,17 +13695,32 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     // console.log(this.props.vm.runtime._primitives)
     // console.log(this.props.vm.runtime._hats)
 
-    this.props.vm.runtime._primitives['motion_goto'] = function (args, util) {
+    this.getRandomPosition = function () {
       const xmul = Math.abs((this.randomIndex * 2539301 + 26923) % 633280);
       const randomFloat1 = xmul * xmul % 101 / 100;
       const randomFloat2 = Math.abs((this.randomIndex * 49142293 - 2525382) % 626925393) % 101 / 100;
       const randomPosition = [480 * (randomFloat1 - 0.5), 360 * (randomFloat2 - 0.5)];
+      this.randomIndex += 1;
+      return randomPosition;
+    };
+    this.props.vm.runtime._primitives['motion_goto'] = function (args, util) {
+      const randomPosition = this.getRandomPosition();
       const targetXY = args.TO == "_random_" ? randomPosition : this._getTargetXY(args.TO, util);
-      //console.log(this.props.vm.runtime.STAGE_WIDTH, randomFloat1, targetXY, args.TO, this.randomIndex)
       if (targetXY) {
         util.target.setXY(targetXY[0], targetXY[1]);
       }
-      this.randomIndex += 1;
+    }.bind(this);
+    this.props.vm.runtime._primitives['motion_glideto'] = function (args, util) {
+      const randomPosition = this.getRandomPosition();
+      const targetXY = args.TO == "_random_" ? randomPosition : this._getTargetXY(args.TO, util);
+      const glideFunc = this.props.vm.runtime._primitives['motion_glidesecstoxy'];
+      if (targetXY) {
+        glideFunc({
+          SECS: args.SECS,
+          X: targetXY[0],
+          Y: targetXY[1]
+        }, util);
+      }
     }.bind(this);
 
     // this.props.vm.runtime._primitives['sensing_resettimer'] = function (args, util) {
@@ -13785,9 +13828,17 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     return name == "Stage" ? this.props.vm.runtime.getTargetForStage() : this.props.vm.runtime.getSpriteTargetByName(name);
   }
   newUserJoined(msg) {
-    console.log("JOINED!!");
-    // console.log(this.props.vm.runtime.execute.blockUtility)
-    // this.props.vm.runtime.execute.blockUtility.ioQuery('clock', 'resetProjectTimer')
+    var _this11 = this;
+    return _asyncToGenerator(function* () {
+      if (JSON.parse(msg.data).uid == nid) {
+        return;
+      }
+      yield _this11.save();
+      console.log("JOINED!!");
+      yield channel.publish('goodForLoad', "");
+      // console.log(this.props.vm.runtime.execute.blockUtility)
+      // this.props.vm.runtime.execute.blockUtility.ioQuery('clock', 'resetProjectTimer')
+    })();
   }
   detachVM() {
     this.props.vm.removeListener('SCRIPT_GLOW_ON', this.onScriptGlowOn);
@@ -20314,73 +20365,32 @@ class Stage extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
   attachMouseEvents(canvas) {
     var _this3 = this;
     return _asyncToGenerator(function* () {
-      yield channel.subscribe('mouseup', message => _this3.onMouseUp(JSON.parse(message.data)));
-      yield channel.subscribe('touchend', message => _this3.onMouseUp(JSON.parse(message.data)));
-      yield channel.subscribe('mousedown', message => _this3.onMouseDown(JSON.parse(message.data)));
-      yield channel.subscribe('touchstart', message => _this3.onMouseDown(JSON.parse(message.data)));
-      document.addEventListener('mouseup', /*#__PURE__*/function () {
-        var _ref2 = _asyncToGenerator(function* (e) {
-          yield channel.publish('mouseup', _this3.stringifyMouseEvent(e));
-        });
-        return function (_x) {
-          return _ref2.apply(this, arguments);
-        };
-      }());
-      document.addEventListener('touchend', /*#__PURE__*/function () {
-        var _ref3 = _asyncToGenerator(function* (e) {
-          yield channel.publish('touchend', _this3.stringifyMouseEvent(e));
-        });
-        return function (_x2) {
-          return _ref3.apply(this, arguments);
-        };
-      }());
-      canvas.addEventListener('mousedown', /*#__PURE__*/function () {
-        var _ref4 = _asyncToGenerator(function* (e) {
-          yield channel.publish('mousedown', _this3.stringifyMouseEvent(e));
-        });
-        return function (_x3) {
-          return _ref4.apply(this, arguments);
-        };
-      }());
-      canvas.addEventListener('touchstart', /*#__PURE__*/function () {
-        var _ref5 = _asyncToGenerator(function* (e) {
-          yield channel.publish('touchstart', _this3.stringifyMouseEvent(e));
-        });
-        return function (_x4) {
-          return _ref5.apply(this, arguments);
-        };
-      }());
-      _this3.miters = 0;
-      yield channel.subscribe('mousemove', message => _this3.onMouseMove(message));
-      yield channel.subscribe('touchmove', message => _this3.onMouseMove(message));
-      document.addEventListener('mousemove', /*#__PURE__*/function () {
-        var _ref6 = _asyncToGenerator(function* (e) {
-          return _this3.handleCursor(e);
-        });
-        return function (_x5) {
-          return _ref6.apply(this, arguments);
-        };
-      }());
-      document.addEventListener('touchmove', /*#__PURE__*/function () {
-        var _ref7 = _asyncToGenerator(function* (e) {
-          return _this3.handleCursor(e);
-        });
-        return function (_x6) {
-          return _ref7.apply(this, arguments);
-        };
-      }());
+      // await channel.subscribe('mouseup', (message) => this.onMouseUp(JSON.parse(message.data)));
+      // await channel.subscribe('touchend', (message) => this.onMouseUp(JSON.parse(message.data)));
+      // await channel.subscribe('mousedown', (message) => this.onMouseDown(JSON.parse(message.data)));
+      // await channel.subscribe('touchstart', (message) => this.onMouseDown(JSON.parse(message.data)));
+      // document.addEventListener('mouseup', async (e) => {await channel.publish('mouseup', this.stringifyMouseEvent(e))});
+      // document.addEventListener('touchend', async (e) => {await channel.publish('touchend', this.stringifyMouseEvent(e))});
+      // canvas.addEventListener('mousedown', async (e) => {await channel.publish('mousedown', this.stringifyMouseEvent(e))});
+      // canvas.addEventListener('touchstart', async (e) => {await channel.publish('touchstart', this.stringifyMouseEvent(e))});
+
+      // this.miters = 0;
+      // await channel.subscribe('mousemove', (message) => this.onMouseMove(message));
+      // await channel.subscribe('touchmove', (message) => this.onMouseMove(message));
+      // document.addEventListener('mousemove', async (e) => this.handleCursor(e));
+      // document.addEventListener('touchmove', async (e) => this.handleCursor(e));
 
       /*
       await channel.subscribe('wheel', (message) => this.onWheel(message));
        canvas.addEventListener('wheel', async (e) => {await channel.publish('wheel', JSON.stringify(e))});
       */
 
-      //document.addEventListener('mousemove', this.onMouseMove);
-      //document.addEventListener('mouseup', this.onMouseUp);
-      //document.addEventListener('touchmove', this.onMouseMove);
-      //document.addEventListener('touchend', this.onMouseUp);
-      //canvas.addEventListener('mousedown', this.onMouseDown);
-      //canvas.addEventListener('touchstart', this.onMouseDown);
+      document.addEventListener('mousemove', _this3.onMouseMove);
+      document.addEventListener('mouseup', _this3.onMouseUp);
+      document.addEventListener('touchmove', _this3.onMouseMove);
+      document.addEventListener('touchend', _this3.onMouseUp);
+      canvas.addEventListener('mousedown', _this3.onMouseDown);
+      canvas.addEventListener('touchstart', _this3.onMouseDown);
       canvas.addEventListener('wheel', _this3.onWheel);
     })();
   }
@@ -35433,7 +35443,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   ablyInstance: () => (/* binding */ ablyInstance),
 /* harmony export */   ablySpace: () => (/* binding */ ablySpace),
-/* harmony export */   cursorColor: () => (/* binding */ cursorColor)
+/* harmony export */   cursorColor: () => (/* binding */ cursorColor),
+/* harmony export */   name: () => (/* binding */ name)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var ably__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ably */ "./node_modules/ably/build/ably-commonjs.js");
@@ -35445,9 +35456,10 @@ __webpack_require__.r(__webpack_exports__);
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const ablySpace = urlParams.get('space').toString();
+const name = urlParams.get('name').toString();
 const cursorColor = urlParams.get('color').toString();
 const ablyInstance = new ably__WEBPACK_IMPORTED_MODULE_1__.Realtime.Promise({
-  authUrl: "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ably"
+  authUrl: "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ably?name=" + name
 });
 
 /***/ }),
@@ -43879,4 +43891,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.c9cc56dcad5120deb423.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.040415170be50771ddf5.js.map
