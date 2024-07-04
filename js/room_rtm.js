@@ -100,6 +100,7 @@ let handleChannelMessage = async (messageData, MemberId) => {
         if (localTracks[0]) {
             await localTracks[0].setMuted(true);
             localTracks[0]._mediaStreamTrack.enabled = false;
+            document.getElementById('mic-btn').classList.remove('active')
         }
         alert('You have been muted by the TA.');
     }
@@ -154,20 +155,21 @@ async function muteAllParticipants(){
 
     await channel.sendMessage({ text: JSON.stringify({ type: 'mute' }) });
 
-    for (const member in remoteUsers) {
-        console.log('aghsadf', member, remoteUsers, remoteUsers[member]);
-        if (member !== uid) { // Skip muting the local user (TA)
-            const remoteUser = remoteUsers[member];
-            if (remoteUser && remoteUser.audioTrack) {
-                if (remoteUser && remoteUser.audioTrack && remoteUser.audioTrack._mediaStreamTrack) {
-                    // remoteUser.audioTrack._mediaStreamTrack.enabled = false; // Mute the audio track
-                //    remoteUser.localTracks[0].setMuted(true);
-                    document.getElementById('mic-btn').classList.remove('active')
-                }
-            }
-        }
-        alert('All participants have been muted.'); 
-    }
+    // for (const member in remoteUsers) {
+    //     console.log('aghsadf', member, remoteUsers, remoteUsers[member]);
+    //     if (member !== uid) { // Skip muting the local user (TA)
+    //         const remoteUser = remoteUsers[member];
+    //         if (remoteUser && remoteUser.audioTrack) {
+    //             if (remoteUser && remoteUser.audioTrack && remoteUser.audioTrack._mediaStreamTrack) {
+    //                 // remoteUser.audioTrack._mediaStreamTrack.enabled = false; // Mute the audio track
+    //             //    remoteUser.localTracks[0].setMuted(true);
+    //                 //document.getElementById('mic-btn').classList.remove('active')
+    //             }
+    //         }
+    //     }
+    // }
+
+    alert('All participants have been muted.'); 
 }
 
 let sendMessage = async (e) => {

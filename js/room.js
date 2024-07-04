@@ -78,7 +78,7 @@ function toggleChat (influenceMembers=false) {
   }
 }
 
-moveSlider({clientY: containerRect.height-20}, true);
+//moveSlider({clientY: containerRect.height-20}, true);
 let displayFrame = document.getElementById('stream__box')
 let videoFrames = document.getElementsByClassName('video__container')
 let userIdInDisplayFrame = null;
@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     isDragging = false;
   });
 
-  chatPanel.style.height = (containerRect.height - offsetY - 60) + 'px';
+  toggleChat()
 
   // openChatBtn.addEventListener('click', () => {
   //     chatPanel.style.display = 'block';
@@ -202,7 +202,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   //   window.location = 'projects.html?email=' + email;
   // });
 
-
 });
 
 function onProjectsButtonClicked() {
@@ -216,6 +215,9 @@ expandBtn.addEventListener('click', () => {
   rightBar.style.display = 'none';
   expandBtn.style.display = 'none';
   revertBtn.style.display = 'block';
+  if(activeMemberContainer) {
+    toggleMembers();
+  }
 });
 
 revertBtn.addEventListener('click', () => {

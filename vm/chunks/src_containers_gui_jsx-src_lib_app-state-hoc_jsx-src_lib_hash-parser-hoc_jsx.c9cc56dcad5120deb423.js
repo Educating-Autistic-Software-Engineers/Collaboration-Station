@@ -12608,7 +12608,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         //console.log("dragged", dragRelative)
         sessionStorage.setItem("dragRelative", JSON.stringify(dragRelative));
       }
-    }, 50);
+    }, 35);
     setInterval(() => {
       // console.log(this.ScratchBlocks.WorkspaceDragger.prototype);
       // let fun = this.ScratchBlocks.WorkspaceDragger.prototype.updateScroll_.bind(this.ScratchBlocks.WorkspaceDragger.prototype);
@@ -12796,6 +12796,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     var _this2 = this;
     return _asyncToGenerator(function* () {
       if (!hasInited) {
+        _this2.hasLoadedFully = false;
         _this2.queueWorkspaceUpdate = false;
         _this2.pauseWorkspaceUpdate = false;
         _this2.queueFurtherSends = false;
@@ -12933,6 +12934,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Taco");
 
       _this5.stopEmission = false;
+      _this5.hasLoadedFully = true;
       return;
     })();
   }
@@ -12958,6 +12960,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     return _asyncToGenerator(function* () {
       let parentID = -1;
       let childIDX = -1;
+
+      // handing field events since they don't have a consistent blockId
       if (eve.element == "field") {
         const parentBlock = _this7.workspace.getBlockById(eve.blockId).parentBlock_;
         if (!!parentBlock) {
@@ -12974,7 +12978,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         if (_this7.lastBlockId == eve.blockId && _this7.lastBlockType == eve.type) {
           _this7.stopEmission = false;
           if (_this7.lastTempId != "") {
-            yield _this7.endRecieveChain(_this7.lastTempId);
+            _this7.endRecieveChain(_this7.lastTempId);
             _this7.lastTempId = "";
           }
         }
@@ -12995,7 +12999,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // we queue the event to be sent after the current event is sent
       // this is not correlated with the other this.queue system
       let singleMessage = eve.toJson();
-      if (_this7.queueFurtherSends) {
+      if (_this7.queueFurtherSends || _this7.queueWhileOnDifferentTarget) {
         console.log("backlogged", singleMessage);
         _this7.backlog.push(singleMessage);
         return;
@@ -13031,18 +13035,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
       //console.log(this.queue, this.queue.length, "sending");
       _this7.queue.push(singleMessage);
-      console.log('push', singleMessage);
+      console.log('pushing to queue', singleMessage);
       //console.log(this.queue, this.queue.length, "sending");
 
-      console.log('len', _this7.queue.length);
+      console.log('sending array of length: ', _this7.queue.length);
       yield _this7.sendArray(_this7.queue, parentID, childIDX);
       _this7.queue.length = 0;
-      console.log("query back", _this7.backlog);
-      while (_this7.backlog.length > 0) {
-        const tmp = _this7.backlog;
-        _this7.backlog = [];
-        yield _this7.sendArray(tmp, parentID, childIDX);
-      }
+      console.log("sending backlog:", _this7.backlog);
+      yield _this7.sendBacklog(parentID, childIDX);
       _this7.save.bind(_this7)();
     })();
   }
@@ -13074,148 +13074,187 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
   }
   recieveInformation(message) {
-    var _this9 = this;
-    return _asyncToGenerator(function* () {
-      let data = JSON.parse(message.data);
-      console.log("data recieved", data);
-      if (data.uid == nid) {
-        console.log("discarding");
-        return;
-      }
-      _this9.randomIndex = data.rIDX;
-      const targetName = data.target;
-      let ogTarget = _this9.props.vm.editingTarget;
-      _this9.lastTempId = ogTarget.id;
-      const tmpTarget = _this9.getTargetByName(data.target);
-      console.log(tmpTarget, "target");
-      // this.props.vm.editingTarget = tmpTarget;
-      // this.props.vm.emitTargetsUpdate(false)
-      // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget);
-      // this.disableWorkspaceUpdate()
-      _this9.props.vm.setEditingTarget(tmpTarget.id);
-      for (let message of data.messages) {
-        // this is for text entries; for some reason their IDs get changed when saved.
-        // so, it sends the index of the parent node (a normal block) and the index of the child node to extract the text entry box
-        if (data.parentID != -1) {
-          message.blockId = _this9.workspace.getBlockById(data.parentID).childBlocks_[data.childIDX].id;
-        }
-        yield _this9.parseEvent(message, targetName);
-      }
-      console.log("finished parsing");
+    let data = JSON.parse(message.data);
+    console.log("data recieved", data);
+    if (data.uid == nid) {
+      console.log("discarding");
+      return;
+    }
 
-      // this.enableWorkspaceUpdate();
-      // this.props.vm.editingTarget = ogTarget
-      // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
-      // console.log("set to", this.props.vm.editingTarget.sprite.name)
-      // this.enableWorkspaceUpdate();
-    })();
+    // console.log(this.workspace.id)
+
+    this.randomIndex = data.rIDX;
+    const targetName = data.target;
+    let ogTarget = this.props.vm.editingTarget;
+    this.lastTempId = ogTarget.id;
+    this.changeTarget(targetName);
+    for (let message of data.messages) {
+      // this is for text entries; for some reason their IDs get changed when saved.
+      // so, it sends the index of the parent node (a normal block) and the index of the child node to extract the text entry box
+      if (data.parentID != -1) {
+        message.blockId = this.workspace.getBlockById(data.parentID).childBlocks_[data.childIDX].id;
+      }
+      this.parseEvent(message, targetName);
+    }
+    console.log("finished parsing");
+    console.log("ACKTUALLY");
+    // this.enableWorkspaceUpdate();
+    // this.props.vm.editingTarget = ogTarget
+    // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
+    // console.log("set to", this.props.vm.editingTarget.sprite.name)
+    // this.enableWorkspaceUpdate();
+  }
+  changeTarget(targetName) {
+    if (targetName == this.props.vm.editingTarget.sprite.name) {
+      return;
+    }
+    this.disableWorkspaceUpdate();
+    const tmpTarget = this.getTargetByName(targetName);
+    console.log(tmpTarget, "target");
+    this.props.vm.editingTarget = tmpTarget;
+    //this.disableWorkspaceUpdate()
+
+    // this.props.vm.emitTargetsUpdate(false)
+    this.props.vm.emitWorkspaceUpdate();
+    // this.props.vm.emitTargetsUpdate(false)
+    // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget);
+    this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
+    //console.log(">>" ,this.pauseWorkspaceUpdate)
+    // this.props.vm.setEditingTarget(tmpTarget.id);
   }
   endRecieveChain(originalTargetId) {
-    var _this10 = this;
-    return _asyncToGenerator(function* () {
-      const ogTarget = _this10.props.vm.runtime.getTargetById(originalTargetId);
-      // this.props.vm.editingTarget = ogTarget;
-      // this.props.vm.emitTargetsUpdate(false)
-      // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget);
-      _this10.props.vm.setEditingTarget(ogTarget.id);
-      // this.enableWorkspaceUpdate()
-      console.log("OG TARGET SET");
-    })();
-  }
-  parseEvent(event) {
-    var _this11 = this;
-    let targetName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
-    return _asyncToGenerator(function* () {
-      console.log('parsing!!', event);
-      if (targetName == "") {
-        targetName = _this11.props.vm.editingTarget.sprite.name;
-      }
-      if (event.type == "comment_change") {
-        event.newValue = event.newContents;
-      }
-
-      // const ogTarget = this.props.vm.editingTarget;
-      // const tmpTarget = this.getTargetByName(targetName);
-
-      // this.props.vm.editingTarget = tmpTarget;
-      // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
-      // this.props.vm.setEditingTarget(tmpTarget.id);
-      // this.disableWorkspaceUpdate();
-
-      if (_this11.workspace.getBlockById(event.blockId) == null && event.type != "create") {
-        console.log(event, "discarded because block does not exist");
-        // refresh page
-        // await channel.publish('preRefresh', "");
-        // await new Promise(r => setTimeout(r, 200));
-        yield _this11.load();
+    var _this9 = this;
+    this.stopEmission = false;
+    const ogTarget = this.props.vm.runtime.getTargetById(originalTargetId);
+    // this.props.vm.editingTarget = ogTarget;
+    // this.props.vm.emitTargetsUpdate(false)
+    // this.props.vm.emitWorkspaceUpdate();
+    // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget);
+    //wait 0.5 seconds
+    // this.queueWhileOnDifferentTarget = true;
+    setTimeout( /*#__PURE__*/_asyncToGenerator(function* () {
+      if (ogTarget.id === _this9.props.vm.editingTarget.id) {
         return;
       }
-      if (event.type == "create") {
-        _this11.holdingBlock = true;
-      } else if (event.type == "move") {
-        _this11.holdingBlock = false;
-      }
+      // this.queueWhileOnDifferentTarget = false;
+      // this.queueFurtherSends = true;
+      // await this.sendBacklog();
+      // this.queueFurtherSends = false;
+      _this9.enableWorkspaceUpdate();
+      _this9.props.vm.setEditingTarget(ogTarget.id);
+      console.log("OG TARGET SET");
+    }), 1);
+  }
+  parseEvent(event) {
+    let targetName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+    // console.log(this.ScratchBlocks.Events.Abstract.workspaceId)
+    // console.log(this.workspace.id)
+    console.log('parsing!!', event);
+    if (targetName == "") {
+      targetName = this.props.vm.editingTarget.sprite.name;
+    }
+    if (event.type == "comment_change") {
+      event.newValue = event.newContents;
+    }
 
-      //console.log(event, "recieved")
+    // const ogTarget = this.props.vm.editingTarget;
+    // const tmpTarget = this.getTargetByName(targetName);
 
-      const eventInstance = _this11.ScratchBlocks.Events.fromJson(event, _this11.workspace);
-      if (event.type == "comment_create") {
-        eventInstance.xy = event.commentXY;
+    // this.props.vm.editingTarget = tmpTarget;
+    // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
+    // this.props.vm.setEditingTarget(tmpTarget.id);
+    // this.disableWorkspaceUpdate();
+
+    if (this.workspace.getBlockById(event.blockId) == null && event.type != "create") {
+      console.log(event, "discarded because block does not exist");
+      console.log(this.workspace);
+      // refresh page
+      // await channel.publish('preRefresh', "");
+      // await new Promise(r => setTimeout(r, 200));
+      // await this.load();
+      endRecieveChain(this.lastTempId);
+      return;
+    }
+    if (event.type == "create") {
+      this.holdingBlock = true;
+    } else if (event.type == "move") {
+      this.holdingBlock = false;
+      this.workspace.getBlockById(event.blockId).getSvgRoot().style.transition = "transform 0.5s";
+    }
+
+    //console.log(event, "recieved")
+
+    const eventInstance = this.ScratchBlocks.Events.fromJson(event, this.workspace);
+    if (event.type == "comment_create") {
+      eventInstance.xy = event.commentXY;
+    }
+    try {
+      console.log("is have broadcast info", !!event.broadcastInfo, event.broadcastInfo);
+      this.stopEmission = true;
+      if (!!event.broadcastInfo) {
+        console.log("WHAHAHAH");
+        const broadcastEvent = {
+          isCloud: false,
+          isLocal: false,
+          type: "var_create",
+          varId: event.broadcastInfo.broadcastId,
+          varName: event.broadcastInfo.broadcastName,
+          varType: "broadcast_msg"
+        };
+        this.props.vm.blockListener(broadcastEvent);
+        const newEvent = this.ScratchBlocks.Events.fromJson(broadcastEvent, this.workspace);
+        newEvent.run(true);
       }
-      try {
-        console.log("is have broadcast info", !!event.broadcastInfo, event.broadcastInfo);
-        _this11.stopEmission = true;
-        if (!!event.broadcastInfo) {
-          console.log("WHAHAHAH");
-          const broadcastEvent = {
-            isCloud: false,
-            isLocal: false,
-            type: "var_create",
-            varId: event.broadcastInfo.broadcastId,
-            varName: event.broadcastInfo.broadcastName,
-            varType: "broadcast_msg"
-          };
-          _this11.props.vm.blockListener(broadcastEvent);
-          const newEvent = _this11.ScratchBlocks.Events.fromJson(broadcastEvent, _this11.workspace);
-          yield newEvent.run(true);
-        }
-        if (eventInstance.type == "ui") {
-          _this11.props.vm.editingTarget.blocks.blocklyListen(eventInstance); //runs the block
-        } else {
-          yield eventInstance.run(true); // handles block
-          _this11.lastBlockId = event.blockId;
-          _this11.lastBlockType = event.type;
-        }
-      } catch (e) {
-        console.error(e);
-      }
-      console.log("done");
       if (eventInstance.type == "ui") {
-        _this11.stopEmission = false;
+        this.props.vm.editingTarget.blocks.blocklyListen(eventInstance); //runs the block
+      } else {
+        eventInstance.run(true); // handles block
+        this.lastBlockId = event.blockId;
+        this.lastBlockType = event.type;
       }
+    } catch (e) {
+      console.error(e);
+    }
+    console.log("done");
+    if (eventInstance.type == "ui") {
+      this.endRecieveChain(this.lastTempId);
+    }
 
-      // this.props.vm.editingTarget = ogTarget;
-      // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
-      // this.enableWorkspaceUpdate();
-    })();
+    // this.props.vm.editingTarget = ogTarget;
+    // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
+    // this.enableWorkspaceUpdate();
   }
   disableWorkspaceUpdate() {
+    console.log("DISABLED!!");
     this.pauseWorkspaceUpdate = true;
   }
   enableWorkspaceUpdate() {
+    console.log("ENABLED!!");
     this.pauseWorkspaceUpdate = false;
     if (this.queueWorkspaceUpdate) {
       this.queueWorkspaceUpdate = false;
       this.props.vm.emitWorkspaceUpdate();
     }
   }
+  sendBacklog() {
+    var _this10 = this;
+    let parentID = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
+    let childIDX = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
+    return _asyncToGenerator(function* () {
+      while (_this10.backlog.length > 0) {
+        const tmp = _this10.backlog;
+        _this10.backlog = [];
+        yield _this10.sendArray(tmp, parentID, childIDX);
+      }
+    })();
+  }
   attachVM() {
-    var _this12 = this;
+    var _this11 = this;
     let oldEWU = this.props.vm.emitWorkspaceUpdate.bind(this.props.vm);
     this.props.vm.emitWorkspaceUpdate = function () {
       if (this.pauseWorkspaceUpdate) {
         this.queueWorkspaceUpdate = true;
-        return;
+        // return;
       }
       oldEWU();
     };
@@ -13235,33 +13274,54 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.props.vm.addListener('BLOCK_GLOW_OFF', this.onBlockGlowOff);
     this.props.vm.addListener('VISUAL_REPORT', this.onVisualReport);
     this.props.vm.addListener('workspaceUpdate', this.onWorkspaceUpdate);
-    this.props.vm.addListener('workspaceUpdate', () => {
-      sessionStorage.setItem('editingTarget', this.props.vm.editingTarget.sprite.name);
-      console.log("moved to ", this.props.vm.editingTarget.sprite.name);
-    });
     this.props.vm.addListener('targetsUpdate', this.onTargetsUpdate);
     this.props.vm.addListener('MONITORS_UPDATE', this.handleMonitorsUpdate);
     this.props.vm.addListener('EXTENSION_ADDED', this.handleExtensionAdded);
     this.props.vm.addListener('BLOCKSINFO_UPDATE', this.handleBlocksInfoUpdate);
     this.props.vm.addListener('PERIPHERAL_CONNECTED', this.handleStatusButtonUpdate);
     this.props.vm.addListener('PERIPHERAL_DISCONNECTED', this.handleStatusButtonUpdate);
+    function incrementStringNumber(str) {
+      return str.replace(/(\d+)?$/, match => match ? parseInt(match) + 1 : '1');
+    }
     let ogAddSprite = this.props.vm.addSprite.bind(this.props.vm);
-    this.props.vm.addSprite = /*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator(function* (data) {
-        channel.publish('newSprite', JSON.stringify(data));
-      });
-      return function (_x2) {
-        return _ref2.apply(this, arguments);
+    this.props.vm.addSprite = input => {
+      const inputJSONED = JSON.parse(input);
+      while (true) {
+        let isDuplicate = false;
+        for (let target of this.props.vm.runtime.targets) {
+          if (target.sprite.name == inputJSONED.objName) {
+            inputJSONED.objName = incrementStringNumber(inputJSONED.objName);
+            isDuplicate = true;
+            console.log("DUPLICAATE");
+            break;
+          }
+        }
+        if (!isDuplicate) {
+          break;
+        }
+      }
+      input = JSON.stringify(inputJSONED);
+      const msg = {
+        input: input,
+        uid: nid
       };
-    }();
+      channel.publish('newSprite', JSON.stringify(msg));
+      return ogAddSprite(input);
+    };
     channel.subscribe('newSprite', /*#__PURE__*/function () {
       var _ref3 = _asyncToGenerator(function* (message) {
-        const ogName = _this12.props.vm.editingTarget.sprite.name;
-        yield ogAddSprite(JSON.parse(message.data));
-        _this12.props.vm.editingTarget = _this12.getTargetByName(ogName);
-        _this12.props.vm.runtime.setEditingTarget(_this12.props.vm.editingTarget);
+        const data = JSON.parse(message.data);
+        if (data.uid == nid) {
+          return;
+        }
+        const input = data.input;
+        const ogName = _this11.props.vm.editingTarget.sprite.name;
+        yield ogAddSprite(input);
+        _this11.props.vm.setEditingTarget(_this11.getTargetByName(ogName).id);
+        // this.props.vm.editingTarget = this.getTargetByName(ogName);
+        // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget); 
       });
-      return function (_x3) {
+      return function (_x2) {
         return _ref3.apply(this, arguments);
       };
     }());
@@ -13288,7 +13348,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         };
         channel.publish('newBackdrop', JSON.stringify(msg));
       });
-      return function (_x4, _x5) {
+      return function (_x3, _x4) {
         return _ref4.apply(this, arguments);
       };
     }();
@@ -13299,14 +13359,28 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogRenameSprite = this.props.vm.renameSprite.bind(this.props.vm);
     this.props.vm.renameSprite = /*#__PURE__*/function () {
       var _ref5 = _asyncToGenerator(function* (id, name) {
-        const spriteName = _this12.props.vm.runtime.getTargetById(id).sprite.name;
+        const spriteName = _this11.props.vm.runtime.getTargetById(id).sprite.name;
+        while ( true && _this11.hasLoadedFully) {
+          let isDuplicate = false;
+          for (let target of _this11.props.vm.runtime.targets) {
+            if (target.sprite.name == name) {
+              name = incrementStringNumber(name);
+              isDuplicate = true;
+              console.log("DUPLICAATE");
+              break;
+            }
+          }
+          if (!isDuplicate) {
+            break;
+          }
+        }
         const msg = {
           spriteName: spriteName,
           name: name
         };
         channel.publish('renameSprite', JSON.stringify(msg));
       });
-      return function (_x6, _x7) {
+      return function (_x5, _x6) {
         return _ref5.apply(this, arguments);
       };
     }();
@@ -13317,10 +13391,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogDuplicateSprite = this.props.vm.duplicateSprite.bind(this.props.vm);
     this.props.vm.duplicateSprite = /*#__PURE__*/function () {
       var _ref6 = _asyncToGenerator(function* (id) {
-        const name = _this12.props.vm.runtime.getTargetById(id).sprite.name;
+        const name = _this11.props.vm.runtime.getTargetById(id).sprite.name;
         return channel.publish('duplicateSprite', JSON.stringify(name));
       });
-      return function (_x8) {
+      return function (_x7) {
         return _ref6.apply(this, arguments);
       };
     }();
@@ -13332,14 +13406,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogSpriteInfo = this.props.vm.postSpriteInfo;
     this.props.vm.postSpriteInfo = /*#__PURE__*/function () {
       var _ref7 = _asyncToGenerator(function* (data) {
-        const name = _this12.props.vm.editingTarget.sprite.name;
+        const name = _this11.props.vm.editingTarget.sprite.name;
         const msg = {
           name: name,
           data: data
         };
         yield channel.publish('spriteInfo', JSON.stringify(msg));
       });
-      return function (_x9) {
+      return function (_x8) {
         return _ref7.apply(this, arguments);
       };
     }();
@@ -13365,7 +13439,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
     this.props.vm.deleteSound = /*#__PURE__*/function () {
       var _ref8 = _asyncToGenerator(function* (soundIndex) {
-        const name = _this12.props.vm.runtime.editingTarget.sprite.name;
+        const name = _this11.props.vm.runtime.editingTarget.sprite.name;
         const msg = {
           soundIndex: soundIndex,
           name: name
@@ -13373,7 +13447,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const ret = yield channel.publish('deleteSound', JSON.stringify(msg));
         return ret;
       });
-      return function (_x10) {
+      return function (_x9) {
         return _ref8.apply(this, arguments);
       };
     }();
@@ -13397,7 +13471,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       var _ref9 = _asyncToGenerator(function (sound) {
         let idx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "AMONGUSLMAO";
         return function* () {
-          const name = idx == "AMONGUSLMAO" ? _this12.props.vm.editingTarget.sprite.name : _this12.props.vm.runtime.getTargetById(idx).sprite.name;
+          const name = idx == "AMONGUSLMAO" ? _this11.props.vm.editingTarget.sprite.name : _this11.props.vm.runtime.getTargetById(idx).sprite.name;
           const msg = {
             sound: sound,
             spriteName: name
@@ -13405,7 +13479,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           return channel.publish('addSound', JSON.stringify(msg));
         }();
       });
-      return function (_x11) {
+      return function (_x10) {
         return _ref9.apply(this, arguments);
       };
     }();
@@ -13419,11 +13493,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const msg = {
           soundIndex: soundIndex,
           newName: newName,
-          spriteName: _this12.props.vm.editingTarget.sprite.name
+          spriteName: _this11.props.vm.editingTarget.sprite.name
         };
         channel.publish('renameSound', JSON.stringify(msg));
       });
-      return function (_x12, _x13) {
+      return function (_x11, _x12) {
         return _ref10.apply(this, arguments);
       };
     }();
@@ -13435,7 +13509,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     this.props.vm.deleteCostume = /*#__PURE__*/function () {
       var _ref11 = _asyncToGenerator(function* (costumeIndex) {
-        const spriteName = _this12.props.vm.editingTarget.sprite.name;
+        const spriteName = _this11.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           spriteName: spriteName
@@ -13443,7 +13517,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const ret = yield channel.publish('deleteCostume', JSON.stringify(msg));
         return ret;
       });
-      return function (_x14) {
+      return function (_x13) {
         return _ref11.apply(this, arguments);
       };
     }();
@@ -13472,7 +13546,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         };
         return channel.publish('addCostumeFromLibrary', JSON.stringify(msg));
       });
-      return function (_x15, _x16) {
+      return function (_x14, _x15) {
         return _ref12.apply(this, arguments);
       };
     }();
@@ -13486,7 +13560,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const ret = yield channel.publish('duplicateCostume', JSON.stringify(costumeIndex));
         return ret;
       });
-      return function (_x17) {
+      return function (_x16) {
         return _ref13.apply(this, arguments);
       };
     }();
@@ -13497,7 +13571,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //let ogRenameCostume = this.props.vm.renameCostume.bind(this.props.vm);
     this.props.vm.renameCostume = /*#__PURE__*/function () {
       var _ref14 = _asyncToGenerator(function* (costumeIndex, newName) {
-        const spriteName = _this12.props.vm.editingTarget.sprite.name;
+        const spriteName = _this11.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           newName: newName,
@@ -13505,7 +13579,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         };
         channel.publish('renameCostume', JSON.stringify(msg));
       });
-      return function (_x18, _x19) {
+      return function (_x17, _x18) {
         return _ref14.apply(this, arguments);
       };
     }();
@@ -13613,6 +13687,82 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
     //console.log("WHAT", this.props.vm.runtime.defaultBlockPackages.scratch3_motion)
 
+    const ogWResize = this.workspace.resizeContents.bind(this.workspace);
+    this.workspace.resizeContents = function () {
+      console.log("ASKED TO RESIZE", this.pauseWorkspaceUpdate);
+      if (this.pauseWorkspaceUpdate) {
+        return;
+      }
+      ogWResize();
+    }.bind(this);
+    const ogClear = this.workspace.clear.bind(this.workspace);
+    this.workspace.clear = function () {
+      console.log("CLEARING!", this.pauseWorkspaceUpdate);
+      if (this.pauseWorkspaceUpdate) {
+        return;
+      }
+      ogClear();
+    }.bind(this);
+    this.ScratchBlocks.Xml.domToBlock = function (xmlBlock, workspace) {
+      //const swappingWorkspaces = this.workspace.id == workspace.id && this.pauseWorkspaceUpdate;
+      //console.log("DOMTO", this.workspace.id, workspace.isFlyout, this.pauseWorkspaceUpdate, workspace)
+      if (false) { var swap; }
+      // Create top-level block.
+      this.ScratchBlocks.Events.disable();
+      var variablesBeforeCreation = workspace.getAllVariables();
+      try {
+        var topBlock = this.ScratchBlocks.Xml.domToBlockHeadless_(xmlBlock, workspace);
+        // Generate list of all blocks.
+        var blocks = topBlock.getDescendants(false);
+        if (workspace.rendered) {
+          // Hide connections to speed up assembly.
+          topBlock.setConnectionsHidden(true);
+          // Render each block.
+          // if workspace is flyout, do it
+          // if it's not, only do it if the workspace is not paused
+          if (workspace.isFlyout || !this.pauseWorkspaceUpdate) {
+            for (var i = blocks.length - 1; i >= 0; i--) {
+              blocks[i].initSvg();
+            }
+            for (var i = blocks.length - 1; i >= 0; i--) {
+              blocks[i].render(false);
+            }
+          }
+          // Populating the connection database may be deferred until after the
+          // blocks have rendered.
+          if (!workspace.isFlyout) {
+            setTimeout(function () {
+              if (topBlock.workspace) {
+                // Check that the block hasn't been deleted.
+                topBlock.setConnectionsHidden(false);
+              }
+            }, 1);
+          }
+          topBlock.updateDisabled();
+          // Allow the scrollbars to resize and move based on the new contents.
+          // TODO(@picklesrus): #387. Remove when domToBlock avoids resizing.
+          workspace.resizeContents();
+        } else {
+          for (var i = blocks.length - 1; i >= 0; i--) {
+            blocks[i].initModel();
+          }
+        }
+      } finally {
+        this.ScratchBlocks.Events.enable();
+      }
+      if (this.ScratchBlocks.Events.isEnabled()) {
+        var newVariables = this.ScratchBlocks.Variables.getAddedVariables(workspace, variablesBeforeCreation);
+        // Fire a VarCreate event for each (if any) new variable created.
+        for (var i = 0; i < newVariables.length; i++) {
+          var thisVariable = newVariables[i];
+          this.ScratchBlocks.Events.fire(new this.ScratchBlocks.Events.VarCreate(thisVariable));
+        }
+        // Block events come after var events, in case they refer to newly created
+        // variables.
+        this.ScratchBlocks.Events.fire(new this.ScratchBlocks.Events.BlockCreate(topBlock));
+      }
+      return topBlock;
+    }.bind(this);
     this.initInformation.bind(this)();
     //this.props.vm.clearFlyoutBlocks()
   }
@@ -13730,10 +13880,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     if (this.props.vm.editingTarget && !this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id]) {
       this.onWorkspaceMetricsChange();
     }
+    console.log("moved to ", this.props.vm.editingTarget.sprite.name, "is transistonary:", this.pauseWorkspaceUpdate);
+    if (this.pauseWorkspaceUpdate) {
+      // this.queueWorkspaceUpdate = true;
+      // return;
+    } else {
+      sessionStorage.setItem('editingTarget', this.props.vm.editingTarget.sprite.name);
+    }
 
     // Remove and reattach the workspace listener (but allow flyout events)
     this.workspace.removeChangeListener(this.props.vm.blockListener);
     const dom = this.ScratchBlocks.Xml.textToDom(data.xml);
+    console.log(dom);
     try {
       this.ScratchBlocks.Xml.clearWorkspaceAndLoadFromXml(dom, this.workspace);
     } catch (error) {
@@ -43721,4 +43879,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.d576fa54a979ee0afe5e.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.c9cc56dcad5120deb423.js.map

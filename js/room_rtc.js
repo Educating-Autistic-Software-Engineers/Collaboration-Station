@@ -1,4 +1,5 @@
-const APP_ID = "f4b000a748014380a3512b717414362c"
+// get room id from env.
+const APP_ID = ""
  
 let uid = sessionStorage.getItem('uid')
 if(!uid){
@@ -19,8 +20,11 @@ if(!roomId){
 }
 
 const colors = [
-    'red', 'green', 'blue', 'yellow', 'orange', 'purple',
-    'pink', 'cyan'
+    'red', 'green', 'blue', 'orange', 'purple',
+    'pink', 'cyan', 'salmon', 'olive', 'navy', 'teal',
+    'yellowgreen', 'blueviolet', 'crimson',
+    'coral', 'darkorange', 'darkseagreen', 'darkslateblue', 'darkturquoise',
+    'darkgoldenrod', 'darkgreen', 'darkorange', 'fuchsia', 'gold', 'indigo', 
 ];
  
 function getRandomColor() {
@@ -174,15 +178,19 @@ let joinStream = async () => {
     let player = `<div class="video__container" id="user-container-${uid}">
                    
                     <div class="video-player" id="user-${uid}">
-                    <div id="member_name" >${sessionStorage.getItem("display_name")}</div></div>
-                   
+                        <div id="member_name" >${sessionStorage.getItem("display_name")}</div>
+                        <span><img src="images/mic.png" id="self-mute-person" onclick="toggleMic(event)"></span>
+                        
+                    </div>
+                    
+
                  </div>
                  
                  `
                  
  
     document.getElementById('stream__container').insertAdjacentHTML('beforeend', player)
-    document.getElementById(`user-container-${uid}`).addEventListener('click', expandVideoFrame)
+    // document.getElementById(`user-container-${uid}`).addEventListener('click', expandVideoFrame)
  
     await applyVirtualBackground(localTracks[1]);
  
@@ -227,6 +235,7 @@ let handleUserPublished = async (user, mediaType) => {
         let memberName= name || "Unknown User"
         player = `<div class="video__container" id="user-container-${user.uid}">
                 <div class="video-player" id="user-${user.uid}">
+                <span><img src="images/mic.png" id="self-mute-person" onclick="toggleMic(event)"></span>
                 <div id="remote-member_name">${memberName}</div>
                 <button class="remove__btn" style="display: none;" onclick="removeParticipant('${user.uid}')">Remove</button>
                 </div>
@@ -390,7 +399,7 @@ let leaveStream = async (e) => {
 document.getElementById('camera-btn').addEventListener('click', toggleCamera)
 document.getElementById('mic-btn').addEventListener('click', toggleMic)
 // document.getElementById('screen-btn').addEventListener('click', toggleScreen)
-// document.getElementById('join-btn').addEventListener('click', joinStream)
+document.getElementById('join-btn').addEventListener('click', joinStream)
 //document.getElementById('leave-btn').addEventListener('click', leaveStream)
  
  
