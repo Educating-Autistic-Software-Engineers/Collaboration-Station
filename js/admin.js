@@ -1,5 +1,6 @@
 let rooms = [];
 
+console.log("HISDF")
 document.addEventListener('DOMContentLoaded', async () => {
     const rest = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/getAllItems');
     const res = await rest.json();
@@ -8,7 +9,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
     const roomsj = await datresp.json();
     rooms = roomsj.requests;
+    const roomsd = JSON.parse(JSON.stringify(rooms));
     roomDict = {}
+
     for (let room of rooms) {
         roomDict[String(room.room_id)] = room;
     }
@@ -20,9 +23,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const projectList = document.getElementById('projectList')
     const saveRoomsBtn = document.getElementById('saveRoomsBtn')
 
-    for (let room of rooms) {
-        let row = addProject(false);
-        row.innerHTML = room.name;
+    for (let room of roomsd) {
+        console.log(room)
+        // let row = addProject(room.room_id);
+        // row.innerHTML = room.name;
     }
 
     console.log(roomDict, requests)
@@ -38,9 +42,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (person.projects == '') {
             continue;
         }
-        row.querySelector('.projects').innerText = person.projects.split(', ').map(projectID => {
-            return roomDict[String(projectID)].name;
-        }).join(", ");
+
+        try {
+            row.querySelector('.projects').innerText = person.projects.split(', ').map(projectID => {
+                return roomDict[projectID].name;
+            }).join(", ");
+        } catch (error) {
+            console.log("PERSON UNDEFINED", error, person)
+            continue
+        }
     }
 
     table.addEventListener('change', (e) => {
@@ -95,6 +105,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         console.log(rooms)
         for (let room of rooms) {
+            try {
+                const f = room.name.replace("Delete", '');
+            } catch (error) {
+                continue;
+            }
             const roomName = room.name.replace("Delete", '');
             newRow.querySelector('.project-select').innerHTML += `<option value="${roomName}">${roomName}</option>`;
             newRow.querySelector('.project-remove').innerHTML += `<option value="${roomName}">${roomName}</option>`;
@@ -103,7 +118,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         return newRow;
     }
 
-    function addProject(createNewEntry=true) {
+    function addProject(roomId) {
+
+        console.log(roomId)
+
+        if (roomId === undefined) {
+            alert("Please create a project through the 'Rooms' tab.")
+            return
+        }
+        
         const newProjectLi = document.createElement('li');
         const deleteButton = document.createElement('button');
         // make deleteButton display to the right of newProjectLi
@@ -118,15 +141,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         newProjectLi.appendChild(deleteButton);
         projectList.appendChild(newProjectLi);
 
-        if (createNewEntry) {
-            let maxRoomId = 530425233;
-            for (let room of rooms) {
-                if ( Number(room.room_id) > maxRoomId) {
-                    maxRoomId = Number(room.room_id);
-                }
-            }
-            rooms.push({ room_id: String(Number(maxRoomId)+1), name: name });
-        }
+        rooms.push({ room_id: String(roomId) , name: name });
         return newProjectLi;
     }
 

@@ -4920,6 +4920,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _library_css__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./library.css */ "./src/components/library/library.css");
 /* harmony import */ var _library_css__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_library_css__WEBPACK_IMPORTED_MODULE_10__);
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
@@ -5048,7 +5050,122 @@ class LibraryComponent extends react__WEBPACK_IMPORTED_MODULE_2__.Component {
       filterQuery: ''
     });
   }
+  fetchAndUploadFile(md5, imageUrl, uploadApiUrl) {
+    return _asyncToGenerator(function* () {
+      try {
+        // Determine the file extension
+        const extension = md5.split('.').pop().toLowerCase();
+
+        // Fetch the file from the API
+        const response = yield fetch(imageUrl);
+        if (!response.ok) {
+          throw new Error("Failed to fetch file. Status code: ".concat(response.status));
+        }
+        let fileContent;
+        let contentType;
+
+        // Get the file content and determine content type
+        if (extension === 'svg') {
+          fileContent = yield response.text();
+          contentType = 'image/svg+xml';
+        } else if (extension === 'png') {
+          fileContent = yield response.blob();
+          contentType = 'image/png';
+          const arrayBuffer = yield fileContent.arrayBuffer();
+          const uint8Array = new Uint8Array(arrayBuffer);
+          let binaryString = '';
+          for (let i = 0; i < uint8Array.length; i++) {
+            binaryString += String.fromCharCode(uint8Array[i]);
+          }
+          fileContent = btoa(binaryString);
+        } else {
+          throw new Error('Unsupported file type');
+        }
+        console.log("ext", extension, 'data', fileContent);
+
+        // Upload the file to the upload API
+        const uploadResponse = yield fetch(uploadApiUrl + "&cd=attachment", {
+          method: 'POST',
+          headers: {
+            'Accept': '*/*',
+            'Connection': 'keep-alive',
+            'Content-Type': contentType,
+            'Content-Disposition': 'attachment'
+          },
+          body: fileContent
+        });
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload file. Status code: ".concat(uploadResponse.status));
+        }
+        const responseBody = yield uploadResponse.text();
+        console.log('Upload API response:', responseBody, uploadResponse);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    })();
+  }
+  fetchAndUploadWAV(fileUrl, uploadApiUrl) {
+    return _asyncToGenerator(function* () {
+      try {
+        // Fetch the WAV file from the API
+        const response = yield fetch(fileUrl);
+        console.log("rha", fileUrl, response);
+        if (!response.ok) {
+          throw new Error("Failed to fetch file. Status code: ".concat(response.status));
+        }
+
+        // Get the WAV content as a Buffer
+        const arrayBuffer = yield response.arrayBuffer();
+        // const wavBuffer = new Uint8Array(arrayBuffer); 
+        const base64String = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+
+        // Upload the WAV to the upload API
+        const uploadResponse = yield fetch(uploadApiUrl + "&cd=attachment", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': '*/*'
+          },
+          body: JSON.stringify({
+            file: base64String
+          })
+        });
+        if (!uploadResponse.ok) {
+          throw new Error("Failed to upload file. Status code: ".concat(uploadResponse.status));
+        }
+        const responseBody = yield uploadResponse.text();
+        console.log('Upload API response:', responseBody);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    })();
+  }
+  uploadFiles() {
+    var _this = this;
+    return _asyncToGenerator(function* () {
+      let costumes = [];
+      console.log(_this.props.data);
+      for (const costume of _this.props.data) {
+        try {
+          yield _this.fetchAndUploadWAV( // costume._md5,
+          "https://cdn.assets.scratch.mit.edu/internalapi/asset/".concat(costume._md5, "/get/"), "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=" + costume._md5);
+        } catch (error) {
+          console.error('Error:', error);
+          return;
+        }
+      }
+      return;
+      const res2 = fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/assetID", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(costumes)
+      });
+    })();
+  }
   getFilteredData() {
+    // this.uploadFiles();
     if (this.state.selectedTag === 'all') {
       if (!this.state.filterQuery) return this.props.data;
       return this.props.data.filter(dataItem => (dataItem.tags || []
@@ -6101,7 +6218,7 @@ const MenuBarItemTooltip = _ref => {
     id,
     place = 'bottom'
   } = _ref;
-  if (enable) {
+  if (id == "account-nav" || id == "mystuff") {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, children);
   }
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_coming_soon_coming_soon_jsx__WEBPACK_IMPORTED_MODULE_12__.ComingSoonTooltip, {
@@ -6555,14 +6672,11 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
     }))) :
     /*#__PURE__*/
     // ******** no login session is available, so don't show login stuff
-    react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, this.props.showComingSoon ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(MenuBarItemTooltip, {
+    react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, this.props.showComingSoon ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, sessionStorage.getItem('viewMode') == "T" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", null) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(MenuBarItemTooltip, {
       id: "mystuff"
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
       className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_33___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_33___default().hoverable), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_33___default().mystuffButton))
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_33___default().mystuffIcon),
-      src: _icon_mystuff_png__WEBPACK_IMPORTED_MODULE_35__
-    }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(MenuBarItemTooltip, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", null, sessionStorage.getItem('analMode') == "T" ? "Back" : 'Share!'))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(MenuBarItemTooltip, {
       id: "account-nav",
       place: this.props.isRtl ? 'right' : 'left'
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
@@ -6570,10 +6684,7 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
       className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_33___default().profileIcon),
       src: _icon_profile_png__WEBPACK_IMPORTED_MODULE_36__
-    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", null, 'scratch-cat'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_33___default().dropdownCaretIcon),
-      src: _dropdown_caret_svg__WEBPACK_IMPORTED_MODULE_38__
-    })))) : [])), aboutButton);
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", null, sessionStorage.getItem('analMode') == "T" ? "Next!" : 'Save!'))))) : [])), aboutButton);
   }
 }
 MenuBar.propTypes = {
@@ -8383,14 +8494,7 @@ const PromptComponent = props => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__
   className: classnames__WEBPACK_IMPORTED_MODULE_0___default()({
     [(_prompt_css__WEBPACK_IMPORTED_MODULE_5___default().disabledLabel)]: props.cloudSelected
   })
-}, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("input", {
-  checked: !props.globalSelected,
-  disabled: props.cloudSelected,
-  name: "variableScopeOption",
-  type: "radio",
-  value: "local",
-  onChange: props.onScopeOptionSelection
-}), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_1__.FormattedMessage, messages.forThisSpriteMessage))), props.showCloudOption ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_box_box_jsx__WEBPACK_IMPORTED_MODULE_3__["default"], {
+})), props.showCloudOption ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(_box_box_jsx__WEBPACK_IMPORTED_MODULE_3__["default"], {
   className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_prompt_css__WEBPACK_IMPORTED_MODULE_5___default().cloudOption))
 }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("label", {
   className: classnames__WEBPACK_IMPORTED_MODULE_0___default()({
@@ -10265,15 +10369,17 @@ const StageSelector = props => {
   }, backdropCount), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_action_menu_action_menu_jsx__WEBPACK_IMPORTED_MODULE_4__["default"], {
     className: (_stage_selector_css__WEBPACK_IMPORTED_MODULE_5___default().addButton),
     img: _action_menu_icon_backdrop_svg__WEBPACK_IMPORTED_MODULE_7__,
-    moreButtons: [{
-      title: intl.formatMessage(messages.addBackdropFromFile),
-      img: _action_menu_icon_file_upload_svg__WEBPACK_IMPORTED_MODULE_8__,
-      onClick: onBackdropFileUploadClick,
-      fileAccept: '.svg, .png, .bmp, .jpg, .jpeg, .gif',
-      fileChange: onBackdropFileUpload,
-      fileInput: fileInputRef,
-      fileMultiple: true
-    }, {
+    moreButtons: [
+    // {
+    //     title: intl.formatMessage(messages.addBackdropFromFile),
+    //     img: fileUploadIcon,
+    //     onClick: onBackdropFileUploadClick,
+    //     fileAccept: '.svg, .png, .bmp, .jpg, .jpeg, .gif',
+    //     fileChange: onBackdropFileUpload,
+    //     fileInput: fileInputRef,
+    //     fileMultiple: true
+    // }, 
+    {
       title: intl.formatMessage(messages.addBackdropFromSurprise),
       img: _action_menu_icon_surprise_svg__WEBPACK_IMPORTED_MODULE_10__,
       onClick: onSurpriseBackdropClick
@@ -12471,7 +12577,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! scratch-storage */ "./node_modules/scratch-storage/dist/web/scratch-storage.js");
 /* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_35___default = /*#__PURE__*/__webpack_require__.n(scratch_storage__WEBPACK_IMPORTED_MODULE_35__);
 /* harmony import */ var _components_library_library_jsx__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ../components/library/library.jsx */ "./src/components/library/library.jsx");
-const _excluded = ["anyModalVisible", "canUseCloud", "customProceduresVisible", "extensionLibraryVisible", "options", "stageSize", "vm", "isRtl", "isVisible", "onActivateColorPicker", "onOpenConnectionModal", "onOpenSoundRecorder", "updateToolboxState", "onActivateCustomProcedures", "onRequestCloseExtensionLibrary", "onRequestCloseCustomProcedures", "toolboxXML", "updateMetrics", "useCatBlocks", "workspaceMetrics"];
+/* provided dependency */ var Buffer = __webpack_require__(/*! buffer */ "./node_modules/buffer/index.js")["Buffer"];
+const _excluded = ["url"],
+  _excluded2 = ["anyModalVisible", "canUseCloud", "customProceduresVisible", "extensionLibraryVisible", "options", "stageSize", "vm", "isRtl", "isVisible", "onActivateColorPicker", "onOpenConnectionModal", "onOpenSoundRecorder", "updateToolboxState", "onActivateCustomProcedures", "onRequestCloseExtensionLibrary", "onRequestCloseCustomProcedures", "toolboxXML", "updateMetrics", "useCatBlocks", "workspaceMetrics"];
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } } return target; }
@@ -12545,10 +12653,11 @@ const { connectionError, channelError } = useChannel({ channelName: 'blocks' }, 
 
 //const fs = require('fs');
 
+const uname = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.name;
 const s3Client = new (aws_sdk__WEBPACK_IMPORTED_MODULE_32___default().S3)();
 const nid = (0,nanoid__WEBPACK_IMPORTED_MODULE_37__.nanoid)();
 const ably = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablyInstance;
-const channel = ably.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace);
+var channel = ably.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace);
 let hasInited = false;
 let flag1 = false;
 let flag2 = false;
@@ -12592,13 +12701,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.onTargetsUpdate = lodash_debounce__WEBPACK_IMPORTED_MODULE_1___default()(this.onTargetsUpdate, 100);
     this.toolboxUpdateQueue = [];
     setInterval(() => {
-      if (this.queue.length == 1 && this.queue[0].type == "move") {
-        //console.log("blah")
-        const ev = this.ScratchBlocks.Events.fromJson(this.queue[0], this.workspace);
-        ev.recordUndo = true;
-        this.sendInformation(ev);
-        this.queue.length = 0;
-      }
+      // if (this.queue.length == 1 && this.queue[0].type == "move") {
+      //     //console.log("blah")
+      //     const ev = this.ScratchBlocks.Events.fromJson(this.queue[0], this.workspace)
+      //     ev.recordUndo = true;
+      //     this.sendInformation(ev);
+      //     this.queue.length = 0;
+      // }
       const scale = this.workspace.scale / 0.675;
       const dragRelative = {
         x: this.workspace.scrollX * scale,
@@ -12611,10 +12720,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }, 35);
     setInterval(() => {
       this.save();
-    }, 5 * 60 * 1000);
+    }, 10 * 60 * 1000);
     console.log("constructed");
+    this.initInformation();
+    document.addEventListener('click', this.handleClick.bind(this));
   }
   componentDidMount() {
+    // console.log("blocks", this.ScratchBlocks)
+
     this.ScratchBlocks = (0,_lib_blocks__WEBPACK_IMPORTED_MODULE_5__["default"])(this.props.vm, this.props.useCatBlocks);
     this.ScratchBlocks.prompt = this.handlePromptStart;
     this.ScratchBlocks.statusButtonCallback = this.handleConnectionModalStart;
@@ -12634,7 +12747,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     // lists, and procedures from extensions.
 
     const toolboxWorkspace = this.workspace.getFlyout().getWorkspace();
-    const varListButtonCallback = type => () => this.ScratchBlocks.Variables.createVariable(this.workspace, null, type);
+    const varListButtonCallback = type => () => {
+      this.ScratchBlocks.Variables.createVariable(this.workspace, null, type);
+    };
     const procButtonCallback = () => {
       this.ScratchBlocks.Procedures.createProcedureDefCallback_(this.workspace);
     };
@@ -12728,6 +12843,58 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     sessionStorage.setItem('blocksRect', rect);
     //console.log('block dimensions set to', rect)
   }
+  repeatKey(key, length) {
+    const keyDigits = key.split('').map(Number);
+    const repeatedKey = [];
+    for (let i = 0; i < length; i++) {
+      repeatedKey.push(keyDigits[i % keyDigits.length]);
+    }
+    return repeatedKey;
+  }
+  encryptNumber(number, key) {
+    const numberDigits = number.split('').map(Number);
+    const repeatedKey = this.repeatKey(key, numberDigits.length);
+    const encryptedDigits = numberDigits.map((num, index) => {
+      const sum = num + repeatedKey[index];
+      return sum >= 10 ? sum - 10 : sum;
+    });
+    return encryptedDigits.join('');
+  }
+  handleClick(e) {
+    console.log("CLICKED", e.clientX, " ", e.clientY, " ", window.innerWidth, " ", window.innerHeight);
+    fetch('https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/mouse-click', {
+      method: 'POST',
+      body: JSON.stringify({
+        user: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.name,
+        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+        dragRelative: JSON.parse(sessionStorage.getItem("dragRelative")),
+        clickId: this.getRandomHexString(16),
+        x: e.clientX,
+        y: e.clientY,
+        tabIndex: sessionStorage.getItem("activeTabIndex"),
+        resolution: {
+          width: window.innerWidth,
+          height: window.innerHeight
+        }
+      })
+    });
+    if (!this.isViewOnly && e.clientX > window.innerWidth - 100 && e.clientY < 50) {
+      this.save();
+      alert("Saved!");
+    }
+    if (!this.isViewOnly && e.clientX > window.innerWidth - 175 && e.clientX < window.innerWidth - 100 && e.clientY < 50) {
+      navigator.clipboard.writeText("https://collaborationstation.dev/room?view=" + this.encryptNumber(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace, "90210"));
+      alert("Copied viewonly shareable link to clipboard!");
+    }
+    if (sessionStorage.getItem('analMode') == "T" && e.clientX > window.innerWidth - 100 && e.clientY < 50) {
+      this.vidx = 1;
+      this.load();
+    }
+    if (sessionStorage.getItem('analMode') == "T" && e.clientX > window.innerWidth - 175 && e.clientX < window.innerWidth - 100 && e.clientY < 50) {
+      this.vidx = -1;
+      this.load();
+    }
+  }
   setLocale() {
     this.ScratchBlocks.ScratchMsgs.setLocale(this.props.locale);
     this.props.vm.setLocale(this.props.locale, this.props.messages).then(() => {
@@ -12774,10 +12941,22 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       fn();
     }
   }
+  waitForAbly() {
+    return new Promise(resolve => {
+      if (ably.connection.state === 'connected') {
+        resolve();
+      } else {
+        ably.connection.once('connected', () => {
+          resolve();
+        });
+      }
+    });
+  }
   initInformation() {
     var _this = this;
     return _asyncToGenerator(function* () {
       if (!hasInited) {
+        _this.isViewOnly = sessionStorage.getItem('isViewOnly') == "T";
         _this.hasLoadedFully = false;
         _this.hasLoadedInitially = false;
         _this.queueWorkspaceUpdate = false;
@@ -12785,35 +12964,56 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this.queueFurtherSends = false;
         _this.stopEmission = false;
         _this.holdingBlock = false;
+        _this.errorLoading = false;
+        _this.keyMarker = null;
+        _this.versionIdMarker = null;
         _this.lastBlockId = "";
         _this.lastBlockType = "";
         _this.lastTempId = "";
         _this.randomIndex = 0;
+        _this.cacheEventTime = 50; //ms
+        _this.vid = -1;
         hasInited = true;
-        _this.varCallbackFunc = function (a, b, c) {
-          console.log(a, b, c, "callback var trigged early");
-        };
+        _this.timer = null;
+
+        // this.varCallbackFunc = function(a,b,c) {console.log(a,b,c, "callback var trigged early")};
+
+        _this.messageQueue = [];
         _this.backlog = [];
         _this.queue = [];
         //this.blocks = [];
         _this.idToAll = {};
         _this.amountOfBlocks = 0;
-        yield ably.connection.once("connected");
-        console.log("connected to Ably");
+        console.log("EDING", ably);
+        yield _this.waitForAbly();
+        if (!ably.connection.state == "connected") {
+          console.log("waiting");
+        } else {
+          console.log("already connected");
+        }
+        console.log("connected to Ably!!");
         yield channel.subscribe('event', message => _this.recieveInformation(message));
         //await channel.subscribe('onSelect', (message) => this.spriteOnSelect(message));
         yield channel.subscribe('imageUpdated', message => _this.imageUpdated(message));
-        yield channel.subscribe('renameCostume', message => {
-          const data = JSON.parse(message.data);
-          _this.props.vm.renameCostume(data.costumeIndex, data.name);
-        });
         yield channel.subscribe('newJoin', _this.newUserJoined.bind(_this));
-        yield channel.subscribe('goodForLoad', msg => {
-          if (!_this.hasLoadedInitially) {
-            _this.load();
-            _this.hasLoadedInitially = true;
-          }
-        });
+        yield channel.subscribe('categorySelected', _this.parseCategorySelected);
+        yield channel.subscribe('goodForLoad', /*#__PURE__*/function () {
+          var _ref = _asyncToGenerator(function* (msg) {
+            const uid = JSON.parse(msg.data).uid;
+            if (uid == nid) {
+              return;
+            }
+            if (!_this.hasLoadedInitially) {
+              yield _this.load();
+              _this.hasLoadedInitially = true;
+              _this.hasLoadedFully = true;
+              console.log("fully loaded");
+            }
+          });
+          return function (_x) {
+            return _ref.apply(this, arguments);
+          };
+        }());
         // await channel.subscribe('varPrompt', (message) => {
         //     const data = JSON.parse(message.data);
         //     this.varCallbackFunc(data.a, data.b, data.c);
@@ -12829,28 +13029,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
         // Fetch the presence data
         const presenceSet = yield channel.presence.get();
-        console.log("prescence", presenceSet);
+        console.log("presence", presenceSet);
         if (presenceSet.length > 0) {
           //console.log("presence set", presenceSet)
-          yield channel.subscribe('goodForLoad', /*#__PURE__*/function () {
-            var _ref = _asyncToGenerator(function* (msg) {
-              if (!_this.hasLoadedInitially) {
-                yield _this.load();
-                _this.hasLoadedInitially = true;
-              }
-            });
-            return function (_x) {
-              return _ref.apply(this, arguments);
-            };
-          }());
           yield channel.publish('newJoin', JSON.stringify({
             uid: nid
           }));
         } else {
           yield _this.load();
+          _this.hasLoadedFully = true;
+          console.log("fully loaded");
         }
         yield channel.presence.enter();
-        _this.hasLoadedFully = true;
       }
     })();
   }
@@ -12861,7 +13051,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
       const data = JSON.parse(msg.data);
       let id = data.num;
-      console.log('ablySDFSDF', data, id);
       const eventInfo = data.data;
       _this2.stopEmission = true;
       console.log(JSON.stringify(eventInfo));
@@ -12871,82 +13060,197 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       _this2.stopEmission = false;
     })();
   }
+  fetchAndConvertToImageData(url) {
+    return _asyncToGenerator(function* () {
+      try {
+        // Fetch the image as a blob
+        const response = yield fetch(url);
+        const blob = yield response.blob();
+
+        // Create an HTMLImageElement
+        const img = new Image();
+
+        // Create a promise that resolves when the image has loaded
+        const loaded = new Promise((resolve, reject) => {
+          img.onload = resolve;
+          img.onerror = reject;
+        });
+
+        // Set the image source to the fetched URL
+        img.src = URL.createObjectURL(blob);
+
+        // Wait for the image to load
+        yield loaded;
+
+        // Create a canvas element
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set the canvas dimensions to match the image
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Draw the image on the canvas
+        ctx.drawImage(img, 0, 0);
+
+        // Get ImageData from the canvas
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        // Return the ImageData object
+        return imageData;
+      } catch (error) {
+        console.error('Error fetching or converting image:', error);
+        throw error;
+      }
+    })();
+  }
   imageUpdated(msg) {
     var _this3 = this;
     return _asyncToGenerator(function* () {
       const data = JSON.parse(msg.data);
-      const image = data.image;
+      if (data.name == uname) {
+        return;
+      }
+      const md5 = data.md5;
       const rotationCenterX = data.rotationCenterX;
       const rotationCenterY = data.rotationCenterY;
       const isVector = data.isVector;
       const costumeIndex = data.selectedIdx;
+      const ext = isVector ? 'svg' : 'png';
       if (isVector) {
+        const resload = yield fetch("https://d3pl0tx5n82s71.cloudfront.net/".concat(md5, ".").concat(ext));
+        const image = yield resload.text();
+        console.log('recieved', image);
         _this3.props.vm.updateSvg(costumeIndex, image, rotationCenterX, rotationCenterY, data.editingTarget);
       } else {
-        _this3.props.vm.updateBitmap(costumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */);
+        // const arrayBuffer = await resload.arrayBuffer();
+        // const uint8Array = new Uint8Array(arrayBuffer);
+        // let binaryString = '';
+        // for (let i = 0; i < uint8Array.length; i++) {
+        //     binaryString += String.fromCharCode(uint8Array[i]);
+        // }
+        const image = yield _this3.fetchAndConvertToImageData("https://d3pl0tx5n82s71.cloudfront.net/".concat(md5, ".").concat(ext));
+        // console.log('recieved', image)
+        // console.log("class", this.fetchAndConvertToImageData(binaryString))
+        _this3.props.vm.updateBitmap(costumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */, data.editingTarget);
       }
-      const target = _this3.props.vm.editingTarget;
-      const assetId = target.sprite['costumes'][costumeIndex].assetId;
-      const targetURL = "https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/images?fileName=".concat(assetId, ".svg");
-      const res = yield fetch(targetURL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'image/svg+xml'
-        },
-        body: image
-      });
-      const res2 = yield fetch("https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/assetID", {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: "[".concat(JSON.stringify({
-          assetID: assetId,
-          isCustom: "True"
-        }), "]")
-      });
-      console.log(res2);
-      console.log('post', assetId);
+
+      // const res2 = await fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/assetID",{
+      //     method: 'POST',
+      //     headers: {
+      //         'Content-Type': 'application/json'
+      //     },
+      //     body: `[${JSON.stringify({
+      //         assetID: assetId,
+      //         isCustom: "True"
+      //     })}]`
+      // })
+      // console.log(res2)
     })();
   }
   load() {
     var _this4 = this;
     return _asyncToGenerator(function* () {
+      if (_this4.startingLoad) {
+        return;
+      }
       try {
+        _this4.startingLoad = true;
         _this4.stopEmission = true;
+        const datas = {
+          key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+          vid: _this4.vid,
+          keyMarker: _this4.keyMarker,
+          versionIdMarker: _this4.versionIdMarker
+        };
+        console.log("TOLOAD", datas);
 
         //const decoder = 
-        const response = yield fetch("https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/s3-storage?space=" + _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace, {
-          method: 'GET'
+        const response = yield fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/s3-storage", {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(datas)
         });
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder('utf-8');
-        let chunks = [];
-        while (true) {
-          const {
-            done,
-            value
-          } = yield reader.read();
-          if (done) {
-            break;
+        if (true) {
+          const reader = response.body.getReader();
+          const decoder = new TextDecoder('utf-8');
+          let chunks = [];
+          while (true) {
+            const {
+              done,
+              value
+            } = yield reader.read();
+            if (done) {
+              break;
+            }
+            chunks.push(value);
           }
-          chunks.push(value);
+          const concatenated = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []));
+          console.log("PARSING", concatenated);
+          const jsonString = decoder.decode(concatenated);
+          console.log(jsonString);
+          if (jsonString == "{\"message\":\"No versions found\"}") {
+            console.log("starting new project...");
+          } else {
+            const jsonParsed = JSON.parse(jsonString);
+            console.log("JSPARESE", jsonParsed);
+            _this4.keyMarker = jsonParsed.keyMarker;
+            _this4.versionIdMarker = jsonParsed.versionIdMarker;
+            const data = JSON.parse(jsonParsed.versionData);
+            console.log(data);
+            const targets = data.targets;
+            let hasSeenStage = false;
+            const targets2 = [...targets];
+            for (let target of targets2) {
+              if (target.isStage) {
+                if (hasSeenStage) {
+                  const idx = targets.indexOf(target);
+                  targets.splice(idx, 1);
+                  console.log("removed", target);
+                  continue;
+                }
+                hasSeenStage = true;
+              }
+              const costumes = target.costumes;
+              //make a copy of costumes
+              const costumes2 = [...costumes];
+              for (let costume of costumes2) {
+                // check if the costume object has the costume variable:
+                if (!costume.hasOwnProperty("md5ext")) {
+                  costume.md5ext = costume.assetId + "." + costume.dataFormat;
+                }
+
+                // check if costume.md5ext contains the word "undefined"
+                if (costume.md5ext.includes("undefined")) {
+                  // remove the costume from the array
+                  const idx = costumes.indexOf(costume);
+                  costumes.splice(idx, 1);
+                  console.log("removed", costume);
+                }
+              }
+            }
+            const data2 = JSON.stringify(data);
+            yield _this4.props.vm.loadProject(data2);
+          }
+        } else {}
+        if (sessionStorage.getItem('analMode') == "T") {
+          _this4.startingLoad = false;
         }
-        const concatenated = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []));
-        const jsonString = decoder.decode(concatenated);
-        const data = JSON.parse(jsonString);
-        yield _this4.props.vm.loadProject(data);
 
         //this.props.vm.editingTarget.setCostume(1);
       } catch (error) {
+        console.log(error);
+        alert("Error loading project: " + JSON.stringify(error));
         console.error('Error fetching data from S3:', error);
+        _this4.errorLoading = true;
       }
 
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Apple");
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Taco");
 
       _this4.stopEmission = false;
-      return;
     })();
   }
   ret() {
@@ -12955,9 +13259,17 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   save() {
     var _this5 = this;
     return _asyncToGenerator(function* () {
+      if (_this5.isViewOnly) {
+        console.log("view only mode; ignoring save");
+        return;
+      }
+      if (!_this5.hasLoadedFully) {
+        console.log("not loaded fully; trying to save. Ignoring.");
+        return;
+      }
       const s = JSON.stringify(_this5.props.vm.toJSON());
       console.log("SAVED!!!");
-      yield fetch('https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/s3-storage', {
+      yield fetch('https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/s3-storage', {
         method: 'POST',
         body: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace + "~|@^|@|~" + s
       });
@@ -12966,9 +13278,38 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
   // heavily edited from https://github.com/BlockliveScratch/Blocklive/blob/master/extension/scripts/editor.js#L834
 
+  getRandomHexString(length) {
+    const chars = '0123456789abcdef';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      result += chars[randomIndex];
+    }
+    return result;
+  }
+  logData(data) {
+    if (!this.hasLoadedFully || this.isViewOnly) {
+      return;
+    }
+    console.log("posting'", data);
+    fetch('https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/blockPlacement', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }).then(resp => console.log('logged', resp));
+  }
   sendInformation(eve) {
     var _this6 = this;
     return _asyncToGenerator(function* () {
+      if (_this6.isViewOnly) {
+        console.log("view only mode; ignoring event");
+        return;
+      }
+      if (!(eve.element == "click" || eve.element == "stackclick" || eve.element == "field")) {
+        if (eve.group == "" || !eve.recordUndo) {
+          return;
+        }
+      }
+      console.log("INFO INFO", eve);
       let parentID = -1;
       let childIDX = -1;
 
@@ -12985,12 +13326,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         }
       }
       if (_this6.stopEmission) {
-        //console.log("Stopped emission")
+        console.log("recieved own event;", _this6.pauseWorkspaceUpdate, _this6.lastBlockId, eve.blockId, _this6.lastBlockType, eve.type);
+        // debugger
         if (_this6.lastBlockId == eve.blockId && _this6.lastBlockType == eve.type) {
           _this6.stopEmission = false;
           if (_this6.lastTempId != "") {
-            _this6.revertToOriginalTarget();
-            _this6.lastTempId = "";
+            // this.revertToOriginalTarget();
+            // this.lastTempId = ""
           }
         }
         return;
@@ -13000,10 +13342,17 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
       //console.log(eve.element, eve.recordUndo, eve.group, eve)
 
-      if (!(eve.element == "click" || eve.element == "stackclick" || eve.element == "field")) {
-        if (eve.group == "" || !eve.recordUndo) {
-          return;
-        }
+      console.log('loading', _this6.hasLoadedFully);
+      if (_this6.hasLoadedFully) {
+        _this6.logData({
+          moveId: _this6.getRandomHexString(16),
+          time: Date.now(),
+          user: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.name,
+          room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+          type: eve.type,
+          target: _this6.props.vm.editingTarget.sprite.name,
+          event: eve
+        });
       }
 
       // this is if an event happens while an event is being sent to the server;
@@ -13016,19 +13365,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         return;
       }
 
-      // we queue moves because they can follow other moves to snap blocks together and we want to send these together
-      // to avoid visual artifacts
-      if (eve.type == "move") {
-        if (_this6.queue.length == 0) {
-          // debugger
-          console.log(singleMessage, "queueing move");
-          _this6.queue.push(singleMessage);
-          return;
-        }
-      }
-
       // we queue the create event because it has to immediately be moved after
-      if (eve.type == "create" || eve.element == "click") {
+      if (eve.type == "create" || eve.element == "click" || eve.type == 'move' && eve.oldParentId) {
         console.log(singleMessage, eve.type == "create" ? "queueing create" : "queueing other");
         _this6.queue.push(singleMessage);
         return;
@@ -13046,11 +13384,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
       //console.log(this.queue, this.queue.length, "sending");
       _this6.queue.push(singleMessage);
-      console.log('pushing to queue', singleMessage);
+      console.log('pushing to queue', singleMessage, eve);
       //console.log(this.queue, this.queue.length, "sending");
 
       console.log('sending array of length: ', _this6.queue.length);
-      yield _this6.sendArray(_this6.queue, parentID, childIDX);
+      _this6.sendArray(_this6.queue, parentID, childIDX);
       _this6.queue.length = 0;
       console.log("sending backlog:", _this6.backlog);
       yield _this6.sendBacklog(parentID, childIDX);
@@ -13062,19 +13400,49 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     var _this7 = this;
     let parentID = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
     let childIDX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
+    let dir = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
     return _asyncToGenerator(function* () {
-      const message = {
-        uid: nid,
-        target: _this7.props.vm.editingTarget.sprite.name,
-        messages: arr,
-        parentID: parentID,
-        childIDX: childIDX,
-        rIDX: _this7.randomIndex
-      };
-      console.log("sending array", message);
-      _this7.queueFurtherSends = true;
-      yield channel.publish('event', JSON.stringify(message));
-      _this7.queueFurtherSends = false;
+      // Add the new events to the queue
+      _this7.messageQueue.push(...arr);
+
+      // If a timer is already running, do nothing
+      if (_this7.timer) {
+        return;
+      }
+      _this7.timer = setTimeout( /*#__PURE__*/_asyncToGenerator(function* () {
+        // handing field events since they don't have a consistent blockId
+        if (parentID == -1) {
+          const eve = _this7.messageQueue[0];
+          if (eve.element == "field") {
+            const parentBlock = _this7.workspace.getBlockById(eve.blockId).parentBlock_;
+            if (!!parentBlock) {
+              parentID = parentBlock.id;
+              for (let childBlock of parentBlock.childBlocks_) {
+                if (childBlock.id == eve.blockId) {
+                  childIDX = parentBlock.childBlocks_.indexOf(childBlock);
+                }
+              }
+            }
+          }
+        }
+        const message = {
+          uid: nid,
+          target: _this7.props.vm.editingTarget.sprite.name,
+          messages: _this7.messageQueue,
+          parentID: parentID,
+          childIDX: childIDX,
+          rIDX: _this7.randomIndex,
+          dir: dir
+        };
+        console.log("sending array", message);
+        _this7.queueFurtherSends = true;
+        channel.publish('event', JSON.stringify(message));
+        _this7.queueFurtherSends = false;
+
+        // Clear the queue and timer
+        _this7.messageQueue = [];
+        _this7.timer = null;
+      }), _this7.cacheEventTime);
     })();
   }
   enableEmission() {
@@ -13097,8 +13465,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
     this.randomIndex = data.rIDX;
     const targetName = data.target;
-    let ogTarget = this.props.vm.editingTarget;
-    this.lastTempId = ogTarget.id;
+    const dir = data.dir;
     this.changeTarget(targetName);
     for (let message of data.messages) {
       // this is for text entries; for some reason their IDs get changed when saved.
@@ -13106,7 +13473,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       if (data.parentID != -1) {
         message.blockId = this.workspace.getBlockById(data.parentID).childBlocks_[data.childIDX].id;
       }
-      this.parseEvent(message, targetName);
+      this.parseEvent(message, targetName, dir);
     }
     console.log("finished parsing");
     console.log("ACKTUALLY");
@@ -13117,8 +13484,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     // this.enableWorkspaceUpdate();
   }
   changeTarget(targetName) {
+    let revertAutomatically = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
     if (targetName == this.props.vm.editingTarget.sprite.name) {
       return;
+    }
+    var ogTarget;
+    if (this.lastTempId != "") {
+      // if another target is already being edited, we have to revert to the original target of that target
+      ogTarget = this.props.vm.runtime.getTargetById(this.lastTempId);
+    } else {
+      // we create the original target
+      ogTarget = this.props.vm.editingTarget;
+      this.lastTempId = ogTarget.id;
     }
     this.disableWorkspaceUpdate();
     const tmpTarget = this.getTargetByName(targetName);
@@ -13133,32 +13510,41 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
     //console.log(">>" ,this.pauseWorkspaceUpdate)
     // this.props.vm.setEditingTarget(tmpTarget.id);
+
+    if (revertAutomatically) {
+      setTimeout(() => {
+        if (!this.pauseWorkspaceUpdate) {
+          return;
+        }
+        this.revertToOriginalTarget();
+      }, 1);
+    }
   }
   revertToOriginalTarget() {
     var _this8 = this;
-    this.stopEmission = false;
-    const ogTarget = this.props.vm.runtime.getTargetById(this.lastTempId);
-    // this.props.vm.editingTarget = ogTarget;
-    // this.props.vm.emitTargetsUpdate(false)
-    // this.props.vm.emitWorkspaceUpdate();
-    // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget);
-    //wait 0.5 seconds
-    // this.queueWhileOnDifferentTarget = true;
     setTimeout( /*#__PURE__*/_asyncToGenerator(function* () {
-      if (ogTarget.id === _this8.props.vm.editingTarget.id) {
+      if (_this8.lastTempId == "") {
         return;
       }
+      const ogTarget = _this8.props.vm.runtime.getTargetById(_this8.lastTempId);
+      if (ogTarget.id === _this8.props.vm.editingTarget.id) {
+        _this8.stopEmission = false;
+        return;
+      }
+      _this8.lastTempId = "";
       // this.queueWhileOnDifferentTarget = false;
       // this.queueFurtherSends = true;
       // await this.sendBacklog();
       // this.queueFurtherSends = false;
       _this8.enableWorkspaceUpdate();
       _this8.props.vm.setEditingTarget(ogTarget.id);
+      _this8.stopEmission = false;
       console.log("OG TARGET SET");
     }), 1);
   }
   parseEvent(event) {
     let targetName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
+    let dir = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
     // console.log(this.ScratchBlocks.Events.Abstract.workspaceId)
     // console.log(this.workspace.id)
     console.log('parsing!!', event);
@@ -13184,7 +13570,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // await channel.publish('preRefresh', "");
       // await new Promise(r => setTimeout(r, 200));
       // await this.load();
-      this.revertToOriginalTarget();
+      // this.revertToOriginalTarget();
       return;
     }
     if (event.type == "create") {
@@ -13193,9 +13579,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       this.holdingBlock = false;
       this.workspace.getBlockById(event.blockId).getSvgRoot().style.transition = "transform 0.5s";
     }
-
-    //console.log(event, "recieved")
-
     const eventInstance = this.ScratchBlocks.Events.fromJson(event, this.workspace);
     if (event.type == "comment_create") {
       eventInstance.xy = event.commentXY;
@@ -13223,12 +13606,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         };
         this.props.vm.blockListener(broadcastEvent);
         const newEvent = this.ScratchBlocks.Events.fromJson(broadcastEvent, this.workspace);
-        newEvent.run(true);
+        newEvent.collabFlag = true;
+        newEvent.run(dir);
       }
+      eventInstance.collabFlag = true;
+      eventInstance.run(dir); // handles block
       if (eventInstance.type == "ui") {
         this.props.vm.editingTarget.blocks.blocklyListen(eventInstance); //runs the block
       } else {
-        eventInstance.run(true); // handles block
         this.lastBlockId = event.blockId;
         this.lastBlockType = event.type;
       }
@@ -13241,9 +13626,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       console.error(e);
     }
     console.log("done");
-    if (eventInstance.type == "ui") {
-      this.revertToOriginalTarget();
-    }
+
+    // other non-ui events get reverted elsewhere
+    // if (eventInstance.type == "ui") {
+    //     this.revertToOriginalTarget()
+    // }
 
     // this.props.vm.editingTarget = ogTarget;
     // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
@@ -13285,10 +13672,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     };
     this.workspace.addChangeListener(this.props.vm.blockListener);
     this.workspace.addChangeListener(eve => {
-      //console.log('forced',eve)
+      // console.log('forced',eve)
       this.sendInformation.bind(this)(eve);
     });
-    this.workspace.addChangeListener(this.enableEmission.bind(this));
+    // this.workspace.addChangeListener(this.enableEmission.bind(this))
     //this.workspace.addChangeListener(this.save.bind(this))
     this.flyoutWorkspace = this.workspace.getFlyout().getWorkspace();
     this.flyoutWorkspace.addChangeListener(this.props.vm.flyoutBlockListener);
@@ -13311,11 +13698,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogAddSprite = this.props.vm.addSprite.bind(this.props.vm);
     this.props.vm.addSprite = input => {
       const inputJSONED = JSON.parse(input);
+      let spriteName = inputJSONED.name ? inputJSONED.name : inputJSONED.objName;
+      if (spriteName == "Stage") {
+        spriteName = "Stage1";
+      }
       while (true) {
         let isDuplicate = false;
         for (let target of this.props.vm.runtime.targets) {
-          if (target.sprite.name == inputJSONED.objName) {
-            inputJSONED.objName = incrementStringNumber(inputJSONED.objName);
+          if (target.sprite.name == spriteName) {
+            if (!this.hasLoadedFully) {
+              return;
+            }
+            spriteName = incrementStringNumber(spriteName);
             isDuplicate = true;
             console.log("DUPLICAATE");
             break;
@@ -13325,16 +13719,28 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           break;
         }
       }
+      inputJSONED.objName = spriteName;
+      inputJSONED.name = spriteName;
       input = JSON.stringify(inputJSONED);
+      this.logData({
+        moveId: this.getRandomHexString(16),
+        time: Date.now(),
+        user: uname,
+        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+        type: "custom:createSprite",
+        spriteName: inputJSONED.name
+      });
       const msg = {
         input: input,
         uid: nid
       };
-      channel.publish('newSprite', JSON.stringify(msg));
+      if (this.hasLoadedFully) {
+        channel.publish('newSprite', JSON.stringify(msg));
+      }
       return ogAddSprite(input);
     };
     channel.subscribe('newSprite', /*#__PURE__*/function () {
-      var _ref3 = _asyncToGenerator(function* (message) {
+      var _ref4 = _asyncToGenerator(function* (message) {
         const data = JSON.parse(message.data);
         if (data.uid == nid) {
           return;
@@ -13347,26 +13753,30 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget); 
       });
       return function (_x2) {
-        return _ref3.apply(this, arguments);
+        return _ref4.apply(this, arguments);
       };
     }());
     let ogDeleteSprite = this.props.vm.deleteSprite.bind(this.props.vm);
     this.props.vm.deleteSprite = targetID => {
-      // find instance
       const name = this.props.vm.runtime.getTargetById(targetID).sprite.name;
+      this.logData({
+        moveId: this.getRandomHexString(16),
+        time: Date.now(),
+        user: uname,
+        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+        type: "custom:deleteSprite",
+        spriteName: name
+      });
       channel.publish('deleteSprite', JSON.stringify(name));
     };
     channel.subscribe('deleteSprite', message => {
       const name = JSON.parse(message.data);
       const id = this.getTargetByName(name).id;
       ogDeleteSprite(id);
-      // if (ogName != name) {
-      //     this.props.vm.setEditingTarget(this.props.vm.runtime.getSpriteTargetByName(ogName).id);
-      // }
     });
     let ogAddBackdrop = this.props.vm.addBackdrop.bind(this.props.vm);
     this.props.vm.addBackdrop = /*#__PURE__*/function () {
-      var _ref4 = _asyncToGenerator(function* (md5, vmBackdrop) {
+      var _ref5 = _asyncToGenerator(function* (md5, vmBackdrop) {
         const msg = {
           m5: md5,
           vmb: vmBackdrop
@@ -13374,7 +13784,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         channel.publish('newBackdrop', JSON.stringify(msg));
       });
       return function (_x3, _x4) {
-        return _ref4.apply(this, arguments);
+        return _ref5.apply(this, arguments);
       };
     }();
     channel.subscribe('newBackdrop', message => {
@@ -13383,8 +13793,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogRenameSprite = this.props.vm.renameSprite.bind(this.props.vm);
     this.props.vm.renameSprite = /*#__PURE__*/function () {
-      var _ref5 = _asyncToGenerator(function* (id, name) {
+      var _ref6 = _asyncToGenerator(function* (id, name) {
         const spriteName = _this10.props.vm.runtime.getTargetById(id).sprite.name;
+        if (name == "Stage") {
+          name = "Stage1";
+        }
         while ( true && _this10.hasLoadedFully) {
           let isDuplicate = false;
           for (let target of _this10.props.vm.runtime.targets) {
@@ -13399,6 +13812,15 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
             break;
           }
         }
+        _this10.logData({
+          moveId: _this10.getRandomHexString(16),
+          time: Date.now(),
+          user: uname,
+          room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+          type: "custom:renameSprite",
+          spriteName: spriteName,
+          newName: name
+        });
         const msg = {
           spriteName: spriteName,
           name: name
@@ -13406,7 +13828,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         channel.publish('renameSprite', JSON.stringify(msg));
       });
       return function (_x5, _x6) {
-        return _ref5.apply(this, arguments);
+        return _ref6.apply(this, arguments);
       };
     }();
     channel.subscribe('renameSprite', message => {
@@ -13415,12 +13837,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogDuplicateSprite = this.props.vm.duplicateSprite.bind(this.props.vm);
     this.props.vm.duplicateSprite = /*#__PURE__*/function () {
-      var _ref6 = _asyncToGenerator(function* (id) {
+      var _ref7 = _asyncToGenerator(function* (id) {
         const name = _this10.props.vm.runtime.getTargetById(id).sprite.name;
         return channel.publish('duplicateSprite', JSON.stringify(name));
       });
       return function (_x7) {
-        return _ref6.apply(this, arguments);
+        return _ref7.apply(this, arguments);
       };
     }();
     channel.subscribe('duplicateSprite', message => {
@@ -13429,26 +13851,85 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       ogDuplicateSprite(id);
     });
     let ogSpriteInfo = this.props.vm.postSpriteInfo;
-    this.props.vm.postSpriteInfo = /*#__PURE__*/function () {
-      var _ref7 = _asyncToGenerator(function* (data) {
-        let name = _this10.props.vm.editingTarget.sprite.name;
-        if (_this10.props.vm._dragTarget) {
-          name = _this10.props.vm._dragTarget.sprite.name;
-        }
-        const msg = {
-          name: name,
-          data: data
-        };
-        yield channel.publish('spriteInfo', JSON.stringify(msg));
-      });
-      return function (_x8) {
-        return _ref7.apply(this, arguments);
+    this.props.vm.postSpriteInfo = data => {
+      let name = this.props.vm.editingTarget.sprite.name;
+      if (this.props.vm._dragTarget) {
+        name = this.props.vm._dragTarget.sprite.name;
+      }
+      const msg = {
+        name: name,
+        data: data,
+        uid: nid
       };
-    }();
+      if (this.hasLoadedFully) {
+        channel.publish('spriteInfo', JSON.stringify(msg));
+      }
+      this.getTargetByName(name).postSpriteInfo(data);
+    };
     channel.subscribe('spriteInfo', message => {
       const d = JSON.parse(message.data);
+      if (d.uid == nid) {
+        return;
+      }
       this.getTargetByName(d.name).postSpriteInfo(d.data);
       this.props.vm.runtime.emitProjectChanged();
+    });
+    let ogReorderCostume = this.props.vm.reorderCostume.bind(this.props.vm);
+    this.props.vm.reorderCostume = (targetId, costumeIndex, newIndex) => {
+      const spriteName = this.props.vm.runtime.getTargetById(targetId).sprite.name;
+      const msg = {
+        spriteName: spriteName,
+        costumeIndex: costumeIndex,
+        newIndex: newIndex,
+        uid: nid
+      };
+      channel.publish('reorderCostume', JSON.stringify(msg));
+      return ogReorderCostume(targetId, costumeIndex, newIndex);
+    };
+    channel.subscribe('reorderCostume', message => {
+      const d = JSON.parse(message.data);
+      if (d.uid == nid) {
+        return;
+      }
+      const targetId = this.getTargetByName(d.spriteName).id;
+      ogReorderCostume(targetId, d.costumeIndex, d.newIndex);
+    });
+    let ogReorderSound = this.props.vm.reorderSound.bind(this.props.vm);
+    this.props.vm.reorderSound = (targetId, soundIndex, newIndex) => {
+      const spriteName = this.props.vm.runtime.getTargetById(targetId).sprite.name;
+      const msg = {
+        spriteName: spriteName,
+        soundIndex: soundIndex,
+        newIndex: newIndex,
+        uid: nid
+      };
+      channel.publish('reorderSound', JSON.stringify(msg));
+      return ogReorderSound(targetId, soundIndex, newIndex);
+    };
+    channel.subscribe('reorderSound', message => {
+      const d = JSON.parse(message.data);
+      if (d.uid == nid) {
+        return;
+      }
+      const targetId = this.getTargetByName(d.spriteName).id;
+      ogReorderSound(targetId, d.soundIndex, d.newIndex);
+    });
+    const ogReorderTarget = this.props.vm.reorderTarget.bind(this.props.vm);
+    this.props.vm.reorderTarget = (targetIndex, newIndex) => {
+      const msg = {
+        targetIndex: targetIndex,
+        newIndex: newIndex,
+        uid: nid
+      };
+      channel.publish('reorderTarget', JSON.stringify(msg));
+      return ogReorderTarget(targetIndex, newIndex);
+    };
+    channel.subscribe('reorderTarget', message => {
+      const d = JSON.parse(message.data);
+      if (d.uid == nid) {
+        return;
+      }
+      ogReorderTarget(d.targetIndex, d.newIndex);
     });
 
     // const ogVMemit = this.props.vm.runtime.emit.bind(this.props.vm.runtime)
@@ -13464,25 +13945,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //     ogVMemit(d.a1, d.a2);
     // });
 
-    //let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
-    this.props.vm.deleteSound = /*#__PURE__*/function () {
-      var _ref8 = _asyncToGenerator(function* (soundIndex) {
-        const name = _this10.props.vm.runtime.editingTarget.sprite.name;
-        const msg = {
-          soundIndex: soundIndex,
-          name: name
-        };
-        const ret = yield channel.publish('deleteSound', JSON.stringify(msg));
-        return ret;
-      });
-      return function (_x9) {
-        return _ref8.apply(this, arguments);
-      };
-    }();
-    channel.subscribe('deleteSound', message => {
-      const d = JSON.parse(message.data);
-      const soundIndex = d.soundIndex;
-      const target = this.getTargetByName(d.name);
+    const deleteSound = function (soundIndex, target) {
       const deletedSound = target.deleteSound(soundIndex);
       if (deletedSound) {
         this.runtime.emitProjectChanged();
@@ -13493,12 +13956,44 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         return restoreFun;
       }
       return null;
+    }.bind(this.props.vm);
+    //let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
+    this.props.vm.deleteSound = /*#__PURE__*/function () {
+      var _ref8 = _asyncToGenerator(function* (soundIndex) {
+        const name = _this10.props.vm.editingTarget.sprite.name;
+        const msg = {
+          soundIndex: soundIndex,
+          name: name,
+          uid: nid
+        };
+        yield channel.publish('deleteSound', JSON.stringify(msg));
+        return deleteSound(soundIndex, _this10.props.vm.editingTarget);
+      });
+      return function (_x8) {
+        return _ref8.apply(this, arguments);
+      };
+    }();
+    channel.subscribe('deleteSound', message => {
+      const d = JSON.parse(message.data);
+      if (d.uid == nid) {
+        return;
+      }
+      const soundIndex = d.soundIndex;
+      const target = this.getTargetByName(d.name);
+      deleteSound(soundIndex, target);
     });
+    this.props.vm.shareBlocksToTarget = /*#__PURE__*/function () {
+      var _ref9 = _asyncToGenerator(function* (blocks, target, optID) {});
+      return function (_x9, _x10, _x11) {
+        return _ref9.apply(this, arguments);
+      };
+    }();
     let ogAddSound = this.props.vm.addSound.bind(this.props.vm);
     this.props.vm.addSound = /*#__PURE__*/function () {
-      var _ref9 = _asyncToGenerator(function (sound) {
+      var _ref10 = _asyncToGenerator(function (sound) {
         let idx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "AMONGUSLMAO";
         return function* () {
+          console.log("SOUND", sound);
           const name = idx == "AMONGUSLMAO" ? _this10.props.vm.editingTarget.sprite.name : _this10.props.vm.runtime.getTargetById(idx).sprite.name;
           const msg = {
             sound: sound,
@@ -13507,8 +14002,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           return channel.publish('addSound', JSON.stringify(msg));
         }();
       });
-      return function (_x10) {
-        return _ref9.apply(this, arguments);
+      return function (_x12) {
+        return _ref10.apply(this, arguments);
       };
     }();
     channel.subscribe('addSound', message => {
@@ -13517,7 +14012,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogRenameSound = this.props.vm.renameSound.bind(this.props.vm);
     this.props.vm.renameSound = /*#__PURE__*/function () {
-      var _ref10 = _asyncToGenerator(function* (soundIndex, newName) {
+      var _ref11 = _asyncToGenerator(function* (soundIndex, newName) {
         const msg = {
           soundIndex: soundIndex,
           newName: newName,
@@ -13525,8 +14020,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         };
         channel.publish('renameSound', JSON.stringify(msg));
       });
-      return function (_x11, _x12) {
-        return _ref10.apply(this, arguments);
+      return function (_x13, _x14) {
+        return _ref11.apply(this, arguments);
       };
     }();
     channel.subscribe('renameSound', message => {
@@ -13535,25 +14030,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       target.renameSound(d.soundIndex, d.newName);
       this.props.vm.emitTargetsUpdate();
     });
-    this.props.vm.deleteCostume = /*#__PURE__*/function () {
-      var _ref11 = _asyncToGenerator(function* (costumeIndex) {
-        const spriteName = _this10.props.vm.editingTarget.sprite.name;
-        const msg = {
-          costumeIndex: costumeIndex,
-          spriteName: spriteName
-        };
-        const ret = yield channel.publish('deleteCostume', JSON.stringify(msg));
-        return ret;
-      });
-      return function (_x13) {
-        return _ref11.apply(this, arguments);
-      };
-    }();
-    channel.subscribe('deleteCostume', message => {
-      const data = JSON.parse(message.data);
-      const costumeIndex = data.costumeIndex;
-      // getTargetForStage
-      const target = this.getTargetByName(data.spriteName);
+    const deleteCostume = function (costumeIndex, target) {
       console.log("deleted costume", costumeIndex, target);
       const deletedCostume = target.deleteCostume(costumeIndex);
       if (deletedCostume) {
@@ -13564,24 +14041,51 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         };
       }
       return null;
-    });
-    let ogAddCostumeFromLibrary = this.props.vm.addCostumeFromLibrary.bind(this.props.vm);
-    this.props.vm.addCostumeFromLibrary = /*#__PURE__*/function () {
-      var _ref12 = _asyncToGenerator(function* (md5, costumeOBject) {
+    }.bind(this.props.vm);
+    this.props.vm.deleteCostume = /*#__PURE__*/function () {
+      var _ref12 = _asyncToGenerator(function* (costumeIndex) {
+        const spriteName = _this10.props.vm.editingTarget.sprite.name;
         const msg = {
-          md5: md5,
-          costumeOBject: costumeOBject
+          costumeIndex: costumeIndex,
+          spriteName: spriteName,
+          uid: nid
         };
-        return channel.publish('addCostumeFromLibrary', JSON.stringify(msg));
+        channel.publish('deleteCostume', JSON.stringify(msg));
+        return deleteCostume(costumeIndex, _this10.props.vm.editingTarget);
       });
-      return function (_x14, _x15) {
+      return function (_x15) {
         return _ref12.apply(this, arguments);
       };
     }();
-    channel.subscribe('addCostumeFromLibrary', message => {
-      const d = JSON.parse(message.data);
-      ogAddCostumeFromLibrary(d.md5, d.costumeOBject);
+    channel.subscribe('deleteCostume', message => {
+      const data = JSON.parse(message.data);
+      if (data.uid == nid) {
+        return;
+      }
+      const costumeIndex = data.costumeIndex;
+      const target = this.getTargetByName(data.spriteName);
+      deleteCostume(costumeIndex, target);
     });
+
+    // let ogAddCostumeFromLibrary = function (md5ext, costumeObject, optId=null) {
+    //     // TODO: reject with an Error (possible breaking API change!)
+    //     // eslint-disable-next-line prefer-promise-reject-errors
+    //     if (!this.editingTarget) return Promise.reject();
+    //     if (optId==null) {
+    //         optId = this.editingTarget.id;
+    //     }
+    //     return this.addCostume(md5ext, costumeObject, optId, 2 /* optVersion */);
+    // }.bind(this.props.vm)
+    // this.props.vm.addCostumeFromLibrary = async (md5, costumeOBject) => {
+    //     const msg = {md5: md5, costumeOBject: costumeOBject, spriteName: this.props.vm.editingTarget.sprite.name};
+    //     return channel.publish('addCostumeFromLibrary', JSON.stringify(msg));
+    // }
+    // channel.subscribe('addCostumeFromLibrary', (message) => {
+    //     const d = JSON.parse(message.data);
+    //     const id = this.getTargetByName(d.spriteName).id;
+    //     ogAddCostumeFromLibrary(d.md5, d.costumeOBject, id);
+    // })
+
     let ogDupeCostume = this.props.vm.duplicateCostume.bind(this.props.vm);
     this.props.vm.duplicateCostume = /*#__PURE__*/function () {
       var _ref13 = _asyncToGenerator(function* (costumeIndex) {
@@ -13620,20 +14124,105 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       const data = JSON.parse(message.data);
       this.getTargetByName(data.spriteName).setCostume(data.costumeIndex);
     });
-    let ogAddCostume = this.props.vm.addCostume.bind(this.props.vm);
-    this.props.vm.addCostume = function (md5, costumeOBject, optTarget, optVersion) {
-      const msg = {
-        md5: md5,
-        costumeOBject: costumeOBject,
-        optTarget: optTarget,
-        optVersion: optVersion
-      };
-      return channel.publish('addCostume', JSON.stringify(msg));
+    const decodeSvg = data => {
+      let svgString = '';
+      for (let i = 0; i < Object.keys(data).length; i++) {
+        svgString += String.fromCharCode(data[i]);
+      }
+      return svgString;
     };
-    channel.subscribe('addCostume', message => {
-      const d = JSON.parse(message.data);
-      ogAddCostume(d.md5, d.costumeOBject, d.optTarget, d.optVersion);
-    });
+    const decodePng = data => {
+      const byteNumbers = Object.values(data);
+      const byteArray = new Uint8Array(byteNumbers);
+
+      // Convert byteArray to a binary string
+      let binaryString = '';
+      for (let i = 0; i < byteArray.length; i += 0x8000) {
+        binaryString += String.fromCharCode.apply(null, byteArray.subarray(i, i + 0x8000));
+      }
+
+      // Convert binary string to base64
+      return btoa(binaryString);
+    };
+    let ogAddCostume = this.props.vm.addCostume.bind(this.props.vm);
+    this.props.vm.addCostume = function (md5, costumeObject, optTarget, optVersion) {
+      console.log("ADDING COSTUME", md5, costumeObject, optTarget, optVersion);
+      const as = costumeObject.asset;
+      console.log("ASSET", as);
+      if (this.hasLoadedFully) {
+        if (costumeObject.asset == undefined) {
+          const spriteName = optTarget ? this.props.vm.runtime.getTargetById(optTarget).sprite.name : this.props.vm.editingTarget.sprite.name;
+          const msg = {
+            md5: md5,
+            costumeObject: costumeObject,
+            spriteName: spriteName,
+            optVersion: optVersion,
+            uid: nid
+          };
+          channel.publish('addCostume', JSON.stringify(msg));
+          return ogAddCostume(md5, costumeObject, optTarget, optVersion);
+        }
+        var fileContent;
+        var contentType;
+        if (costumeObject.dataFormat === 'svg') {
+          fileContent = decodeSvg(costumeObject.asset.data);
+          contentType = 'image/svg+xml';
+        } else {
+          fileContent = decodePng(costumeObject.asset.data);
+          contentType = 'image/png';
+        }
+        fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=" + md5 + "&cd=attachment", {
+          method: 'POST',
+          headers: {
+            'Accept': '*/*',
+            'Connection': 'keep-alive',
+            'Content-Type': contentType,
+            'Content-Disposition': 'attachment'
+          },
+          body: fileContent
+        }).then(resp => {
+          console.log(resp);
+          console.log("data", costumeObject.asset.data);
+          // costumeObject.asset.data = []
+
+          const spriteName = optTarget ? this.props.vm.runtime.getTargetById(optTarget).sprite.name : this.props.vm.editingTarget.sprite.name;
+          const msg = {
+            md5: md5,
+            costumeObject: costumeObject,
+            spriteName: spriteName,
+            optVersion: optVersion,
+            uid: nid
+          };
+          channel.publish('addCostume', JSON.stringify(msg));
+        });
+      }
+      return ogAddCostume(md5, costumeObject, optTarget, optVersion);
+    }.bind(this);
+    channel.subscribe('addCostume', /*#__PURE__*/function () {
+      var _ref15 = _asyncToGenerator(function* (message) {
+        const d = JSON.parse(message.data);
+        if (d.uid == nid) {
+          return;
+        }
+
+        // const resp = await fetch("https://d3pl0tx5n82s71.cloudfront.net/"+d.md5)
+        // const extension = d.dataFormat
+        // if (extension == "svg") {
+        //     const svgString = await resp.text();
+        //     d.costumeObject.asset.data = svgString;
+        // } else {
+        //     const pngData = await resp.arrayBuffer();
+        //     d.costumeObject.asset.data = new Uint8Array(Buffer.from(pngData, 'base64'));
+        // }
+
+        console.log("ADDING COSTUME", d);
+        const targetId = _this10.getTargetByName(d.spriteName).id;
+        ogAddCostume(d.md5, d.costumeObject, targetId, d.optVersion);
+      });
+      return function (_x19) {
+        return _ref15.apply(this, arguments);
+      };
+    }());
 
     // this.props.vm.createVariable = function(id,name,type,isCloud) {
     //     console.log("VARIABLE MADE")
@@ -13641,10 +14230,80 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //     // return channel.publish('createVariable', JSON.stringify(msg));
     // }
 
+    const ogRenameVarById = this.workspace.renameVariableById.bind(this.workspace);
+    this.workspace.renameVariableById = function (id, newName) {
+      const msg = {
+        id: id,
+        newName: newName
+      };
+      channel.publish('renameVarById', JSON.stringify(msg));
+    };
+    channel.subscribe('renameVarById', message => {
+      const d = JSON.parse(message.data);
+      ogRenameVarById(d.id, d.newName);
+    });
+    const ogDeleteVarById = this.workspace.deleteVariableById.bind(this.workspace);
+    this.workspace.deleteVariableById = function (id) {
+      channel.publish('deleteVarById', JSON.stringify(id));
+    };
+    channel.subscribe('deleteVarById', message => {
+      ogDeleteVarById(JSON.parse(message.data));
+    });
+    const ogDeleteVarInternal = this.workspace.deleteVariableInternal_.bind(this.workspace);
+    this.workspace.deleteVariableInternal_ = function (variable, uses) {
+      const msg = {
+        variable: variable,
+        uses: uses
+      };
+      channel.publish('deleteVarInternal', JSON.stringify(msg));
+    };
+    channel.subscribe('deleteVarInternal', message => {
+      const d = JSON.parse(message.data);
+      ogDeleteVarInternal(d.variable, d.uses);
+    });
+    this.workspace.undo = function (redo) {
+      return;
+      var inputStack = redo ? this.workspace.redoStack_ : this.workspace.undoStack_;
+      var outputStack = redo ? this.workspace.undoStack_ : this.workspace.redoStack_;
+      var inputEvent = inputStack.pop();
+      if (!inputEvent) {
+        return;
+      }
+      var events = [inputEvent];
+      // Do another undo/redo if the next one is of the same group.
+      while (inputStack.length && inputEvent.group && inputEvent.group == inputStack[inputStack.length - 1].group) {
+        events.push(inputStack.pop());
+      }
+      // Push these popped events on the opposite stack.
+      for (var i = 0, event; event = events[i]; i++) {
+        outputStack.push(event);
+      }
+      events = this.ScratchBlocks.Events.filter(events, redo);
+      this.ScratchBlocks.Events.recordUndo = false;
+      if (this.ScratchBlocks.selected) {
+        this.ScratchBlocks.Events.disable();
+        try {
+          this.ScratchBlocks.selected.unselect();
+        } finally {
+          this.ScratchBlocks.Events.enable();
+        }
+      }
+      try {
+        var emissionArray = [];
+        for (var i = 0, event; event = events[i]; i++) {
+          emissionArray.push(event.toJson());
+        }
+        this.sendArray(emissionArray, -1, -1, redo);
+        for (var i = 0, event; event = events[i]; i++) {
+          event.run(redo);
+        }
+      } finally {
+        this.ScratchBlocks.Events.recordUndo = true;
+      }
+    }.bind(this);
     const ogCreateVar = this.workspace.createVariable.bind(this.workspace);
     this.workspace.createVariable = function (name, opt_type, opt_id, opt_isLocal, opt_isCloud) {
       //console.log("VARIABLE MADE", name)
-      ogCreateVar(name, opt_type, opt_id, opt_isLocal, opt_isCloud);
       const msg = {
         name: name,
         opt_type: opt_type,
@@ -13654,6 +14313,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         uid: nid
       };
       channel.publish('createVariable', JSON.stringify(msg));
+      return ogCreateVar(name, opt_type, opt_id, opt_isLocal, opt_isCloud);
     };
     channel.subscribe('createVariable', message => {
       const d = JSON.parse(message.data);
@@ -13663,15 +14323,75 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       ogCreateVar(d.name, d.opt_type, d.opt_id, d.opt_isLocal, d.opt_isCloud);
     });
 
+    // TODO: handle right click events
+    const ogShowContextMenu = this.ScratchBlocks.ContextMenu.show.bind(this.ScratchBlocks.ContextMenu);
+    this.ScratchBlocks.ContextMenu.show = function (a, arrayOfChoices, c) {
+      const newChoices = [];
+      for (let i = 0; i < arrayOfChoices.length; i++) {
+        const choice = arrayOfChoices[i];
+        if (choice.text == "Add Comment") {
+          newChoices.push(choice);
+        }
+      }
+      ogShowContextMenu(a, newChoices, c);
+      console.log("CONTEXT MENU", a, arrayOfChoices, c);
+    };
+
     // this.workspace.prototype.createVariable = function(id,name,sf,type,isCloud) {
     //     console.log("MADE VARIABLE")
     // }
 
-    this.props.vm.updateSvg = function (costumeIndex, svg, rotationCenterX, rotationCenterY) {
-      let targetName = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "";
-      //console.log(this)
+    this.props.vm.updateBitmap = function (costumeIndex, bitmap, rotationCenterX, rotationCenterY, bitmapResolution) {
+      let targetName = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : "";
       var target;
       if (targetName == "") target = this.editingTarget;else target = this.runtime.getSpriteTargetByName(targetName);
+      const costume = target.getCostumes()[costumeIndex];
+      if (!(costume && this.runtime && this.runtime.renderer)) return;
+      if (costume && costume.broken) delete costume.broken;
+      costume.rotationCenterX = rotationCenterX;
+      costume.rotationCenterY = rotationCenterY;
+
+      // If the bitmap originally had a zero width or height, use that value
+      const bitmapWidth = bitmap.sourceWidth === 0 ? 0 : bitmap.width;
+      const bitmapHeight = bitmap.sourceHeight === 0 ? 0 : bitmap.height;
+      // @todo: updateBitmapSkin does not take ImageData
+      const canvas = document.createElement('canvas');
+      canvas.width = bitmapWidth;
+      canvas.height = bitmapHeight;
+      const context = canvas.getContext('2d');
+      context.putImageData(bitmap, 0, 0);
+
+      // Divide by resolution because the renderer's definition of the rotation center
+      // is the rotation center divided by the bitmap resolution
+      this.runtime.renderer.updateBitmapSkin(costume.skinId, canvas, bitmapResolution, [rotationCenterX / bitmapResolution, rotationCenterY / bitmapResolution]);
+
+      // @todo there should be a better way to get from ImageData to a decodable storage format
+      canvas.toBlob(blob => {
+        const reader = new FileReader();
+        reader.addEventListener('loadend', () => {
+          const storage = this.runtime.storage;
+          costume.dataFormat = storage.DataFormat.PNG;
+          costume.bitmapResolution = bitmapResolution;
+          costume.size = [bitmapWidth, bitmapHeight];
+          costume.asset = storage.createAsset(storage.AssetType.ImageBitmap, costume.dataFormat, Buffer.from(reader.result), null,
+          // id
+          true // generate md5
+          );
+          costume.assetId = costume.asset.assetId;
+          costume.md5 = "".concat(costume.assetId, ".").concat(costume.dataFormat);
+          this.emitTargetsUpdate();
+        });
+        // Bitmaps with a zero width or height return null for their blob
+        if (blob) {
+          reader.readAsArrayBuffer(blob);
+        }
+      });
+    }.bind(this.props.vm);
+    this.props.vm.updateSvg = function (costumeIndex, svg, rotationCenterX, rotationCenterY) {
+      let targetName = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : "";
+      var target;
+      console.log(targetName);
+      if (targetName == "") target = this.editingTarget;else if (targetName == "Stage") target = this.runtime.getTargetForStage();else target = this.runtime.getSpriteTargetByName(targetName);
       const costume = target.getCostumes()[costumeIndex];
       if (costume && costume.broken) delete costume.broken;
       if (costume && this.runtime && this.runtime.renderer) {
@@ -13746,6 +14466,69 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
       ogClear();
     }.bind(this);
+    const ogScroll = this.workspace.scrollbar.resize.bind(this.workspace.scrollbar);
+    this.workspace.scrollbar.resize = function () {
+      if (this.pauseWorkspaceUpdate) {
+        return;
+      }
+      ogScroll();
+    }.bind(this);
+    const ogEmitTargetsUpdate = this.props.vm.emitTargetsUpdate.bind(this.props.vm);
+    this.props.vm.emitTargetsUpdate = function (boolopt) {
+      if (this.pauseWorkspaceUpdate) {
+        return;
+      }
+      ogEmitTargetsUpdate(boolopt);
+    }.bind(this);
+    const ogUpdateScroll = this.workspace.scrollbar.set.bind(this.workspace.scrollbar);
+    this.workspace.scrollbar.set = function (x, y) {
+      if (this.pauseWorkspaceUpdate) {
+        return;
+      }
+      ogUpdateScroll(x, y);
+    }.bind(this);
+    console.log("STORAGE", this.props.vm.runtime.storage);
+    console.log("ASSETTOOL", this.props.vm.runtime.storage.webHelper.assetTool);
+    const ogRuntimeImageLoad = this.props.vm.runtime.storage.load.bind(this.props.vm.runtime.storage);
+    this.props.vm.runtime.storage.load = function (a, b, c) {
+      console.log("LOADING FROM VM", a, b, c);
+      return ogRuntimeImageLoad(a, b, c);
+    };
+    function extractNumberFromUrl(url) {
+      const baseUrl = "https://assets.scratch.mit.edu/internalapi/asset/";
+      // Remove the initial part of the URL
+      let trimmedUrl = url.replace(baseUrl, '');
+      // Split the remaining part of the URL by '.' and get the first index
+      let number = trimmedUrl.split('.')[0];
+      // Return the extracted number
+      return number;
+    }
+    const ogGet = this.props.vm.runtime.storage.webHelper.assetTool.get.bind(this.props.vm.runtime.storage.webHelper.assetTool);
+    this.props.vm.runtime.storage.webHelper.assetTool.get = function (_ref16) {
+      let {
+          url
+        } = _ref16,
+        options = _objectWithoutProperties(_ref16, _excluded);
+      // const md5 = extractNumberFromUrl(url)
+      // console.log("MD5", md5)
+      // if (md5 != "-1") {
+      //     fetch(`http://scratch-images.s3-website.us-east-2.amazonaws.com/${md5}.svg`).then((response) => {"EARNERING", console.log(response)})
+      //     console.log(url)
+      //     console.log(url, options)
+      // }
+      // fetch(url).then((response) => {"RESPONDING",console.log(response)})
+      return fetch(url, Object.assign({
+        method: 'GET',
+        "Connection": "keep-alive",
+        "Accept": "*/*"
+      }, options)).then(result => {
+        // result.arrayBuffer().then(b => {const r = new Uint8Array(b);  console.log("MAGIK",url,b,r)})
+        console.log("RES", result);
+        if (result.ok) return result.arrayBuffer().then(b => new Uint8Array(b));
+        if (result.status === 404) return null;
+        return Promise.reject(result.status); // TODO: we should throw a proper error
+      });
+    };
     this.ScratchBlocks.Xml.domToBlock = function (xmlBlock, workspace) {
       //const swappingWorkspaces = this.workspace.id == workspace.id && this.pauseWorkspaceUpdate;
       //console.log("DOMTO", this.workspace.id, workspace.isFlyout, this.pauseWorkspaceUpdate, workspace)
@@ -13806,7 +14589,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
       return topBlock;
     }.bind(this);
-    this.initInformation.bind(this)();
+
     //this.props.vm.clearFlyoutBlocks()
   }
   _getTargetXY(targetName, util) {
@@ -13816,8 +14599,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       targetX = util.ioQuery('mouse', 'getScratchX');
       targetY = util.ioQuery('mouse', 'getScratchY');
     } else {
-      targetName = Cast.toString(targetName);
-      const goToTarget = this.runtime.getSpriteTargetByName(targetName);
+      // convert targetName to a string
+      targetName = String(targetName);
+      const goToTarget = this.props.vm.runtime.getSpriteTargetByName(targetName);
       if (!goToTarget) return;
       targetX = goToTarget.x;
       targetY = goToTarget.y;
@@ -13835,7 +14619,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
       yield _this11.save();
       console.log("JOINED!!");
-      yield channel.publish('goodForLoad', "");
+      yield channel.publish('goodForLoad', JSON.stringify({
+        uid: nid
+      }));
       // console.log(this.props.vm.runtime.execute.blockUtility)
       // this.props.vm.runtime.execute.blockUtility.ioQuery('clock', 'resetProjectTimer')
     })();
@@ -14038,6 +14824,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.handleExtensionAdded(categoryInfo);
   }
   handleCategorySelected(categoryId) {
+    console.log("ARAIREORE");
+    channel.publish('categorySelected', JSON.stringify(categoryId));
+  }
+  parseCategorySelected(msg) {
+    const categoryId = JSON.parse(msg.data);
     const extension = _lib_libraries_extensions_index_jsx__WEBPACK_IMPORTED_MODULE_11__["default"].find(ext => ext.extensionId === categoryId);
     if (extension && extension.launchPeripheralConnectionFlow) {
       this.handleConnectionModalStart(categoryId);
@@ -14139,7 +14930,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         useCatBlocks,
         workspaceMetrics
       } = _this$props,
-      props = _objectWithoutProperties(_this$props, _excluded);
+      props = _objectWithoutProperties(_this$props, _excluded2);
+    console.log("PROPS", this.props);
     /* eslint-enable no-unused-vars */
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_4__.createElement(react__WEBPACK_IMPORTED_MODULE_4__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_4__.createElement(DroppableBlocks, _extends({
       componentRef: this.setBlocks,
@@ -14155,11 +14947,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       vm: vm,
       onCancel: this.handlePromptClose,
       onOk: this.handlePromptCallback
-    }) : null, extensionLibraryVisible ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_4__.createElement(_extension_library_jsx__WEBPACK_IMPORTED_MODULE_10__["default"], {
-      vm: vm,
-      onCategorySelected: this.handleCategorySelected,
-      onRequestClose: onRequestCloseExtensionLibrary
-    }) : null, customProceduresVisible ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_4__.createElement(_custom_procedures_jsx__WEBPACK_IMPORTED_MODULE_12__["default"], {
+    }) : null,  false ? /*#__PURE__*/0 : null, customProceduresVisible ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_4__.createElement(_custom_procedures_jsx__WEBPACK_IMPORTED_MODULE_12__["default"], {
       options: {
         media: options.media
       },
@@ -14752,6 +15540,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _lib_libraries_costumes_json__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../lib/libraries/costumes.json */ "./src/lib/libraries/costumes.json");
 /* harmony import */ var _lib_libraries_backdrops_json__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../lib/libraries/backdrops.json */ "./src/lib/libraries/backdrops.json");
 /* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -14905,17 +15695,68 @@ class CostumeTab extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     });
     (0,_lib_download_blob__WEBPACK_IMPORTED_MODULE_12__["default"])("".concat(item.name, ".").concat(item.asset.dataFormat), blob);
   }
+  decodeSvg(data) {
+    let svgString = '';
+    for (let i = 0; i < Object.keys(data).length; i++) {
+      svgString += String.fromCharCode(data[i]);
+    }
+    return svgString;
+  }
+  decodePng(data) {
+    const byteNumbers = Object.values(data);
+    const byteArray = new Uint8Array(byteNumbers);
+
+    // Convert byteArray to a binary string
+    let binaryString = '';
+    for (let i = 0; i < byteArray.length; i += 0x8000) {
+      binaryString += String.fromCharCode.apply(null, byteArray.subarray(i, i + 0x8000));
+    }
+
+    // Convert binary string to base64
+    return btoa(binaryString);
+  }
   handleNewCostume(costume, fromCostumeLibrary, targetId) {
+    var _this = this;
     const costumes = Array.isArray(costume) ? costume : [costume];
-    return Promise.all(costumes.map(c => {
-      if (fromCostumeLibrary) {
-        return this.props.vm.addCostumeFromLibrary(c.md5, c);
-      }
-      // If targetId is falsy, VM should default it to editingTarget.id
-      // However, targetId should be provided to prevent #5876,
-      // if making new costume takes a while
-      return this.props.vm.addCostume(c.md5, c, targetId);
-    }));
+    return Promise.all(costumes.map( /*#__PURE__*/function () {
+      var _ref = _asyncToGenerator(function* (c) {
+        // var fileContent
+        // var contentType
+
+        // if (c.dataFormat === 'svg') {
+        //     fileContent = this.decodeSvg(c.asset.data);
+        //     contentType = 'image/svg+xml';
+        // } else {
+        //     jsonCostume.bitmapResolution = 2;
+        //     fileContent = this.decodePng(c.asset.data);
+        //     contentType = 'image/png';
+        // }
+
+        // const resp = await fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=" + md5 + "&cd=attachment", {
+        //     method: 'POST',
+        //     headers: {
+        //         'Accept': '*/*',
+        //         'Connection': 'keep-alive',
+        //         'Content-Type': contentType,
+        //         'Content-Disposition': 'attachment',
+        //     },
+        //     body: fileContent,
+        // });
+        // console.log(resp)
+
+        console.log("BOOMSHAKA");
+        if (fromCostumeLibrary) {
+          return _this.props.vm.addCostumeFromLibrary(c.md5, c);
+        }
+        // If targetId is falsy, VM should default it to editingTarget.id
+        // However, targetId should be provided to prevent #5876,
+        // if making new costume takes a while
+        return _this.props.vm.addCostume(c.md5, c, targetId);
+      });
+      return function (_x) {
+        return _ref.apply(this, arguments);
+      };
+    }()));
   }
   handleNewBlankCostume() {
     const name = this.props.vm.editingTarget.isStage ? this.props.intl.formatMessage(messages.backdrop, {
@@ -15039,19 +15880,23 @@ class CostumeTab extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         fileChange: this.handleCostumeUpload,
         fileInput: this.setFileInput,
         fileMultiple: true
-      }, {
-        title: intl.formatMessage(messages.addSurpriseCostumeMsg),
-        img: _components_action_menu_icon_surprise_svg__WEBPACK_IMPORTED_MODULE_21__,
-        onClick: addSurpriseFunc
-      }, {
+      },
+      // {
+      //     title: intl.formatMessage(messages.addSurpriseCostumeMsg),
+      //     img: surpriseIcon,
+      //     onClick: addSurpriseFunc
+      // },
+      {
         title: intl.formatMessage(messages.addBlankCostumeMsg),
         img: _components_action_menu_icon_paint_svg__WEBPACK_IMPORTED_MODULE_20__,
         onClick: this.handleNewBlankCostume
-      }, {
-        title: intl.formatMessage(addLibraryMessage),
-        img: _components_action_menu_icon_search_svg__WEBPACK_IMPORTED_MODULE_22__,
-        onClick: addLibraryFunc
-      }],
+      }
+      // {
+      //     title: intl.formatMessage(addLibraryMessage),
+      //     img: searchIcon,
+      //     onClick: addLibraryFunc
+      // }
+      ],
       dragType: _lib_drag_constants__WEBPACK_IMPORTED_MODULE_9__["default"].COSTUME,
       isRtl: isRtl,
       items: costumeData,
@@ -17263,27 +18108,62 @@ class PaintEditorWrapper extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     return this.props.imageId !== nextProps.imageId || this.props.rtl !== nextProps.rtl || this.props.name !== nextProps.name;
   }
   handleUpdateName(name) {
-    const msg = {
-      name: name,
-      costumeIndex: this.props.selectedCostumeIndex
-    };
-    channel.publish('renameCostume', JSON.stringify(msg));
+    this.props.vm.renameCostume(this.props.selectedCostumeIndex, name);
+  }
+  imageDataToBase64(imageData) {
+    return new Promise((resolve, reject) => {
+      const canvas = document.createElement('canvas');
+      canvas.width = imageData.width;
+      canvas.height = imageData.height;
+      const ctx = canvas.getContext('2d');
+      ctx.putImageData(imageData, 0, 0);
+      canvas.toBlob(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result.split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      }, 'image/png');
+    });
   }
   handleUpdateImage(isVector, image, rotationCenterX, rotationCenterY) {
     var _this = this;
     return _asyncToGenerator(function* () {
       const target = _this.props.vm.editingTarget;
+      if (isVector) {
+        _this.props.vm.updateSvg(_this.props.selectedCostumeIndex, image, rotationCenterX, rotationCenterY, target.sprite.name);
+      } else {
+        _this.props.vm.updateBitmap(_this.props.selectedCostumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */, target.sprite.name);
+      }
+      if (!isVector) {
+        const b64image = yield _this.imageDataToBase64(image);
+        image = JSON.stringify(b64image);
+      }
       const assetId = target.sprite['costumes'][_this.props.selectedCostumeIndex].assetId;
+      const ext = isVector ? 'svg' : 'png';
       console.log('pre', assetId);
       const msg = {
-        editingTarget: _this.props.vm.editingTarget.sprite.name,
-        image: image,
+        name: _utils_AblyHandlers__WEBPACK_IMPORTED_MODULE_6__.name,
+        editingTarget: target.sprite.name,
+        md5: assetId,
         rotationCenterX: rotationCenterX,
         rotationCenterY: rotationCenterY,
         isVector: isVector,
         selectedIdx: _this.props.selectedCostumeIndex
       };
+      const targetURL = "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=".concat(assetId, ".").concat(ext, "&cd=attachment");
+      const res = yield fetch(targetURL, {
+        method: 'POST',
+        headers: {
+          'Accept': '*/*',
+          'Connection': 'keep-alive',
+          'Content-Type': isVector ? 'image/svg+xml' : 'image/png',
+          'Content-Disposition': "attachment"
+        },
+        body: image
+      });
+      console.log('image', image, res);
       yield channel.publish('imageUpdated', JSON.stringify(msg));
+      console.log('post', target.sprite['costumes'][_this.props.selectedCostumeIndex].assetId, res);
     })();
   }
   render() {
@@ -18563,6 +19443,26 @@ class SoundEditor extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
       playhead: null
     });
   }
+  uploadSound(soundIndex, wavBuffer) {
+    const sound = this.props.vm.editingTarget.sprite.sounds[soundIndex];
+    const md5 = sound.md5;
+    const uploadApiUrl = "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=" + md5;
+    const base64String = btoa(String.fromCharCode(...new Uint8Array(wavBuffer)));
+
+    // Upload the WAV to the upload API
+    fetch(uploadApiUrl + "&cd=attachment", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': '*/*'
+      },
+      body: JSON.stringify({
+        file: base64String
+      })
+    }).then(response => {
+      console.log("response", response);
+    });
+  }
   submitNewSamples(samples, sampleRate, skipUndo) {
     return (0,_lib_audio_audio_util_js__WEBPACK_IMPORTED_MODULE_5__.downsampleIfNeeded)({
       samples,
@@ -18585,6 +19485,7 @@ class SoundEditor extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
         }
         this.resetState(newSamples, newSampleRate);
         this.props.vm.updateSoundBuffer(this.props.soundIndex, this.audioBufferPlayer.buffer, new Uint8Array(wavBuffer));
+        this.uploadSound(this.props.soundIndex, wavBuffer);
         return true; // Edit was successful
       });
     }).catch(e => {
@@ -19195,6 +20096,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _reducers_editor_tab__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../reducers/editor-tab */ "./src/reducers/editor-tab.js");
 /* harmony import */ var _reducers_restore_deletion__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../reducers/restore-deletion */ "./src/reducers/restore-deletion.js");
 /* harmony import */ var _reducers_alerts__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../reducers/alerts */ "./src/reducers/alerts.js");
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 
 
@@ -19308,20 +20211,61 @@ class SoundTab extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
   handleFileUploadClick() {
     this.fileInput.click();
   }
+  decodeWav(data) {
+    // Directly get values from data and create a Uint8Array
+    const byteArray = new Uint8Array(Object.values(data));
+
+    // Convert byteArray to Base64
+    let binaryString = '';
+    const len = byteArray.byteLength;
+    for (let i = 0; i < len; i++) {
+      binaryString += String.fromCharCode(byteArray[i]);
+    }
+    const base64String = btoa(binaryString);
+    return base64String;
+  }
   handleSoundUpload(e) {
+    var _this = this;
     const storage = this.props.vm.runtime.storage;
     const targetId = this.props.vm.editingTarget.id;
     this.props.onShowImporting();
     (0,_lib_file_uploader_js__WEBPACK_IMPORTED_MODULE_16__.handleFileUpload)(e.target, (buffer, fileType, fileName, fileIndex, fileCount) => {
-      (0,_lib_file_uploader_js__WEBPACK_IMPORTED_MODULE_16__.soundUpload)(buffer, fileType, storage, newSound => {
-        newSound.name = fileName;
-        this.props.vm.addSound(newSound, targetId).then(() => {
-          this.handleNewSound();
-          if (fileIndex === fileCount - 1) {
-            this.props.onCloseImporting();
-          }
+      (0,_lib_file_uploader_js__WEBPACK_IMPORTED_MODULE_16__.soundUpload)(buffer, fileType, storage, /*#__PURE__*/function () {
+        var _ref = _asyncToGenerator(function* (newSound) {
+          newSound.name = fileName;
+          const data = _this.decodeWav(newSound.asset.data);
+          console.log(data);
+          const resp = yield fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=" + newSound.md5 + "&cd=attachment", {
+            method: 'POST',
+            headers: {
+              'Accept': '*/*',
+              'Connection': 'keep-alive',
+              'Content-Type': 'application/json',
+              'Content-Disposition': 'attachment'
+            },
+            body: JSON.stringify({
+              file: data
+            })
+          });
+          console.log(resp);
+          const vmSound = {
+            format: newSound.format,
+            md5: newSound.md5,
+            rate: newSound.rate,
+            sampleCount: newSound.sampleCount,
+            name: newSound.name
+          };
+          _this.props.vm.addSound(vmSound, targetId).then(() => {
+            _this.handleNewSound();
+            if (fileIndex === fileCount - 1) {
+              _this.props.onCloseImporting();
+            }
+          });
         });
-      }, this.props.onCloseImporting);
+        return function (_x) {
+          return _ref.apply(this, arguments);
+        };
+      }(), this.props.onCloseImporting);
     }, this.props.onCloseImporting);
   }
   handleDrop(dropInfo) {
@@ -19402,11 +20346,13 @@ class SoundTab extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
         title: intl.formatMessage(messages.surpriseSound),
         img: _components_action_menu_icon_surprise_svg__WEBPACK_IMPORTED_MODULE_10__,
         onClick: this.handleSurpriseSound
-      }, {
-        title: intl.formatMessage(messages.recordSound),
-        img: _components_asset_panel_icon_add_sound_record_svg__WEBPACK_IMPORTED_MODULE_8__,
-        onClick: onNewSoundFromRecordingClick
-      }, {
+      },
+      // {
+      //     title: intl.formatMessage(messages.recordSound),
+      //     img: addSoundFromRecordingIcon,
+      //     onClick: onNewSoundFromRecordingClick
+      // },
+      {
         title: intl.formatMessage(messages.addSound),
         img: _components_action_menu_icon_search_svg__WEBPACK_IMPORTED_MODULE_11__,
         onClick: onNewSoundFromLibraryClick
@@ -19501,11 +20447,10 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ });
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! lodash.bindall */ "./node_modules/lodash.bindall/index.js");
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(lodash_bindall__WEBPACK_IMPORTED_MODULE_0__);
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_3__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _components_sprite_info_sprite_info_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../components/sprite-info/sprite-info.jsx */ "./src/components/sprite-info/sprite-info.jsx");
-/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -19516,23 +20461,18 @@ function _extends() { _extends = Object.assign ? Object.assign.bind() : function
 
 
 
-
-const ablyChannel = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_3__.ablyInstance.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_3__.ablySpace);
 class SpriteInfo extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
   constructor(props) {
     super(props);
     lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['handleClickVisible', 'handleClickNotVisible']);
-    ablyChannel.subscribe('changeVisibility', message => {
-      this.props.onChangeVisibility(JSON.parse(message.data));
-    });
   }
   handleClickVisible(e) {
     e.preventDefault();
-    ablyChannel.publish('changeVisibility', JSON.stringify(true));
+    this.props.onChangeVisibility(true);
   }
   handleClickNotVisible(e) {
     e.preventDefault();
-    ablyChannel.publish('changeVisibility', JSON.stringify(false));
+    this.props.onChangeVisibility(false);
   }
   render() {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_1__.createElement(_components_sprite_info_sprite_info_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], _extends({}, this.props, {
@@ -19542,14 +20482,14 @@ class SpriteInfo extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
   }
 }
 SpriteInfo.propTypes = _objectSpread(_objectSpread({}, _components_sprite_info_sprite_info_jsx__WEBPACK_IMPORTED_MODULE_2__["default"].propTypes), {}, {
-  onChangeDirection: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
-  onChangeName: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
-  onChangeSize: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
-  onChangeVisibility: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
-  onChangeX: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
-  onChangeY: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().func),
-  x: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number),
-  y: (prop_types__WEBPACK_IMPORTED_MODULE_4___default().number)
+  onChangeDirection: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
+  onChangeName: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
+  onChangeSize: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
+  onChangeVisibility: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
+  onChangeX: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
+  onChangeY: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().func),
+  x: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().number),
+  y: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().number)
 });
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (SpriteInfo);
 
@@ -20905,6 +21845,8 @@ function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = 
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } } return target; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
 
 
@@ -21019,10 +21961,94 @@ class TargetPane extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
   handleActivateBlocksTab() {
     this.props.onActivateTab(_reducers_editor_tab__WEBPACK_IMPORTED_MODULE_5__.BLOCKS_TAB_INDEX);
   }
+  getRandomHexString(length) {
+    const chars = '0123456789abcdef';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * chars.length);
+      result += chars[randomIndex];
+    }
+    return result;
+  }
+  decodeSvg(data) {
+    let svgString = '';
+    for (let i = 0; i < Object.keys(data).length; i++) {
+      svgString += String.fromCharCode(data[i]);
+    }
+    return svgString;
+  }
+  decodePng(data) {
+    // Convert data object to Uint8Array
+    const byteNumbers = Object.values(data);
+    const byteArray = new Uint8Array(byteNumbers);
+
+    // Convert byteArray to a binary string
+    let binaryString = '';
+    for (let i = 0; i < byteArray.length; i += 0x8000) {
+      binaryString += String.fromCharCode.apply(null, byteArray.subarray(i, i + 0x8000));
+    }
+
+    // Convert binary string to base64
+    return btoa(binaryString);
+  }
   handleNewSprite(spriteJSONString) {
-    return this.props.vm.addSprite(spriteJSONString).then(this.handleActivateBlocksTab);
+    var _this = this;
+    return _asyncToGenerator(function* () {
+      const data = JSON.parse(spriteJSONString);
+      const spriteJSON = {
+        blocks: {},
+        costumes: [],
+        sounds: [],
+        tags: [],
+        variables: {},
+        isStage: false,
+        name: data.name,
+        x: 0,
+        y: 0
+      };
+      for (const costume of data.costumes) {
+        const md5 = costume.md5;
+        const assetId = md5.split('.')[0];
+        const jsonCostume = {
+          assetId: assetId,
+          bitmapResolution: 1,
+          dataFormat: costume.dataFormat,
+          md5ext: md5,
+          name: costume.name,
+          rotationCenterX: 0,
+          rotationCenterY: 0
+        };
+        console.log(costume.dataFormat);
+        var fileContent;
+        var contentType;
+        if (costume.dataFormat === 'svg') {
+          fileContent = _this.decodeSvg(costume.asset.data);
+          contentType = 'image/svg+xml';
+        } else {
+          jsonCostume.bitmapResolution = 2;
+          fileContent = _this.decodePng(costume.asset.data);
+          contentType = 'image/png';
+        }
+        const resp = yield fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=" + md5 + "&cd=attachment", {
+          method: 'POST',
+          headers: {
+            'Accept': '*/*',
+            'Connection': 'keep-alive',
+            'Content-Type': contentType,
+            'Content-Disposition': 'attachment'
+          },
+          body: fileContent
+        });
+        console.log(resp);
+        spriteJSON.costumes.push(jsonCostume);
+      }
+      console.log(spriteJSON);
+      return _this.props.vm.addSprite(JSON.stringify(spriteJSON)).then(_this.handleActivateBlocksTab);
+    })();
   }
   handleFileUploadClick() {
+    // console.log(this.fileInput)
+    // return
     this.fileInput.click();
   }
   handleSpriteUpload(e) {
@@ -30682,29 +31708,27 @@ class Storage extends (scratch_storage__WEBPACK_IMPORTED_MODULE_0___default()) {
     var _this = this;
     return _asyncToGenerator(function* () {
       _this.assets = {};
-      const response = yield fetch("https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/assetID", {
-        method: 'GET'
-      });
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder('utf-8');
-      let chunks = [];
-      while (true) {
-        const {
-          done,
-          value
-        } = yield reader.read();
-        if (done) {
-          break;
-        }
-        chunks.push(value);
-      }
-      const concatenated = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []));
-      const jsonString = decoder.decode(concatenated);
-      const data = JSON.parse(JSON.parse(jsonString));
-      for (const asset of data) {
-        console.log(asset);
-        _this.assets[asset.assetID] = asset;
-      }
+      // const response = await fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/assetID",{
+      //     method: 'GET'
+      // })
+      // const reader = response.body.getReader();
+      // const decoder = new TextDecoder('utf-8');
+      // let chunks = [];
+      // while (true) {
+      //     const { done, value } = await reader.read();
+      //     if (done) {
+      //         break;
+      //     }
+      //     chunks.push(value);
+      // }
+      // const concatenated = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []));
+      // const jsonString = decoder.decode(concatenated);
+      // console.log("ASSETIDS", jsonString)
+      // const data = JSON.parse(JSON.parse(jsonString));
+      // for (const asset of data) {
+      //     // console.log(asset)
+      //     this.assets[asset.assetID] = asset;
+      // }
     })();
   }
   addOfficialScratchWebStores() {
@@ -30740,15 +31764,23 @@ class Storage extends (scratch_storage__WEBPACK_IMPORTED_MODULE_0___default()) {
     };
   }
   setAssetHost(assetHost) {
+    console.log("ASSETHOST", assetHost);
     this.assetHost = assetHost;
   }
   getAssetGetConfig(asset) {
-    console.log(this.assets, asset);
-    if (asset.assetId in this.assets) {
-      return "https://rqzsni63s5.execute-api.us-east-2.amazonaws.com/scratch/images?fileName=".concat(asset.assetId, ".").concat(asset.dataFormat);
-    }
-    return "".concat(this.assetHost, "/internalapi/asset/").concat(asset.assetId, ".").concat(asset.dataFormat, "/get/");
-    console.log("loading >> ".concat(this.assetHost, "/internalapi/asset/").concat(asset.assetId, ".").concat(asset.dataFormat, "/get/"));
+    console.log("".concat(this.assetHost, "/internalapi/asset/").concat(asset.assetId, ".").concat(asset.dataFormat, "/get/"));
+    // console.log(`${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`)
+    // if (asset.dataFormat == "wav")
+    //     return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
+    // return "https://cdn.assets.scratch.mit.edu/internalapi/asset/" + asset.assetId + "." + asset.dataFormat + "/get/";
+    // console.log(`${this.assetHost}/internalapi/${asset.assetId}.${asset.dataFormat}`)
+    // return `${this.assetHost}/internalapi/${asset.assetId}.${asset.dataFormat}/get/`;
+    // if (asset.dataFormat === "svg")
+    //     return "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=390845c11df0924f3b627bafeb3f814e.svg"
+    // console.log(`https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=${asset.assetId}.${asset.dataFormat}`)
+    console.log("https://d3pl0tx5n82s71.cloudfront.net/".concat(asset.assetId, ".").concat(asset.dataFormat));
+    return "https://d3pl0tx5n82s71.cloudfront.net/".concat(asset.assetId, ".").concat(asset.dataFormat);
+    // return `https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=${asset.assetId}.${asset.dataFormat}`
   }
   getAssetCreateConfig(asset) {
     return {
@@ -35455,11 +36487,28 @@ __webpack_require__.r(__webpack_exports__);
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-const ablySpace = urlParams.get('space').toString();
+var space;
+sessionStorage.setItem('analMode', "F");
+sessionStorage.setItem('viewMode', "F");
+try {
+  space = urlParams.get('view').toString();
+  sessionStorage.setItem('isViewOnly', "T");
+  sessionStorage.setItem('viewMode', "T");
+} catch (_unused) {
+  try {
+    space = urlParams.get('anal').toString();
+    sessionStorage.setItem('isViewOnly', "T");
+    sessionStorage.setItem('analMode', "T");
+  } catch (_unused2) {
+    space = urlParams.get('space').toString();
+    sessionStorage.setItem('isViewOnly', "F");
+  }
+}
+const ablySpace = space;
 const name = urlParams.get('name').toString();
 const cursorColor = urlParams.get('color').toString();
 const ablyInstance = new ably__WEBPACK_IMPORTED_MODULE_1__.Realtime.Promise({
-  authUrl: "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ably?name=" + name
+  authUrl: "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/ablyToken?name=" + name
 });
 
 /***/ }),
@@ -43891,4 +44940,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.040415170be50771ddf5.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.809269f82327e3b5c060.js.map

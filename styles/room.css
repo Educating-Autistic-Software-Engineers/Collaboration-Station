@@ -47,6 +47,7 @@
   
 
 #members__count {
+
   background-color: #1d1d1c;
   padding: 7px 15px;
   font-size: 14px;
@@ -93,8 +94,16 @@
 }
 
 .member_name{
+  display: contents;
   font-size: 14px;
   line-height: 0;
+}
+
+.member_name_buttons{
+  display: flex;
+  position: absolute;
+  gap: 1em;
+  right: 3px;
 }
 
 #expand-btn, #revert-btn {
@@ -153,6 +162,36 @@
   position: relative;
 }
 
+#messageCount {
+  position: relative;
+  top: -21px;
+  right: 12px;
+  background-color: red;
+  color: white;
+  border-radius: 50%;
+  padding: 5px 10px;
+  font-size: 14px;
+  font-weight: bold;
+  display: inline;
+  justify-content: center;
+  align-items: center;
+  min-width: 11px;
+  height: 16px;
+}
+
+/* #messageCount::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: -20px; Adjust as needed
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background-color: #262625;
+  border-radius: 50%;
+  clip-path: circle(70% at 30% 50%);
+} */
+
 #messages {
   width: 100%;
   height: 100%;
@@ -206,7 +245,7 @@
 }
 
 #message__form {
-  width: 276px;
+  width: 280px;
   position: fixed;
   bottom: 0;
   display: block;
@@ -217,12 +256,16 @@
 #message__form input {
   color: #ffffff;
   width: 100%;
+  max-width: 100%;
   border: none;
   border-radius: 5px;
   padding: 18px;
   font-size: 14px;
   box-sizing: border-box;
   background-color: #3f434a;
+  overflow-wrap: break-word; /* Handles long words */
+  word-break: break-word;
+  display: flex;
 }
 
 #message__form input:focus {
@@ -293,18 +336,6 @@
   overflow-y: auto;
   
  
-}
-
-#self-mute-person {
-  /* display: none; */
-  position: absolute;
-  z-index: 1;
-  bottom: 0;
-  left: 0;
-  margin-bottom: -8px;
-  margin-left: -7px;
-  scale: 0.5;
-
 }
 
 .video__container{
@@ -493,6 +524,10 @@
 .stream__actions a:hover,
 .stream__actions button:hover {
   background-color: #845695;
+}
+
+.muted {
+  color: black;
 }
 
 #join-btn{

@@ -178,9 +178,14 @@ let joinStream = async () => {
     let player = `<div class="video__container" id="user-container-${uid}">
                    
                     <div class="video-player" id="user-${uid}">
-                        <div id="member_name" >${sessionStorage.getItem("display_name")}</div>
-                        <span><img src="images/mic.png" id="self-mute-person" onclick="toggleMic(event)"></span>
-                        
+                        <div id="member_name" >${sessionStorage.getItem("display_name")}
+                            <span id="mute-video-icon" style="display:none;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-mic-mute-fill" viewBox="0 0 16 16">
+                                    <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4 4 0 0 0 12 8V7a.5.5 0 0 1 1 0zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a5 5 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4m3-9v4.879L5.158 2.037A3.001 3.001 0 0 1 11 3"/>
+                                    <path d="M9.486 10.607 5 6.12V8a3 3 0 0 0 4.486 2.607m-7.84-9.253 12 12 .708-.708-12-12z"/>
+                                </svg>
+                            </span>
+                        </div>
                     </div>
                     
 
@@ -234,14 +239,20 @@ let handleUserPublished = async (user, mediaType) => {
     if(player === null){
         let memberName= name || "Unknown User"
         player = `<div class="video__container" id="user-container-${user.uid}">
-                <div class="video-player" id="user-${user.uid}">
-                <span><img src="images/mic.png" id="self-mute-person" onclick="toggleMic(event)"></span>
-                <div id="remote-member_name">${memberName}</div>
-                <button class="remove__btn" style="display: none;" onclick="removeParticipant('${user.uid}')">Remove</button>
-                </div>
-               
-            </div>
-            `
+                    <div class="video-player" id="user-${user.uid}">
+                    <div id="remote-member_name">${memberName}
+                    </div>
+                    <button class="remove__btn" style="display: none;" onclick="removeParticipant('${user.uid}')">Remove</button>
+                    </div> 
+                    </div>
+                    `
+                    // <span><img src="images/mic.png" id="self-mute-person" onclick="toggleMic(event)"></span>
+                    // <span id="mute-video-icon" style="display:none;">
+                    //     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-mic-mute-fill" viewBox="0 0 16 16">
+                    //         <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4 4 0 0 0 12 8V7a.5.5 0 0 1 1 0zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a5 5 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4m3-9v4.879L5.158 2.037A3.001 3.001 0 0 1 11 3"/>
+                    //         <path d="M9.486 10.607 5 6.12V8a3 3 0 0 0 4.486 2.607m-7.84-9.253 12 12 .708-.708-12-12z"/>
+                    //     </svg>
+                    // </span>
  
         document.getElementById('stream__container').insertAdjacentHTML('beforeend', player)
         document.getElementById(`user-container-${user.uid}`).addEventListener('click', expandVideoFrame)
@@ -288,32 +299,66 @@ let toggleMic = async (e) => {
 
     console.log(e);
  
+    // if(localTracks[0].muted){
+    //     await localTracks[0].setMuted(false)
+    //     console.log(localTracks[0]);
+    //     // localTracks[0]._mediaStreamTrack.enabled = true;
+    //     button.classList.add('active')
+       
+    await localTracks[0].setMuted(true)
+    // localTracks[0]._mediaStreamTrack.enabled = false;
+    button.classList.remove('active')
+
+    document.getElementById("mute-mic-btn").style.display='block'
+    document.getElementById("mic-btn").style.display='none'
+    document.getElementById("mute-video-icon").style.display='inline'
+
+}
+
+let toggleMuteMic = async (e) => {
+    let button = e.currentTarget
+ 
+    console.log(e);
+ 
     if(localTracks[0].muted){
         await localTracks[0].setMuted(false)
         console.log(localTracks[0]);
         // localTracks[0]._mediaStreamTrack.enabled = true;
-        button.classList.add('active')
- 
-       
-    }else{
-        await localTracks[0].setMuted(true)
-        // localTracks[0]._mediaStreamTrack.enabled = false;
-        button.classList.remove('active')
+        document.getElementById("mic-btn").style.display='block'
+        document.getElementById("mute-mic-btn").style.display='none'
+        document.getElementById("mic-btn").classList.add('active')
+        document.getElementById("mute-video-icon").style.display='none'
     }
 }
  
 let toggleCamera = async (e) => {
     let button = e.currentTarget
  
+    // if(localTracks[1].muted){
+    //     await localTracks[1].setMuted(false)
+    //     button.classList.add('active')
+ 
+    // }else{
+    await localTracks[1].setMuted(true)
+    button.classList.remove('active')
+
+    document.getElementById("mute-camera-btn").style.display='block'
+    document.getElementById("camera-btn").style.display='none'
+}
+
+let toggleMuteCamera = async (e) => {
+    let button = e.currentTarget
+ 
     if(localTracks[1].muted){
         await localTracks[1].setMuted(false)
-        button.classList.add('active')
+        document.getElementById("camera-btn").style.display='block'
+        document.getElementById("mute-camera-btn").style.display='none'
+        document.getElementById("camera-btn").classList.add('active')
+        // button.classList.add('active')
  
-    }else{
-        await localTracks[1].setMuted(true)
-        button.classList.remove('active')
     }
 }
+ 
  
 let toggleScreen = async (e) => {
     let screenButton = e.currentTarget
@@ -401,6 +446,8 @@ document.getElementById('mic-btn').addEventListener('click', toggleMic)
 // document.getElementById('screen-btn').addEventListener('click', toggleScreen)
 document.getElementById('join-btn').addEventListener('click', joinStream)
 //document.getElementById('leave-btn').addEventListener('click', leaveStream)
+document.getElementById('mute-mic-btn').addEventListener('click', toggleMuteMic)
+document.getElementById('mute-camera-btn').addEventListener('click', toggleMuteCamera)
  
  
 joinRoomInit()

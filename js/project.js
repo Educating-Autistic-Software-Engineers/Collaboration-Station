@@ -69,7 +69,7 @@ function displayTiles() {
         const tile = document.createElement('div');
         const img = document.createElement('img');
         tile.className = 'tile';
-        tile.textContent = roomDict[room].name.replace(/([A-Z])/g, ' $1').trim(); // Format room name
+        tile.innerHTML = `<p style="text-align: center;">${roomDict[room].name.replace(/([A-Z])/g, ' $1').trim()}</p>`; // Format room name
         tile.onclick = () => openProject(room);
         tileContainer.appendChild(tile);
         tile.appendChild(img);
@@ -87,16 +87,61 @@ function displayTiles() {
     addProjectBtn.onclick = () => {
         // remove add project button
         tileContainer.removeChild(addProjectBtn);
-        addProject()
-        tileContainer.appendChild(addProjectBtn);
+        addProject().then(() =>
+            tileContainer.appendChild(addProjectBtn)
+        );
     };
+}
+
+async function readStreamAsString(stream) {
+    const reader = stream.getReader();
+    const decoder = new TextDecoder();
+    let result = '';
+    let done = false;
+
+    while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (value) {
+            result += decoder.decode(value, { stream: !done });
+        }
+    }
+
+    return result;
 }
 
 async function addProject(){
     
+    var newRoomId;
     let projectName = prompt('Enter your project name');
     if (projectName == null || projectName == "") {
         return;
+    }
+
+    try {
+        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB?method=new', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "name": projectName, 
+            })
+        });
+
+        
+        if (!response.ok) {
+            alert('Failed to save rooms.');
+            return
+        }
+        
+        const data = await readStreamAsString(response.body);
+        newRoomId = JSON.parse(data).Item;
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while saving rooms.');
+        return
     }
     
     const addProjectBtn = document.createElement('div');
@@ -104,7 +149,7 @@ async function addProject(){
     tileContainer.appendChild(addProjectBtn);
 
     addProjectBtn.innerHTML = `
-        <p>${projectName}</p>
+        <p style="text-align: center;">${projectName}</p>
     `
     // document.getElementById("addProjectEntry").innerHTML=projectName;
     // const textEntry = addProjectBtn.querySelector('#addProjectEntry');
@@ -112,14 +157,6 @@ async function addProject(){
     // addProjectBtn.onclick = () => createNewProject(textEntry.value);
     
     console.log("going inside");
-
-    let maxRoomId = 530425233;
-    for (let room of rooms) {
-        if ( Number(room.room_id) > maxRoomId) {
-            maxRoomId = Number(room.room_id);
-        }
-    }
-    const newRoomId = String(Number(maxRoomId)+1)
 
     const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${targetEmail}`);
     const data = await response.json();
@@ -136,7 +173,7 @@ async function addProject(){
             },
             body: JSON.stringify({
                 email: roomId,
-                projects: newRoomId
+                projects: newRoomId,
             }) 
         });
 
@@ -148,24 +185,6 @@ async function addProject(){
     rooms.push({ room_id: newRoomId, name: projectName });
     addProjectBtn.onclick = () => openProject(newRoomId)
 
-    try {
-        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(rooms) 
-        });
-
-        if (!response.ok) {
-            alert('Failed to save rooms.');
-            return
-        }
-        
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An error occurred while saving rooms.');
-    }
     
 
 
@@ -196,6 +215,7 @@ async function addProject(){
 
 }
 
+// REDUNDANT FUNCTION
 async function createNewProject(text) {
     if (text == '') {
         return;

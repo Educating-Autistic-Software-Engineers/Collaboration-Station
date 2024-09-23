@@ -26,7 +26,9 @@ form.addEventListener("submit", async (e) => {
       sessionStorage.setItem('email',data.requestId);
       sessionStorage.setItem('role',data.role);
 
-      window.location = `projects.html?email=${email}`;
+      alert("Collaboration Station is disabled for today! Please work on the camp :)")
+
+      // window.location = `projects.html?email=${email}`;
     }
   } catch (error) {
     console.error("Error checking email:", error);

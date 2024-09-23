@@ -2,16 +2,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   let form = document.getElementById("register__form");
 
   // Only these emails can register
-  const predefinedEmails = [
-    "shaurya1096@gmail.com",
-    "sraghuv@g.clemson.edu",
-    "rpeddap@clemson.edu",
-    "snahar@clemson.edu",
-    "prodegh@clemson.edu",
-    "domini4@clemson.edu",
-    "test10@gmail.com",
-    "test20@gmail.com",
-  ];
+  const predefinedEmails = [];
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();

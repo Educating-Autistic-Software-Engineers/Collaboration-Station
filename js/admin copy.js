@@ -87,6 +87,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     function addProject(createNewEntry=true) {
+        return;
         const newProjectLi = document.createElement('li');
         const deleteButton = document.createElement('button');
         // make deleteButton display to the right of newProjectLi

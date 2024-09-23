@@ -75,6 +75,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var intl__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! intl */ "./node_modules/intl/index.js");
 /* harmony import */ var intl__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(intl__WEBPACK_IMPORTED_MODULE_8__);
 /* harmony import */ var _components_ConditionalApp_jsx__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ../components/ConditionalApp.jsx */ "./src/components/ConditionalApp.jsx");
+/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
 // LiveCursors.jsx
 
 
@@ -89,11 +90,9 @@ __webpack_require__.r(__webpack_exports__);
 //import 'core-js/fn/promise/finally';
 
 
+
 const mockName = () => _utils_mockNames_js__WEBPACK_IMPORTED_MODULE_2__.mockNames[Math.floor(Math.random() * _utils_mockNames_js__WEBPACK_IMPORTED_MODULE_2__.mockNames.length)];
-const CursorOverlay = _ref => {
-  let {
-    spaces
-  } = _ref;
+const CursorOverlay = () => {
   const name = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(mockName, []);
   const userColors = (0,react__WEBPACK_IMPORTED_MODULE_0__.useMemo)(() => _utils_helpers_js__WEBPACK_IMPORTED_MODULE_3__.colours[Math.floor(Math.random() * _utils_helpers_js__WEBPACK_IMPORTED_MODULE_3__.colours.length)], []);
   const {
@@ -131,15 +130,47 @@ const CursorOverlay = _ref => {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   let uname = urlParams.get('name');
+  const [websocket, setWebSocket] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)(null);
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+    console.log("wss://nwab9zf1ik.execute-api.us-east-2.amazonaws.com/production/?room=".concat(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_10__.ablySpace));
+    const ws = new WebSocket("wss://nwab9zf1ik.execute-api.us-east-2.amazonaws.com/production/?room=".concat(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_10__.ablySpace));
+    ws.onopen = () => {
+      console.log('WebSocket Client Connected', ws);
+      setWebSocket(ws);
+    };
+    ws.onclose = () => {
+      console.log('WebSocket Client Disconnected');
+      setWebSocket(null);
+    };
+    const keepAlive = setInterval(() => {
+      if (ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'ping'
+        }));
+      }
+    }, 30000); // send a ping message every 30 seconds
+
+    return () => {
+      clearInterval(keepAlive);
+      if (ws) {
+        ws.close();
+      }
+    };
+  }, []);
+  if (!websocket) {
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", null, "Loading...");
+  }
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
     id: "live-cursors",
     ref: liveCursors,
     className: (_index_css__WEBPACK_IMPORTED_MODULE_6___default().app)
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_components_ConditionalApp_jsx__WEBPACK_IMPORTED_MODULE_9__["default"], null), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_utils_useCursor_jsx__WEBPACK_IMPORTED_MODULE_4__.YourCursor, {
-    self: 3,
+    self: self,
     name: uname,
-    className: (_index_css__WEBPACK_IMPORTED_MODULE_6___default().overlay)
-  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_utils_useCursor_jsx__WEBPACK_IMPORTED_MODULE_4__.MemberCursors, null));
+    websocket: websocket
+  }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_utils_useCursor_jsx__WEBPACK_IMPORTED_MODULE_4__.MemberCursors, {
+    websocket: websocket
+  }));
   /*
   <YourCursor self={self} parentRef={liveCursors} className={styles.overlay} />
           <MemberCursors />
@@ -204,13 +235,12 @@ import { SpacesProvider, SpaceProvider } from "@ably/spaces/react";
 
 const id = (0,nanoid__WEBPACK_IMPORTED_MODULE_14__.nanoid)();
 const spaceName = (0,_utils_helpers__WEBPACK_IMPORTED_MODULE_8__.getSpaceNameFromUrl)();
-const client = new ably__WEBPACK_IMPORTED_MODULE_7__.Realtime.Promise({
-  authUrl: "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ably"
-});
-const spaces = new _ably_spaces__WEBPACK_IMPORTED_MODULE_6__["default"](client);
-const client2 = new ably__WEBPACK_IMPORTED_MODULE_7__.Realtime({
-  authUrl: "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ably"
-});
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const username = urlParams.get('name').toString();
+
+//const client = new Realtime({ authUrl: "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/ablyToken?name=" + username});
+//const spaces = new Spaces(client2);
 
 /*
 const space = await spaces.get("test");
@@ -243,12 +273,13 @@ document.body.appendChild(appTarget);
         <SpaceProvider name="my-space">
 */
 
-react_dom__WEBPACK_IMPORTED_MODULE_1__.render( /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(ably_react__WEBPACK_IMPORTED_MODULE_10__.AblyProvider, {
-  client: client2
-}, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorOverlay_jsx__WEBPACK_IMPORTED_MODULE_9__["default"], {
-  spaces: spaces
-})), appTarget);
-
+react_dom__WEBPACK_IMPORTED_MODULE_1__.render(
+/*#__PURE__*/
+// <AblyProvider client={client}>
+react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorOverlay_jsx__WEBPACK_IMPORTED_MODULE_9__["default"], null)
+// </AblyProvider>
+, appTarget);
+;
 /*
 if (supportedBrowser()) {
     // require needed here to avoid importing unsupported browser-crashing code
@@ -511,7 +542,8 @@ const clampPosition = (position, maxPosition, elementSize) => {
 const YourCursor = _ref => {
   let {
     self,
-    name
+    name,
+    websocket
   } = _ref;
   const [position, setPosition] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
     x: 0,
@@ -522,6 +554,7 @@ const YourCursor = _ref => {
     x: 0,
     y: 0
   };
+  let emitIndex = 0;
   thisName = name;
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     const handleMouseMove = event => {
@@ -534,6 +567,9 @@ const YourCursor = _ref => {
     };
     window.addEventListener('mousemove', handleMouseMove);
     const intervalId = setInterval(() => {
+      if (!websocket) {
+        return;
+      }
       const tabIndex = sessionStorage.getItem("activeTabIndex");
       const blockRect = JSON.parse(sessionStorage.getItem('blocksRect'));
       let isHovering = latestPosition.current.x < blockRect.right; // && latestPosition.y > blockRect.y
@@ -558,8 +594,13 @@ const YourCursor = _ref => {
 
       //console.log(document.getElementById('totalsize').getBoundingClientRect());
 
-      channel.publish('cursor', JSON.stringify({
+      // console.log("SENDING!!!", globalPosition)
+      // console.log(ablySpace, name)
+      websocket.send(JSON.stringify({
+        action: "cursorMessage",
         target: sessionStorage.getItem("editingTarget"),
+        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.ablySpace,
+        emitIndex: emitIndex++,
         tabIndex: tabIndex,
         clientId: name,
         position: globalPosition,
@@ -571,7 +612,7 @@ const YourCursor = _ref => {
         },
         rect: sessionStorage.getItem("blocksRect")
       }));
-    }, 200);
+    }, 65);
 
     // Cleanup the event listener and interval on component unmount
     return () => {
@@ -602,26 +643,43 @@ const YourCursor = _ref => {
     className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursorName)
   }, "You"));
 };
-const hashCode = function hashCode(s) {
-  return s.split("").reduce(function (a, b) {
-    a = (a << 5) - a + b.charCodeAt(0);
-    return a & a;
-  }, 0);
-};
-const MemberCursors = () => {
+const MemberCursors = _ref2 => {
+  let {
+    websocket
+  } = _ref2;
   const [cursors, setCursors] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({});
+  let highestEmitIndices = {};
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
+    if (!websocket) {
+      console.warn('WebSocket is not defined');
+      return;
+    }
     const handleCursorMessage = message => {
+      // console.log(message)
+      try {
+        const {
+          rect
+        } = JSON.parse(message.data);
+        JSON.parse(rect);
+      } catch (e) {
+        // console.log(e, message.data)
+        return;
+      }
       const {
         clientId,
         position,
         hovering,
+        emitIndex,
         target,
         color,
         tabIndex,
         ogWindow,
         rect
       } = JSON.parse(message.data);
+      if (emitIndex < highestEmitIndices[clientId]) return;
+      highestEmitIndices[clientId] = emitIndex;
+
+      // console.log(thisName, clientId)
       if (clientId === thisName) return;
       const ogRect = JSON.parse(rect);
       const blockRect = JSON.parse(sessionStorage.getItem('blocksRect'));
@@ -635,11 +693,6 @@ const MemberCursors = () => {
         x: position.x + dragPos.x,
         y: position.y + dragPos.y
       };
-      //console.log('rel', relposition)
-
-      // top left is (312, 90)
-      //relposition.x < 312 || relposition.y < 90
-
       if (hovering) {
         if (relposition.x < blockRect.x || relposition.y < blockRect.y || relposition.x > blockRect.right || relposition.y > blockRect.bottom) {
           isInvisible = true;
@@ -648,7 +701,7 @@ const MemberCursors = () => {
         const xScale = (window.innerWidth - blockRect.right) / (ogWindow.innerWidth - ogRect.right);
         relposition.x = (relposition.x - ogRect.right) * xScale + blockRect.right;
       }
-      if (target != sessionStorage.getItem("editingTarget") || sessionStorage.getItem("activeTabIndex") != tabIndex) {
+      if (target !== sessionStorage.getItem("editingTarget") || sessionStorage.getItem("activeTabIndex") !== tabIndex) {
         isInvisible = true;
       }
       const actualColor = isInvisible ? "#ffffff00" : color;
@@ -660,19 +713,22 @@ const MemberCursors = () => {
         }
       }));
     };
-    channel.subscribe('cursor', handleCursorMessage);
+    websocket.onmessage = handleCursorMessage;
 
     // Cleanup the subscription on component unmount
     return () => {
-      channel.unsubscribe('cursor', handleCursorMessage);
+      websocket.onmessage = null;
     };
-  }, []);
+  }, [websocket]);
+  const clampPosition = (position, max, cursorSize) => {
+    return Math.max(0, Math.min(position, max - cursorSize));
+  };
+  const cursorWidth = 20; // Define cursor width if needed
+  const cursorHeight = 20; // Define cursor height if needed
+
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, Object.values(cursors).map((member, index) => {
-    // Get the viewport dimensions
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-
-    // Clamp the positions
     const clampedX = clampPosition(member.relposition.x, viewportWidth, cursorWidth);
     const clampedY = clampPosition(member.relposition.y, viewportHeight, cursorHeight);
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {

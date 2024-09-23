@@ -1,3 +1,6 @@
+// let messageCount=0;
+ 
+
 let messagesContainer = document.getElementById('messages');
 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 
@@ -19,10 +22,50 @@ let containerRect = rightBar.getBoundingClientRect()
 let activeMemberContainer = false;
 let isDragging = false;
 
+function repeatKey(key, length) {
+  const keyDigits = key.split('').map(Number);
+  const repeatedKey = [];
+  for (let i = 0; i < length; i++) {
+      repeatedKey.push(keyDigits[i % keyDigits.length]);
+  }
+  return repeatedKey;
+}
+
+function decrypt(encryptedNumber, key) {
+  const encryptedDigits = encryptedNumber.split('').map(Number);
+  const repeatedKey = repeatKey(key, encryptedDigits.length);
+
+  const decryptedDigits = encryptedDigits.map((num, index) => {
+      const diff = num - repeatedKey[index];
+      return diff < 0 ? diff + 10 : diff;
+  });
+
+  return decryptedDigits.join('');
+}
+
 
 const queryString = window.location.search
 const urlParams = new URLSearchParams(queryString)
 let roomId = urlParams.get('project')
+let viewType = "space"
+
+console.log(sessionStorage)
+if (!sessionStorage.getItem('email'))  {
+  var redirectWithView = 'false'
+  if (roomId == null) {
+    roomId = urlParams.get('view')
+    redirectWithView = 'true'
+  }
+  window.location.href = 'index.html?redirect='+roomId+'&view='+redirectWithView;
+}
+
+if (roomId == null) {
+  viewType = "view"
+  roomId = decrypt(urlParams.get('view'), "90210")
+}
+if (roomId == null) {
+  window.location.href = 'index.html';
+}
 
 let roomDict = {}
 async function load() {
@@ -34,9 +77,6 @@ async function load() {
   }
 }
 
-if (sessionStorage.getItem('email') == null) {
-  window.location.href = 'index.html';
-}
 let activeChatContainer = false;
 
 
@@ -64,6 +104,8 @@ function toggleChat (influenceMembers=false) {
     chatContainer.style.display = 'none';
   } else {
     chatContainer.style.display = 'block';
+    unreadMessages=0;
+    updateMessageCounter();
   }
 
   if (activeMemberContainer && influenceMembers) {
@@ -169,7 +211,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // projectNameTextEdit.value = roomDict[roomId].name;
 
-  iFrame.src = "vm/index.html?space=" + roomId.toString() + "&name=" + sessionStorage.getItem('display_name') + "&color=" + sessionStorage.getItem("randomColor");
+  console.log("roomID: ", String(roomId), viewType);
+  iFrame.src = "vm/index.html?" + viewType + "=" + String(roomId) + "&name=" + sessionStorage.getItem('display_name') + "&color=" + sessionStorage.getItem("randomColor");
 
   slider.addEventListener('mousedown', function (event) {
     isDragging = true;

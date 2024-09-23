@@ -1,4 +1,13 @@
 let form = document.getElementById('lobby__form')
+let label = document.getElementById('label')
+
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+let redirect = urlParams.get('redirect');
+console.log("redirect",redirect);
+if (redirect && redirect != "null") {
+    label.innerHTML = "Enter your email to join the project";
+}
 
 let displayName = sessionStorage.getItem('display_email')
 console.log(displayName);
@@ -23,7 +32,12 @@ form.addEventListener('submit', async (e) => {
 
     if (emailExists) {
         // Redirect to the next page if email exists
-        window.location = `projects.html?email=${email}`;
+        if (redirect && redirect != "null") {
+            const viewType = urlParams.get('view') == "true" ? "view" : "project";
+            window.location = `room.html?${viewType}=${redirect}`;
+        } else {
+            window.location = `projects.html?email=${email}`;
+        }
     } else {
         // Show an error message if the email does not exist
         alert('Email not found. Please contact prodegh@clemson.edu to sign up.');
