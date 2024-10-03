@@ -3,75 +3,177 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Dashboard</title>
+    <title>Space-themed Project Dashboard</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        body, html {
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f0f8ff; /* Light blue background */
+            background-color: #000000;
+            color: #ffffff;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            z-index: -1;
+            animation: stars 120s linear infinite;
+        }
+        @keyframes stars {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
         }
         .container {
             display: flex;
             padding: 20px;
+            max-width: 100vw;
+            box-sizing: border-box;
         }
         .main-content {
             flex: 3;
             margin-right: 20px;
+            max-width: 75%;
         }
         .side-panel {
             flex: 1;
-            background-color: white;
+            background-color: rgba(20, 30, 60, 0.7);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         .project-card {
-            background-color: white;
+            background-color: rgba(30, 40, 80, 0.7);
             border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
         }
         .selected-project {
             display: flex;
+            flex-wrap: wrap;
         }
         .selected-project img {
-            width: 60%;
+            max-width: 60%;
+            max-height: 40vh;
             object-fit: cover;
             border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
         .project-info {
             padding-left: 20px;
+            flex: 1;
+            min-width: 200px;
         }
         .launch-btn {
-            background-color: #4285f4;
-            color: white;
+            background-color: #4a90e2;
+            color: #ffffff;
             border: none;
             padding: 10px 20px;
             border-radius: 5px;
             cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+        .launch-btn:hover {
+            background-color: #357ae8;
+        }
+        .project-scroll-container {
+            position: relative;
+            overflow: hidden;
+            width: 100%;
         }
         .project-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
+            display: flex;
+            transition: transform 0.3s ease;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            padding: 10px 0;
+        }
+        .project-grid::-webkit-scrollbar {
+            display: none;
         }
         .project-thumbnail {
-            width: 100%;
-            aspect-ratio: 1;
+            flex: 0 0 auto;
+            width: 150px;
+            height: 150px;
+            margin-right: 15px;
             object-fit: cover;
-            border-radius: 5px;
+            border-radius: 10px;
+            cursor: pointer;
+            background-color: rgba(60, 80, 120, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
+        .project-thumbnail:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .scroll-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+            z-index: 10;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: background-color 0.3s ease;
+        }
+        .scroll-btn:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        #scroll-left, #scroll-left-class { left: 0; }
+        #scroll-right, #scroll-right-class { right: 0; }
         .user-list {
             list-style-type: none;
             padding: 0;
         }
         .user-list li {
             margin-bottom: 10px;
+            padding: 5px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+        .user-list li:hover {
+            background-color: rgba(255,255,255,0.1);
         }
         h2 {
-            color: #4285f4; /* Blue header color */
+            color: #4a90e2;
+            border-bottom: 2px solid #4a90e2;
+            padding-bottom: 5px;
         }
     </style>
 </head>
@@ -79,32 +181,29 @@
     <div class="container">
         <div class="main-content">
             <div class="project-card">
-                <h2>My project</h2>
-                <div class="selected-project">
-                    <img src="./images/space_invaders.png" alt="Space Invader">
-                    <div class="project-info">
-                        <h3>Space Invader</h3>
-                        <p>Last edited on 7/14/23</p>
-                        <p>Teammates on this project:</p>
-                        <ul>
-                            <li>John Doe</li>
-                            <li>Stacey L.</li>
-                            <li>Lucy W.</li>
-                        </ul>
-                        <button class="launch-btn">Launch Project</button>
+                <h2>Current Project</h2>
+                <div id="selected-project" class="selected-project">
+                    <!-- Selected project details will be populated here by JavaScript -->
+                </div>
+            </div>
+            <div class="project-card">
+                <h2>Past Projects</h2>
+                <div class="project-scroll-container">
+                    <button id="scroll-left" class="scroll-btn">&lt;</button>
+                    <div id="past-projects" class="project-grid">
+                        <!-- Past projects will be populated here by JavaScript -->
                     </div>
+                    <button id="scroll-right" class="scroll-btn">&gt;</button>
                 </div>
             </div>
             <div class="project-card">
-                <h2>Past projects</h2>
-                <div id="past-projects" class="project-grid">
-                    <!-- Past projects will be populated here by JavaScript -->
-                </div>
-            </div>
-            <div class="project-card">
-                <h2>Other projects from the class</h2>
-                <div id="class-projects" class="project-grid">
-                    <!-- Class projects will be populated here by JavaScript -->
+                <h2>Class Projects</h2>
+                <div class="project-scroll-container">
+                    <button id="scroll-left-class" class="scroll-btn">&lt;</button>
+                    <div id="class-projects" class="project-grid">
+                        <!-- Class projects will be populated here by JavaScript -->
+                    </div>
+                    <button id="scroll-right-class" class="scroll-btn">&gt;</button>
                 </div>
             </div>
         </div>
@@ -116,61 +215,6 @@
         </div>
     </div>
 
-    <script>
-        // Sample data for projects and users
-        const pastProjects = [
-            { name: "Project 1", image: "./images/project1.png", lastEdited: "7/14/23" },
-            { name: "Project 2", image: "./images/project2.png", lastEdited: "7/13/23" },
-            { name: "Project 3", image: "./images/project3.png", lastEdited: "7/12/23" },
-            { name: "Project 4", image: "./images/project4.png", lastEdited: "7/11/23" },
-            { name: "Project 5", image: "./images/project5.png", lastEdited: "7/10/23" }
-        ];
-
-        const classProjects = [
-            { name: "Project A", image: "./images/projectA.png", team: "John Doe, Stacey Lewis, Lucy Chen, Olivia Lee" },
-            { name: "Project B", image: "./images/projectB.png", team: "Alice Smith, Bob Johnson, Charlie Brown" },
-            { name: "Project C", image: "./images/projectC.png", team: "David Lee, Emma Watson, Frank Castle" },
-            { name: "Project D", image: "./images/projectD.png", team: "Grace Kelly, Henry Ford, Irene Adler" },
-            { name: "Project E", image: "./images/projectE.png", team: "Jack Ryan, Kate Beckett, Liam Neeson" }
-        ];
-
-        const users = [
-            { name: "Alice", lastLogin: "2024-10-01 14:30" },
-            { name: "Bob", lastLogin: "2024-10-01 13:45" },
-            { name: "Charlie", lastLogin: "2024-10-01 12:15" },
-            { name: "Diana", lastLogin: "2024-09-30 18:20" }
-        ];
-
-        // Function to create project elements
-        function createProjectElement(project, isPastProject) {
-            const div = document.createElement('div');
-            div.innerHTML = `
-                <img src="${project.image}" alt="${project.name}" class="project-thumbnail">
-                <p>${project.name}</p>
-                <p>${isPastProject ? `Last edited on ${project.lastEdited}` : project.team}</p>
-            `;
-            return div;
-        }
-
-        // Populate past projects
-        const pastProjectsContainer = document.getElementById('past-projects');
-        pastProjects.forEach(project => {
-            pastProjectsContainer.appendChild(createProjectElement(project, true));
-        });
-
-        // Populate class projects
-        const classProjectsContainer = document.getElementById('class-projects');
-        classProjects.forEach(project => {
-            classProjectsContainer.appendChild(createProjectElement(project, false));
-        });
-
-        // Populate user list
-        const userListContainer = document.getElementById('user-list');
-        users.forEach(user => {
-            const li = document.createElement('li');
-            li.textContent = `${user.name} - Last login: ${user.lastLogin}`;
-            userListContainer.appendChild(li);
-        });
-    </script>
+    <script src="js/project.js"></script>
 </body>
 </html>

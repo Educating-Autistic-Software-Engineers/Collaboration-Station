@@ -1,3 +1,4 @@
+// Get the email from the URL parameters
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 let roomId = urlParams.get('email');
@@ -6,75 +7,70 @@ const targetEmail = roomId;
 let roomList = [];
 let roomDict = {};
 
+// Check if the user is logged in
 if (sessionStorage.getItem('email') == null) {
     window.location.href = 'index.html';
 }
 
+// Main function to load data and initialize the dashboard
 async function load() {
-    const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
-    const roomsj = await datresp.json();
-    const rooms = roomsj.requests;
-    for (let room of rooms) {
-        roomDict[room.room_id] = room;
-    }
+    await fetchRooms();
+    await fetchUserProjects();
+    displayProjects();
+    setupEventListeners();
+}
 
+// Fetch all rooms from the API
+async function fetchRooms() {
+    try {
+        const response = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
+        const roomsData = await response.json();
+        const rooms = roomsData.requests;
+        for (let room of rooms) {
+            roomDict[room.room_id] = room;
+        }
+    } catch (error) {
+        console.error('Error fetching rooms:', error);
+    }
+}
+
+// Fetch user's projects from the API
+async function fetchUserProjects() {
     try {
         const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${targetEmail}`);
         const data = await response.json();
         roomList = data.projects.split(", ");
     } catch (error) {
-        console.error('Error checking email:', error);
+        console.error('Error fetching user projects:', error);
     }
-    displayProjects();
 }
 
-async function displayProjects() {
-    const projectList = document.getElementById('project-list');
-    projectList.innerHTML = ''; // Clear existing content
+// Display projects in the dashboard
+function displayProjects() {
+    const pastProjectsContainer = document.getElementById('past-projects');
+    const classProjectsContainer = document.getElementById('class-projects');
+    
+    pastProjectsContainer.innerHTML = '';
+    classProjectsContainer.innerHTML = '';
 
-    for (let room of roomList) {
-        if (room in roomDict && room !== "" && room !== " " && roomDict[room].name) {
-            const projectCard = document.createElement('div');
-            projectCard.className = 'project-card';
-            
-            // Create a container for the text to ensure it's visible over the background
-            const textContainer = document.createElement('div');
-            textContainer.className = 'project-card-text';
-            textContainer.textContent = roomDict[room].name.replace(/([A-Z])/g, ' $1').trim();
-            projectCard.appendChild(textContainer);
-
-            projectCard.onclick = () => selectProject(room);
-            
-            // Fetch the image
-            try {
-                const imageResponse = await fetch(`https://d3pl0tx5n82s71.cloudfront.net/${room}.png`);
-                console.log(imageResponse)
-                if (imageResponse.ok) {
-                    projectCard.style.backgroundImage = `url(https://d3pl0tx5n82s71.cloudfront.net/${room}.png)`;
-                    projectCard.style.backgroundSize = 'cover';
-                    projectCard.style.backgroundPosition = 'center';
-                    textContainer.style.color = '#ffffff'
-                    textContainer.style.backgroundColor = '#00000090'
-                } else {
-                    // If no image, keep the default purple background
-                    projectCard.style.backgroundColor = 'purple';
-                }
-            } catch (error) {
-                console.error('Error fetching image:', error);
-                projectCard.style.backgroundColor = 'purple';
-            }
-
-            projectList.appendChild(projectCard);
+    roomList.forEach(roomId => {
+        if (roomId in roomDict && roomId !== "" && roomId !== " " && roomDict[roomId].name) {
+            const projectElement = createProjectElement(roomDict[roomId]);
+            pastProjectsContainer.appendChild(projectElement);
         }
-    }
+    });
 
     // Add "New Project" card
-    const newProjectCard = document.createElement('div');
-    newProjectCard.className = 'project-card';
-    newProjectCard.textContent = '+ New Project';
-    newProjectCard.onclick = addProject;
-    newProjectCard.style.backgroundColor = 'purple'; // Ensure this card always has a purple background
-    projectList.appendChild(newProjectCard);
+    const newProjectCard = createNewProjectCard();
+    pastProjectsContainer.appendChild(newProjectCard);
+
+    // For demonstration, we'll add some class projects
+    // In a real scenario, you might want to fetch these from another API endpoint
+    for (let i = 0; i < 5; i++) {
+        const dummyProject = { room_id: `class_${i}`, name: `Class Project ${i + 1}` };
+        const projectElement = createProjectElement(dummyProject);
+        classProjectsContainer.appendChild(projectElement);
+    }
 
     // Select the first project by default
     if (roomList.length > 0) {
@@ -82,14 +78,58 @@ async function displayProjects() {
     }
 }
 
-function selectProject(projectId) {
-    const selectedProjectContent = document.getElementById('selected-project-content');
-    selectedProjectContent.textContent = roomDict[projectId].name;
+// Create a project element
+function createProjectElement(project) {
+    const projectCard = document.createElement('div');
+    projectCard.className = 'project-thumbnail';
+    projectCard.textContent = project.name;
+    projectCard.onclick = () => selectProject(project.room_id);
+    
+    // Fetch and set background image
+    fetch(`https://d3pl0tx5n82s71.cloudfront.net/${project.room_id}.png`)
+        .then(response => {
+            if (response.ok) {
+                projectCard.style.backgroundImage = `url(https://d3pl0tx5n82s71.cloudfront.net/${project.room_id}.png)`;
+                projectCard.style.backgroundSize = 'cover';
+                projectCard.style.backgroundPosition = 'center';
+            } else {
+                projectCard.style.backgroundColor = 'purple';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching image:', error);
+            projectCard.style.backgroundColor = 'purple';
+        });
 
-    const launchButton = document.getElementById('launch-project');
-    launchButton.onclick = () => openProject(projectId);
+    return projectCard;
 }
 
+// Create the "New Project" card
+function createNewProjectCard() {
+    const newProjectCard = document.createElement('div');
+    newProjectCard.className = 'project-thumbnail';
+    newProjectCard.textContent = '+ New Project';
+    newProjectCard.onclick = addProject;
+    newProjectCard.style.backgroundColor = 'purple';
+    return newProjectCard;
+}
+
+// Select a project and update the main display
+function selectProject(projectId) {
+    const selectedProjectContent = document.getElementById('selected-project');
+    const project = roomDict[projectId];
+    
+    selectedProjectContent.innerHTML = `
+        <img src="https://d3pl0tx5n82s71.cloudfront.net/${projectId}.png" alt="${project.name}" onerror="this.src='path/to/fallback/image.png';">
+        <div class="project-info">
+            <h3>${project.name}</h3>
+            <p>Last edited: ${project.lastEdited || 'N/A'}</p>
+            <button class="launch-btn" onclick="openProject('${projectId}')">Launch Project</button>
+        </div>
+    `;
+}
+
+// Add a new project
 async function addProject() {
     let projectName = prompt('Enter your project name');
     if (projectName == null || projectName == "") {
@@ -108,8 +148,7 @@ async function addProject() {
         });
 
         if (!response.ok) {
-            alert('Failed to create new project.');
-            return;
+            throw new Error('Failed to create new project');
         }
         
         const data = await response.json();
@@ -132,6 +171,7 @@ async function addProject() {
     }
 }
 
+// Update user's projects in the database
 async function updateUserProjects(newRoomId) {
     try {
         const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register', {
@@ -154,24 +194,31 @@ async function updateUserProjects(newRoomId) {
     }
 }
 
+// Open a project
 function openProject(projectId) {
     window.location.href = `room.html?project=${projectId}`;
 }
 
-// Scroll functionality
-const scrollLeft = document.getElementById('scroll-left');
-const scrollRight = document.getElementById('scroll-right');
-const projectList = document.getElementById('project-list');
+// Set up event listeners for scroll buttons
+function setupEventListeners() {
+    setupScroll('past-projects', 'scroll-left', 'scroll-right');
+    setupScroll('class-projects', 'scroll-left-class', 'scroll-right-class');
+}
 
-scrollLeft.onclick = () => {
-    projectList.scrollBy({ left: -220, behavior: 'smooth' });
-};
+// Set up scroll functionality for a container
+function setupScroll(containerId, leftBtnId, rightBtnId) {
+    const container = document.getElementById(containerId);
+    const scrollLeft = document.getElementById(leftBtnId);
+    const scrollRight = document.getElementById(rightBtnId);
 
-scrollRight.onclick = () => {
-    console.log(projectList)
-    projectList.style.left += 22
-    projectList.scrollBy({ left: 220, behavior: 'smooth' });
-};
+    scrollLeft.onclick = () => {
+        container.scrollBy({ left: -220, behavior: 'smooth' });
+    };
 
-// Initialize
+    scrollRight.onclick = () => {
+        container.scrollBy({ left: 220, behavior: 'smooth' });
+    };
+}
+
+// Initialize the dashboard
 load();
