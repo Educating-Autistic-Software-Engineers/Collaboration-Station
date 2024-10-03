@@ -68,7 +68,7 @@ a {
   justify-content: space-between;
   align-items: center;
   border-bottom: 1px solid #000000;
-  background-color: #1a1a1a;
+  background-color: #170f1f;
   text-decoration: none;
   padding: 16px 5%;
   z-index: 999;
@@ -193,7 +193,7 @@ a {
   width: 90%;
   max-width: 600px;
   border-radius: 10px;
-  background-color: #262625;
+  background-color: #170f1f;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -208,7 +208,7 @@ a {
   border-radius: 10px 10px 0 0;
   padding: 10px;
   text-align: center;
-  background-color: #363739;
+  background-color: #140919;
   margin: 0;
   font-size: 18px;
   font-size: 300;
@@ -237,7 +237,7 @@ a {
   border-radius: 5px;
   padding: 16px 20px;
   font-size: 15px;
-  background-color: #3f434a;
+  background-color: #130f17;
 }
 
 

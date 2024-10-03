@@ -282,6 +282,15 @@ function resetInactivityTimeout() {
   }, inactivityDuration);
 }
 
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    // Add logic here to notify the user, maybe via push notification or title change
+    document.title = 'You are still sharing video/audio';
+  } else {
+    document.title = 'Collaboration Station!';
+  }
+});
+
 // Reset timeout on any mouse movement
 document.addEventListener('mousemove', resetInactivityTimeout);
 

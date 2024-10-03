@@ -1,64 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Room</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='styles/main.css'>
-    <link rel='stylesheet' type='text/css' media='screen' href='styles/lobby.css'>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Dashboard</title>
     <style>
-
-
-.tile-container {
-    padding: 150px;
-    display: flex;
-    gap: 100px;
-    flex-wrap: wrap;
-}
-
-.tile {
-    width: 200px;
-    height: 200px;
-    display: flex;
-    flex-direction: column; 
-    justify-content: center;
-    align-items: center;
-    background-color: rgb(132, 86, 149);
-    color: white;
-    font-size: 1.2em;
-    border-radius: 8px;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s, transform 0.3s;
-}
-
-.tile:hover {
-    background-color: #0056b3;
-    transform: translateY(-5px);
-}
-
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f8ff; /* Light blue background */
+        }
+        .container {
+            display: flex;
+            padding: 20px;
+        }
+        .main-content {
+            flex: 3;
+            margin-right: 20px;
+        }
+        .side-panel {
+            flex: 1;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .project-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .selected-project {
+            display: flex;
+        }
+        .selected-project img {
+            width: 60%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+        .project-info {
+            padding-left: 20px;
+        }
+        .launch-btn {
+            background-color: #4285f4;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+        .project-thumbnail {
+            width: 100%;
+            aspect-ratio: 1;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+        .user-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .user-list li {
+            margin-bottom: 10px;
+        }
+        h2 {
+            color: #4285f4; /* Blue header color */
+        }
     </style>
 </head>
 <body>
-    <header id="nav">
-       <div class="nav--list">
-            <a href="https://www.edase.org" target="_blank">
-                <h3 id="logo">
-                    <img src="./images/logo.svg" alt="Site Logo">
-                    <span>Collaboration Station</span>
-                </h3>
-            </a>
-       </div>
-    <!-- <button onclick="addProject()">Add Project</button> -->
-    </header>
-
-    <div class="tile-container" id="tileContainer">
-        <!-- Tiles will be generated here by JavaScript -->
+    <div class="container">
+        <div class="main-content">
+            <div class="project-card">
+                <h2>My project</h2>
+                <div class="selected-project">
+                    <img src="./images/space_invaders.png" alt="Space Invader">
+                    <div class="project-info">
+                        <h3>Space Invader</h3>
+                        <p>Last edited on 7/14/23</p>
+                        <p>Teammates on this project:</p>
+                        <ul>
+                            <li>John Doe</li>
+                            <li>Stacey L.</li>
+                            <li>Lucy W.</li>
+                        </ul>
+                        <button class="launch-btn">Launch Project</button>
+                    </div>
+                </div>
+            </div>
+            <div class="project-card">
+                <h2>Past projects</h2>
+                <div id="past-projects" class="project-grid">
+                    <!-- Past projects will be populated here by JavaScript -->
+                </div>
+            </div>
+            <div class="project-card">
+                <h2>Other projects from the class</h2>
+                <div id="class-projects" class="project-grid">
+                    <!-- Class projects will be populated here by JavaScript -->
+                </div>
+            </div>
+        </div>
+        <div class="side-panel">
+            <h2>Other Users</h2>
+            <ul id="user-list" class="user-list">
+                <!-- User list will be populated here by JavaScript -->
+            </ul>
+        </div>
     </div>
-    
-    <script type="text/javascript" src="js/project.js"></script>
+
+    <script>
+        // Sample data for projects and users
+        const pastProjects = [
+            { name: "Project 1", image: "./images/project1.png", lastEdited: "7/14/23" },
+            { name: "Project 2", image: "./images/project2.png", lastEdited: "7/13/23" },
+            { name: "Project 3", image: "./images/project3.png", lastEdited: "7/12/23" },
+            { name: "Project 4", image: "./images/project4.png", lastEdited: "7/11/23" },
+            { name: "Project 5", image: "./images/project5.png", lastEdited: "7/10/23" }
+        ];
+
+        const classProjects = [
+            { name: "Project A", image: "./images/projectA.png", team: "John Doe, Stacey Lewis, Lucy Chen, Olivia Lee" },
+            { name: "Project B", image: "./images/projectB.png", team: "Alice Smith, Bob Johnson, Charlie Brown" },
+            { name: "Project C", image: "./images/projectC.png", team: "David Lee, Emma Watson, Frank Castle" },
+            { name: "Project D", image: "./images/projectD.png", team: "Grace Kelly, Henry Ford, Irene Adler" },
+            { name: "Project E", image: "./images/projectE.png", team: "Jack Ryan, Kate Beckett, Liam Neeson" }
+        ];
+
+        const users = [
+            { name: "Alice", lastLogin: "2024-10-01 14:30" },
+            { name: "Bob", lastLogin: "2024-10-01 13:45" },
+            { name: "Charlie", lastLogin: "2024-10-01 12:15" },
+            { name: "Diana", lastLogin: "2024-09-30 18:20" }
+        ];
+
+        // Function to create project elements
+        function createProjectElement(project, isPastProject) {
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <img src="${project.image}" alt="${project.name}" class="project-thumbnail">
+                <p>${project.name}</p>
+                <p>${isPastProject ? `Last edited on ${project.lastEdited}` : project.team}</p>
+            `;
+            return div;
+        }
+
+        // Populate past projects
+        const pastProjectsContainer = document.getElementById('past-projects');
+        pastProjects.forEach(project => {
+            pastProjectsContainer.appendChild(createProjectElement(project, true));
+        });
+
+        // Populate class projects
+        const classProjectsContainer = document.getElementById('class-projects');
+        classProjects.forEach(project => {
+            classProjectsContainer.appendChild(createProjectElement(project, false));
+        });
+
+        // Populate user list
+        const userListContainer = document.getElementById('user-list');
+        users.forEach(user => {
+            const li = document.createElement('li');
+            li.textContent = `${user.name} - Last login: ${user.lastLogin}`;
+            userListContainer.appendChild(li);
+        });
+    </script>
 </body>
-<!-- <script type="text/javascript" src="js/project.js"></script> -->
 </html>

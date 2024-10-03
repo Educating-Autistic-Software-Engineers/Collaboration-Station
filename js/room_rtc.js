@@ -1,5 +1,5 @@
 // get room id from env.
-const APP_ID = ""
+const APP_ID = "0a3fbd20418b4fd28f053c8d993521e0"
  
 let uid = sessionStorage.getItem('uid')
 if(!uid){

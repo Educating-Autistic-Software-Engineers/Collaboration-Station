@@ -19,6 +19,36 @@ function newAuth() {
     window.location.href = 'new_index.html';
 }
 
+function createStars() {
+    const container = document.body;
+    const starCount = 100;
+
+    for (let i = 0; i < starCount; i++) {
+        const star = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        star.classList.add("star");
+        star.setAttribute("viewBox", "0 0 24 24");
+        
+        const useElement = document.createElementNS("http://www.w3.org/2000/svg", "use");
+        useElement.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", "#star");
+        star.appendChild(useElement);
+        
+        const size = 10 + Math.random() * 15;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+        
+        star.style.left = `${Math.random() * 100}%`;
+        star.style.top = `${Math.random() * 100}%`;
+        
+        const duration = 3 + Math.random() * 7;
+        star.style.setProperty('--twinkle-duration', `${duration}s`);
+        
+        container.appendChild(star);
+        console.log(star);
+    }
+}
+
+// createStars();
+
 
 form.addEventListener('submit', async (e) => {
     e.preventDefault();

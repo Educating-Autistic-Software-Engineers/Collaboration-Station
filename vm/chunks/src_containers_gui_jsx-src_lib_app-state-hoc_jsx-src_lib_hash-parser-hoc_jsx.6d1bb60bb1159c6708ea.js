@@ -12535,8 +12535,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash_defaultsdeep__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lodash.defaultsdeep */ "./node_modules/lodash.defaultsdeep/index.js");
 /* harmony import */ var lodash_defaultsdeep__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(lodash_defaultsdeep__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _lib_make_toolbox_xml__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../lib/make-toolbox-xml */ "./src/lib/make-toolbox-xml.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_38___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_38__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_39___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_39__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _lib_blocks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../lib/blocks */ "./src/lib/blocks.js");
 /* harmony import */ var scratch_vm__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! scratch-vm */ "./node_modules/scratch-vm/src/index.js");
@@ -12548,35 +12548,36 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _lib_libraries_extensions_index_jsx__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../lib/libraries/extensions/index.jsx */ "./src/lib/libraries/extensions/index.jsx");
 /* harmony import */ var _custom_procedures_jsx__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./custom-procedures.jsx */ "./src/containers/custom-procedures.jsx");
 /* harmony import */ var _lib_error_boundary_hoc_jsx__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../lib/error-boundary-hoc.jsx */ "./src/lib/error-boundary-hoc.jsx");
-/* harmony import */ var _lib_layout_constants__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../lib/layout-constants */ "./src/lib/layout-constants.js");
-/* harmony import */ var _lib_drop_area_hoc_jsx__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../lib/drop-area-hoc.jsx */ "./src/lib/drop-area-hoc.jsx");
-/* harmony import */ var _lib_drag_constants__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../lib/drag-constants */ "./src/lib/drag-constants.js");
-/* harmony import */ var _lib_define_dynamic_block__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../lib/define-dynamic-block */ "./src/lib/define-dynamic-block.js");
-/* harmony import */ var _lib_themes__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../lib/themes */ "./src/lib/themes/index.js");
-/* harmony import */ var _lib_themes_blockHelpers__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../lib/themes/blockHelpers */ "./src/lib/themes/blockHelpers.js");
-/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
-/* harmony import */ var _reducers_toolbox__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ../reducers/toolbox */ "./src/reducers/toolbox.js");
-/* harmony import */ var _reducers_color_picker__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../reducers/color-picker */ "./src/reducers/color-picker.js");
-/* harmony import */ var _reducers_modals__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../reducers/modals */ "./src/reducers/modals.js");
-/* harmony import */ var _reducers_custom_procedures__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../reducers/custom-procedures */ "./src/reducers/custom-procedures.js");
-/* harmony import */ var _reducers_connection_modal__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../reducers/connection-modal */ "./src/reducers/connection-modal.js");
-/* harmony import */ var _reducers_workspace_metrics__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../reducers/workspace-metrics */ "./src/reducers/workspace-metrics.js");
-/* harmony import */ var _reducers_time_travel__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../reducers/time-travel */ "./src/reducers/time-travel.js");
-/* harmony import */ var ably__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ably */ "./node_modules/ably/build/ably-commonjs.js");
-/* harmony import */ var ably__WEBPACK_IMPORTED_MODULE_28___default = /*#__PURE__*/__webpack_require__.n(ably__WEBPACK_IMPORTED_MODULE_28__);
-/* harmony import */ var ably_react__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ably/react */ "./node_modules/ably/react/cjs/index.js");
-/* harmony import */ var ably_react__WEBPACK_IMPORTED_MODULE_29___default = /*#__PURE__*/__webpack_require__.n(ably_react__WEBPACK_IMPORTED_MODULE_29__);
-/* harmony import */ var nanoid__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
-/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
-/* harmony import */ var _utils_S3DataFetcher_jsx__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../utils/S3DataFetcher.jsx */ "./src/utils/S3DataFetcher.jsx");
-/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! aws-sdk */ "./node_modules/aws-sdk/lib/browser.js");
-/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_32___default = /*#__PURE__*/__webpack_require__.n(aws_sdk__WEBPACK_IMPORTED_MODULE_32__);
-/* harmony import */ var _reducers_editor_tab__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../reducers/editor-tab */ "./src/reducers/editor-tab.js");
-/* harmony import */ var bowser__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! bowser */ "./node_modules/bowser/src/bowser.js");
-/* harmony import */ var bowser__WEBPACK_IMPORTED_MODULE_34___default = /*#__PURE__*/__webpack_require__.n(bowser__WEBPACK_IMPORTED_MODULE_34__);
-/* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! scratch-storage */ "./node_modules/scratch-storage/dist/web/scratch-storage.js");
-/* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_35___default = /*#__PURE__*/__webpack_require__.n(scratch_storage__WEBPACK_IMPORTED_MODULE_35__);
-/* harmony import */ var _components_library_library_jsx__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ../components/library/library.jsx */ "./src/components/library/library.jsx");
+/* harmony import */ var _lib_data_uri_to_blob__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../lib/data-uri-to-blob */ "./src/lib/data-uri-to-blob.js");
+/* harmony import */ var _lib_layout_constants__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ../lib/layout-constants */ "./src/lib/layout-constants.js");
+/* harmony import */ var _lib_drop_area_hoc_jsx__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ../lib/drop-area-hoc.jsx */ "./src/lib/drop-area-hoc.jsx");
+/* harmony import */ var _lib_drag_constants__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ../lib/drag-constants */ "./src/lib/drag-constants.js");
+/* harmony import */ var _lib_define_dynamic_block__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ../lib/define-dynamic-block */ "./src/lib/define-dynamic-block.js");
+/* harmony import */ var _lib_themes__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ../lib/themes */ "./src/lib/themes/index.js");
+/* harmony import */ var _lib_themes_blockHelpers__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ../lib/themes/blockHelpers */ "./src/lib/themes/blockHelpers.js");
+/* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
+/* harmony import */ var _reducers_toolbox__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ../reducers/toolbox */ "./src/reducers/toolbox.js");
+/* harmony import */ var _reducers_color_picker__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ../reducers/color-picker */ "./src/reducers/color-picker.js");
+/* harmony import */ var _reducers_modals__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ../reducers/modals */ "./src/reducers/modals.js");
+/* harmony import */ var _reducers_custom_procedures__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ../reducers/custom-procedures */ "./src/reducers/custom-procedures.js");
+/* harmony import */ var _reducers_connection_modal__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ../reducers/connection-modal */ "./src/reducers/connection-modal.js");
+/* harmony import */ var _reducers_workspace_metrics__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ../reducers/workspace-metrics */ "./src/reducers/workspace-metrics.js");
+/* harmony import */ var _reducers_time_travel__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ../reducers/time-travel */ "./src/reducers/time-travel.js");
+/* harmony import */ var ably__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ably */ "./node_modules/ably/build/ably-commonjs.js");
+/* harmony import */ var ably__WEBPACK_IMPORTED_MODULE_29___default = /*#__PURE__*/__webpack_require__.n(ably__WEBPACK_IMPORTED_MODULE_29__);
+/* harmony import */ var ably_react__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ably/react */ "./node_modules/ably/react/cjs/index.js");
+/* harmony import */ var ably_react__WEBPACK_IMPORTED_MODULE_30___default = /*#__PURE__*/__webpack_require__.n(ably_react__WEBPACK_IMPORTED_MODULE_30__);
+/* harmony import */ var nanoid__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+/* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
+/* harmony import */ var _utils_S3DataFetcher_jsx__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../utils/S3DataFetcher.jsx */ "./src/utils/S3DataFetcher.jsx");
+/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! aws-sdk */ "./node_modules/aws-sdk/lib/browser.js");
+/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_33___default = /*#__PURE__*/__webpack_require__.n(aws_sdk__WEBPACK_IMPORTED_MODULE_33__);
+/* harmony import */ var _reducers_editor_tab__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ../reducers/editor-tab */ "./src/reducers/editor-tab.js");
+/* harmony import */ var bowser__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! bowser */ "./node_modules/bowser/src/bowser.js");
+/* harmony import */ var bowser__WEBPACK_IMPORTED_MODULE_35___default = /*#__PURE__*/__webpack_require__.n(bowser__WEBPACK_IMPORTED_MODULE_35__);
+/* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! scratch-storage */ "./node_modules/scratch-storage/dist/web/scratch-storage.js");
+/* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_36___default = /*#__PURE__*/__webpack_require__.n(scratch_storage__WEBPACK_IMPORTED_MODULE_36__);
+/* harmony import */ var _components_library_library_jsx__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ../components/library/library.jsx */ "./src/components/library/library.jsx");
 /* provided dependency */ var Buffer = __webpack_require__(/*! buffer */ "./node_modules/buffer/index.js")["Buffer"];
 const _excluded = ["url"],
   _excluded2 = ["anyModalVisible", "canUseCloud", "customProceduresVisible", "extensionLibraryVisible", "options", "stageSize", "vm", "isRtl", "isVisible", "onActivateColorPicker", "onOpenConnectionModal", "onOpenSoundRecorder", "updateToolboxState", "onActivateCustomProcedures", "onRequestCloseExtensionLibrary", "onRequestCloseCustomProcedures", "toolboxXML", "updateMetrics", "useCatBlocks", "workspaceMetrics"];
@@ -12585,6 +12586,7 @@ function _objectWithoutProperties(source, excluded) { if (source == null) return
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } } return target; }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
 
 
 
@@ -12642,7 +12644,7 @@ const addFunctionListener = (object, property, callback) => {
     return result;
   };
 };
-const DroppableBlocks = (0,_lib_drop_area_hoc_jsx__WEBPACK_IMPORTED_MODULE_15__["default"])([_lib_drag_constants__WEBPACK_IMPORTED_MODULE_16__["default"].BACKPACK_CODE])(_components_blocks_blocks_jsx__WEBPACK_IMPORTED_MODULE_9__["default"]);
+const DroppableBlocks = (0,_lib_drop_area_hoc_jsx__WEBPACK_IMPORTED_MODULE_16__["default"])([_lib_drag_constants__WEBPACK_IMPORTED_MODULE_17__["default"].BACKPACK_CODE])(_components_blocks_blocks_jsx__WEBPACK_IMPORTED_MODULE_9__["default"]);
 
 /*
 const { connectionError, channelError } = useChannel({ channelName: 'blocks' }, (message) => {
@@ -12653,11 +12655,11 @@ const { connectionError, channelError } = useChannel({ channelName: 'blocks' }, 
 
 //const fs = require('fs');
 
-const uname = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.name;
-const s3Client = new (aws_sdk__WEBPACK_IMPORTED_MODULE_32___default().S3)();
-const nid = (0,nanoid__WEBPACK_IMPORTED_MODULE_37__.nanoid)();
-const ably = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablyInstance;
-var channel = ably.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace);
+const uname = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name;
+const s3Client = new (aws_sdk__WEBPACK_IMPORTED_MODULE_33___default().S3)();
+const nid = (0,nanoid__WEBPACK_IMPORTED_MODULE_38__.nanoid)();
+const ably = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablyInstance;
+var channel = ably.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace);
 let hasInited = false;
 let flag1 = false;
 let flag2 = false;
@@ -12739,7 +12741,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       maxBlocks: 5,
       rtl: this.props.isRtl,
       toolbox: this.props.toolboxXML,
-      colours: (0,_lib_themes__WEBPACK_IMPORTED_MODULE_18__.getColorsForTheme)(this.props.theme)
+      colours: (0,_lib_themes__WEBPACK_IMPORTED_MODULE_19__.getColorsForTheme)(this.props.theme)
     });
     this.workspace = this.ScratchBlocks.inject(this.blocks, workspaceConfig);
 
@@ -12865,8 +12867,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     fetch('https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/mouse-click', {
       method: 'POST',
       body: JSON.stringify({
-        user: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.name,
-        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+        user: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name,
+        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
         dragRelative: JSON.parse(sessionStorage.getItem("dragRelative")),
         clickId: this.getRandomHexString(16),
         x: e.clientX,
@@ -12883,7 +12885,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       alert("Saved!");
     }
     if (!this.isViewOnly && e.clientX > window.innerWidth - 175 && e.clientX < window.innerWidth - 100 && e.clientY < 50) {
-      navigator.clipboard.writeText("https://collaborationstation.dev/room?view=" + this.encryptNumber(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace, "90210"));
+      navigator.clipboard.writeText("https://collaborationstation.dev/room?view=" + this.encryptNumber(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace, "90210"));
       alert("Copied viewonly shareable link to clipboard!");
     }
     if (sessionStorage.getItem('analMode') == "T" && e.clientX > window.innerWidth - 100 && e.clientY < 50) {
@@ -13158,7 +13160,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this4.startingLoad = true;
         _this4.stopEmission = true;
         const datas = {
-          key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+          key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
           vid: _this4.vid,
           keyMarker: _this4.keyMarker,
           versionIdMarker: _this4.versionIdMarker
@@ -13271,8 +13273,30 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       console.log("SAVED!!!");
       yield fetch('https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/s3-storage', {
         method: 'POST',
-        body: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace + "~|@^|@|~" + s
+        body: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace + "~|@^|@|~" + s
       });
+      _this5.props.vm.renderer.requestSnapshot( /*#__PURE__*/function () {
+        var _ref2 = _asyncToGenerator(function* (dataURI) {
+          dataURI = dataURI.replace(/^data:image\/\w+;base64,/, '');
+          const imagename = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace + ".png";
+          console.log("SAVEDTO", dataURI);
+          console.log(imagename);
+          const resp = yield fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=" + imagename + "&cd=attachment", {
+            method: 'POST',
+            headers: {
+              'Accept': '*/*',
+              'Connection': 'keep-alive',
+              'Content-Type': 'image/png',
+              'Content-Disposition': 'attachment'
+            },
+            body: dataURI
+          });
+          console.log(resp);
+        });
+        return function (_x2) {
+          return _ref2.apply(this, arguments);
+        };
+      }());
     })();
   }
 
@@ -13300,6 +13324,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   sendInformation(eve) {
     var _this6 = this;
     return _asyncToGenerator(function* () {
+      console.log(_this6.props.vm);
       if (_this6.isViewOnly) {
         console.log("view only mode; ignoring event");
         return;
@@ -13347,8 +13372,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this6.logData({
           moveId: _this6.getRandomHexString(16),
           time: Date.now(),
-          user: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.name,
-          room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+          user: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name,
+          room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
           type: eve.type,
           target: _this6.props.vm.editingTarget.sprite.name,
           event: eve
@@ -13726,7 +13751,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         moveId: this.getRandomHexString(16),
         time: Date.now(),
         user: uname,
-        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
         type: "custom:createSprite",
         spriteName: inputJSONED.name
       });
@@ -13740,7 +13765,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       return ogAddSprite(input);
     };
     channel.subscribe('newSprite', /*#__PURE__*/function () {
-      var _ref4 = _asyncToGenerator(function* (message) {
+      var _ref5 = _asyncToGenerator(function* (message) {
         const data = JSON.parse(message.data);
         if (data.uid == nid) {
           return;
@@ -13752,8 +13777,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         // this.props.vm.editingTarget = this.getTargetByName(ogName);
         // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget); 
       });
-      return function (_x2) {
-        return _ref4.apply(this, arguments);
+      return function (_x3) {
+        return _ref5.apply(this, arguments);
       };
     }());
     let ogDeleteSprite = this.props.vm.deleteSprite.bind(this.props.vm);
@@ -13763,7 +13788,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         moveId: this.getRandomHexString(16),
         time: Date.now(),
         user: uname,
-        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
         type: "custom:deleteSprite",
         spriteName: name
       });
@@ -13776,15 +13801,15 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogAddBackdrop = this.props.vm.addBackdrop.bind(this.props.vm);
     this.props.vm.addBackdrop = /*#__PURE__*/function () {
-      var _ref5 = _asyncToGenerator(function* (md5, vmBackdrop) {
+      var _ref6 = _asyncToGenerator(function* (md5, vmBackdrop) {
         const msg = {
           m5: md5,
           vmb: vmBackdrop
         };
         channel.publish('newBackdrop', JSON.stringify(msg));
       });
-      return function (_x3, _x4) {
-        return _ref5.apply(this, arguments);
+      return function (_x4, _x5) {
+        return _ref6.apply(this, arguments);
       };
     }();
     channel.subscribe('newBackdrop', message => {
@@ -13793,7 +13818,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogRenameSprite = this.props.vm.renameSprite.bind(this.props.vm);
     this.props.vm.renameSprite = /*#__PURE__*/function () {
-      var _ref6 = _asyncToGenerator(function* (id, name) {
+      var _ref7 = _asyncToGenerator(function* (id, name) {
         const spriteName = _this10.props.vm.runtime.getTargetById(id).sprite.name;
         if (name == "Stage") {
           name = "Stage1";
@@ -13816,7 +13841,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           moveId: _this10.getRandomHexString(16),
           time: Date.now(),
           user: uname,
-          room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_30__.ablySpace,
+          room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
           type: "custom:renameSprite",
           spriteName: spriteName,
           newName: name
@@ -13827,8 +13852,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         };
         channel.publish('renameSprite', JSON.stringify(msg));
       });
-      return function (_x5, _x6) {
-        return _ref6.apply(this, arguments);
+      return function (_x6, _x7) {
+        return _ref7.apply(this, arguments);
       };
     }();
     channel.subscribe('renameSprite', message => {
@@ -13837,12 +13862,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogDuplicateSprite = this.props.vm.duplicateSprite.bind(this.props.vm);
     this.props.vm.duplicateSprite = /*#__PURE__*/function () {
-      var _ref7 = _asyncToGenerator(function* (id) {
+      var _ref8 = _asyncToGenerator(function* (id) {
         const name = _this10.props.vm.runtime.getTargetById(id).sprite.name;
         return channel.publish('duplicateSprite', JSON.stringify(name));
       });
-      return function (_x7) {
-        return _ref7.apply(this, arguments);
+      return function (_x8) {
+        return _ref8.apply(this, arguments);
       };
     }();
     channel.subscribe('duplicateSprite', message => {
@@ -13959,7 +13984,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }.bind(this.props.vm);
     //let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
     this.props.vm.deleteSound = /*#__PURE__*/function () {
-      var _ref8 = _asyncToGenerator(function* (soundIndex) {
+      var _ref9 = _asyncToGenerator(function* (soundIndex) {
         const name = _this10.props.vm.editingTarget.sprite.name;
         const msg = {
           soundIndex: soundIndex,
@@ -13969,8 +13994,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         yield channel.publish('deleteSound', JSON.stringify(msg));
         return deleteSound(soundIndex, _this10.props.vm.editingTarget);
       });
-      return function (_x8) {
-        return _ref8.apply(this, arguments);
+      return function (_x9) {
+        return _ref9.apply(this, arguments);
       };
     }();
     channel.subscribe('deleteSound', message => {
@@ -13983,14 +14008,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       deleteSound(soundIndex, target);
     });
     this.props.vm.shareBlocksToTarget = /*#__PURE__*/function () {
-      var _ref9 = _asyncToGenerator(function* (blocks, target, optID) {});
-      return function (_x9, _x10, _x11) {
-        return _ref9.apply(this, arguments);
+      var _ref10 = _asyncToGenerator(function* (blocks, target, optID) {});
+      return function (_x10, _x11, _x12) {
+        return _ref10.apply(this, arguments);
       };
     }();
     let ogAddSound = this.props.vm.addSound.bind(this.props.vm);
     this.props.vm.addSound = /*#__PURE__*/function () {
-      var _ref10 = _asyncToGenerator(function (sound) {
+      var _ref11 = _asyncToGenerator(function (sound) {
         let idx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "AMONGUSLMAO";
         return function* () {
           console.log("SOUND", sound);
@@ -14002,8 +14027,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           return channel.publish('addSound', JSON.stringify(msg));
         }();
       });
-      return function (_x12) {
-        return _ref10.apply(this, arguments);
+      return function (_x13) {
+        return _ref11.apply(this, arguments);
       };
     }();
     channel.subscribe('addSound', message => {
@@ -14012,7 +14037,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogRenameSound = this.props.vm.renameSound.bind(this.props.vm);
     this.props.vm.renameSound = /*#__PURE__*/function () {
-      var _ref11 = _asyncToGenerator(function* (soundIndex, newName) {
+      var _ref12 = _asyncToGenerator(function* (soundIndex, newName) {
         const msg = {
           soundIndex: soundIndex,
           newName: newName,
@@ -14020,8 +14045,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         };
         channel.publish('renameSound', JSON.stringify(msg));
       });
-      return function (_x13, _x14) {
-        return _ref11.apply(this, arguments);
+      return function (_x14, _x15) {
+        return _ref12.apply(this, arguments);
       };
     }();
     channel.subscribe('renameSound', message => {
@@ -14043,7 +14068,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       return null;
     }.bind(this.props.vm);
     this.props.vm.deleteCostume = /*#__PURE__*/function () {
-      var _ref12 = _asyncToGenerator(function* (costumeIndex) {
+      var _ref13 = _asyncToGenerator(function* (costumeIndex) {
         const spriteName = _this10.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
@@ -14053,8 +14078,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         channel.publish('deleteCostume', JSON.stringify(msg));
         return deleteCostume(costumeIndex, _this10.props.vm.editingTarget);
       });
-      return function (_x15) {
-        return _ref12.apply(this, arguments);
+      return function (_x16) {
+        return _ref13.apply(this, arguments);
       };
     }();
     channel.subscribe('deleteCostume', message => {
@@ -14088,12 +14113,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
     let ogDupeCostume = this.props.vm.duplicateCostume.bind(this.props.vm);
     this.props.vm.duplicateCostume = /*#__PURE__*/function () {
-      var _ref13 = _asyncToGenerator(function* (costumeIndex) {
+      var _ref14 = _asyncToGenerator(function* (costumeIndex) {
         const ret = yield channel.publish('duplicateCostume', JSON.stringify(costumeIndex));
         return ret;
       });
-      return function (_x16) {
-        return _ref13.apply(this, arguments);
+      return function (_x17) {
+        return _ref14.apply(this, arguments);
       };
     }();
     channel.subscribe('duplicateCostume', message => {
@@ -14102,7 +14127,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
     //let ogRenameCostume = this.props.vm.renameCostume.bind(this.props.vm);
     this.props.vm.renameCostume = /*#__PURE__*/function () {
-      var _ref14 = _asyncToGenerator(function* (costumeIndex, newName) {
+      var _ref15 = _asyncToGenerator(function* (costumeIndex, newName) {
         const spriteName = _this10.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
@@ -14111,8 +14136,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         };
         channel.publish('renameCostume', JSON.stringify(msg));
       });
-      return function (_x17, _x18) {
-        return _ref14.apply(this, arguments);
+      return function (_x18, _x19) {
+        return _ref15.apply(this, arguments);
       };
     }();
     channel.subscribe('renameCostume', message => {
@@ -14199,7 +14224,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       return ogAddCostume(md5, costumeObject, optTarget, optVersion);
     }.bind(this);
     channel.subscribe('addCostume', /*#__PURE__*/function () {
-      var _ref15 = _asyncToGenerator(function* (message) {
+      var _ref16 = _asyncToGenerator(function* (message) {
         const d = JSON.parse(message.data);
         if (d.uid == nid) {
           return;
@@ -14219,8 +14244,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const targetId = _this10.getTargetByName(d.spriteName).id;
         ogAddCostume(d.md5, d.costumeObject, targetId, d.optVersion);
       });
-      return function (_x19) {
-        return _ref15.apply(this, arguments);
+      return function (_x20) {
+        return _ref16.apply(this, arguments);
       };
     }());
 
@@ -14504,11 +14529,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       return number;
     }
     const ogGet = this.props.vm.runtime.storage.webHelper.assetTool.get.bind(this.props.vm.runtime.storage.webHelper.assetTool);
-    this.props.vm.runtime.storage.webHelper.assetTool.get = function (_ref16) {
+    this.props.vm.runtime.storage.webHelper.assetTool.get = function (_ref17) {
       let {
           url
-        } = _ref16,
-        options = _objectWithoutProperties(_ref16, _excluded);
+        } = _ref17,
+        options = _objectWithoutProperties(_ref17, _excluded);
       // const md5 = extractNumberFromUrl(url)
       // console.log("MD5", md5)
       // if (md5 != "-1") {
@@ -14702,8 +14727,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       const stageCostumes = stage.getCostumes();
       const targetCostumes = target.getCostumes();
       const targetSounds = target.getSounds();
-      const dynamicBlocksXML = (0,_lib_themes_blockHelpers__WEBPACK_IMPORTED_MODULE_19__.injectExtensionCategoryTheme)(this.props.vm.runtime.getBlocksXML(target), this.props.theme);
-      return (0,_lib_make_toolbox_xml__WEBPACK_IMPORTED_MODULE_3__["default"])(false, target.isStage, target.id, dynamicBlocksXML, targetCostumes[targetCostumes.length - 1].name, stageCostumes[stageCostumes.length - 1].name, targetSounds.length > 0 ? targetSounds[targetSounds.length - 1].name : '', (0,_lib_themes__WEBPACK_IMPORTED_MODULE_18__.getColorsForTheme)(this.props.theme));
+      const dynamicBlocksXML = (0,_lib_themes_blockHelpers__WEBPACK_IMPORTED_MODULE_20__.injectExtensionCategoryTheme)(this.props.vm.runtime.getBlocksXML(target), this.props.theme);
+      return (0,_lib_make_toolbox_xml__WEBPACK_IMPORTED_MODULE_3__["default"])(false, target.isStage, target.id, dynamicBlocksXML, targetCostumes[targetCostumes.length - 1].name, stageCostumes[stageCostumes.length - 1].name, targetSounds.length > 0 ? targetSounds[targetSounds.length - 1].name : '', (0,_lib_themes__WEBPACK_IMPORTED_MODULE_19__.getColorsForTheme)(this.props.theme));
     } catch (_unused) {
       return null;
     }
@@ -14791,7 +14816,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           if (blockInfo.info && blockInfo.info.isDynamic) {
             dynamicBlocksInfo.push(blockInfo);
           } else if (blockInfo.json) {
-            staticBlocksJson.push((0,_lib_themes_blockHelpers__WEBPACK_IMPORTED_MODULE_19__.injectExtensionBlockTheme)(blockInfo.json, this.props.theme));
+            staticBlocksJson.push((0,_lib_themes_blockHelpers__WEBPACK_IMPORTED_MODULE_20__.injectExtensionBlockTheme)(blockInfo.json, this.props.theme));
           }
           // otherwise it's a non-block entry such as '---'
         });
@@ -14801,7 +14826,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           // The factory should only know static info about the block: the category info and the opcode.
           // Anything else will be picked up from the XML attached to the block instance.
           const extendedOpcode = "".concat(categoryInfo.id, "_").concat(blockInfo.info.opcode);
-          const blockDefinition = (0,_lib_define_dynamic_block__WEBPACK_IMPORTED_MODULE_17__["default"])(this.ScratchBlocks, categoryInfo, blockInfo, extendedOpcode);
+          const blockDefinition = (0,_lib_define_dynamic_block__WEBPACK_IMPORTED_MODULE_18__["default"])(this.ScratchBlocks, categoryInfo, blockInfo, extendedOpcode);
           this.ScratchBlocks.Blocks[extendedOpcode] = blockDefinition;
         });
       }
@@ -14956,46 +14981,46 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   }
 }
 Blocks.propTypes = {
-  anyModalVisible: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-  canUseCloud: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-  customProceduresVisible: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-  extensionLibraryVisible: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-  isVisible: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-  locale: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().string).isRequired,
-  messages: prop_types__WEBPACK_IMPORTED_MODULE_38___default().objectOf((prop_types__WEBPACK_IMPORTED_MODULE_38___default().string)),
-  onActivateColorPicker: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().func),
-  onActivateCustomProcedures: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().func),
-  onOpenConnectionModal: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().func),
-  onOpenSoundRecorder: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().func),
-  onRequestCloseCustomProcedures: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().func),
-  onRequestCloseExtensionLibrary: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().func),
-  options: prop_types__WEBPACK_IMPORTED_MODULE_38___default().shape({
-    media: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().string),
-    zoom: prop_types__WEBPACK_IMPORTED_MODULE_38___default().shape({
-      controls: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-      wheel: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-      startScale: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().number)
+  anyModalVisible: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+  canUseCloud: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+  customProceduresVisible: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+  extensionLibraryVisible: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+  isVisible: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+  locale: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().string).isRequired,
+  messages: prop_types__WEBPACK_IMPORTED_MODULE_39___default().objectOf((prop_types__WEBPACK_IMPORTED_MODULE_39___default().string)),
+  onActivateColorPicker: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().func),
+  onActivateCustomProcedures: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().func),
+  onOpenConnectionModal: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().func),
+  onOpenSoundRecorder: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().func),
+  onRequestCloseCustomProcedures: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().func),
+  onRequestCloseExtensionLibrary: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().func),
+  options: prop_types__WEBPACK_IMPORTED_MODULE_39___default().shape({
+    media: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().string),
+    zoom: prop_types__WEBPACK_IMPORTED_MODULE_39___default().shape({
+      controls: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+      wheel: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+      startScale: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().number)
     }),
-    comments: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-    collapse: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool)
+    comments: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+    collapse: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool)
   }),
-  stageSize: prop_types__WEBPACK_IMPORTED_MODULE_38___default().oneOf(Object.keys(_lib_layout_constants__WEBPACK_IMPORTED_MODULE_14__.STAGE_DISPLAY_SIZES)).isRequired,
-  theme: prop_types__WEBPACK_IMPORTED_MODULE_38___default().oneOf(Object.keys(_lib_themes__WEBPACK_IMPORTED_MODULE_18__.themeMap)),
-  toolboxXML: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().string),
-  updateMetrics: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().func),
-  updateToolboxState: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().func),
-  useCatBlocks: (prop_types__WEBPACK_IMPORTED_MODULE_38___default().bool),
-  vm: prop_types__WEBPACK_IMPORTED_MODULE_38___default().instanceOf((scratch_vm__WEBPACK_IMPORTED_MODULE_6___default())).isRequired,
-  workspaceMetrics: prop_types__WEBPACK_IMPORTED_MODULE_38___default().shape({
-    targets: prop_types__WEBPACK_IMPORTED_MODULE_38___default().objectOf((prop_types__WEBPACK_IMPORTED_MODULE_38___default().object))
+  stageSize: prop_types__WEBPACK_IMPORTED_MODULE_39___default().oneOf(Object.keys(_lib_layout_constants__WEBPACK_IMPORTED_MODULE_15__.STAGE_DISPLAY_SIZES)).isRequired,
+  theme: prop_types__WEBPACK_IMPORTED_MODULE_39___default().oneOf(Object.keys(_lib_themes__WEBPACK_IMPORTED_MODULE_19__.themeMap)),
+  toolboxXML: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().string),
+  updateMetrics: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().func),
+  updateToolboxState: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().func),
+  useCatBlocks: (prop_types__WEBPACK_IMPORTED_MODULE_39___default().bool),
+  vm: prop_types__WEBPACK_IMPORTED_MODULE_39___default().instanceOf((scratch_vm__WEBPACK_IMPORTED_MODULE_6___default())).isRequired,
+  workspaceMetrics: prop_types__WEBPACK_IMPORTED_MODULE_39___default().shape({
+    targets: prop_types__WEBPACK_IMPORTED_MODULE_39___default().objectOf((prop_types__WEBPACK_IMPORTED_MODULE_39___default().object))
   })
 };
 Blocks.defaultOptions = {
   zoom: {
     controls: true,
     wheel: true,
-    startScale: _lib_layout_constants__WEBPACK_IMPORTED_MODULE_14__.BLOCKS_DEFAULT_SCALE
+    startScale: _lib_layout_constants__WEBPACK_IMPORTED_MODULE_15__.BLOCKS_DEFAULT_SCALE
   },
   grid: {
     spacing: 40,
@@ -15009,7 +15034,7 @@ Blocks.defaultOptions = {
 Blocks.defaultProps = {
   isVisible: true,
   options: Blocks.defaultOptions,
-  theme: _lib_themes__WEBPACK_IMPORTED_MODULE_18__.DEFAULT_THEME
+  theme: _lib_themes__WEBPACK_IMPORTED_MODULE_19__.DEFAULT_THEME
 };
 const mapStateToProps = state => ({
   anyModalVisible: Object.keys(state.scratchGui.modals).some(key => state.scratchGui.modals[key]) || state.scratchGui.mode.isFullScreen,
@@ -15020,33 +15045,33 @@ const mapStateToProps = state => ({
   toolboxXML: state.scratchGui.toolbox.toolboxXML,
   customProceduresVisible: state.scratchGui.customProcedures.active,
   workspaceMetrics: state.scratchGui.workspaceMetrics,
-  useCatBlocks: (0,_reducers_time_travel__WEBPACK_IMPORTED_MODULE_27__.isTimeTravel2020)(state)
+  useCatBlocks: (0,_reducers_time_travel__WEBPACK_IMPORTED_MODULE_28__.isTimeTravel2020)(state)
 });
 const mapDispatchToProps = dispatch => ({
-  onActivateColorPicker: callback => dispatch((0,_reducers_color_picker__WEBPACK_IMPORTED_MODULE_22__.activateColorPicker)(callback)),
-  onActivateCustomProcedures: (data, callback) => dispatch((0,_reducers_custom_procedures__WEBPACK_IMPORTED_MODULE_24__.activateCustomProcedures)(data, callback)),
+  onActivateColorPicker: callback => dispatch((0,_reducers_color_picker__WEBPACK_IMPORTED_MODULE_23__.activateColorPicker)(callback)),
+  onActivateCustomProcedures: (data, callback) => dispatch((0,_reducers_custom_procedures__WEBPACK_IMPORTED_MODULE_25__.activateCustomProcedures)(data, callback)),
   onOpenConnectionModal: id => {
-    dispatch((0,_reducers_connection_modal__WEBPACK_IMPORTED_MODULE_25__.setConnectionModalExtensionId)(id));
-    dispatch((0,_reducers_modals__WEBPACK_IMPORTED_MODULE_23__.openConnectionModal)());
+    dispatch((0,_reducers_connection_modal__WEBPACK_IMPORTED_MODULE_26__.setConnectionModalExtensionId)(id));
+    dispatch((0,_reducers_modals__WEBPACK_IMPORTED_MODULE_24__.openConnectionModal)());
   },
   onOpenSoundRecorder: () => {
-    dispatch((0,_reducers_editor_tab__WEBPACK_IMPORTED_MODULE_33__.activateTab)(_reducers_editor_tab__WEBPACK_IMPORTED_MODULE_33__.SOUNDS_TAB_INDEX));
-    dispatch((0,_reducers_modals__WEBPACK_IMPORTED_MODULE_23__.openSoundRecorder)());
+    dispatch((0,_reducers_editor_tab__WEBPACK_IMPORTED_MODULE_34__.activateTab)(_reducers_editor_tab__WEBPACK_IMPORTED_MODULE_34__.SOUNDS_TAB_INDEX));
+    dispatch((0,_reducers_modals__WEBPACK_IMPORTED_MODULE_24__.openSoundRecorder)());
   },
   onRequestCloseExtensionLibrary: () => {
-    dispatch((0,_reducers_modals__WEBPACK_IMPORTED_MODULE_23__.closeExtensionLibrary)());
+    dispatch((0,_reducers_modals__WEBPACK_IMPORTED_MODULE_24__.closeExtensionLibrary)());
   },
   onRequestCloseCustomProcedures: data => {
-    dispatch((0,_reducers_custom_procedures__WEBPACK_IMPORTED_MODULE_24__.deactivateCustomProcedures)(data));
+    dispatch((0,_reducers_custom_procedures__WEBPACK_IMPORTED_MODULE_25__.deactivateCustomProcedures)(data));
   },
   updateToolboxState: toolboxXML => {
-    dispatch((0,_reducers_toolbox__WEBPACK_IMPORTED_MODULE_21__.updateToolbox)(toolboxXML));
+    dispatch((0,_reducers_toolbox__WEBPACK_IMPORTED_MODULE_22__.updateToolbox)(toolboxXML));
   },
   updateMetrics: metrics => {
-    dispatch((0,_reducers_workspace_metrics__WEBPACK_IMPORTED_MODULE_26__.updateMetrics)(metrics));
+    dispatch((0,_reducers_workspace_metrics__WEBPACK_IMPORTED_MODULE_27__.updateMetrics)(metrics));
   }
 });
-/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,_lib_error_boundary_hoc_jsx__WEBPACK_IMPORTED_MODULE_13__["default"])('Blocks')((0,react_redux__WEBPACK_IMPORTED_MODULE_20__.connect)(mapStateToProps, mapDispatchToProps)(Blocks)));
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ((0,_lib_error_boundary_hoc_jsx__WEBPACK_IMPORTED_MODULE_13__["default"])('Blocks')((0,react_redux__WEBPACK_IMPORTED_MODULE_21__.connect)(mapStateToProps, mapDispatchToProps)(Blocks)));
 
 /***/ }),
 
@@ -30724,6 +30749,7 @@ const ProjectSaverHOC = function ProjectSaverHOC(WrappedComponent) {
     storeProjectThumbnail(projectId) {
       try {
         this.getProjectThumbnail(dataURI => {
+          console.log(dataURI);
           this.props.onUpdateProjectThumbnail(projectId, (0,_lib_data_uri_to_blob__WEBPACK_IMPORTED_MODULE_7__["default"])(dataURI));
         });
       } catch (e) {
@@ -44940,4 +44966,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.809269f82327e3b5c060.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.6d1bb60bb1159c6708ea.js.map

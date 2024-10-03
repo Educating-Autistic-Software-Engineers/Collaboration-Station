@@ -1,118 +1,96 @@
-// let form = document.getElementById('lobby__form')
-
-// let displayName = sessionStorage.getItem('display_name')
-// if(displayName){
-//     form.name.value = displayName
-// }
-
-// form.addEventListener('submit', (e) => {
-//     e.preventDefault()
-
-//     sessionStorage.setItem('display_name', e.target.name.value)
-
-//     let inviteCode = e.target.room.value
-//     if(!inviteCode){
-//         inviteCode = String(Math.floor(Math.random() * 10000))
-//     }
-//     window.location = `room.html?room=${inviteCode}`
-// })
-
-const queryString = window.location.search
-console.log(queryString);
-const urlParams = new URLSearchParams(queryString)
-console.log(urlParams);
-let roomId = urlParams.get('email')
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+let roomId = urlParams.get('email');
 const targetEmail = roomId;
 
 let roomList = [];
+let roomDict = {};
 
 if (sessionStorage.getItem('email') == null) {
     window.location.href = 'index.html';
 }
 
-roomDict = {}
-
 async function load() {
     const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
     const roomsj = await datresp.json();
-    rooms = roomsj.requests;
+    const rooms = roomsj.requests;
     for (let room of rooms) {
         roomDict[room.room_id] = room;
     }
 
     try {
         const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${targetEmail}`);
-        console.log(response);
-        console.log(response.ok);
         const data = await response.json();
         roomList = data.projects.split(", ");
     } catch (error) {
         console.error('Error checking email:', error);
     }
-    displayTiles()
-}
-load()
-
-// Function to create and display tiles based on the room list
-function displayTiles() {
-    console.log("og", roomList)
-    const tileContainer = document.getElementById('tileContainer');
-    roomList.forEach(room => {
-        console.log(room, roomDict)
-        // check if room is in roomDict:
-        if (!(room in roomDict)) {
-            return;
-        }
-        if (room == "" || room == " " || !roomDict[room].name) {
-            return;
-        }
-        const tile = document.createElement('div');
-        const img = document.createElement('img');
-        tile.className = 'tile';
-        tile.innerHTML = `<p style="text-align: center;">${roomDict[room].name.replace(/([A-Z])/g, ' $1').trim()}</p>`; // Format room name
-        tile.onclick = () => openProject(room);
-        tileContainer.appendChild(tile);
-        tile.appendChild(img);
-        //tileContainer.innerHTML += `<p>${roomDict[room].name}</p>`;
-        // img.src = 'images/draw.png';
-        // img.id = 'draw_image';
-    });
-    const addProjectBtn = document.createElement('div');
-    addProjectBtn.className = 'tile';
-    console.log("addProjectBtn", addProjectBtn)
-    tileContainer.appendChild(addProjectBtn);
-    addProjectBtn.innerHTML = `
-        <b style="font-size:99px;">+</b>
-    `
-    addProjectBtn.onclick = () => {
-        // remove add project button
-        tileContainer.removeChild(addProjectBtn);
-        addProject().then(() =>
-            tileContainer.appendChild(addProjectBtn)
-        );
-    };
+    displayProjects();
 }
 
-async function readStreamAsString(stream) {
-    const reader = stream.getReader();
-    const decoder = new TextDecoder();
-    let result = '';
-    let done = false;
+async function displayProjects() {
+    const projectList = document.getElementById('project-list');
+    projectList.innerHTML = ''; // Clear existing content
 
-    while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-        if (value) {
-            result += decoder.decode(value, { stream: !done });
+    for (let room of roomList) {
+        if (room in roomDict && room !== "" && room !== " " && roomDict[room].name) {
+            const projectCard = document.createElement('div');
+            projectCard.className = 'project-card';
+            
+            // Create a container for the text to ensure it's visible over the background
+            const textContainer = document.createElement('div');
+            textContainer.className = 'project-card-text';
+            textContainer.textContent = roomDict[room].name.replace(/([A-Z])/g, ' $1').trim();
+            projectCard.appendChild(textContainer);
+
+            projectCard.onclick = () => selectProject(room);
+            
+            // Fetch the image
+            try {
+                const imageResponse = await fetch(`https://d3pl0tx5n82s71.cloudfront.net/${room}.png`);
+                console.log(imageResponse)
+                if (imageResponse.ok) {
+                    projectCard.style.backgroundImage = `url(https://d3pl0tx5n82s71.cloudfront.net/${room}.png)`;
+                    projectCard.style.backgroundSize = 'cover';
+                    projectCard.style.backgroundPosition = 'center';
+                    textContainer.style.color = '#ffffff'
+                    textContainer.style.backgroundColor = '#00000090'
+                } else {
+                    // If no image, keep the default purple background
+                    projectCard.style.backgroundColor = 'purple';
+                }
+            } catch (error) {
+                console.error('Error fetching image:', error);
+                projectCard.style.backgroundColor = 'purple';
+            }
+
+            projectList.appendChild(projectCard);
         }
     }
 
-    return result;
+    // Add "New Project" card
+    const newProjectCard = document.createElement('div');
+    newProjectCard.className = 'project-card';
+    newProjectCard.textContent = '+ New Project';
+    newProjectCard.onclick = addProject;
+    newProjectCard.style.backgroundColor = 'purple'; // Ensure this card always has a purple background
+    projectList.appendChild(newProjectCard);
+
+    // Select the first project by default
+    if (roomList.length > 0) {
+        selectProject(roomList[0]);
+    }
 }
 
-async function addProject(){
-    
-    var newRoomId;
+function selectProject(projectId) {
+    const selectedProjectContent = document.getElementById('selected-project-content');
+    selectedProjectContent.textContent = roomDict[projectId].name;
+
+    const launchButton = document.getElementById('launch-project');
+    launchButton.onclick = () => openProject(projectId);
+}
+
+async function addProject() {
     let projectName = prompt('Enter your project name');
     if (projectName == null || projectName == "") {
         return;
@@ -129,43 +107,33 @@ async function addProject(){
             })
         });
 
-        
         if (!response.ok) {
-            alert('Failed to save rooms.');
-            return
+            alert('Failed to create new project.');
+            return;
         }
         
-        const data = await readStreamAsString(response.body);
-        newRoomId = JSON.parse(data).Item;
-        
+        const data = await response.json();
+        const newRoomId = data.Item;
+
+        // Update roomDict and roomList
+        roomDict[newRoomId] = { room_id: newRoomId, name: projectName, icon: "default" };
+        roomList.push(newRoomId);
+
+        // Update user's projects
+        await updateUserProjects(newRoomId);
+
+        // Refresh the project display
+        displayProjects();
+        selectProject(newRoomId);
+
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while saving rooms.');
-        return
+        alert('An error occurred while creating a new project.');
     }
-    
-    const addProjectBtn = document.createElement('div');
-    addProjectBtn.className = 'tile';
-    tileContainer.appendChild(addProjectBtn);
+}
 
-    addProjectBtn.innerHTML = `
-        <p style="text-align: center;">${projectName}</p>
-    `
-    // document.getElementById("addProjectEntry").innerHTML=projectName;
-    // const textEntry = addProjectBtn.querySelector('#addProjectEntry');
-    // textEntry.addEventListener('click', (event) => event.stopPropagation());
-    // addProjectBtn.onclick = () => createNewProject(textEntry.value);
-    
-    console.log("going inside");
-
-    const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${targetEmail}`);
-    const data = await response.json();
-    console.log(data)
-
+async function updateUserProjects(newRoomId) {
     try {
-        console.log("inside");
-        console.log(roomId); 
-
         const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register', {
             method: 'PATCH',
             headers: {
@@ -177,79 +145,33 @@ async function addProject(){
             }) 
         });
 
+        if (!response.ok) {
+            throw new Error('Failed to update user projects');
+        }
     } catch (error) {
         console.error('Error:', error);
-        alert('An error occurred while saving.');
+        alert('An error occurred while updating user projects.');
     }
-
-    rooms.push({ room_id: newRoomId, name: projectName });
-    addProjectBtn.onclick = () => openProject(newRoomId)
-
-    
-
-
-
-
-    // try {
-    //     const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify(rooms) 
-    //     });
-
-    //     if (!response.ok) {
-    //         alert('Failed to save rooms.');
-    //         return
-    //     }
-        
-    // } catch (error) {
-    //     console.error('Error:', error);
-    //     alert('An error occurred while saving rooms.');
-    // }
-    // //refresh page
-    // location.reload();
-
-
-
-}
-
-// REDUNDANT FUNCTION
-async function createNewProject(text) {
-    if (text == '') {
-        return;
-    }
-
-    const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
-    const roomsj = await datresp.json();
-    let rooms = roomsj.requests;
-
-    let maxRoomId = 530425233;
-    for (let room of rooms) {
-        if ( Number(room.room_id) > maxRoomId) {
-            maxRoomId = Number(room.room_id);
-        }
-    }
-    rooms.push({ room_id: String(Number(maxRoomId)+1), name: text });
-    // const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
-    //     method: 'POST',
-    //     headers: {
-    //         'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(rooms) 
-    // });
-    // if (!response.ok) {
-    //     alert('Failed to save rooms.');
-    //     return
-    // }
-    // location.reload();
 }
 
 function openProject(projectId) {
-    // alert('Opening ' + projectName);
-    // window.location=`room.html?projectName=${projectName}`;
-    window.location.href=`room.html?project=${projectId}`;
-    // Here you can add the code to redirect to a different page or load project details
-    // For example: window.location.href = 'project1.html';
+    window.location.href = `room.html?project=${projectId}`;
 }
+
+// Scroll functionality
+const scrollLeft = document.getElementById('scroll-left');
+const scrollRight = document.getElementById('scroll-right');
+const projectList = document.getElementById('project-list');
+
+scrollLeft.onclick = () => {
+    projectList.scrollBy({ left: -220, behavior: 'smooth' });
+};
+
+scrollRight.onclick = () => {
+    console.log(projectList)
+    projectList.style.left += 22
+    projectList.scrollBy({ left: 220, behavior: 'smooth' });
+};
+
+// Initialize
+load();
