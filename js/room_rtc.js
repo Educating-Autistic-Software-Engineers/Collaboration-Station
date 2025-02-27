@@ -50,6 +50,8 @@ console.log(virtualBackgroundExtension, "heic");
 AgoraRTC.registerExtensions([virtualBackgroundExtension]);
  
 let joinRoomInit = async () => {
+    return
+
     rtmClient = await AgoraRTM.createInstance(APP_ID)
     await rtmClient.login({uid,token})
  
@@ -62,9 +64,7 @@ let joinRoomInit = async () => {
     channel.on('MemberJoined', handleMemberJoined)
     channel.on('MemberLeft', handleMemberLeft)
     channel.on('ChannelMessage', handleChannelMessage)
- 
-    getMembers()
-    addBotMessageToDom(`Welcome to the room ${displayName}! 👋`)
+
  
     client = AgoraRTC.createClient({mode:'rtc', codec:'vp8'})
     await client.join(APP_ID, roomId, token, uid)
@@ -223,6 +223,7 @@ let switchToCamera = async () => {
 
 
 let handleUserPublished = async (user, mediaType) => {
+    return
  
  
     remoteUsers[user.uid] = user

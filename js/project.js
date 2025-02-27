@@ -9,6 +9,7 @@ let roomDict = {};
 
 // Check if the user is logged in
 if (sessionStorage.getItem('email') == null) {
+    console.log("User not logged in... returning");
     window.location.href = 'index.html';
 }
 
@@ -17,7 +18,9 @@ async function load() {
     await fetchRooms();
     await fetchUserProjects();
     displayProjects();
+    await populateUsernames();
     setupEventListeners();
+    await ping();
 }
 
 // Fetch all rooms from the API
@@ -42,6 +45,7 @@ async function fetchUserProjects() {
         roomList = data.projects.split(", ");
     } catch (error) {
         console.error('Error fetching user projects:', error);
+        roomList = [];
     }
 }
 
@@ -55,24 +59,19 @@ function displayProjects() {
 
     roomList.forEach(roomId => {
         if (roomId in roomDict && roomId !== "" && roomId !== " " && roomDict[roomId].name) {
+            isOwner = true;
+            if ("editors" in roomDict[roomId] && roomDict[roomId].editors.indexOf(sessionStorage.getItem('email')) != 0) {
+                isOwner = false;
+            }
             const projectElement = createProjectElement(roomDict[roomId]);
-            pastProjectsContainer.appendChild(projectElement);
+            if (isOwner) {
+                pastProjectsContainer.appendChild(projectElement);
+            } else {
+                classProjectsContainer.appendChild(projectElement);
+            }
         }
     });
 
-    // Add "New Project" card
-    const newProjectCard = createNewProjectCard();
-    pastProjectsContainer.appendChild(newProjectCard);
-
-    // For demonstration, we'll add some class projects
-    // In a real scenario, you might want to fetch these from another API endpoint
-    for (let i = 0; i < 5; i++) {
-        const dummyProject = { room_id: `class_${i}`, name: `Class Project ${i + 1}` };
-        const projectElement = createProjectElement(dummyProject);
-        classProjectsContainer.appendChild(projectElement);
-    }
-
-    // Select the first project by default
     if (roomList.length > 0) {
         selectProject(roomList[0]);
     }
@@ -117,13 +116,21 @@ function createNewProjectCard() {
 // Select a project and update the main display
 function selectProject(projectId) {
     const selectedProjectContent = document.getElementById('selected-project');
-    const project = roomDict[projectId];
+    var project;
+    try {
+        project = roomDict[projectId]
+    } catch (error) {
+        console.error('Error selecting project:', error);
+        return
+    }
+
+    project.lastEdited = "Jan 2, 2025"
     
     selectedProjectContent.innerHTML = `
-        <img src="https://d3pl0tx5n82s71.cloudfront.net/${projectId}.png" alt="${project.name}" onerror="this.src='path/to/fallback/image.png';">
+        <img src="https://d3pl0tx5n82s71.cloudfront.net/${projectId}.png" alt="${project.name}" onerror="this.src='https://thumbs.dreamstime.com/b/transparent-seamless-pattern-background-checkered-simulation-alpha-channel-png-wallpaper-empty-gird-grid-vector-illustration-308566526.jpg';">
         <div class="project-info">
             <h3>${project.name}</h3>
-            <p>Last edited: ${project.lastEdited || 'N/A'}</p>
+            <p>Last edited: ${project.lastEdited || 'Jan 1, 1970'}</p>
             <button class="launch-btn" onclick="openProject('${projectId}')">Launch Project</button>
         </div>
     `;
@@ -155,8 +162,19 @@ async function addProject() {
         const newRoomId = data.Item;
 
         // Update roomDict and roomList
-        roomDict[newRoomId] = { room_id: newRoomId, name: projectName, icon: "default" };
+        roomDict[newRoomId] = { room_id: newRoomId, name: projectName, icon: "default", editors: [ sessionStorage.getItem("email") ] };
         roomList.push(newRoomId);
+
+        await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                "roomID": newRoomId,
+                "user": sessionStorage.getItem('email') 
+            })
+        })
 
         // Update user's projects
         await updateUserProjects(newRoomId);
@@ -171,8 +189,31 @@ async function addProject() {
     }
 }
 
+async function ping() {
+    // return
+    try {
+        console.log('Pinging metadata');
+        console.log(sessionStorage.getItem('email'));
+        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ping`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                email: sessionStorage.getItem('email')
+            })
+        });
+        const resp = await response.json();
+        console.log(resp);
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred while pinging metadata');
+    }
+}
+
 // Update user's projects in the database
 async function updateUserProjects(newRoomId) {
+
     try {
         const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register', {
             method: 'PATCH',
@@ -194,18 +235,26 @@ async function updateUserProjects(newRoomId) {
     }
 }
 
-// Open a project
-function openProject(projectId) {
+async function openProject(projectId) {
+    // modify editor permissions
+    await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "roomID": projectId,
+            "user": sessionStorage.getItem('email') 
+        })
+    })
     window.location.href = `room.html?project=${projectId}`;
 }
 
-// Set up event listeners for scroll buttons
 function setupEventListeners() {
     setupScroll('past-projects', 'scroll-left', 'scroll-right');
     setupScroll('class-projects', 'scroll-left-class', 'scroll-right-class');
 }
 
-// Set up scroll functionality for a container
 function setupScroll(containerId, leftBtnId, rightBtnId) {
     const container = document.getElementById(containerId);
     const scrollLeft = document.getElementById(leftBtnId);
@@ -220,5 +269,140 @@ function setupScroll(containerId, leftBtnId, rightBtnId) {
     };
 }
 
-// Initialize the dashboard
+
+function createProjectElement(project) {
+    const projectCard = document.createElement('div');
+    projectCard.className = 'project-thumbnail';
+    projectCard.onclick = () => selectProject(project.room_id);
+    
+    const titleElement = document.createElement('div');
+    titleElement.className = 'project-title';
+    titleElement.textContent = project.name;
+    projectCard.appendChild(titleElement);
+    
+    const userBar = document.createElement('div');
+    userBar.className = 'project-user-bar';
+    
+    if (roomDict[project.room_id] && "editors" in roomDict[project.room_id]) {
+        const connectedUsers = roomDict[project.room_id].editors;
+
+        connectedUsers.slice(0, 4).forEach(user => {
+
+            if (user === sessionStorage.getItem('email')) {
+                return;
+            }
+
+            const userIcon = document.createElement('div');
+            userIcon.className = 'project-user-icon';
+            userIcon.textContent = user.charAt(0).toUpperCase();
+            userIcon.title = user.split('@')[0];
+            userBar.appendChild(userIcon);
+        });
+        
+        if (connectedUsers.length > 3) {
+            const moreUsers = document.createElement('div');
+            moreUsers.className = 'project-more-users';
+            moreUsers.textContent = `+${connectedUsers.length - 3}`;
+            userBar.appendChild(moreUsers);
+        }
+        
+        projectCard.appendChild(userBar);
+    }
+    
+    fetch(`https://d3pl0tx5n82s71.cloudfront.net/${project.room_id}.png`)
+        .then(response => {
+            if (response.ok) {
+                projectCard.style.backgroundImage = `url(https://d3pl0tx5n82s71.cloudfront.net/${project.room_id}.png)`;
+                projectCard.style.backgroundSize = 'cover';
+                projectCard.style.backgroundPosition = 'center';
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching image:', error);
+        });
+
+    return projectCard;
+}
+
+
+function populateUsernames() {
+    fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/getAllItems")
+        .then(response => response.json())
+        .then(data => {
+            const users = data.requests;
+            const container = document.getElementById('user-list');
+
+            
+            container.style.display = 'flex';
+            container.style.flexDirection = 'column';
+            container.style.gap = '2px';
+            container.style.padding = '5px';
+            
+            users.forEach(user => {
+                const statusRow = document.createElement('div');
+                statusRow.className = 'status-row';
+                
+                const userIcon = document.createElement('div');
+                userIcon.className = 'user-icon';
+                userIcon.textContent = user.name.charAt(0).toUpperCase();
+                
+                const userInfo = document.createElement('div');
+                userInfo.className = 'user-info';
+                
+                const userName = document.createElement('div');
+                userName.className = 'user-name';
+                userName.textContent = user.name;
+                
+                var lastActiveTime = new Date("2025/01/01");
+                if ("lastActive" in user) {
+                    lastActiveTime = new Date( user.lastActive*1000 );
+                    console.log(lastActiveTime, user.lastActive);
+                }
+                const timeAgo = (new Date()) - lastActiveTime;
+                var timeString = "Last active: ";
+                var minutesAgo = Math.floor(timeAgo / (1000 * 60));
+                var hoursAgo = Math.floor(minutesAgo / 60);
+                var daysAgo = Math.floor(hoursAgo / 24);
+                var yearsAgo = Math.floor(daysAgo / 365);
+                if (minutesAgo < 2) {
+                    statusRow.className = 'active-row';
+                    timeString += "Just now";
+                } else if (daysAgo > 365) {
+                    timeString += yearsAgo + " year" + (yearsAgo == 1 ? "" : "s") + " ago";
+                } else if (daysAgo > 0) {
+                    timeString += daysAgo + " day" + (daysAgo == 1 ? "" : "s") + " ago";
+                } else if (hoursAgo > 0) {
+                    timeString += hoursAgo + " hour" + (hoursAgo == 1 ? "" : "s") + " ago";
+                } else {
+                    timeString += minutesAgo + " minute" + (minutesAgo == 1 ? "" : "s") + " ago";
+                }
+
+                const lastActive = document.createElement('div');
+                lastActive.className = 'last-active';
+                lastActive.textContent = timeString;
+                
+                const chatBtn = document.createElement('button');
+                chatBtn.className = 'chat-btn';
+                chatBtn.textContent = 'Chat';
+                chatBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    // Add chat functionality here
+                };
+                
+                userInfo.appendChild(userName);
+                userInfo.appendChild(lastActive);
+                
+                statusRow.appendChild(userIcon);
+                statusRow.appendChild(userInfo);
+                // statusRow.appendChild(chatBtn);
+                
+                // statusRow.onclick = () => {
+                //     window.location.href = `projects.html?email=${user.email}`;
+                // };
+                
+                container.appendChild(statusRow);
+            });
+        });
+}
+
 load();

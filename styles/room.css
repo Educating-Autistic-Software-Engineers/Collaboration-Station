@@ -23,7 +23,7 @@
 }
 
 
-#members__container {
+.right_container {
   /* background-color: #262625;
   border-right: 1px solid #797a79;
   overflow-y: auto;
@@ -33,18 +33,18 @@
   height: 100%;
   z-index: 999; */
 
-  top: 72px; 
+  top: 80px; 
   height: calc(100vh - 159px);
   background-color: #262625;
   right: 0;
   position: absolute;
-  width: 301px;
+  width: 303px;
   overflow-y: auto;
   border-left: 1px solid #111;
   display: none;
   z-index: 2;
 }
-  
+
 
 #members__count {
 
@@ -106,14 +106,19 @@
   right: 3px;
 }
 
-#expand-btn, #revert-btn {
-  display: block;
-  /* margin: 10px auto; */
-  padding: 10px 20px;
-  background-color: #845695;
-  color: white;
-  border: none;
-  cursor: pointer;
+
+
+#expand-btn,
+#revert-btn {
+    background: transparent;
+    border: none;
+    color: #ede0e0;
+}
+
+#expand-btn:hover,
+#revert-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
 }
 
 #expand-btn { display: block; }
@@ -152,8 +157,38 @@
 }
 
 #nav__links {
-  gap: 2rem;
-  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+#nav__links > * {
+  transition: all 0.3s ease;
+  cursor: pointer;
+  padding: 0.75rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#nav__links img, 
+#nav__links button {
+  background: transparent;
+  border: none;
+  opacity: 0.7;
+}
+
+#nav__links img:hover, 
+#nav__links button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 #right_bar {
@@ -162,21 +197,20 @@
   position: relative;
 }
 
-#messageCount {
-  position: relative;
-  top: -21px;
-  right: 12px;
-  background-color: red;
+.num_label {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: white;
   border-radius: 50%;
-  padding: 5px 10px;
-  font-size: 14px;
-  font-weight: bold;
-  display: inline;
-  justify-content: center;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  min-width: 20px;
+  height: 20px;
+  display: flex;
   align-items: center;
-  min-width: 11px;
-  height: 16px;
+  justify-content: center;
 }
 
 /* #messageCount::before {
@@ -276,6 +310,10 @@
   color: #707575;
 }
 
+#chat__button, 
+#members__button {
+    position: relative;
+}
 
 #stream__box{
   background-color: #3f434a;
@@ -331,7 +369,7 @@
   border-left: 1px solid #111;
   /* width: 250px; */
   position: relative;
-  top: 24px;
+  top: 5px;
   padding: 4px;
   overflow-y: auto;
   
@@ -490,44 +528,55 @@
   position: fixed;
   top: 5px;
   border-radius: 8px;
-  background-color: #1a1a1a60;
-  padding: 3px;
-  left: 45%;
-  display: none;
-  gap: 1rem;
-  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(15px);
+  border-radius: 12px;
+  padding: 0.5rem;
+  display: flex;
+  gap: 0.75rem;
+  
+  left: 35%;
+  align-items: center;
 }
 
-.stream__actions a,
 .stream__actions button {
-  cursor: pointer;
-  background-color: #262625;
-  color: #fff;
+  background: transparent;
   border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.5rem 1rem;
-  border-radius: 5px;
-  transition: all 0.2s ease-in-out;
+  transition: all 0.3s ease;
+  opacity: 0.7;
 }
 
-.stream__actions a svg,
+.stream__actions button:hover,
+.stream__actions button.active {
+  background: rgba(255, 255, 255, 0.1);
+  opacity: 1;
+  transform: scale(1.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 .stream__actions button svg {
   width: 1.5rem;
   height: 1.5rem;
   fill: #ede0e0;
 }
 
-.stream__actions a.active,
-.stream__actions button.active,
-.stream__actions a:hover,
-.stream__actions button:hover {
-  background-color: #845695;
-}
-
 .muted {
   color: black;
+}
+
+#mute-camera-btn,
+#mute-mic-btn {
+    background-color: rgba(255, 80, 80, 0.2) !important;
+}
+
+#mute-camera-btn:hover,
+#mute-mic-btn:hover {
+    background-color: rgba(255, 80, 80, 0.4) !important;
 }
 
 #join-btn{
@@ -552,4 +601,218 @@
   position: absolute;
   left: 0;
   cursor: pointer;
+}
+
+.tutBtn {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  margin: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: calc(100% - 2rem);
+}
+
+.tutBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.4);
+}
+
+/* Add Member Button */
+#add-member-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    border: none;
+    padding: 0.75rem 1.5rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    margin: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: calc(100% - 2rem);
+}
+
+#add-member-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.4);
+}
+
+#break-btn {
+  background: linear-gradient(135deg, #4edbcce8 0%, #439feb 100%);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  margin: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: calc(100% - 2rem);
+}
+
+#end-meet-btn {
+  background: linear-gradient(135deg, #db574ee8 0%, #9e2024 100%);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  margin: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: calc(100% - 2rem);
+}
+
+#pause_overlay {
+  visibility: hidden;
+  position: absolute; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  background-color: rgba(0, 0, 0, 0.5); 
+  display: flex; 
+  justify-content: center; 
+  align-items: center; 
+  color: white; 
+  font-size: 2em;
+}
+
+#break-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px -1px rgba(99, 205, 241, 0.4);
+}
+
+#end-meet-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px -1px rgba(241, 99, 130, 0.4);
+}
+
+/* Add Member Popup */
+#add-member-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(15, 23, 42, 0.9);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    width: 400px;
+    padding: 2rem;
+    z-index: 1000;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+#add-member-popup h2 {
+    color: #fff;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+#add-member-popup input {
+    width: 92%;
+    padding: 0.75rem 1rem;
+    background: rgba(5, 11, 31, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    margin-bottom: 1rem;
+}
+
+#add-member-popup input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+#add-member-popup .popup-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+#add-member-popup .popup-actions button {
+    flex: 1;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+#add-member-popup .popup-actions .cancel-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: none;
+}
+
+#add-member-popup .popup-actions .add-btn {
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: #fff;
+    border: none;
+}
+
+#add-member-popup .popup-actions .cancel-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+#add-member-popup .popup-actions .add-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.4);
+}
+
+.dropdown-header {
+  background: rgba(15, 23, 42, 0.8);
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.3s ease;
+  margin: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: calc(100% - 2rem);
+}
+
+.dropdown-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out;
+}
+
+.dropdown-content.active {
+  max-height: 500px;
+}
+
+.chevron {
+  transition: transform 0.3s ease;
+}
+
+.chevron.active {
+  transform: rotate(180deg);
 }

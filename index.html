@@ -1,57 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <meta charset='utf-8'>
-    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
-    <title>Room</title>
-    <meta name='viewport' content='width=device-width, initial-scale=1'>
-    <link rel='stylesheet' type='text/css' media='screen' href='styles/main.css'>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaboration Station</title>
     <link rel='stylesheet' type='text/css' media='screen' href='styles/lobby.css'>
 </head>
 <body>
-
-    
     <div class="stars"></div>
-    <div class="twinkling"></div>
-
-    <header id="nav">
-       <div class="nav--list">
-            <a href="https://www.edase.org" target="_blank">
-                <h3 id="logo">
-                    <img src="./images/logo.svg" alt="Site Logo">
-                    <span>Collaboration Station</span>
-                </h3>
-            </a>
-       </div>
-
-        <button onclick="newAuth()">New Auth</button> 
-        
+    <div class="planet"></div>
+    
+    <header>
+        <a href="https://www.collaborationstation.dev" id="logo">
+            <img src="./images/logo.svg" alt="Logo">
+            <span>Collaboration Station</span>
+        </a>
     </header>
 
-    <main id="room__lobby__container">
-
-
-        <div id="form__container">
- 
-            <form id="lobby__form">
- 
-                 <div class="form__field__wrapper">
-                     <label id="label">Email</label>
-                     <input type="email" id="email" name="email" required placeholder="Enter your email..." />
-                 </div>
- 
-                 <div class="form__field__wrapper">
-                     <button type="submit">Submit 
-                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M13.025 1l-2.847 2.828 6.176 6.176h-16.354v3.992h16.354l-6.176 6.176 2.847 2.828 10.975-11z"/></svg>
-                    </button>
-                 </div>
+    <main>
+        <div class="login-container">
+            <h1 class="form-title">🚀 Launch! 🚀</h1>
+            <form id="login-form">
+                <div class="form-field">
+                    <label for="email">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="Enter your email address"
+                        required
+                    >
+                    <div style="height: 20px;"></div>
+                    <div style="display: flex;">
+                        <label for="password">Password</label>
+                        <!-- <a href="forgot-password.html" style="margin-left: auto;">Forgot Password?</a> -->
+                    </div>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter your password"
+                        required
+                    >
+                </div>
+                <button type="submit" class="submit-btn">
+                    Continue
+                </button>
             </form>
         </div>
     </main>
 
-    <image id="planet"  src="images/earth.png" width=100vw></image>
-    
-    
+    <script src="js/old_homepage.js"></script>
 </body>
-<script type="text/javascript" src="js/old_homepage.js"></script>
 </html>

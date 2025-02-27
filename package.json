@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "ably": "^2.6.0",
     "agora-extension-virtual-background": "^1.2.0"
   },
   "devDependencies": {

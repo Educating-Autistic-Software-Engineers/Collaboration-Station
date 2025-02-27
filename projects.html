@@ -3,181 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Space-themed Project Dashboard</title>
-    <style>
-        body, html {
-            font-family: 'Arial', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #000000;
-            color: #ffffff;
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
-            z-index: -1;
-            animation: stars 120s linear infinite;
-        }
-        @keyframes stars {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-100%); }
-        }
-        .container {
-            display: flex;
-            padding: 20px;
-            max-width: 100vw;
-            box-sizing: border-box;
-        }
-        .main-content {
-            flex: 3;
-            margin-right: 20px;
-            max-width: 75%;
-        }
-        .side-panel {
-            flex: 1;
-            background-color: rgba(20, 30, 60, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        .project-card {
-            background-color: rgba(30, 40, 80, 0.7);
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-        .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-        }
-        .selected-project {
-            display: flex;
-            flex-wrap: wrap;
-        }
-        .selected-project img {
-            max-width: 60%;
-            max-height: 40vh;
-            object-fit: cover;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-        }
-        .project-info {
-            padding-left: 20px;
-            flex: 1;
-            min-width: 200px;
-        }
-        .launch-btn {
-            background-color: #4a90e2;
-            color: #ffffff;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-        .launch-btn:hover {
-            background-color: #357ae8;
-        }
-        .project-scroll-container {
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-        }
-        .project-grid {
-            display: flex;
-            transition: transform 0.3s ease;
-            overflow-x: auto;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
-            padding: 10px 0;
-        }
-        .project-grid::-webkit-scrollbar {
-            display: none;
-        }
-        .project-thumbnail {
-            flex: 0 0 auto;
-            width: 150px;
-            height: 150px;
-            margin-right: 15px;
-            object-fit: cover;
-            border-radius: 10px;
-            cursor: pointer;
-            background-color: rgba(60, 80, 120, 0.5);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 10px;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        .project-thumbnail:hover {
-            transform: scale(1.05);
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-        }
-        .scroll-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(255,255,255,0.1);
-            border: none;
-            color: white;
-            padding: 10px;
-            cursor: pointer;
-            z-index: 10;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            transition: background-color 0.3s ease;
-        }
-        .scroll-btn:hover {
-            background-color: rgba(255,255,255,0.2);
-        }
-        #scroll-left, #scroll-left-class { left: 0; }
-        #scroll-right, #scroll-right-class { right: 0; }
-        .user-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .user-list li {
-            margin-bottom: 10px;
-            padding: 5px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
-        }
-        .user-list li:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-        h2 {
-            color: #4a90e2;
-            border-bottom: 2px solid #4a90e2;
-            padding-bottom: 5px;
-        }
-    </style>
+    <title>Collaboration Station</title>
+    <link rel='stylesheet' type='text/css' media='screen' href='styles/projects.css'>
 </head>
 <body>
+    <div class="stars"></div>
+    <header>
+        <a href="https://www.edase.org" target="_blank" id="logo">
+            <img src="./images/logo.svg" alt="Site Logo">
+            <span>Collaboration Station</span>
+        </a>
+        <button class="new-project-btn" onclick="addProject()">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            New Project
+        </button>
+    </header>
     <div class="container">
         <div class="main-content">
             <div class="project-card">
@@ -187,7 +29,7 @@
                 </div>
             </div>
             <div class="project-card">
-                <h2>Past Projects</h2>
+                <h2>My Projects</h2>
                 <div class="project-scroll-container">
                     <button id="scroll-left" class="scroll-btn">&lt;</button>
                     <div id="past-projects" class="project-grid">
@@ -197,7 +39,7 @@
                 </div>
             </div>
             <div class="project-card">
-                <h2>Class Projects</h2>
+                <h2>Shared with me!</h2>
                 <div class="project-scroll-container">
                     <button id="scroll-left-class" class="scroll-btn">&lt;</button>
                     <div id="class-projects" class="project-grid">
@@ -210,7 +52,7 @@
         <div class="side-panel">
             <h2>Other Users</h2>
             <ul id="user-list" class="user-list">
-                <!-- User list will be populated here by JavaScript -->
+                
             </ul>
         </div>
     </div>

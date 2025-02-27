@@ -50,18 +50,22 @@ function createStars() {
 // createStars();
 
 
-form.addEventListener('submit', async (e) => {
+document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
 
     let email = e.target.email.value;
+    let password = e.target.password.value;
     console.log(email);
 
-    // Here we would typically call an API to check the email
-    // For demonstration, let's assume a function `checkEmail` that checks if the email exists in DynamoDB
-    let emailExists =  await checkEmail(email);
+    let emailExists = await checkEmail(email);
 
     if (emailExists) {
-        // Redirect to the next page if email exists
+
+        if (password !== "password") {
+            alert("Incorrect Password. Please try again.");
+            return;
+        }
+
         if (redirect && redirect != "null") {
             const viewType = urlParams.get('view') == "true" ? "view" : "project";
             window.location = `room.html?${viewType}=${redirect}`;
@@ -72,12 +76,12 @@ form.addEventListener('submit', async (e) => {
         // Show an error message if the email does not exist
         alert('Email not found. Please contact prodegh@clemson.edu to sign up.');
     }
+
+
 });
 
 
 async function checkEmail(email) {
-    // // Placeholder for actual API call to check email in DynamoDB
-    // // Replace with real implementation
     // return new Promise((resolve) => {
     //     setTimeout(() => {
     //         // Simulate checking email; return true if email exists, false otherwise
