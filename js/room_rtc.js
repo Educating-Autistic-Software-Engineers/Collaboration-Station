@@ -1,24 +1,22 @@
-// get room id from env.
-const APP_ID = "0a3fbd20418b4fd28f053c8d993521e0"
- 
-let uid = sessionStorage.getItem('uid')
+
+let uid = sessionStorage.getItem('uid');
 if(!uid){
-    uid = String(Math.floor(Math.random() * 10000))
-    sessionStorage.setItem('uid', uid)
-}
- 
-let token = null;
-let client;
- 
-let rtmClient;
-let channel;
- 
-//let roomId = urlParams.get('room')
- 
-if(!roomId){
-    roomId = 'main'
+    uid = String(Math.floor(Math.random() * 10000));
+    sessionStorage.setItem('uid', uid);
 }
 
+let token = null;
+let client;
+let meetingSession;
+let roomId = urlParams.get('project')
+
+const logger = new ChimeSDK.ConsoleLogger(
+    "ChimeMeetingLogs",
+    ChimeSDK.LogLevel.INFO
+);
+const deviceController = new ChimeSDK.DefaultDeviceController(logger);
+
+// Keep color functionality from original code
 const colors = [
     'red', 'green', 'blue', 'orange', 'purple',
     'pink', 'cyan', 'salmon', 'olive', 'navy', 'teal',
@@ -26,74 +24,161 @@ const colors = [
     'coral', 'darkorange', 'darkseagreen', 'darkslateblue', 'darkturquoise',
     'darkgoldenrod', 'darkgreen', 'darkorange', 'fuchsia', 'gold', 'indigo', 
 ];
- 
+
 function getRandomColor() {
     const randomIndex = Math.floor(Math.random() * colors.length);
     return colors[randomIndex];
 }
-let randomColor=getRandomColor();
-sessionStorage.setItem('randomColor', randomColor)
- 
-let displayName = sessionStorage.getItem('display_name')
-console.log("dp is", displayName)
+
+let randomColor = getRandomColor();
+sessionStorage.setItem('randomColor', randomColor);
+
+let displayName = sessionStorage.getItem('display_name');
+console.log("dp is", displayName);
 
 let activeSpeaker = null;
- 
-let localTracks = []
-let remoteUsers = {}
- 
+let localTracks = [];
+let remoteUsers = {};
+
 let localScreenTracks;
 let sharingScreen = false;
- 
-const virtualBackgroundExtension = new VirtualBackgroundExtension();
-console.log(virtualBackgroundExtension, "heic");
-AgoraRTC.registerExtensions([virtualBackgroundExtension]);
- 
+
+let meetingId = ""
+
+// Initialize room and join meeting
 let joinRoomInit = async () => {
-    return
 
-    rtmClient = await AgoraRTM.createInstance(APP_ID)
-    await rtmClient.login({uid,token})
- 
-    await rtmClient.addOrUpdateLocalUserAttributes({'name':displayName})
-    await rtmClient.addOrUpdateLocalUserAttributes({'nameColor':randomColor})
- 
-    channel = await rtmClient.createChannel(roomId)
-    await channel.join()
- 
-    channel.on('MemberJoined', handleMemberJoined)
-    channel.on('MemberLeft', handleMemberLeft)
-    channel.on('ChannelMessage', handleChannelMessage)
+    // wait for ably instance ablyInstance (already defined)
+    // to be ready before proceeding
+    await ablyInstance.connection.once('connected');
 
- 
-    client = AgoraRTC.createClient({mode:'rtc', codec:'vp8'})
-    await client.join(APP_ID, roomId, token, uid)
+    try {
 
-    joinStream()
- 
-    client.on('user-published', handleUserPublished)
-    client.on('user-left', handleUserLeft)
- 
-    client.enableAudioVolumeIndicator();
-    client.on('volume-indicator', handleVolumeIndicator);
-    
-}
+        const members = await ablyChannel.presence.get();
 
+        if (members.length === 0) {
+            const createResponse = await fetch('https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/create-meeting', {
+                method: 'POST',
+                headers: {
+                }
+            });
+            const createData = await createResponse.json();
+            meetingId = createData.Meeting.MeetingId;
 
-function handleVolumeIndicator(volumes) {
-    let highestVolume = -Infinity;
-    let newActiveSpeaker = null;
+            await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+                method: 'PUT',
+                headers: {
+                    'Accept': '*/*',
+                },
+                body: JSON.stringify({ 
+                    room_id: roomId,
+                    meetingID: meetingId 
+                })
+            });
 
-    volumes.forEach(volume => {
-        if (volume.level > highestVolume) {
-            highestVolume = volume.level;
-            newActiveSpeaker = volume.uid;
+        } else {
+            const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB?roomId=${roomId}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            const data = await response.json();
+            console.log("JOINED MEETING", data);
+            meetingId = data.request.meetingID;
         }
-    });
-    
-    const threshold = 5;
 
-    if (newActiveSpeaker !== activeSpeaker) {
+        // Call backend to join meeting
+        const response = await fetch('https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/join-meeting', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                meetingId: meetingId, 
+                userId: displayName 
+            }),
+        });
+
+        const joinData = await response.json();
+
+        console.log("SUCC", joinData)
+        
+        const meetingInfo = { Meeting: joinData.Meeting }; 
+        const attendeeInfo = { Attendee: joinData.Attendee };
+        
+        // Configure meeting session
+        const configuration = new ChimeSDK.MeetingSessionConfiguration(
+            meetingInfo.Meeting,
+            attendeeInfo.Attendee
+        );
+        
+        meetingSession = new ChimeSDK.DefaultMeetingSession(
+            configuration,
+            logger,
+            deviceController
+        );
+
+        // Set up observers for video tiles and events
+        const observer = {
+            videoTileDidUpdate: (tileState) => {
+                if (!tileState.boundAttendeeId) {
+                    return;
+                }
+                updateTiles(meetingSession);
+                handleVolumeIndicator(); // Update volume indicators
+            },
+            
+            audioVideoDidStart: () => {
+                console.log('Meeting started successfully');
+            },
+            
+            connectionDidBecomePoor: () => {
+                console.log('Connection quality became poor');
+            },
+            
+            connectionDidSuggestStopVideo: () => {
+                console.log('Connection suggests stopping video');
+            }
+        };
+
+        const eventObserver = {
+            eventDidReceive(name, attributes) {
+                switch (name) {
+                    case 'meetingEnded':
+                        handleUserLeft();
+                        console.log("Meeting Ended", attributes);
+                        break;
+                    case 'meetingReconnected':
+                        console.log('Meeting Reconnected...');
+                        break;
+                }
+            }
+        };
+
+        // Add observers
+        meetingSession.audioVideo.addObserver(observer);
+        meetingSession.eventController.addObserver(eventObserver);
+
+        // Add volume indicator to emulate the original Agora functionality
+        meetingSession.audioVideo.realtimeSubscribeToVolumeIndicator(
+            (attendeeId, volume, muted, signalStrength) => {
+                if (volume > 0.5 && !muted) { // Threshold for "speaking"
+                    handleActiveVolumeIndicator(attendeeId, volume);
+                }
+            }
+        );
+
+        await joinStream();
+
+    } catch (error) {
+        console.error('Error initializing meeting:', error);
+    }
+};
+
+// Handle active speaker highlight (similar to original handleVolumeIndicator)
+function handleActiveVolumeIndicator(attendeeId, volume) {
+    if (activeSpeaker !== attendeeId && volume > 0.5) {
         if (activeSpeaker) {
             let previousSpeakerElement = document.getElementById(`user-container-${activeSpeaker}`);
             if (previousSpeakerElement) {
@@ -101,354 +186,328 @@ function handleVolumeIndicator(volumes) {
             }
         }
 
-        activeSpeaker = newActiveSpeaker;
+        activeSpeaker = attendeeId;
 
-        if (activeSpeaker) {
-            let currentSpeakerElement = document.getElementById(`user-container-${activeSpeaker}`);
-            if (currentSpeakerElement) {
-                currentSpeakerElement.classList.add('highlight');
-            }
+        let currentSpeakerElement = document.getElementById(`user-container-${activeSpeaker}`);
+        if (currentSpeakerElement) {
+            currentSpeakerElement.classList.add('highlight');
         }
     }
 
-    if (highestVolume <= threshold && activeSpeaker) {
+    if (volume <= 0.1 && activeSpeaker === attendeeId) {
         let currentSpeakerElement = document.getElementById(`user-container-${activeSpeaker}`);
         if (currentSpeakerElement) {
             currentSpeakerElement.classList.remove('highlight');
         }
         activeSpeaker = null;
     }
-
 }
 
-// const handleVolumeIndicator = () => {
-//     client.enableAudioVolumeIndicator();
-//     client.on("volume-indicator", volumes => {
-//         volumes.forEach(volume => {
-//             let playerElement = (uid == volume.uid) ? document.getElementById(`user-container-${uid}`) : document.getElementById(`user-container-${volume.uid}`);
-//             if (volume.level > 5) {
-//                 playerElement.classList.add("highlight");
-//             } else {
-//                 playerElement.classList.remove("highlight");
-//             }
-//         });
-//     });
-// };
- 
-const applyVirtualBackground = async (track) => {
-    // await virtualBackgroundExtension.load();
-    // const processor = virtualBackgroundExtension.createProcessor();
-   
-    // track.setExtension(virtualBackgroundExtension);
-    // track.setVideoProcessor(processor);
- 
-    // // Set background blur
-    // processor.setOptions({
-    //     backgroundType: "blur",
-    //     blurDegree: 3 // 1 for light blur, 2 for medium blur, 3 for heavy blur
-    // });
- 
-    // processor.enable();
- 
-    const extension = new VirtualBackgroundExtension();
-    AgoraRTC.registerExtensions([extension]);
-    let processor = extension.createProcessor();
-    await processor.init();
-    track.pipe(processor).pipe(track.processorDestination);
-    processor.setOptions({type: 'blur', blurDegree: 3});
-    await processor.enable();
-};
- 
+// Volume indicator for all participants
+function handleVolumeIndicator() {
+    meetingSession.audioVideo.realtimeSubscribeToVolumeIndicator(
+        (attendeeId, volume, muted, signalStrength) => {
+            const threshold = 0.05;
+            let playerElement = document.getElementById(`user-container-${attendeeId}`);
+            
+            if (playerElement) {
+                if (volume > threshold && !muted) {
+                    playerElement.classList.add("highlight");
+                } else {
+                    playerElement.classList.remove("highlight");
+                }
+            }
+        }
+    );
+}
+
+// Join stream and set up local tracks
 let joinStream = async () => {
-    console.log("Hisdf")
-    document.getElementById('join-btn').style.display = 'none'
-    document.getElementsByClassName('stream__actions')[0].style.display = 'flex'
- 
-    localTracks = await AgoraRTC.createMicrophoneAndCameraTracks({}, {encoderConfig:{
-        width:{min:640, ideal:1920, max:1920},
-        height:{min:480, ideal:1080, max:1080}
-    }})
+    document.getElementById('join-btn').style.display = 'none';
+    document.getElementsByClassName('stream__actions')[0].style.display = 'flex';
 
-    let role=sessionStorage.getItem('role')
-    console.log('ROLEIS', role);
-    if(role==='TA') {
-        document.getElementById("mute-all-btn").style.display='block'
+    try {
+        // Get audio/video devices
+        const audioInputs = await meetingSession.audioVideo.listAudioInputDevices();
+        const videoInputs = await meetingSession.audioVideo.listVideoInputDevices();
+
+        if (audioInputs.length > 0) {
+            await meetingSession.audioVideo.startAudioInput(audioInputs[0].deviceId);
+            localTracks[0] = {
+                setMuted: async (muted) => {
+                    if (muted) {
+                        await meetingSession.audioVideo.realtimeMuteLocalAudio();
+                    } else {
+                        await meetingSession.audioVideo.realtimeUnmuteLocalAudio();
+                    }
+                    return true;
+                },
+                muted: false
+            };
+        }
+
+        if (videoInputs.length > 0) {
+            await meetingSession.audioVideo.startVideoInput(videoInputs[0].deviceId);
+            localTracks[1] = {
+                setMuted: async (muted) => {
+                    if (muted) {
+                        await meetingSession.audioVideo.stopLocalVideoTile();
+                    } else {
+                        await meetingSession.audioVideo.startLocalVideoTile();
+
+                        setTimeout(() => {
+                            const localTile = meetingSession.audioVideo.getLocalVideoTile();
+                            if (localTile) {
+                                const localVideoElement = document.getElementById(`video-${uid}`);
+                                if (localVideoElement) {
+                                    localVideoElement.style.width = "100%";
+                                    localVideoElement.style.height = "100%";
+                                    localVideoElement.style.objectFit = "cover";
+                                }
+                            }
+                        }, 500);
+                    }
+                    return true;
+                },
+                muted: false
+            };
+        }
+
+        // Start the meeting
+        meetingSession.audioVideo.start();
+        meetingSession.audioVideo.startLocalVideoTile();
+        
+        // Handle role-based UI elements
+        let role = sessionStorage.getItem('role');
+        console.log('ROLE IS', role);
+        if (role === 'TA') {
+            document.getElementById("mute-all-btn").style.display = 'block';
+        }
+
+    } catch (error) {
+        console.error('Error joining stream:', error);
     }
- 
-    let player = `<div class="video__container" id="user-container-${uid}">
-                   
-                    <div class="video-player" id="user-${uid}">
-                        <div id="member_name" >${sessionStorage.getItem("display_name")}
-                            <span id="mute-video-icon" style="display:none;">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-mic-mute-fill" viewBox="0 0 16 16">
-                                    <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4 4 0 0 0 12 8V7a.5.5 0 0 1 1 0zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a5 5 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4m3-9v4.879L5.158 2.037A3.001 3.001 0 0 1 11 3"/>
-                                    <path d="M9.486 10.607 5 6.12V8a3 3 0 0 0 4.486 2.607m-7.84-9.253 12 12 .708-.708-12-12z"/>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-                    
+};
 
-                 </div>
-                 
-                 `
-                 
- 
-    document.getElementById('stream__container').insertAdjacentHTML('beforeend', player)
-    // document.getElementById(`user-container-${uid}`).addEventListener('click', expandVideoFrame)
- 
-    await applyVirtualBackground(localTracks[1]);
- 
-    localTracks[1].play(`user-${uid}`)
-    await client.publish([localTracks[0], localTracks[1]])
+// Update video tiles for all participants
+function updateTiles(meetingSession) {
+    const tiles = meetingSession.audioVideo.getAllVideoTiles();
+    
+    tiles.forEach(tile => {
+        const tileState = tile.state();
+        const tileId = tileState.tileId;
+        const attendeeId = tileState.boundAttendeeId;
+        
+        let divElement = document.getElementById(`user-container-${attendeeId}`);
+        
+        // If divElement not found, create it
+        if (!divElement) {
+            // Extract user name if available
+            let userName = "Unknown User";
+            if (tileState.boundExternalUserId) {
+                userName = tileState.boundExternalUserId.split('#')[0];
+            }
+            
+            // Create player container
+            divElement = `<div class="video__container" id="user-container-${attendeeId}">
+                            <div class="video-player" id="user-${attendeeId}">
+                                <div id="remote-member_name">${userName}</div>
+                                <button class="remove__btn" style="display: none;" onclick="removeParticipant('${attendeeId}')">Remove</button>
+                            </div>
+                        </div>`;
+            
+            document.getElementById('stream__container').insertAdjacentHTML('beforeend', divElement);
+            
+            // Create and bind video element
+            const videoElement = document.createElement('video');
+            videoElement.id = `video-${attendeeId}`;
+            videoElement.style.width = "100%";
+            videoElement.style.height = "100%";
+            videoElement.style.objectFit = "cover";
+            document.getElementById(`user-${attendeeId}`).appendChild(videoElement);
+            
+            meetingSession.audioVideo.bindVideoElement(tileId, videoElement);
+        }
+    });
 }
 
- 
+// Handle user left
+let handleUserLeft = async (attendeeId) => {
+    delete remoteUsers[attendeeId];
+    
+    let item = document.getElementById(`user-container-${attendeeId}`);
+    if (item) {
+        item.remove();
+    }
+};
+
+// Toggle microphone
+let toggleMic = async (e) => {
+    let button = e.currentTarget;
+    
+    await localTracks[0].setMuted(true);
+    button.classList.remove('active');
+    
+    document.getElementById("mute-mic-btn").style.display = 'block';
+    document.getElementById("mic-btn").style.display = 'none';
+    document.getElementById("mute-video-icon").style.display = 'inline';
+};
+
+let toggleMuteMic = async (e) => {
+    let button = e.currentTarget;
+    
+    if (localTracks[0].muted) {
+        await localTracks[0].setMuted(false);
+        document.getElementById("mic-btn").style.display = 'block';
+        document.getElementById("mute-mic-btn").style.display = 'none';
+        document.getElementById("mic-btn").classList.add('active');
+        document.getElementById("mute-video-icon").style.display = 'none';
+    }
+};
+
+// Toggle camera
+let toggleCamera = async (e) => {
+    let button = e.currentTarget;
+    
+    await localTracks[1].setMuted(true);
+    button.classList.remove('active');
+    
+    document.getElementById("mute-camera-btn").style.display = 'block';
+    document.getElementById("camera-btn").style.display = 'none';
+};
+
+let toggleMuteCamera = async (e) => {
+    let button = e.currentTarget;
+    
+    if (localTracks[1].muted) {
+        await localTracks[1].setMuted(false);
+        document.getElementById("camera-btn").style.display = 'block';
+        document.getElementById("mute-camera-btn").style.display = 'none';
+        document.getElementById("camera-btn").classList.add('active');
+    }
+};
+
+// Toggle screen sharing
+let toggleScreen = async (e) => {
+    let screenButton = e.currentTarget;
+    let cameraButton = document.getElementById('camera-btn');
+    
+    if (!sharingScreen) {
+        sharingScreen = true;
+        
+        screenButton.classList.add('active');
+        cameraButton.classList.remove('active');
+        cameraButton.style.display = 'none';
+        
+        try {
+            // Stop camera video
+            await meetingSession.audioVideo.stopVideoInput();
+            
+            // Start screen capture
+            const screenStream = await navigator.mediaDevices.getDisplayMedia({
+                video: true
+            });
+            
+            // Use the first video track from screen sharing
+            const screenTrack = screenStream.getVideoTracks()[0];
+            
+            await meetingSession.audioVideo.startVideoInput(screenTrack);
+            meetingSession.audioVideo.startLocalVideoTile();
+            
+            // Create screen sharing track object for interface compatibility
+            localScreenTracks = {
+                track: screenTrack,
+                stop: () => {
+                    screenTrack.stop();
+                }
+            };
+            
+            // Update UI for screen sharing
+            document.getElementById(`user-container-${uid}`).remove();
+            displayFrame.style.display = 'block';
+            
+            let player = `<div class="video__container" id="user-container-${uid}">
+                    <div class="video-player" id="user-${uid}"></div>
+                </div>`;
+            
+            displayFrame.insertAdjacentHTML('beforeend', player);
+            
+            // Add event listener for when screen sharing ends
+            screenTrack.addEventListener('ended', () => {
+                toggleScreen({ currentTarget: screenButton });
+            });
+            
+        } catch (error) {
+            console.error('Error starting screen share:', error);
+            sharingScreen = false;
+            screenButton.classList.remove('active');
+            cameraButton.style.display = 'block';
+        }
+        
+    } else {
+        sharingScreen = false;
+        cameraButton.style.display = 'block';
+        screenButton.classList.remove('active');
+        
+        if (localScreenTracks) {
+            localScreenTracks.stop();
+        }
+        
+        document.getElementById(`user-container-${uid}`).remove();
+        
+        // Restart camera
+        await switchToCamera();
+    }
+};
+
+// Switch back to camera from screen sharing
 let switchToCamera = async () => {
     let player = `<div class="video__container" id="user-container-${uid}">
                     <div class="video-player" id="user-${uid}"></div>
                  </div>
-                 <div>${sessionStorage.getItem("display_name")}</div>`
-    displayFrame.insertAdjacentHTML('beforeend', player)
- 
-    await localTracks[0].setMuted(true)
-    await localTracks[1].setMuted(true)
- 
-    document.getElementById('mic-btn').classList.remove('active')
-    // document.getElementById('screen-btn').classList.remove('active')
- 
-    localTracks[1].play(`user-${uid}`)
-    await client.publish([localTracks[1]])
-}
+                 <div>${sessionStorage.getItem("display_name")}</div>`;
+    
+    displayFrame.insertAdjacentHTML('beforeend', player);
+    
+    // List video devices and restart camera
+    const videoInputs = await meetingSession.audioVideo.listVideoInputDevices();
+    if (videoInputs.length > 0) {
+        await meetingSession.audioVideo.startVideoInput(videoInputs[0].deviceId);
+        meetingSession.audioVideo.startLocalVideoTile();
+    }
+    
+    document.getElementById('mic-btn').classList.remove('active');
+};
 
-
-let handleUserPublished = async (user, mediaType) => {
-    return
- 
- 
-    remoteUsers[user.uid] = user
- 
- 
-    let {name} = await rtmClient.getUserAttributesByKeys(user.uid, ['name'])
- 
-    console.log(name);
- 
- 
-    await client.subscribe(user, mediaType)
- 
-    let player = document.getElementById(`user-container-${user.uid}`)
-    if(player === null){
-        let memberName= name || "Unknown User"
-        player = `<div class="video__container" id="user-container-${user.uid}">
-                    <div class="video-player" id="user-${user.uid}">
-                    <div id="remote-member_name">${memberName}
-                    </div>
-                    <button class="remove__btn" style="display: none;" onclick="removeParticipant('${user.uid}')">Remove</button>
-                    </div> 
-                    </div>
-                    `
-                    // <span><img src="images/mic.png" id="self-mute-person" onclick="toggleMic(event)"></span>
-                    // <span id="mute-video-icon" style="display:none;">
-                    //     <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" class="bi bi-mic-mute-fill" viewBox="0 0 16 16">
-                    //         <path d="M13 8c0 .564-.094 1.107-.266 1.613l-.814-.814A4 4 0 0 0 12 8V7a.5.5 0 0 1 1 0zm-5 4c.818 0 1.578-.245 2.212-.667l.718.719a5 5 0 0 1-2.43.923V15h3a.5.5 0 0 1 0 1h-7a.5.5 0 0 1 0-1h3v-2.025A5 5 0 0 1 3 8V7a.5.5 0 0 1 1 0v1a4 4 0 0 0 4 4m3-9v4.879L5.158 2.037A3.001 3.001 0 0 1 11 3"/>
-                    //         <path d="M9.486 10.607 5 6.12V8a3 3 0 0 0 4.486 2.607m-7.84-9.253 12 12 .708-.708-12-12z"/>
-                    //     </svg>
-                    // </span>
- 
-        document.getElementById('stream__container').insertAdjacentHTML('beforeend', player)
-        document.getElementById(`user-container-${user.uid}`).addEventListener('click', expandVideoFrame)
-   
-    }
- 
-    if(displayFrame.style.display){
-        let videoFrame = document.getElementById(`user-container-${user.uid}`)
-        videoFrame.style.height = '100px'
-        videoFrame.style.width = '100px'
-    }
- 
-    if(mediaType === 'video'){
-        user.videoTrack.play(`user-${user.uid}`)
-    }
- 
-    if(mediaType === 'audio'){
-        user.audioTrack.play()
-    }
- 
-}
- 
-let handleUserLeft = async (user) => {
-    delete remoteUsers[user.uid]
-    let item = document.getElementById(`user-container-${user.uid}`)
-    if(item){
-        item.remove()
-    }
- 
-    if(userIdInDisplayFrame === `user-container-${user.uid}`){
-        displayFrame.style.display = null
-       
-        let videoFrames = document.getElementsByClassName('video__container')
- 
-        for(let i = 0; videoFrames.length > i; i++){
-            videoFrames[i].style.height = '300px'
-            videoFrames[i].style.width = '300px'
-        }
-    }
-}
- 
-let toggleMic = async (e) => {
-    let button = e.currentTarget
-
-    console.log(e);
- 
-    // if(localTracks[0].muted){
-    //     await localTracks[0].setMuted(false)
-    //     console.log(localTracks[0]);
-    //     // localTracks[0]._mediaStreamTrack.enabled = true;
-    //     button.classList.add('active')
-       
-    await localTracks[0].setMuted(true)
-    // localTracks[0]._mediaStreamTrack.enabled = false;
-    button.classList.remove('active')
-
-    document.getElementById("mute-mic-btn").style.display='block'
-    document.getElementById("mic-btn").style.display='none'
-    document.getElementById("mute-video-icon").style.display='inline'
-
-}
-
-let toggleMuteMic = async (e) => {
-    let button = e.currentTarget
- 
-    console.log(e);
- 
-    if(localTracks[0].muted){
-        await localTracks[0].setMuted(false)
-        console.log(localTracks[0]);
-        // localTracks[0]._mediaStreamTrack.enabled = true;
-        document.getElementById("mic-btn").style.display='block'
-        document.getElementById("mute-mic-btn").style.display='none'
-        document.getElementById("mic-btn").classList.add('active')
-        document.getElementById("mute-video-icon").style.display='none'
-    }
-}
- 
-let toggleCamera = async (e) => {
-    let button = e.currentTarget
- 
-    // if(localTracks[1].muted){
-    //     await localTracks[1].setMuted(false)
-    //     button.classList.add('active')
- 
-    // }else{
-    await localTracks[1].setMuted(true)
-    button.classList.remove('active')
-
-    document.getElementById("mute-camera-btn").style.display='block'
-    document.getElementById("camera-btn").style.display='none'
-}
-
-let toggleMuteCamera = async (e) => {
-    let button = e.currentTarget
- 
-    if(localTracks[1].muted){
-        await localTracks[1].setMuted(false)
-        document.getElementById("camera-btn").style.display='block'
-        document.getElementById("mute-camera-btn").style.display='none'
-        document.getElementById("camera-btn").classList.add('active')
-        // button.classList.add('active')
- 
-    }
-}
- 
- 
-let toggleScreen = async (e) => {
-    let screenButton = e.currentTarget
-    let cameraButton = document.getElementById('camera-btn')
- 
-    if(!sharingScreen){
-        sharingScreen = true
- 
-        screenButton.classList.add('active')
-        cameraButton.classList.remove('active')
-        cameraButton.style.display = 'none'
- 
-        localScreenTracks = await AgoraRTC.createScreenVideoTrack()
- 
-        document.getElementById(`user-container-${uid}`).remove()
-        displayFrame.style.display = 'block'
- 
-        let player = `<div class="video__container" id="user-container-${uid}">
-                <div class="video-player" id="user-${uid}"></div>
-            </div>`
- 
-        displayFrame.insertAdjacentHTML('beforeend', player)
-        document.getElementById(`user-container-${uid}`).addEventListener('click', expandVideoFrame)
- 
-        userIdInDisplayFrame = `user-container-${uid}`
-        localScreenTracks.play(`user-${uid}`)
- 
-        await client.unpublish([localTracks[1]])
-        await client.publish([localScreenTracks])
- 
-        let videoFrames = document.getElementsByClassName('video__container')
-        for(let i = 0; videoFrames.length > i; i++){
-            if(videoFrames[i].id != userIdInDisplayFrame){
-              videoFrames[i].style.height = '100px'
-              videoFrames[i].style.width = '100px'
-            }
-          }
- 
- 
-    }else{
-        sharingScreen = false
-        cameraButton.style.display = 'block'
-        document.getElementById(`user-container-${uid}`).remove()
-        await client.unpublish([localScreenTracks])
- 
-        switchToCamera()
-    }
-}
- 
+// Leave meeting
 let leaveStream = async (e) => {
-    e.preventDefault()
- 
-    document.getElementById('join-btn').style.display = 'block'
-    document.getElementsByClassName('stream__actions')[0].style.display = 'none'
- 
-    for(let i = 0; localTracks.length > i; i++){
-        localTracks[i].stop()
-        localTracks[i].close()
+    e.preventDefault();
+    
+    document.getElementById('join-btn').style.display = 'block';
+    document.getElementsByClassName('stream__actions')[0].style.display = 'none';
+    
+    if (meetingSession) {
+        meetingSession.audioVideo.stop();
+        meetingSession = null;
     }
- 
-    await client.unpublish([localTracks[0], localTracks[1]])
- 
-    if(localScreenTracks){
-        await client.unpublish([localScreenTracks])
+    
+    if (localScreenTracks) {
+        localScreenTracks.stop();
     }
- 
-    document.getElementById(`user-container-${uid}`).remove()
- 
-    if(userIdInDisplayFrame === `user-container-${uid}`){
-        displayFrame.style.display = null
- 
-        for(let i = 0; videoFrames.length > i; i++){
-            videoFrames[i].style.height = '300px'
-            videoFrames[i].style.width = '300px'
-        }
-    }
- 
-    channel.sendMessage({text:JSON.stringify({'type':'user_left', 'uid':uid})})
-}
- 
- 
- 
-document.getElementById('camera-btn').addEventListener('click', toggleCamera)
-document.getElementById('mic-btn').addEventListener('click', toggleMic)
-// document.getElementById('screen-btn').addEventListener('click', toggleScreen)
-document.getElementById('join-btn').addEventListener('click', joinStream)
-//document.getElementById('leave-btn').addEventListener('click', leaveStream)
-document.getElementById('mute-mic-btn').addEventListener('click', toggleMuteMic)
-document.getElementById('mute-camera-btn').addEventListener('click', toggleMuteCamera)
- 
- 
-joinRoomInit()
+    
+    document.getElementById(`user-container-${uid}`).remove();
+    document.getElementById('stream__container').innerHTML = '';
+};
+
+// Register event listeners
+document.getElementById('camera-btn').addEventListener('click', toggleCamera);
+document.getElementById('mic-btn').addEventListener('click', toggleMic);
+document.getElementById('join-btn').addEventListener('click', joinStream);
+document.getElementById('mute-mic-btn').addEventListener('click', toggleMuteMic);
+document.getElementById('mute-camera-btn').addEventListener('click', toggleMuteCamera);
+// Uncomment if screen sharing button exists
+// document.getElementById('screen-btn').addEventListener('click', toggleScreen);
+// document.getElementById('leave-btn').addEventListener('click', leaveStream);
+
+// Initialize on page load
+joinRoomInit();

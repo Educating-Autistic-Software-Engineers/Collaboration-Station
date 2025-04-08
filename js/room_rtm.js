@@ -7,11 +7,15 @@ ablyInstance.connection.once('connected').then(() => {
     console.log('Connected to Ably!!!!!!!!')
 })
 
-const roomName = "room_" + sessionStorage.getItem('room_id');
+// get project URL id
+const queryString = window.location.search;
+const urlParams = new URLSearchParams(queryString);
+const roomName = "room_" + urlParams.get('project');
 console.log("Joining room " + roomName);
 const ablyChannel = ablyInstance.channels.get( roomName );
 const innerChannel = ablyInstance.channels.get( roomName + "_inner" );
 
+let isFirstMember = true;
 let canSendMessages = true;
 let unreadMessages = 0;
 let connectedUsers = {};
@@ -342,8 +346,6 @@ let sendMessage = async (e) => {
 
     const displayName = sessionStorage.getItem('display_name');
 
-    const queryString = window.location.search
-    const urlParams = new URLSearchParams(queryString)
     let projectId = urlParams.get('project')
     const date = new Date();
     let readableDate = date.toLocaleString('en-US', {

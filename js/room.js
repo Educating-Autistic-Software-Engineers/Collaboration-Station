@@ -49,10 +49,6 @@ function decrypt(encryptedNumber, key) {
   return decryptedDigits.join('');
 }
 
-
-const queryString = window.location.search
-const urlParams = new URLSearchParams(queryString)
-let roomId = urlParams.get('project')
 let viewType = "space"
 
 console.log(sessionStorage)

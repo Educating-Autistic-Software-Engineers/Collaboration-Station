@@ -130,6 +130,28 @@
                 </button>
                 
                 <div id="collab-content" class="dropdown-content">
+                    <button class="tutBtn" onclick="toggleVideo('_accessCS')">
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                            <path d="M8 5v14l10-7-10-7z" fill="#ede0e0"/>
+                        </svg>
+                        Accessing Collaboration Station
+                    </button>
+                    <video id="video_accessCS" controls width="300" style="display: none;" allowPictureInPicture>
+                        <source src="https://collabtutorials.s3.us-east-2.amazonaws.com/Accessing_Collab_Station.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
+                    <button class="tutBtn" onclick="toggleVideo('_navPP')">
+                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
+                            <path d="M8 5v14l10-7-10-7z" fill="#ede0e0"/>
+                        </svg>
+                        Navigating Projects Page
+                    </button>
+                    <video id="video_navPP" controls width="300" style="display: none;" allowPictureInPicture>
+                        <source src="https://collabtutorials.s3.us-east-2.amazonaws.com/Navigating_Projects_Page.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+
                     <button class="tutBtn" onclick="toggleVideo('3')">
                         <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
                             <path d="M8 5v14l10-7-10-7z" fill="#ede0e0"/>
@@ -274,9 +296,10 @@
     
 </body>
 <script lang="text/javascript" src="https://cdn.ably.com/lib/ably.min-2.js"></script>
-<script src="js/AgoraRTC_N-4.21.0.js"></script>
+<!-- <script src="js/AgoraRTC_N-4.21.0.js"></script>
 <script src="js/agora-extension-vb.js"></script>
-<script src="js/agora-rtm-sdk-1.4.4.js"></script>
+<script src="js/agora-rtm-sdk-1.4.4.js"></script> -->
+<script src="js/chime-sdk.js"></script>
 <!-- <script src="js/agora-rtm-2.1.9.min.js"></script> -->
 <!-- <script src="js/agora_cloud_recording.js"></script> -->
 <script src="js/room_rtm.js"></script>
