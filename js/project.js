@@ -113,27 +113,89 @@ function createNewProjectCard() {
     return newProjectCard;
 }
 
-// Select a project and update the main display
 function selectProject(projectId) {
     const selectedProjectContent = document.getElementById('selected-project');
     var project;
     try {
-        project = roomDict[projectId]
+        project = roomDict[projectId];
     } catch (error) {
         console.error('Error selecting project:', error);
-        return
+        return;
     }
+    
+    project.lastEdited = "Jan 2, 2025";
+    
+    // Count collaborators if the editors property exists
+    let collaboratorCount = 0;
+    let collaboratorHTML = '';
+    
+    if (project.editors && Array.isArray(project.editors)) {
+        // filter out the current user;
+        project.editors = project.editors.filter(editor => editor !== sessionStorage.getItem('email'));
 
-    project.lastEdited = "Jan 2, 2025"
+        collaboratorCount = project.editors.length;
+        
+        // Generate collaborator avatars (up to 4)
+        project.editors.slice(0, 4).forEach(editor => {
+            const initial = editor.charAt(0).toUpperCase();
+            collaboratorHTML += `<div class="collaborator" title="${editor.split('@')[0]}">${initial}</div>`;
+        });
+    }
     
     selectedProjectContent.innerHTML = `
         <img src="https://d3pl0tx5n82s71.cloudfront.net/${projectId}.png" alt="${project.name}" onerror="this.src='https://thumbs.dreamstime.com/b/transparent-seamless-pattern-background-checkered-simulation-alpha-channel-png-wallpaper-empty-gird-grid-vector-illustration-308566526.jpg';">
         <div class="project-info">
+            <div class="project-meta">
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Last edited: ${project.lastEdited || 'Jan 1, 1970'}
+                </div>
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    ${collaboratorCount} collaborator${collaboratorCount !== 1 ? 's' : ''}
+                </div>
+            </div>
             <h3>${project.name}</h3>
-            <p>Last edited: ${project.lastEdited || 'Jan 1, 1970'}</p>
-            <button class="launch-btn" onclick="openProject('${projectId}')">Launch Project</button>
+            <div class="project-actions">
+                <button class="launch-btn" onclick="openProject('${projectId}')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M5 12h14"></path>
+                        <path d="M12 5l7 7-7 7"></path>
+                    </svg>
+                    Launch Project
+                </button>
+                <button class="action-btn" onclick="shareProject('${projectId}')">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+                        <polyline points="16 6 12 2 8 6"></polyline>
+                        <line x1="12" y1="2" x2="12" y2="15"></line>
+                    </svg>
+                    Share
+                </button>
+            </div>
+            <div class="collaborators">
+                ${collaboratorHTML}
+            </div>
         </div>
     `;
+}
+
+function shareProject(projectId) {
+    alert(`Copied link to clipboard`);
+    const url = `https://example.com/project/${projectId}`; // Replace with your actual URL
+    navigator.clipboard.writeText(url).then(() => {
+        console.log('Link copied to clipboard:', url);
+    }).catch(err => {
+        console.error('Error copying link:', err);
+    });
 }
 
 // Add a new project

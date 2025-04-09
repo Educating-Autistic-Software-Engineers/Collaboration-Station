@@ -114,12 +114,75 @@ header {
     font-family: 'Inter', sans-serif;
     transition: all 0.3s ease;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
 }
 
 .launch-btn:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 8px -1px rgba(99, 102, 241, 0.4);
 }
+
+.project-actions {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.action-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.action-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.project-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.collaborators {
+    display: flex;
+    margin-top: 1rem;
+}
+
+.collaborator {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    margin-right: -8px;
+    border: 2px solid rgba(15, 23, 42, 0.8);
+}
+
 
 /* Project thumbnails */
 .project-scroll-container {
