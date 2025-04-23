@@ -125,17 +125,14 @@ function selectProject(projectId) {
     
     project.lastEdited = "Jan 2, 2025";
     
-    // Count collaborators if the editors property exists
     let collaboratorCount = 0;
     let collaboratorHTML = '';
     
     if (project.editors && Array.isArray(project.editors)) {
-        // filter out the current user;
         project.editors = project.editors.filter(editor => editor !== sessionStorage.getItem('email'));
 
         collaboratorCount = project.editors.length;
         
-        // Generate collaborator avatars (up to 4)
         project.editors.slice(0, 4).forEach(editor => {
             const initial = editor.charAt(0).toUpperCase();
             collaboratorHTML += `<div class="collaborator" title="${editor.split('@')[0]}">${initial}</div>`;

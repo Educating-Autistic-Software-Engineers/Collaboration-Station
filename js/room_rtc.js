@@ -54,9 +54,16 @@ let joinRoomInit = async () => {
 
     try {
 
-        const members = await ablyChannel.presence.get();
+        let numMembers = 0;
+        const members = await ablyChannel.presence.get()
+        for (let member in members) {
+            console.log(members[member].data, sessionStorage.getItem('email'));
+            if (members[member].data !== sessionStorage.getItem('email')) {
+                numMembers++;
+            }
+        }
 
-        if (members.length === 0) {
+        if (numMembers === 0) {
             const createResponse = await fetch('https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/create-meeting', {
                 method: 'POST',
                 headers: {
@@ -64,6 +71,7 @@ let joinRoomInit = async () => {
             });
             const createData = await createResponse.json();
             meetingId = createData.Meeting.MeetingId;
+            console.log("CREATED MEETING", createData);
 
             await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
                 method: 'PUT',
@@ -273,6 +281,11 @@ let joinStream = async () => {
             };
         }
 
+        const audioOutputs = await meetingSession.audioVideo.listAudioOutputDevices();
+        if (audioOutputs.length > 0) {
+            await meetingSession.audioVideo.chooseAudioOutput(audioOutputs[0].deviceId);
+        }
+
         // Start the meeting
         meetingSession.audioVideo.start();
         meetingSession.audioVideo.startLocalVideoTile();
@@ -350,19 +363,18 @@ let toggleMic = async (e) => {
     
     document.getElementById("mute-mic-btn").style.display = 'block';
     document.getElementById("mic-btn").style.display = 'none';
-    document.getElementById("mute-video-icon").style.display = 'inline';
 };
 
 let toggleMuteMic = async (e) => {
     let button = e.currentTarget;
     
-    if (localTracks[0].muted) {
+    // if (localTracks[0].muted) {
         await localTracks[0].setMuted(false);
         document.getElementById("mic-btn").style.display = 'block';
         document.getElementById("mute-mic-btn").style.display = 'none';
         document.getElementById("mic-btn").classList.add('active');
         document.getElementById("mute-video-icon").style.display = 'none';
-    }
+    // }
 };
 
 // Toggle camera
@@ -379,12 +391,12 @@ let toggleCamera = async (e) => {
 let toggleMuteCamera = async (e) => {
     let button = e.currentTarget;
     
-    if (localTracks[1].muted) {
+    // if (localTracks[1].muted) {
         await localTracks[1].setMuted(false);
         document.getElementById("camera-btn").style.display = 'block';
         document.getElementById("mute-camera-btn").style.display = 'none';
         document.getElementById("camera-btn").classList.add('active');
-    }
+    // }
 };
 
 // Toggle screen sharing
