@@ -229,6 +229,47 @@ function handleVolumeIndicator() {
     );
 }
 
+async function verifyAudioTransmission() {
+    // Check if local audio is unmuted and being captured
+    const muted = meetingSession.audioVideo.realtimeIsLocalAudioMuted();
+    console.log("Audio transmission check - Local audio muted:", muted);
+    
+    if (muted) {
+        console.log("Attempting to unmute audio for transmission...");
+        await meetingSession.audioVideo.realtimeUnmuteLocalAudio();
+    }
+    
+    // Check audio connection state
+    const connectionState = meetingSession.audioVideo.getAudioVideoConnectionState();
+    console.log("Audio connection state:", connectionState);
+    
+    // Verify audio is being published
+    console.log("Audio publishing settings:", meetingSession.configuration);
+    
+    // Check RTC stats if available
+    try {
+        const stats = await meetingSession.audioVideo.getRTCPeerConnectionStats();
+        console.log("RTC connection stats:", stats);
+        
+        // Look for outbound-rtp audio tracks
+        if (stats) {
+            let foundAudioSending = false;
+            stats.forEach(stat => {
+                if (stat.type === 'outbound-rtp' && stat.kind === 'audio') {
+                    console.log("Found outbound audio track:", stat);
+                    foundAudioSending = true;
+                }
+            });
+            
+            if (!foundAudioSending) {
+                console.warn("No outbound audio tracks found in RTC stats!");
+            }
+        }
+    } catch (err) {
+        console.log("Could not get RTC stats:", err);
+    }
+}
+
 // Join stream and set up local tracks
 let joinStream = async () => {
     document.getElementById('join-btn').style.display = 'none';
@@ -253,6 +294,8 @@ let joinStream = async () => {
                 muted: false
             };
         }
+
+
 
         if (videoInputs.length > 0) {
             await meetingSession.audioVideo.startVideoInput(videoInputs[0].deviceId);
@@ -281,15 +324,30 @@ let joinStream = async () => {
             };
         }
 
+        meetingSession.audioVideo.realtimeSubscribeToAttendeeIdPresence((attendeeId, present) => {
+            if (present) {
+                console.log(`Attendee ${attendeeId} joined, subscribing to audio`);
+                // Make sure we're subscribed to their audio
+                meetingSession.audioVideo.realtimeSubscribeToVolumeIndicator(
+                    attendeeId,
+                    (attendeeId, volume, muted, signalStrength) => {
+                        console.log(`Received audio from ${attendeeId}: volume=${volume.toFixed(2)}, muted=${muted}`);
+                    }
+                );
+            }
+        });
+
         const audioOutputs = await meetingSession.audioVideo.listAudioOutputDevices();
         if (audioOutputs.length > 0) {
             await meetingSession.audioVideo.chooseAudioOutput(audioOutputs[0].deviceId);
         }
 
         // Start the meeting
-        meetingSession.audioVideo.start();
+        meetingSession.audioVideo.start({
+            sendAudio: true,
+        });
         meetingSession.audioVideo.startLocalVideoTile();
-        
+
         // Handle role-based UI elements
         let role = sessionStorage.getItem('role');
         console.log('ROLE IS', role);
