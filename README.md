@@ -1,11 +1,11 @@
 # Collaboration Station
 
 
-A. Introduction
+# Introduction
 This is the front-end hosted code for Collaboration Station, a website designed to help neurodivergent students collaborate and code. This is the HTML code for the front end. The VM that runs the scratch GUI is hosted seperately [here](https://github.com/Educating-Autistic-Software-Engineers/CollaborationStationGUI). However, a copy is bundled here under the vm directory.
 
 
-B. Getting Started
+# Getting Started
 
 1. Clone the repository
 
