@@ -6,8 +6,6 @@ This is the front-end hosted code for Collaboration Station, a website designed 
 
 
 B. Getting Started
-Ably API Account
-API that is able to mock the endpoints called
 
 1. Clone the repository
 
