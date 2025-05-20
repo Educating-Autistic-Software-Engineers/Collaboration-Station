@@ -5144,7 +5144,6 @@ class LibraryComponent extends react__WEBPACK_IMPORTED_MODULE_2__.Component {
     var _this = this;
     return _asyncToGenerator(function* () {
       let costumes = [];
-      console.log(_this.props.data);
       for (const costume of _this.props.data) {
         try {
           yield _this.fetchAndUploadWAV( // costume._md5,
@@ -6676,7 +6675,7 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       id: "mystuff"
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
       className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_33___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_33___default().hoverable), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_33___default().mystuffButton))
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", null, sessionStorage.getItem('analMode') == "T" ? "Back" : 'Share!'))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(MenuBarItemTooltip, {
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", null, sessionStorage.getItem('analMode') == "T" ? "Back" : ''))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(MenuBarItemTooltip, {
       id: "account-nav",
       place: this.props.isRtl ? 'right' : 'left'
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
@@ -13190,14 +13189,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
             chunks.push(value);
           }
           const concatenated = new Uint8Array(chunks.reduce((acc, chunk) => acc.concat(Array.from(chunk)), []));
-          console.log("PARSING", concatenated);
           const jsonString = decoder.decode(concatenated);
-          console.log(jsonString);
           if (jsonString == "{\"message\":\"No versions found\"}") {
             console.log("starting new project...");
           } else {
             const jsonParsed = JSON.parse(jsonString);
-            console.log("JSPARESE", jsonParsed);
+            console.log("JSPARESE");
             _this4.keyMarker = jsonParsed.keyMarker;
             _this4.versionIdMarker = jsonParsed.versionIdMarker;
             const data = JSON.parse(jsonParsed.versionData);
@@ -13324,7 +13321,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   sendInformation(eve) {
     var _this6 = this;
     return _asyncToGenerator(function* () {
-      console.log(_this6.props.vm);
       if (_this6.isViewOnly) {
         console.log("view only mode; ignoring event");
         return;
@@ -14512,11 +14508,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
       ogUpdateScroll(x, y);
     }.bind(this);
-    console.log("STORAGE", this.props.vm.runtime.storage);
-    console.log("ASSETTOOL", this.props.vm.runtime.storage.webHelper.assetTool);
     const ogRuntimeImageLoad = this.props.vm.runtime.storage.load.bind(this.props.vm.runtime.storage);
     this.props.vm.runtime.storage.load = function (a, b, c) {
-      console.log("LOADING FROM VM", a, b, c);
       return ogRuntimeImageLoad(a, b, c);
     };
     function extractNumberFromUrl(url) {
@@ -14548,7 +14541,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         "Accept": "*/*"
       }, options)).then(result => {
         // result.arrayBuffer().then(b => {const r = new Uint8Array(b);  console.log("MAGIK",url,b,r)})
-        console.log("RES", result);
         if (result.ok) return result.arrayBuffer().then(b => new Uint8Array(b));
         if (result.status === 404) return null;
         return Promise.reject(result.status); // TODO: we should throw a proper error
@@ -14753,7 +14745,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     // Remove and reattach the workspace listener (but allow flyout events)
     this.workspace.removeChangeListener(this.props.vm.blockListener);
     const dom = this.ScratchBlocks.Xml.textToDom(data.xml);
-    console.log(dom);
     try {
       this.ScratchBlocks.Xml.clearWorkspaceAndLoadFromXml(dom, this.workspace);
     } catch (error) {
@@ -14872,7 +14863,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     // handlePrompt(msg) {
     //     const callback = this.ScratchBlocks.Variables.createVariable
     //     const {message, defaultValue, optTitle, optVarType} = JSON.parse(msg.data);
-    console.log(callback);
     const p = {
       prompt: {
         callback,
@@ -22307,6 +22297,7 @@ class TipsLibrary extends react__WEBPACK_IMPORTED_MODULE_1__.PureComponent {
     lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['handleItemSelect']);
   }
   handleItemSelect(item) {
+    console.log('handleItemSelect', item);
     _lib_analytics__WEBPACK_IMPORTED_MODULE_5__["default"].event({
       category: 'library',
       action: 'Select How-to',
@@ -30749,7 +30740,6 @@ const ProjectSaverHOC = function ProjectSaverHOC(WrappedComponent) {
     storeProjectThumbnail(projectId) {
       try {
         this.getProjectThumbnail(dataURI => {
-          console.log(dataURI);
           this.props.onUpdateProjectThumbnail(projectId, (0,_lib_data_uri_to_blob__WEBPACK_IMPORTED_MODULE_7__["default"])(dataURI));
         });
       } catch (e) {
@@ -31794,7 +31784,6 @@ class Storage extends (scratch_storage__WEBPACK_IMPORTED_MODULE_0___default()) {
     this.assetHost = assetHost;
   }
   getAssetGetConfig(asset) {
-    console.log("".concat(this.assetHost, "/internalapi/asset/").concat(asset.assetId, ".").concat(asset.dataFormat, "/get/"));
     // console.log(`${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`)
     // if (asset.dataFormat == "wav")
     //     return `${this.assetHost}/internalapi/asset/${asset.assetId}.${asset.dataFormat}/get/`;
@@ -31804,7 +31793,6 @@ class Storage extends (scratch_storage__WEBPACK_IMPORTED_MODULE_0___default()) {
     // if (asset.dataFormat === "svg")
     //     return "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=390845c11df0924f3b627bafeb3f814e.svg"
     // console.log(`https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=${asset.assetId}.${asset.dataFormat}`)
-    console.log("https://d3pl0tx5n82s71.cloudfront.net/".concat(asset.assetId, ".").concat(asset.dataFormat));
     return "https://d3pl0tx5n82s71.cloudfront.net/".concat(asset.assetId, ".").concat(asset.dataFormat);
     // return `https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=${asset.assetId}.${asset.dataFormat}`
   }
@@ -44966,4 +44954,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.6d1bb60bb1159c6708ea.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.d581f5dab42c7e40237b.js.map

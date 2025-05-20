@@ -103,7 +103,6 @@ function createProjectElement(project) {
     return projectCard;
 }
 
-// Create the "New Project" card
 function createNewProjectCard() {
     const newProjectCard = document.createElement('div');
     newProjectCard.className = 'project-thumbnail';
@@ -133,10 +132,10 @@ function selectProject(projectId) {
 
         collaboratorCount = project.editors.length;
         
-        project.editors.slice(0, 4).forEach(editor => {
-            const initial = editor.charAt(0).toUpperCase();
-            collaboratorHTML += `<div class="collaborator" title="${editor.split('@')[0]}">${initial}</div>`;
-        });
+        // project.editors.slice(0, 4).forEach(editor => {
+        //     const initial = editor.charAt(0).toUpperCase();
+        //     collaboratorHTML += `<div class="collaborator" title="${editor.split('@')[0]}">${initial}</div>`;
+        // });
     }
     
     selectedProjectContent.innerHTML = `

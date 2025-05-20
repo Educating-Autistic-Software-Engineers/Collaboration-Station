@@ -279,10 +279,11 @@
 }
 
 #message__form {
+  display: flex;
+  align-items: center;
   width: 280px;
   position: fixed;
   bottom: 0;
-  display: block;
   background-color: #1a1a1a;
   padding: 1em;
 }
@@ -817,4 +818,92 @@
 
 .chevron.active {
   transform: rotate(180deg);
+}
+
+#emoji-button {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin-right: 5px;
+  transition: transform 0.2s;
+}
+
+#emoji-button:hover {
+  transform: scale(1.2);
+}
+
+#emoji-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  display: none;
+}
+
+#emoji-selector {
+  position: absolute;
+  bottom: 70px;
+  left: 10px;
+  background-color: #1a1a2e;
+  border: 1px solid #845695;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+  width: 280px;
+  height: 300px;
+  z-index: 999;
+  display: none;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+.emoji-tabs {
+  display: flex;
+  border-bottom: 1px solid #845695;
+  background-color: #16162d;
+}
+
+.emoji-tab {
+  padding: 8px;
+  cursor: pointer;
+  flex: 1;
+  text-align: center;
+  font-size: 18px;
+  transition: background-color 0.2s;
+}
+
+.emoji-tab:hover {
+  background-color: #2d2d4a;
+}
+
+.emoji-tab.active {
+  background-color: #845695;
+}
+
+#emoji-content {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 5px;
+  padding: 10px;
+  overflow-y: auto;
+  height: calc(100% - 40px);
+}
+
+.emoji {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+}
+
+.emoji:hover {
+  background-color: #845695;
 }

@@ -182,6 +182,11 @@
                 <span id="pause_countdown">10:00</span>
             </div>
 
+            <audio id="meeting-audio"
+            autoplay
+            playsinline
+            style="visibility: hidden;"></audio>
+
             <div id="right_bar">
 
                 <!-- <div class="form__field__wrapper">
@@ -245,8 +250,29 @@
                     <div id="messages"></div>
 
                     <form id="message__form">
+                        <button type="button" id="emoji-button">😊</button>
                         <input type="text" name="message" placeholder="Send a message...." />
                     </form>
+
+                    <!-- Emoji selector that appears when clicking the emoji button -->
+                    <div id="emoji-overlay"></div>
+                    <div id="emoji-selector">
+                        <div class="emoji-tabs">
+                            <div class="emoji-tab active" data-category="frequent">🕒</div>
+                            <div class="emoji-tab" data-category="smileys">😀</div>
+                            <div class="emoji-tab" data-category="people">👋</div>
+                            <div class="emoji-tab" data-category="animals">🐶</div>
+                            <div class="emoji-tab" data-category="food">🍔</div>
+                            <div class="emoji-tab" data-category="activities">⚽</div>
+                            <div class="emoji-tab" data-category="travel">🚗</div>
+                            <div class="emoji-tab" data-category="objects">💡</div>
+                            <div class="emoji-tab" data-category="symbols">❤️</div>
+                            <div class="emoji-tab" data-category="flags">🏁</div>
+                        </div>
+
+                        <!-- Emoji categories content will be populated by JavaScript -->
+                        <div id="emoji-content"></div>
+                    </div>
 
                 </section>
 
@@ -300,6 +326,7 @@
 <script src="js/agora-extension-vb.js"></script>
 <script src="js/agora-rtm-sdk-1.4.4.js"></script> -->
 <script src="js/chime-sdk.js"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/amazon-chime-sdk-js/dist/amazon-chime-sdk.min.js"></script> -->
 <!-- <script src="js/agora-rtm-2.1.9.min.js"></script> -->
 <!-- <script src="js/agora_cloud_recording.js"></script> -->
 <script src="js/room_rtm.js"></script>

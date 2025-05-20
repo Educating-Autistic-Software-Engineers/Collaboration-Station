@@ -12,7 +12,7 @@ let roomId = urlParams.get('project')
 
 const logger = new ChimeSDK.ConsoleLogger(
     "ChimeMeetingLogs",
-    ChimeSDK.LogLevel.INFO
+    ChimeSDK.LogLevel.DEBUG
 );
 const deviceController = new ChimeSDK.DefaultDeviceController(logger);
 
@@ -147,7 +147,19 @@ let joinRoomInit = async () => {
             
             connectionDidSuggestStopVideo: () => {
                 console.log('Connection suggests stopping video');
-            }
+            },
+
+            audioSendingBitrateChanged: (bitrateKbps) => {
+                console.log(`Audio sending bitrate changed to ${bitrateKbps} kbps`);
+            },
+
+            metricsDidReceive: clientMetricReport => {
+                console.log('Chime metrics:', clientMetricReport.getObservableMetrics());
+            },
+
+            audioInputFailed: (e) => console.log('Audio input failed:', e),
+            audioOutputFailed: (e) => console.log('Audio output failed:', e),
+
         };
 
         const eventObserver = {
@@ -168,9 +180,9 @@ let joinRoomInit = async () => {
         meetingSession.audioVideo.addObserver(observer);
         meetingSession.eventController.addObserver(eventObserver);
 
-        // Add volume indicator to emulate the original Agora functionality
         meetingSession.audioVideo.realtimeSubscribeToVolumeIndicator(
             (attendeeId, volume, muted, signalStrength) => {
+                console.log(`Attendee ID: ${attendeeId}, Volume: ${volume}, Muted: ${muted}, Signal Strength: ${signalStrength}`);
                 if (volume > 0.5 && !muted) { // Threshold for "speaking"
                     handleActiveVolumeIndicator(attendeeId, volume);
                 }
@@ -213,6 +225,7 @@ function handleActiveVolumeIndicator(attendeeId, volume) {
 
 // Volume indicator for all participants
 function handleVolumeIndicator() {
+    return
     meetingSession.audioVideo.realtimeSubscribeToVolumeIndicator(
         (attendeeId, volume, muted, signalStrength) => {
             const threshold = 0.05;
@@ -229,47 +242,6 @@ function handleVolumeIndicator() {
     );
 }
 
-async function verifyAudioTransmission() {
-    // Check if local audio is unmuted and being captured
-    const muted = meetingSession.audioVideo.realtimeIsLocalAudioMuted();
-    console.log("Audio transmission check - Local audio muted:", muted);
-    
-    if (muted) {
-        console.log("Attempting to unmute audio for transmission...");
-        await meetingSession.audioVideo.realtimeUnmuteLocalAudio();
-    }
-    
-    // Check audio connection state
-    const connectionState = meetingSession.audioVideo.getAudioVideoConnectionState();
-    console.log("Audio connection state:", connectionState);
-    
-    // Verify audio is being published
-    console.log("Audio publishing settings:", meetingSession.configuration);
-    
-    // Check RTC stats if available
-    try {
-        const stats = await meetingSession.audioVideo.getRTCPeerConnectionStats();
-        console.log("RTC connection stats:", stats);
-        
-        // Look for outbound-rtp audio tracks
-        if (stats) {
-            let foundAudioSending = false;
-            stats.forEach(stat => {
-                if (stat.type === 'outbound-rtp' && stat.kind === 'audio') {
-                    console.log("Found outbound audio track:", stat);
-                    foundAudioSending = true;
-                }
-            });
-            
-            if (!foundAudioSending) {
-                console.warn("No outbound audio tracks found in RTC stats!");
-            }
-        }
-    } catch (err) {
-        console.log("Could not get RTC stats:", err);
-    }
-}
-
 // Join stream and set up local tracks
 let joinStream = async () => {
     document.getElementById('join-btn').style.display = 'none';
@@ -281,7 +253,7 @@ let joinStream = async () => {
         const videoInputs = await meetingSession.audioVideo.listVideoInputDevices();
 
         if (audioInputs.length > 0) {
-            await meetingSession.audioVideo.startAudioInput(audioInputs[0].deviceId);
+            var s = await meetingSession.audioVideo.startAudioInput(audioInputs[0].deviceId);
             localTracks[0] = {
                 setMuted: async (muted) => {
                     if (muted) {
@@ -294,7 +266,6 @@ let joinStream = async () => {
                 muted: false
             };
         }
-
 
 
         if (videoInputs.length > 0) {
@@ -324,29 +295,18 @@ let joinStream = async () => {
             };
         }
 
-        meetingSession.audioVideo.realtimeSubscribeToAttendeeIdPresence((attendeeId, present) => {
-            if (present) {
-                console.log(`Attendee ${attendeeId} joined, subscribing to audio`);
-                // Make sure we're subscribed to their audio
-                meetingSession.audioVideo.realtimeSubscribeToVolumeIndicator(
-                    attendeeId,
-                    (attendeeId, volume, muted, signalStrength) => {
-                        console.log(`Received audio from ${attendeeId}: volume=${volume.toFixed(2)}, muted=${muted}`);
-                    }
-                );
-            }
-        });
-
         const audioOutputs = await meetingSession.audioVideo.listAudioOutputDevices();
         if (audioOutputs.length > 0) {
             await meetingSession.audioVideo.chooseAudioOutput(audioOutputs[0].deviceId);
+            const audioElem = document.getElementById('meeting-audio');
+            meetingSession.audioVideo.bindAudioElement(audioElem);
         }
 
         // Start the meeting
-        meetingSession.audioVideo.start({
-            sendAudio: true,
-        });
+        meetingSession.audioVideo.start();
         meetingSession.audioVideo.startLocalVideoTile();
+
+        
 
         // Handle role-based UI elements
         let role = sessionStorage.getItem('role');
@@ -354,6 +314,7 @@ let joinStream = async () => {
         if (role === 'TA') {
             document.getElementById("mute-all-btn").style.display = 'block';
         }
+
 
     } catch (error) {
         console.error('Error joining stream:', error);
@@ -412,7 +373,6 @@ let handleUserLeft = async (attendeeId) => {
     }
 };
 
-// Toggle microphone
 let toggleMic = async (e) => {
     let button = e.currentTarget;
     
@@ -435,7 +395,6 @@ let toggleMuteMic = async (e) => {
     // }
 };
 
-// Toggle camera
 let toggleCamera = async (e) => {
     let button = e.currentTarget;
     
