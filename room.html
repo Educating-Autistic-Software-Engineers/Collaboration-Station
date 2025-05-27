@@ -51,7 +51,7 @@
 
                 <div id="member__list">
                 </div>
-
+                
                 <button id="add-member-btn" onclick="showAddMemberPopup()">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -68,6 +68,22 @@
                         <line x1="5" y1="12" x2="19" y2="12"/>
                     </svg>
                     10 Minute Break
+                </button>
+
+                <button id="create-breakout-btn" onclick="showBreakoutRoomsPopup()">
+                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <pattern id="checkers" width="6" height="6" patternUnits="userSpaceOnUse">
+                                <rect width="3" height="3" fill="white"/>
+                                <rect x="3" y="3" width="3" height="3" fill="white"/>
+                            </pattern>
+                        </defs>
+                        <path d="M2,5 Q8,9 14,5 T24,5" fill="none" stroke="black" stroke-width="1"/>
+                        <rect x="2" y="5" width="20" height="12" fill="url(#checkers)" transform="skewX(-10)"/>
+                        <line x1="2" y1="5" x2="2" y2="20" stroke="black" stroke-width="2"/>
+                    </svg>
+                                
+                    Configure Breakout
                 </button>
 
                 <button id="end-meet-btn" onclick="onEndMeetingClicked()">
@@ -241,9 +257,7 @@
                 </div>
 
                 <div class="slider" id="slider"></div>
-
                 
-
                 <section id="messages__container" style="margin-top: 3px;">
                     <!-- <button id="closeChatBtn" class="close-chat-btn">&times;</button> -->
 
@@ -275,6 +289,8 @@
                     </div>
 
                 </section>
+
+                <div id="resize-handle" class="resize-handle"></div>
 
             </div>
 
@@ -312,13 +328,49 @@
     </div>
 
     <div id="add-member-popup" style="display: none;">
-      <h2>Add Member to Project</h2>
-      <input type="email" placeholder="Enter member's email" id="member-email-input">
-      <div class="popup-actions">
-          <button class="cancel-btn" id="cancel-add-member">Cancel</button>
-          <button class="add-btn" id="confirm-add-member">Add Member</button>
-      </div>
+        <h2>Add Member to Project</h2>
+        <input type="email" placeholder="Enter member's email" id="member-email-input">
+        <div class="popup-actions">
+            <button class="cancel-btn" id="cancel-add-member">Cancel</button>
+            <button class="add-btn" id="confirm-add-member">Add Member</button>
+        </div>
     </div>
+
+    <div id="breakout-rooms-popup" style="display: none;">
+        <div class="breakout-popup-content">
+            <h2>🚀 Manage Breakout Rooms</h2>
+            
+            <div class="rooms-control">
+                <label for="room-count">Number of Rooms:</label>
+                <input type="number" id="room-count" min="1" max="10" value="3">
+                <button class="auto-assign-btn" onclick="autoAssignMembers()">Auto Assign</button>
+            </div>
+
+            <div class="main-content">
+                <div class="rooms-section">
+                    <div class="rooms-grid" id="rooms-container">
+                        <!-- Rooms will be generated here -->
+                    </div>
+                </div>
+
+                <div class="unassigned-section">
+                    <div class="section-header">
+                        👥 Unassigned Members
+                        <span class="member-count" id="unassigned-count">0</span>
+                    </div>
+                    <div class="unassigned-members" id="unassigned-members">
+                        <!-- Unassigned members will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="popup-actions">
+                <button class="cancel-btn" onclick="hideBreakoutRoomsPopup()">Cancel</button>
+                <button class="save-btn" onclick="saveBreakoutRooms()">Breakout!</button>
+            </div>
+        </div>
+    </div>
+
     
 </body>
 <script lang="text/javascript" src="https://cdn.ably.com/lib/ably.min-2.js"></script>
@@ -329,7 +381,8 @@
 <!-- <script src="https://cdn.jsdelivr.net/npm/amazon-chime-sdk-js/dist/amazon-chime-sdk.min.js"></script> -->
 <!-- <script src="js/agora-rtm-2.1.9.min.js"></script> -->
 <!-- <script src="js/agora_cloud_recording.js"></script> -->
-<script src="js/room_rtm.js"></script>
-<script src="js/room_rtc.js"></script>
+<script src="js/cogs/messaging_rooms.js"></script>
+<script src="js/cogs/video_rooms.js"></script>
 <script src="js/room.js"></script>
+<script src="js/cogs/breakout_rooms.js"></script>
 </html>

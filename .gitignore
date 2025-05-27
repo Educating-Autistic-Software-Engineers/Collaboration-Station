@@ -4,3 +4,4 @@ node_modules/
 .env*
 js/agora_cloud_recording.js
 CS.zip
+.vscode

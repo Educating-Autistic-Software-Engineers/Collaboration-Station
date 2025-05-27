@@ -84,6 +84,7 @@ let addMemberToDom = async (member) => {
  
     let membersWrapper = document.getElementById('member__list')
     let role = sessionStorage.getItem('role');
+    let moveButton = role === 'TA' ? `<button class="move__btn" onclick="moveParticipant('${memberEmail}')"><i class="fas fa-arrow-right"></i></button>` : '';
     let removeButton = role === 'TA' ? `<button class="remove__btn" onclick="removeParticipant('${memberEmail}')"><i class="fas fa-user-times"></i></button>` : '';
     let muteButton = role === 'TA' ? `<button class="mute__btn" onclick="muteParticipant('${memberEmail}')"><i class='fas fa-volume-mute'></i></button>` : '';
     let disableMessages = role === 'TA' ? `<button class="disableMessage__btn" onclick="disableMessage('${memberEmail}')"><i class='fas fa-comment-slash' style='font-size:15px;color:red'></i></button>` : '';
@@ -91,6 +92,7 @@ let addMemberToDom = async (member) => {
                         <span class="green__icon"></span>
                         <p class="member_name" id="rtmName" style="color:${memberColor}";>${name}</p>
                         <span class="member_name_buttons" style="display: flex; position: absolute; gap: 1em; right: 3px;">
+                            ${moveButton}
                             ${removeButton}
                             ${muteButton}
                             ${disableMessages}
@@ -216,6 +218,10 @@ let handleChannelMessage = async (messageData, MemberId) => {
     }
 
     
+    
+}
+
+let moveParticipant = async (MemberId) => {
     
 }
 

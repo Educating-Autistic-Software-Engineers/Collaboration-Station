@@ -7,48 +7,120 @@
     <link rel='stylesheet' type='text/css' media='screen' href='styles/lobby.css'>
 </head>
 <body>
-    <div class="stars"></div>
-    <div class="planet"></div>
-    
-    <header>
-        <a href="https://www.collaborationstation.dev" id="logo">
-            <img src="./images/logo.svg" alt="Logo">
-            <span>Collaboration Station</span>
-        </a>
-    </header>
-
-    <main>
-        <div class="login-container">
-            <h1 class="form-title">🚀 Launch! 🚀</h1>
-            <form id="login-form">
-                <div class="form-field">
-                    <label for="email">Email</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        placeholder="Enter your email address"
-                        required
-                    >
-                    <div style="height: 20px;"></div>
-                    <div style="display: flex;">
-                        <label for="password">Password</label>
-                        <!-- <a href="forgot-password.html" style="margin-left: auto;">Forgot Password?</a> -->
+    <section class="login-section" id="login">
+        <div class="stars"></div>
+        <div class="planet"></div>
+        
+        <header>
+            <a href="#" id="logo">
+                <img src="./images/logo.svg" alt="Logo">
+                <span>Collaboration Station</span>
+            </a>
+        </header>
+        
+        <div class="login-container-wrapper">
+            <div class="login-container">
+                <h1 class="form-title">🚀 Launch! 🚀</h1>
+                <form id="login-form">
+                    <div class="form-field">
+                        <label for="email">Email</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="Enter your email address"
+                            required
+                        >
+                        <div style="height: 20px;"></div>
+                        <div style="display: flex;">
+                            <label for="password">Password</label>
+                        </div>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="Enter your password"
+                            required
+                        >
                     </div>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        placeholder="Enter your password"
-                        required
-                    >
-                </div>
-                <button type="submit" class="submit-btn">
-                    Continue
-                </button>
-            </form>
+                    <button type="submit" class="submit-btn">
+                        Continue
+                    </button>
+                </form>
+            </div>
         </div>
-    </main>
+        
+        <div class="scroll-indicator" onclick="document.getElementById('about').scrollIntoView({behavior: 'smooth'})">
+            <span>Learn More</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/>
+            </svg>
+        </div>
+    </section>
+    
+    <!-- Info Section (Light Space Theme) -->
+    <section class="info-section" id="about">
+        <div class="light-stars"></div>
+        <div class="light-planet"></div>
+        
+        <div class="container">
+            <h2 class="section-title">Our Goal</h2>
+            <div class="info-card">
+                <h3 class="card-title">Educating Software Engineers</h3>
+                <div class="card-content">
+                    <p>Attracting diverse youth to computer science professions is important to our national interests and to provide economic opportunity. EdASE engages high school students with Autism Spectrum Disorder (ASD) in a remote video game design and software development summer camp.</p>
+                    <br>
+                    <p>Through teamwork activities, participating youth develop and practice communication and collaboration skills while growing their professional knowledge and skills to prepare them for potential careers in computer science.</p>
+                    <br>
+                    <p>Embedding student learning in a virtual summer camp environment provides participating high schoolers with the opportunity to develop knowledge and skills for remote work, which is increasingly common in computer science careers.</p>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Program Features</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M21 6h-4V3a1 1 0 0 0-1-1H8a1 1 0 0 0-1 1v3H3a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1zM9 4h6v2H9V4zm10 14H5V8h14v10z"/>
+                            <path d="M8 10h8v2H8z"/>
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Remote Learning</h4>
+                    <p class="feature-description">Fully virtual camp experience designed for accessibility and comfort</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5-9h10v2H7z"/>
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Game Development</h4>
+                    <p class="feature-description">Learn to create video games while developing coding skills</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Teamwork & Communication</h4>
+                    <p class="feature-description">Practice collaboration skills essential for tech careers</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4zm0 15l3-3.86 2.14 2.58 3-3.86L18 19H6z"/>
+                        </svg>
+                    </div>
+                    <h4 class="feature-title">Career Preparation</h4>
+                    <p class="feature-description">Develop skills for remote work in computer science fields</p>
+                </div>
+            </div>
+            
+    </section>
 
     <script src="js/old_homepage.js"></script>
 </body>

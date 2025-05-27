@@ -32,6 +32,7 @@ async function fetchRooms() {
         for (let room of rooms) {
             roomDict[room.room_id] = room;
         }
+        console.log(rooms)
     } catch (error) {
         console.error('Error fetching rooms:', error);
     }
@@ -141,24 +142,7 @@ function selectProject(projectId) {
     selectedProjectContent.innerHTML = `
         <img src="https://d3pl0tx5n82s71.cloudfront.net/${projectId}.png" alt="${project.name}" onerror="this.src='https://thumbs.dreamstime.com/b/transparent-seamless-pattern-background-checkered-simulation-alpha-channel-png-wallpaper-empty-gird-grid-vector-illustration-308566526.jpg';">
         <div class="project-info">
-            <div class="project-meta">
-                <div class="meta-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    Last edited: ${project.lastEdited || 'Jan 1, 1970'}
-                </div>
-                <div class="meta-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="9" cy="7" r="4"></circle>
-                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                    </svg>
-                    ${collaboratorCount} collaborator${collaboratorCount !== 1 ? 's' : ''}
-                </div>
-            </div>
+            
             <h3>${project.name}</h3>
             <div class="project-actions">
                 <button class="launch-btn" onclick="openProject('${projectId}')">
@@ -180,13 +164,34 @@ function selectProject(projectId) {
             <div class="collaborators">
                 ${collaboratorHTML}
             </div>
+            <div style="display: flex; gap: 5px; margin-top: 10px;">
+            <div class="project-meta">
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    Last edited: ${project.lastEdited || 'Jan 1, 1970'}
+                </div>
+                <div class="meta-item">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    ${collaboratorCount} collaborator${collaboratorCount !== 1 ? 's' : ''}
+                </div>
+            </div>
+
         </div>
+        
     `;
 }
 
 function shareProject(projectId) {
     alert(`Copied link to clipboard`);
-    const url = `https://example.com/project/${projectId}`; // Replace with your actual URL
+    const url = `https://collaborationstation.dev/room.html?project=${projectId}`; // Replace with your actual URL
     navigator.clipboard.writeText(url).then(() => {
         console.log('Link copied to clipboard:', url);
     }).catch(err => {
