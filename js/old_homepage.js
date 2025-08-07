@@ -92,7 +92,7 @@ async function checkEmail(email) {
     console.log(email);
 
     try {
-        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${email}`);
+        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}`);
         console.log(response);
         console.log(response.ok);
         const data = await response.json();

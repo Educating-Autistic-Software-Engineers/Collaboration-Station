@@ -2,11 +2,11 @@ let rooms = [];
 
 console.log("HISDF")
 document.addEventListener('DOMContentLoaded', async () => {
-    const rest = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/getAllItems');
+    const rest = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems');
     const res = await rest.json();
     let requests= res.requests;
 
-    const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
+    const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
     const roomsj = await datresp.json();
     rooms = roomsj.requests;
     const roomsd = JSON.parse(JSON.stringify(rooms));
@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveRoomsBtn.addEventListener('click', async () => {
 
         try {
-            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -191,7 +191,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         try {
-            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register', {
+            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

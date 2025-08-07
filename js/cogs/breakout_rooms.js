@@ -1,14 +1,19 @@
-const projectMembers = [
-    'Alex Johnson', 'Sarah Chen', 'Michael Rodriguez', 'Emma Thompson',
-    'David Kim', 'Jessica Martinez', 'Ryan O\'Connor', 'Priya Patel',
-    'Marcus Williams', 'Lisa Zhang', 'Carlos Gonzalez', 'Amanda Foster',
-    'Jason Lee', 'Nicole Brown', 'Kevin Singh', 'Rachel Green'
-];
+
 
 let roomAssignments = {};
 let currentRoomCount = 3;
 
-function showBreakoutRoomsPopup() {
+async function showBreakoutRoomsPopup() {
+
+    const resp = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems');
+    const data = await resp.json();
+
+    let mems = data.requests.map((item) => {
+        return item.name;
+    });
+
+    POTENTIAL_MEMBERS = mems;
+
     const popup = document.getElementById('breakout-rooms-popup');
     popup.style.display = 'block';
     
@@ -66,7 +71,7 @@ function populateUnassignedMembers() {
     const container = document.getElementById('unassigned-members');
     container.innerHTML = '';
     
-    projectMembers.forEach(member => {
+    POTENTIAL_MEMBERS.forEach(member => {
         const memberElement = createMemberElement(member);
         container.appendChild(memberElement);
     });
@@ -170,7 +175,7 @@ function updateUnassignedDisplay() {
         }
     });
     
-    const unassignedMembers = projectMembers.filter(member => !assignedMembers.has(member));
+    const unassignedMembers = POTENTIAL_MEMBERS.filter(member => !assignedMembers.has(member));
     
     container.innerHTML = '';
     unassignedMembers.forEach(member => {
@@ -189,14 +194,14 @@ function updateUnassignedCount() {
         }
     });
     
-    const unassignedCount = projectMembers.length - assignedMembers.size;
+    const unassignedCount = POTENTIAL_MEMBERS.length - assignedMembers.size;
     document.getElementById('unassigned-count').textContent = unassignedCount;
 }
 
 function autoAssignMembers() {
     roomAssignments = {};
     
-    const shuffledMembers = [...projectMembers].sort(() => Math.random() - 0.5);
+    const shuffledMembers = [...POTENTIAL_MEMBERS].sort(() => Math.random() - 0.5);
     
     shuffledMembers.forEach((member, index) => {
         const roomId = (index % currentRoomCount) + 1;

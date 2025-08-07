@@ -54,7 +54,6 @@ function decrypt(encryptedNumber, key) {
   return decryptedDigits.join('');
 }
 
-console.log(sessionStorage);
 if (!sessionStorage.getItem('email')) {
   let redirectWithView = 'false';
   if (roomId == null) {
@@ -73,7 +72,7 @@ if (roomId == null) {
 }
 
 async function load() {
-  const response = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
+  const response = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
   const roomsData = await response.json();
   const rooms = roomsData.requests;
   for (let room of rooms) {
@@ -268,7 +267,7 @@ async function addMemberToProject() {
   }
 
   // Add user to room
-  await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+  await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json'
@@ -280,7 +279,7 @@ async function addMemberToProject() {
   });
 
   // Add room to user's projects
-  await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register', {
+  await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json'
@@ -299,12 +298,14 @@ function onBreakBtnClicked() {
   ablyChannel.publish('break', {secs: 600});
 }
 
-ablyChannel.subscribe('break', (message) => {
-  if (isBreak) {
-    endBreak();
-    return;
-  }
-  startBreak(message.data.secs);
+window.messagingReady.then(() => {
+  ablyChannel.subscribe('break', (message) => {
+    if (isBreak) {
+      endBreak();
+      return;
+    }
+    startBreak(message.data.secs);
+  });
 });
 
 function startBreak(secs) {
@@ -341,7 +342,7 @@ setInterval(() => {
 
 // Member autocomplete
 async function initAddMemberAutocomplete() {
-  const resp = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/getAllItems');
+  const resp = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems');
   const data = await resp.json();
 
   POTENTIAL_MEMBERS = data.requests;
@@ -475,7 +476,7 @@ function initEmojiSelector() {
 }
 
 // DOM Content Loaded event handler
-document.addEventListener('DOMContentLoaded', async () => {
+window.messagingReady.then(async () => {
   await load();
 
   initEmojiSelector();

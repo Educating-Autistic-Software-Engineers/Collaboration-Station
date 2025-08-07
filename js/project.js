@@ -26,7 +26,7 @@ async function load() {
 // Fetch all rooms from the API
 async function fetchRooms() {
     try {
-        const response = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB");
+        const response = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
         const roomsData = await response.json();
         const rooms = roomsData.requests;
         for (let room of rooms) {
@@ -41,7 +41,7 @@ async function fetchRooms() {
 // Fetch user's projects from the API
 async function fetchUserProjects() {
     try {
-        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${targetEmail}`);
+        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${targetEmail}`);
         const data = await response.json();
         roomList = data.projects.split(", ");
     } catch (error) {
@@ -207,7 +207,7 @@ async function addProject() {
     }
 
     try {
-        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB?method=new', {
+        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?method=new', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -228,7 +228,7 @@ async function addProject() {
         roomDict[newRoomId] = { room_id: newRoomId, name: projectName, icon: "default", editors: [ sessionStorage.getItem("email") ] };
         roomList.push(newRoomId);
 
-        await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+        await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -257,7 +257,7 @@ async function ping() {
     try {
         console.log('Pinging metadata');
         console.log(sessionStorage.getItem('email'));
-        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/ping`, {
+        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/ping`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -278,7 +278,7 @@ async function ping() {
 async function updateUserProjects(newRoomId) {
 
     try {
-        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register', {
+        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register', {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -300,7 +300,7 @@ async function updateUserProjects(newRoomId) {
 
 async function openProject(projectId) {
     // modify editor permissions
-    await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+    await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB', {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
@@ -389,7 +389,7 @@ function createProjectElement(project) {
 
 
 function populateUsernames() {
-    fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/getAllItems")
+    fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems")
         .then(response => response.json())
         .then(data => {
             const users = data.requests;

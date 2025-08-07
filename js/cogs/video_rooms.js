@@ -8,7 +8,6 @@ if(!uid){
 let token = null;
 let client;
 let meetingSession;
-let roomId = urlParams.get('project')
 
 const logger = new ChimeSDK.ConsoleLogger(
     "ChimeMeetingLogs",
@@ -73,7 +72,7 @@ let joinRoomInit = async () => {
             meetingId = createData.Meeting.MeetingId;
             console.log("CREATED MEETING", createData);
 
-            await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB', {
+            await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB', {
                 method: 'PUT',
                 headers: {
                     'Accept': '*/*',
@@ -85,7 +84,7 @@ let joinRoomInit = async () => {
             });
 
         } else {
-            const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/roomDB?roomId=${roomId}`, {
+            const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`, {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
@@ -528,15 +527,18 @@ let leaveStream = async (e) => {
     document.getElementById('stream__container').innerHTML = '';
 };
 
-// Register event listeners
-document.getElementById('camera-btn').addEventListener('click', toggleCamera);
-document.getElementById('mic-btn').addEventListener('click', toggleMic);
-document.getElementById('join-btn').addEventListener('click', joinStream);
-document.getElementById('mute-mic-btn').addEventListener('click', toggleMuteMic);
-document.getElementById('mute-camera-btn').addEventListener('click', toggleMuteCamera);
-// Uncomment if screen sharing button exists
-// document.getElementById('screen-btn').addEventListener('click', toggleScreen);
-// document.getElementById('leave-btn').addEventListener('click', leaveStream);
 
-// Initialize on page load
-joinRoomInit();
+window.messagingReady.then(() => {
+    // Register event listeners
+    document.getElementById('camera-btn').addEventListener('click', toggleCamera);
+    document.getElementById('mic-btn').addEventListener('click', toggleMic);
+    document.getElementById('join-btn').addEventListener('click', joinStream);
+    document.getElementById('mute-mic-btn').addEventListener('click', toggleMuteMic);
+    document.getElementById('mute-camera-btn').addEventListener('click', toggleMuteCamera);
+    // Uncomment if screen sharing button exists
+    // document.getElementById('screen-btn').addEventListener('click', toggleScreen);
+    // document.getElementById('leave-btn').addEventListener('click', leaveStream);
+
+    // Initialize on page load
+    joinRoomInit();
+});

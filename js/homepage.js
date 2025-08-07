@@ -11,7 +11,7 @@ form.addEventListener("submit", async (e) => {
 
   try {
     const response = await fetch(
-      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/register?email=${email}&hashedPassword=${hashedPassword}`
+      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}&hashedPassword=${hashedPassword}`
     );
     const data = await response.json();
     console.log(data);

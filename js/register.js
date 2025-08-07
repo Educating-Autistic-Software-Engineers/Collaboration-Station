@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       // console.log("Request Body:", requestBody); // debugging
 
       const response = await fetch(
-        "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/Phase1/test",
+        "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/test",
         {
           method: "POST",
           headers: {
