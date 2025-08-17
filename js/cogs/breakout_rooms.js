@@ -8,11 +8,7 @@ async function showBreakoutRoomsPopup() {
     const resp = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems');
     const data = await resp.json();
 
-    let mems = data.requests.map((item) => {
-        return item.name;
-    });
-
-    POTENTIAL_MEMBERS = mems;
+    POTENTIAL_MEMBERS = data.requests;
 
     const popup = document.getElementById('breakout-rooms-popup');
     popup.style.display = 'block';
@@ -79,12 +75,16 @@ function populateUnassignedMembers() {
     updateUnassignedCount();
 }
 
-function createMemberElement(memberName) {
+function createMemberElement(member) {
+    let memberName = member.name;
+    let memberEmail = member.email;
     const memberDiv = document.createElement('div');
     memberDiv.className = 'member-item';
     memberDiv.draggable = true;
     memberDiv.dataset.memberName = memberName;
-    
+    memberDiv.dataset.memberEmail = memberEmail;
+    memberDiv.dataset.member = JSON.stringify(member);
+
     const initials = memberName.split(' ').map(name => name[0]).join('');
     
     memberDiv.innerHTML = `
@@ -99,7 +99,7 @@ function createMemberElement(memberName) {
 function setupDragEvents(element) {
     element.addEventListener('dragstart', (e) => {
         element.classList.add('dragging');
-        e.dataTransfer.setData('text/plain', element.dataset.memberName);
+        e.dataTransfer.setData('text/plain', element.dataset.member);
         e.dataTransfer.effectAllowed = 'move';
     });
     
@@ -122,25 +122,25 @@ function setupDropZone(roomCard) {
     roomCard.addEventListener('drop', (e) => {
         e.preventDefault();
         roomCard.classList.remove('drag-over');
-        
-        const memberName = e.dataTransfer.getData('text/plain');
+
+        const member = JSON.parse(e.dataTransfer.getData('text/plain'));
         const roomId = roomCard.dataset.roomId;
-        
-        assignMemberToRoom(memberName, roomId);
+
+        assignMemberToRoom(member, roomId);
     });
 }
 
-function assignMemberToRoom(memberName, roomId) {
+function assignMemberToRoom(member, roomId) {
     Object.keys(roomAssignments).forEach(room => {
         if (roomAssignments[room]) {
-            roomAssignments[room] = roomAssignments[room].filter(name => name !== memberName);
+            roomAssignments[room] = roomAssignments[room].filter(m => m.email !== member.email);
         }
     });
     
     if (!roomAssignments[roomId]) {
         roomAssignments[roomId] = [];
     }
-    roomAssignments[roomId].push(memberName);
+    roomAssignments[roomId].push(member);
     
     updateRoomDisplay(roomId);
     updateUnassignedDisplay();
@@ -157,8 +157,8 @@ function updateRoomDisplay(roomId) {
         countElement.textContent = '0 members';
     } else {
         membersContainer.innerHTML = '';
-        members.forEach(memberName => {
-            const memberElement = createMemberElement(memberName);
+        members.forEach(member => {
+            const memberElement = createMemberElement(member);
             membersContainer.appendChild(memberElement);
         });
         countElement.textContent = `${members.length} member${members.length !== 1 ? 's' : ''}`;
@@ -171,12 +171,12 @@ function updateUnassignedDisplay() {
     
     Object.values(roomAssignments).forEach(members => {
         if (members) {
-            members.forEach(member => assignedMembers.add(member));
+            members.forEach(member => assignedMembers.add(member.email));
         }
     });
-    
-    const unassignedMembers = POTENTIAL_MEMBERS.filter(member => !assignedMembers.has(member));
-    
+
+    const unassignedMembers = POTENTIAL_MEMBERS.filter(member => !assignedMembers.has(member.email));
+
     container.innerHTML = '';
     unassignedMembers.forEach(member => {
         const memberElement = createMemberElement(member);
@@ -235,7 +235,7 @@ function setupEventListeners() {
         
         Object.keys(roomAssignments).forEach(room => {
             if (roomAssignments[room]) {
-                roomAssignments[room] = roomAssignments[room].filter(name => name !== memberName);
+                roomAssignments[room] = roomAssignments[room].filter(member => member.name !== memberName);
             }
         });
         
@@ -246,13 +246,33 @@ function setupEventListeners() {
     });
 }
 
-function saveBreakoutRooms() {
-    console.log('Saving room assignments:', roomAssignments);
+async function saveBreakoutRooms() {
     
+    for (const roomnum in roomAssignments) {
+        const members = roomAssignments[roomnum];
+
+        for (const member of members) {
+            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    room: roomId.split(":")[0],
+                    user: member.email,
+                    roomnum: Number(roomnum)
+                })
+            });
+
+            if (!response.ok) {
+                console.error(`Failed to add member ${member.email} to room ${roomnum}`);
+            }
+        }
+    }
+
     alert('Breakout room assignments saved successfully!');
     hideBreakoutRoomsPopup();
     
-    // save
 }
 
 document.getElementById('breakout-rooms-popup').addEventListener('click', (e) => {

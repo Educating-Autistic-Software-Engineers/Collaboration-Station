@@ -17,7 +17,7 @@ let connectedUsers = {};
 async function initSetup() {
 
     const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${urlParams.get('project')}&user=${sessionStorage.getItem('email')}`);
-    roomName = "room_" + urlParams.get('project');
+    roomName = "room:" + urlParams.get('project');
     if (resp.ok) {
         // Handle valid breakout
         const breakoutdata = await resp.json();
