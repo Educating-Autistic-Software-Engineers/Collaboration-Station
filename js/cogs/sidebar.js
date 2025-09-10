@@ -177,26 +177,39 @@ class CollapsibleRightBar {
     
     showContainer(type) {
         if (this.isCollapsed) return;
-        
+    
         this.hideAllContainers();
         this.activeContainer = type;
+    
+        const streamContainer = document.getElementById('stream__container');
         
         switch(type) {
             case 'chat':
                 this.messagesContainer.classList.add('active');
+                if (streamContainer) {
+                    streamContainer.style.display = '';
+                }
                 break;
             case 'members':
                 document.getElementById('members__container').classList.add('active');
+                if (streamContainer) {
+                    streamContainer.style.display = 'none';
+                }
                 break;
             case 'tasks':
                 document.getElementById('tasks__container').classList.add('active');
+                if (streamContainer) {
+                    streamContainer.style.display = 'none';
+                }
                 break;
             case 'stream':
             default:
-                // Stream container is always visible when not collapsed
+                if (streamContainer) {
+                    streamContainer.style.display = '';
+                }
                 break;
         }
-        
+    
         this.adjustSliderVisibility();
     }
     

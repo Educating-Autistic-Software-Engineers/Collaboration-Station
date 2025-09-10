@@ -169,18 +169,25 @@
                 </section>
                 
                 <section class="right_container" id="tasks__container">
-                    <h3>Task Management</h3>
-                    <div class="task-item">
-                        <strong>Task 1</strong><br>
-                        <small>Description for Task 1</small>
+                    <div class="tasks-header">
+                        <h3>📋 Task Management</h3>
+                        <div class="tasks-stats">
+                            <span class="tasks-count">Loading...</span>
+                            <span class="completed-count">Loading...</span>
+                        </div>
                     </div>
-                    <div class="task-item">
-                        <strong>Task 2</strong><br>
-                        <small>Description for Task 2</small>
+                    <div class="tasks-list">
+                        <div style="color: #999; text-align: center; padding: 2rem;">
+                            Loading tasks...
+                        </div>
                     </div>
-                    <div class="task-item">
-                        <strong>Best Practices</strong><br>
-                        <small>Tips for effective online collaboration</small>
+                    <div class="tasks-actions">
+                        <button class="mark-all-complete-btn" disabled>
+                            ✅ Loading...
+                        </button>
+                        <button class="reset-tasks-btn" disabled>
+                            🔄 Loading...
+                        </button>
                     </div>
                 </section>
                 
@@ -204,12 +211,12 @@
                 <button id="mute-all-btn" style="width: 24; height: 24;background-color: #845695; display: none;" viewBox="0 0 24 24" onclick="muteAllParticipants()">
                     <i class='fas fa-volume-mute' style='font-size:24px;'></i>
                 </button>
-                <button id="revert-btn" style="width: 24; height: 24;margin: 0;" viewBox="0 0 24 24">
+                <!-- <button id="revert-btn" style="width: 24; height: 24;margin: 0;" viewBox="0 0 24 24">
                     <i class="fa fa-compress"></i>
                 </button>
                 <button id="expand-btn">
                     <i class="fa fa-expand"></i>
-                </button>
+                </button> -->
                 <!-- <button id="screen-btn">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="M0 1v17h24v-17h-24zm22 15h-20v-13h20v13zm-6.599 4l2.599 3h-12l2.599-3h6.802z"/></svg>
                 </button> -->
@@ -280,4 +287,5 @@
 <script src="js/cogs/sidebar.js"></script>
 <script src="js/room.js"></script>
 <script src="js/cogs/breakout_rooms.js"></script>
+<script src="js/cogs/tasks.js"></script>
 </html>

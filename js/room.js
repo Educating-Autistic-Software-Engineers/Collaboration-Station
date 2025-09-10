@@ -82,157 +82,6 @@ async function load() {
 
 document.querySelector('#message__form').addEventListener('submit', sendMessage);
 
-// function toggleMembers() {
-//   if (activeMemberContainer) {
-//     memberContainer.style.display = 'none';
-//   } else {
-//     memberContainer.style.display = 'block';
-//   }
-
-//   // account for rightbar width
-//   memberContainer.style.width = rightBar.style.width;
-
-//   if (activeChatContainer) {
-//     toggleChat(true);
-//   }
-
-//   activeMemberContainer = !activeMemberContainer;
-// }
-
-// async function toggleTutorial() {
-//   if (activeMemberContainer) {
-//     toggleMembers();
-//   }
-//   if (activeChatContainer) {
-//     toggleChat();
-//   }
-
-//   activeTutorialsContainer = !activeTutorialsContainer;
-//   tutorialsContainer.style.display = activeTutorialsContainer ? 'block' : 'none';
-//   tutorialsContainer.style.width = rightBar.style.width;
-// }
-
-// function toggleDropdown(contentId, button) {
-//   const content = document.getElementById(contentId);
-//   const chevron = button.querySelector('.chevron');
-  
-//   content.classList.toggle('active');
-//   chevron.classList.toggle('active');
-// }
-
-// const scratchVids = ["1", "2"];
-// function toggleVideo(videoId) {
-//   const video = document.getElementById('video' + videoId);
-//   console.log(videoId, scratchVids, videoId in scratchVids);
-//   if (scratchVids.includes(String(videoId))) {
-//     innerChannel.publish('video', {videoId: videoId});
-//     return;
-//   } 
-//   if (video.style.display === 'none') {
-//     video.style.display = 'block';
-//   } else {
-//     video.style.display = 'none';
-//   }
-// }
-
-// chatButton.addEventListener('click', toggleChat);
-
-// function toggleChat(influenceMembers = false) {
-//   if (activeTutorialsContainer) {
-//     toggleTutorial();
-//   }
-
-//   if (activeChatContainer) {
-//     chatContainer.style.display = 'none';
-//   } else {
-//     chatContainer.style.display = 'block';
-//     unreadMessages = 0;
-//     updateMessageCounter();
-//   }
-
-//   if (activeMemberContainer && influenceMembers) {
-//     toggleMembers();
-//   }
-
-//   activeChatContainer = !activeChatContainer;
-//   if (activeChatContainer) {
-//     moveSlider({clientY: containerRect.height * 0.5}, true);
-//   } else {
-//     moveSlider({clientY: containerRect.height - 20}, true);
-//   }
-  
-//   const messageForm = document.getElementById('message__form');
-//   if (messageForm && rightBar) {
-//     messageForm.style.width = (rightBar.offsetWidth - 20) + 'px';
-//   }
-// }
-
-// let expandVideoFrame = (e) => {
-//   let child = displayFrame.children[0];
-//   if (child) {
-//     document.getElementById('stream__container').appendChild(child);
-//   }
-
-//   displayFrame.style.display = 'block';
-//   displayFrame.appendChild(e.currentTarget);
-//   userIdInDisplayFrame = e.currentTarget.id;
-
-//   for (let i = 0; i < videoFrames.length; i++) {
-//     if (videoFrames[i].id != userIdInDisplayFrame) {
-//       videoFrames[i].style.height = '136px';
-//       videoFrames[i].style.width = '136px';
-//     }
-//   }
-// }
-
-// for (let i = 0; i < videoFrames.length; i++) {
-//   videoFrames[i].addEventListener('click', expandVideoFrame);
-// }
-
-// let hideDisplayFrame = () => {
-//   userIdInDisplayFrame = null;
-//   displayFrame.style.display = null;
-
-//   let child = displayFrame.children[0];
-//   document.getElementById('stream__container').appendChild(child);
-
-//   for (let i = 0; i < videoFrames.length; i++) {
-//     videoFrames[i].style.height = '300px';
-//     videoFrames[i].style.width = '300px';
-//   }
-// }
-
-// displayFrame.addEventListener('click', hideDisplayFrame);
-
-// Slider movement function
-// function moveSlider(event, override = false) {
-//   if (!isDragging && !override) return;
-  
-//   if (activeChatContainer) {
-//     slider.style.display = 'block';
-//   } else {
-//     slider.style.display = 'none';
-//   }
-
-//   containerRect = rightBar.getBoundingClientRect();
-  
-//   let offsetY = event.clientY - containerRect.top;
-
-//   // Constrain slider position
-//   if (offsetY < 200) offsetY = 200;
-//   if (offsetY > containerRect.height * 0.8 && !override) offsetY = containerRect.height * 0.8;
-
-//   setSliderPosition(offsetY);
-  
-//   tutorialsContainer.style.width = rightBar.style.width;
-//   memberContainer.style.width = rightBar.style.width;
-// }
-
-// // Handle window resize
-// window.addEventListener('resize', () => {
-//   toggleChat();
-//   toggleChat(); 
-// });
 
 function setSliderPosition(offsetY) {
   const topHeight = offsetY - 100;
@@ -516,16 +365,6 @@ function onProjectsButtonClicked() {
   window.location = 'projects.html?email=' + email;
 }
 
-// Expand/collapse UI
-// expandBtn.addEventListener('click', () => {
-//   mainStream.style.width = '100%';
-//   rightBar.style.display = 'none';
-//   expandBtn.style.display = 'none';
-//   revertBtn.style.display = 'block';
-//   if (activeMemberContainer) {
-//     toggleMembers();
-//   }
-// });
 
 revertBtn.addEventListener('click', () => {
   mainStream.style.width = '100%';
@@ -553,7 +392,6 @@ document.addEventListener('visibilitychange', () => {
 });
 
 document.addEventListener('mousemove', resetInactivityTimeout);
-
 
 
 

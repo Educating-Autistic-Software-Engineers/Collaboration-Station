@@ -23,7 +23,8 @@ async function showBreakoutRoomsPopup() {
     initializeBreakoutRooms();
 
     for (const assignment of data) {
-        assignMemberToRoom(assignment.id.split(",")[1], assignment.redirect.toString())
+        let member = POTENTIAL_MEMBERS.find(m => m.email === assignment.id.split(":")[1]);
+        assignMemberToRoom(member, assignment.redirect.toString())
         updateRoomDisplay(assignment.redirect.toString());
     }
     updateUnassignedDisplay();
@@ -40,13 +41,10 @@ function initializeBreakoutRooms(refreshAssignments = true) {
         roomAssignments = {};
     }
 
-    // Generate rooms based on current count
     generateRooms();
     
-    // Populate unassigned members
     populateUnassignedMembers();
     
-    // Set up event listeners
     setupEventListeners();
 }
 
@@ -98,6 +96,7 @@ function createMemberElement(member) {
     memberDiv.dataset.memberName = memberName;
     memberDiv.dataset.memberEmail = memberEmail;
     memberDiv.dataset.member = JSON.stringify(member);
+    memberDiv.id = `member-${member.email}`;
 
     const initials = memberName.split(' ').map(name => name[0]).join('');
     
@@ -145,8 +144,12 @@ function setupDropZone(roomCard) {
 }
 
 function assignMemberToRoom(member, roomId) {
+    var oldRoomId = null;
     Object.keys(roomAssignments).forEach(room => {
         if (roomAssignments[room]) {
+            if (roomAssignments[room].some(m => m.email === member.email)) {
+                oldRoomId = room;
+            }
             roomAssignments[room] = roomAssignments[room].filter(m => m.email !== member.email);
         }
     });
@@ -155,8 +158,16 @@ function assignMemberToRoom(member, roomId) {
         roomAssignments[roomId] = [];
     }
     roomAssignments[roomId].push(member);
-    
+
+    const oldEl = document.getElementById(`member-${member.email}`);
+    if (oldEl) {
+        oldEl.parentNode.removeChild(oldEl);
+    }
+
     updateRoomDisplay(roomId);
+    if (oldRoomId !== null) {
+        updateRoomDisplay(oldRoomId);
+    }
     updateUnassignedDisplay();
 }
 
@@ -240,19 +251,24 @@ function setupEventListeners() {
     const unassignedArea = document.getElementById('unassigned-members');
     unassignedArea.addEventListener('dragover', (e) => {
         e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
+        // e.dataTransfer.dropEffect = 'move';
     });
     
     unassignedArea.addEventListener('drop', (e) => {
         e.preventDefault();
-        const memberName = e.dataTransfer.getData('text/plain');
-        
+        const member = JSON.parse(e.dataTransfer.getData('text/plain'));
+
         Object.keys(roomAssignments).forEach(room => {
             if (roomAssignments[room]) {
-                roomAssignments[room] = roomAssignments[room].filter(member => member.name !== memberName);
+                roomAssignments[room] = roomAssignments[room].filter(m => m.email !== member.email);
             }
         });
-        
+
+        const oldEl = document.getElementById(`member-${member.email}`);
+        if (oldEl && oldEl.parentNode) {
+            oldEl.parentNode.removeChild(oldEl);
+        }
+
         for (let i = 1; i <= currentRoomCount; i++) {
             updateRoomDisplay(i.toString());
         }
