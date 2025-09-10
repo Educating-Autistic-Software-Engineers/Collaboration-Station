@@ -41,156 +41,6 @@
         <div id="room__container">
 
             <!-- <button style="height: auto; width: auto;" onclick="startRecording()">Start Recording</button> -->
-            
-            <section class="right_container" id="members__container">
-                
-                <div id="members__header">
-                    <p>Participants</p>
-                    <strong id="members__count">0</strong>
-                </div>
-
-                <div id="member__list">
-                </div>
-                
-                <button id="add-member-btn" onclick="showAddMemberPopup()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                        <circle cx="8.5" cy="7" r="4"/>
-                        <line x1="20" y1="8" x2="20" y2="14"/>
-                        <line x1="23" y1="11" x2="17" y2="11"/>
-                    </svg>
-                    Add Member
-                </button>
-
-                <button id="break-btn" onclick="onBreakBtnClicked()">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                    10 Minute Break
-                </button>
-
-                <button id="create-breakout-btn" onclick="showBreakoutRoomsPopup()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <pattern id="checkers" width="6" height="6" patternUnits="userSpaceOnUse">
-                                <rect width="3" height="3" fill="white"/>
-                                <rect x="3" y="3" width="3" height="3" fill="white"/>
-                            </pattern>
-                        </defs>
-                        <path d="M2,5 Q8,9 14,5 T24,5" fill="none" stroke="black" stroke-width="1"/>
-                        <rect x="2" y="5" width="20" height="12" fill="url(#checkers)" transform="skewX(-10)"/>
-                        <line x1="2" y1="5" x2="2" y2="20" stroke="black" stroke-width="2"/>
-                    </svg>
-                                
-                    Configure Breakout
-                </button>
-
-                <button id="end-meet-btn" onclick="onEndMeetingClicked()">
-                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <defs>
-                            <pattern id="checkers" width="6" height="6" patternUnits="userSpaceOnUse">
-                                <rect width="3" height="3" fill="white"/>
-                                <rect x="3" y="3" width="3" height="3" fill="white"/>
-                            </pattern>
-                        </defs>
-                        <path d="M2,5 Q8,9 14,5 T24,5" fill="none" stroke="black" stroke-width="1"/>
-                        <rect x="2" y="5" width="20" height="12" fill="url(#checkers)" transform="skewX(-10)"/>
-                        <line x1="2" y1="5" x2="2" y2="20" stroke="black" stroke-width="2"/>
-                    </svg>
-                                
-                    End Meeting
-                </button>
-
-            </section>
-
-            <section class="right_container" id="tutorials__container">
-
-                <button class="dropdown-header" onclick="toggleDropdown('scratch-content', this)">
-                    Scratch Tutorials
-                    <svg class="chevron" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                
-                <div id="scratch-content" class="dropdown-content">
-                    <button class="tutBtn" onclick="toggleVideo('1')">
-                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                            <path d="M8 5v14l10-7-10-7z" fill="#ede0e0"/>
-                        </svg>
-                        Getting Started
-                    </button>
-                    <video id="video1" controls width="300" style="display: none;" allowPictureInPicture>
-                        <source src="https://collabtutorials.s3.us-east-2.amazonaws.com/Navigating_Room_Buttons.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    
-                    <button class="tutBtn" onclick="toggleVideo('2')">
-                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                            <path d="M8 5v14l10-7-10-7z" fill="#ede0e0"/>
-                        </svg>
-                        Create a story
-                    </button>
-                    <video id="video2" controls width="300" style="display: none;" allowPictureInPicture>
-                        <source src="https://collabtutorials.s3.us-east-2.amazonaws.com/Navigating_Room_Buttons.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            
-                <!-- Collaboration Station Videos Dropdown -->
-                <button class="dropdown-header" onclick="toggleDropdown('collab-content', this)">
-                    Collaboration Station Videos
-                    <svg class="chevron" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M6 9L12 15L18 9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
-                </button>
-                
-                <div id="collab-content" class="dropdown-content">
-                    <button class="tutBtn" onclick="toggleVideo('_accessCS')">
-                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                            <path d="M8 5v14l10-7-10-7z" fill="#ede0e0"/>
-                        </svg>
-                        Accessing Collaboration Station
-                    </button>
-                    <video id="video_accessCS" controls width="300" style="display: none;" allowPictureInPicture>
-                        <source src="https://collabtutorials.s3.us-east-2.amazonaws.com/Accessing_Collab_Station.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-
-                    <button class="tutBtn" onclick="toggleVideo('_navPP')">
-                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                            <path d="M8 5v14l10-7-10-7z" fill="#ede0e0"/>
-                        </svg>
-                        Navigating Projects Page
-                    </button>
-                    <video id="video_navPP" controls width="300" style="display: none;" allowPictureInPicture>
-                        <source src="https://collabtutorials.s3.us-east-2.amazonaws.com/Navigating_Projects_Page.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-
-                    <button class="tutBtn" onclick="toggleVideo('3')">
-                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                            <path d="M8 5v14l10-7-10-7z" fill="#ede0e0"/>
-                        </svg>
-                        Using Collaboration Station
-                    </button>
-                    <video id="video3" controls width="300" style="display: none;" allowPictureInPicture>
-                        <source src="https://collabtutorials.s3.us-east-2.amazonaws.com/Navigating_Room_Buttons.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    
-                    <button class="tutBtn" onclick="toggleVideo('4')">
-                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
-                            <path d="M8 5v14l10-7-10-7z" fill="#ede0e0"/>
-                        </svg>
-                        Using TA Powers
-                    </button>
-                    <video id="video4" controls width="300" style="display: none;" allowPictureInPicture>
-                        <source src="https://collabtutorials.s3.us-east-2.amazonaws.com/TAPowers.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            </section>
        
             <!-- <div id="main-stream"></div> -->
             <iframe id="main-stream" src="vm/index.html" title="Stream"></iframe>
@@ -203,94 +53,138 @@
             playsinline
             style="visibility: hidden;"></audio>
 
-            <div id="right_bar">
-
-                <!-- <div class="form__field__wrapper">
-                    <input id="room_label"/>
-                </div> -->
-                <!-- <button id="slider">&#8883</button> -->
-
-                <div id="nav__links">
-                    
+            <div id="right_bar" class="initializing">
+                <button class="collapse-toggle">
+                    <span class="arrow">◀</span>
+                </button>
                 
-
-                    <!-- <img src="images/home.png" class="nav__link" id="create__room__btn" onclick="onProjectsButtonClicked()"> -->
-                    <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ede0e0" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm6 13h-5v5h-2v-5h-5v-2h5v-5h2v5h5v2z"/></svg> -->
+                <div id="nav__links">
+                    <button class="nav-button" id="chat__button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill-rule="evenodd" fill="#ede0e0" clip-rule="evenodd">
+                            <path d="M24 20h-3v4l-5.333-4h-7.667v-4h2v2h6.333l2.667 2v-2h3v-8.001h-2v-2h4v12.001zm-15.667-6l-5.333 4v-4h-3v-14.001l18 .001v14h-9.667zm-6.333-2h3v2l2.667-2h8.333v-10l-14-.001v10.001z"/>
+                        </svg>
+                        <span class="nav-button-text">Chat</span>
+                        <span class="num_label" id="messageCount">3</span>
+                        <div class="tooltip">Chat Messages</div>
+                    </button>
                     
-                    <button id="chat__button">
-                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" fill="#ede0e0" clip-rule="evenodd"><path d="M24 20h-3v4l-5.333-4h-7.667v-4h2v2h6.333l2.667 2v-2h3v-8.001h-2v-2h4v12.001zm-15.667-6l-5.333 4v-4h-3v-14.001l18 .001v14h-9.667zm-6.333-2h3v2l2.667-2h8.333v-10l-14-.001v10.001z"/></svg>
-                        <span class="num_label" id="messageCount" style="color: white;">0</span>
-                    </button><!-- <a class="nav__link" href="/">
-                        Lobby
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#ede0e0" viewBox="0 0 24 24"><path d="M20 7.093v-5.093h-3v2.093l3 3zm4 5.907l-12-12-12 12h3v10h7v-5h4v5h7v-10h3zm-5 8h-3v-5h-8v5h-3v-10.26l7-6.912 7 6.99v10.182z"/></svg>
-                    </a> -->
-                    <!-- <button id="closeChatBtn" class="close-chat-btn"></button>
-                    <button id="openChatBtn" class="open-chat-btn"></button> -->
-                    <!-- <span id="messageCount" style="color: white;">0</span> -->
-                    <button id="members__button">
+                    <button class="nav-button" id="members__button">
                         <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
                             <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" fill="#ede0e0"/>
                         </svg>
-                        <span class="num_label" id="connectedCount" style="color: white;">0</span>
-                        <!-- <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M24 18v1h-24v-1h24zm0-6v1h-24v-1h24zm0-6v1h-24v-1h24z" fill="#ede0e0"><path d="M24 19h-24v-1h24v1zm0-6h-24v-1h24v1zm0-6h-24v-1h24v1z"/></svg> -->
+                        <span class="nav-button-text">Members</span>
+                        <span class="num_label" id="connectedCount">5</span>
+                        <div class="tooltip">Participants</div>
                     </button>
-
-                    <button id="videos__button">
+                    
+                    <button class="nav-button" id="tasks__button">
                         <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd">
                             <path d="M4 3h16v18H4V3zm2 2v14h12V5H6zm1 3h10v1H7V8zm0 3h10v1H7v-1z" fill="#ede0e0"/>
                         </svg>
-                        <!-- <span class="num_label" id="connectedCount" style="color: white;">0</span> -->
-                        <!-- <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M24 18v1h-24v-1h24zm0-6v1h-24v-1h24zm0-6v1h-24v-1h24z" fill="#ede0e0"><path d="M24 19h-24v-1h24v1zm0-6h-24v-1h24v1zm0-6h-24v-1h24v1z"/></svg> -->
+                        <span class="nav-button-text">Tasks</span>
+                        <div class="tooltip">Task Management</div>
                     </button>
-
-                    <!-- <img src="images/endmeeting.png" height="24px" width="24px" class="nav__link" id="end-meeting-btn" onmouseup="onEndMeetingClicked()"> -->
-                    
-
                 </div>
-            
+                
                 <div id="stream__container">
-
-                    <div id="stream__box"></div>
-                    
-
-                    <button id="join-btn">Join Stream</button>
+                    <div style="color: #999; text-align: center; padding: 2rem; flex: 1; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,0.02); border-radius: 8px; margin: 5px;">
+                        Video participants will appear here
+                    </div>
                 </div>
-
+                
                 <div class="slider" id="slider"></div>
                 
-                <section id="messages__container" style="margin-top: 3px;">
-                    <!-- <button id="closeChatBtn" class="close-chat-btn">&times;</button> -->
-
-                    <div id="messages"></div>
-
-                    <form id="message__form">
-                        <button type="button" id="emoji-button">😊</button>
-                        <input type="text" name="message" placeholder="Send a message...." />
-                    </form>
-
-                    <!-- Emoji selector that appears when clicking the emoji button -->
-                    <div id="emoji-overlay"></div>
-                    <div id="emoji-selector">
-                        <div class="emoji-tabs">
-                            <div class="emoji-tab active" data-category="frequent">🕒</div>
-                            <div class="emoji-tab" data-category="smileys">😀</div>
-                            <div class="emoji-tab" data-category="people">👋</div>
-                            <div class="emoji-tab" data-category="animals">🐶</div>
-                            <div class="emoji-tab" data-category="food">🍔</div>
-                            <div class="emoji-tab" data-category="activities">⚽</div>
-                            <div class="emoji-tab" data-category="travel">🚗</div>
-                            <div class="emoji-tab" data-category="objects">💡</div>
-                            <div class="emoji-tab" data-category="symbols">❤️</div>
-                            <div class="emoji-tab" data-category="flags">🏁</div>
+                <div id="messages__container">
+                    <div id="messages">
+                        <div style="padding: 1rem; color: #999;">
+                            Chat messages will appear here...
                         </div>
+                    </div>
+                    <form id="message__form">
+                        <input type="text" name="message" placeholder="Send a message..." />
+                    </form>
+                </div>
+                
+                <!-- Content sections -->
+                <section class="right_container" id="members__container">
 
-                        <!-- Emoji categories content will be populated by JavaScript -->
-                        <div id="emoji-content"></div>
+                    <div id="members__header">
+                        <p>Participants</p>
+                        <strong id="members__count">0</strong>
                     </div>
 
-                </section>
+                    <div id="member__list">
+                    </div>
+                    
+                    <button id="add-member-btn" onclick="showAddMemberPopup()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                            <circle cx="8.5" cy="7" r="4"/>
+                            <line x1="20" y1="8" x2="20" y2="14"/>
+                            <line x1="23" y1="11" x2="17" y2="11"/>
+                        </svg>
+                        Add Member
+                    </button>
 
-                <div id="resize-handle" class="resize-handle"></div>
+                    <button id="break-btn" onclick="onBreakBtnClicked()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        10 Minute Break
+                    </button>
+
+                    <button id="create-breakout-btn" onclick="showBreakoutRoomsPopup()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <pattern id="checkers" width="6" height="6" patternUnits="userSpaceOnUse">
+                                    <rect width="3" height="3" fill="white"/>
+                                    <rect x="3" y="3" width="3" height="3" fill="white"/>
+                                </pattern>
+                            </defs>
+                            <path d="M2,5 Q8,9 14,5 T24,5" fill="none" stroke="black" stroke-width="1"/>
+                            <rect x="2" y="5" width="20" height="12" fill="url(#checkers)" transform="skewX(-10)"/>
+                            <line x1="2" y1="5" x2="2" y2="20" stroke="black" stroke-width="2"/>
+                        </svg>
+                                    
+                        Configure Breakout
+                    </button>
+
+                    <button id="end-meet-btn" onclick="onEndMeetingClicked()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <pattern id="checkers" width="6" height="6" patternUnits="userSpaceOnUse">
+                                    <rect width="3" height="3" fill="white"/>
+                                    <rect x="3" y="3" width="3" height="3" fill="white"/>
+                                </pattern>
+                            </defs>
+                            <path d="M2,5 Q8,9 14,5 T24,5" fill="none" stroke="black" stroke-width="1"/>
+                            <rect x="2" y="5" width="20" height="12" fill="url(#checkers)" transform="skewX(-10)"/>
+                            <line x1="2" y1="5" x2="2" y2="20" stroke="black" stroke-width="2"/>
+                        </svg>
+                                    
+                        End Meeting
+                    </button>
+
+                </section>
+                
+                <section class="right_container" id="tasks__container">
+                    <h3>Task Management</h3>
+                    <div class="task-item">
+                        <strong>Task 1</strong><br>
+                        <small>Description for Task 1</small>
+                    </div>
+                    <div class="task-item">
+                        <strong>Task 2</strong><br>
+                        <small>Description for Task 2</small>
+                    </div>
+                    <div class="task-item">
+                        <strong>Best Practices</strong><br>
+                        <small>Tips for effective online collaboration</small>
+                    </div>
+                </section>
+                
+                <div class="resize-handle" id="resize-handle"></div>
 
             </div>
 
@@ -383,6 +277,7 @@
 <!-- <script src="js/agora_cloud_recording.js"></script> -->
 <script src="js/cogs/messaging_rooms.js"></script>
 <script src="js/cogs/video_rooms.js"></script>
+<script src="js/cogs/sidebar.js"></script>
 <script src="js/room.js"></script>
 <script src="js/cogs/breakout_rooms.js"></script>
 </html>

@@ -12,7 +12,7 @@ let POTENTIAL_MEMBERS;
 const messagesContainer = document.getElementById('messages');
 const memberContainer = document.getElementById('members__container');
 const memberButton = document.getElementById('members__button');
-const tutorialsButton = document.getElementById('videos__button');
+const tasksButton = document.getElementById('tasks__button');
 const chatContainer = document.getElementById('messages__container');
 const chatButton = document.getElementById('chat__button');
 const rightBar = document.getElementById('right_bar');
@@ -81,160 +81,158 @@ async function load() {
 }
 
 document.querySelector('#message__form').addEventListener('submit', sendMessage);
-memberButton.addEventListener('click', toggleMembers);
-tutorialsButton.addEventListener('click', toggleTutorial);
 
-function toggleMembers() {
-  if (activeMemberContainer) {
-    memberContainer.style.display = 'none';
-  } else {
-    memberContainer.style.display = 'block';
-  }
+// function toggleMembers() {
+//   if (activeMemberContainer) {
+//     memberContainer.style.display = 'none';
+//   } else {
+//     memberContainer.style.display = 'block';
+//   }
 
-  // account for rightbar width
-  memberContainer.style.width = rightBar.style.width;
+//   // account for rightbar width
+//   memberContainer.style.width = rightBar.style.width;
 
-  if (activeChatContainer) {
-    toggleChat(true);
-  }
+//   if (activeChatContainer) {
+//     toggleChat(true);
+//   }
 
-  activeMemberContainer = !activeMemberContainer;
-}
+//   activeMemberContainer = !activeMemberContainer;
+// }
 
-async function toggleTutorial() {
-  if (activeMemberContainer) {
-    toggleMembers();
-  }
-  if (activeChatContainer) {
-    toggleChat();
-  }
+// async function toggleTutorial() {
+//   if (activeMemberContainer) {
+//     toggleMembers();
+//   }
+//   if (activeChatContainer) {
+//     toggleChat();
+//   }
 
-  activeTutorialsContainer = !activeTutorialsContainer;
-  tutorialsContainer.style.display = activeTutorialsContainer ? 'block' : 'none';
-  tutorialsContainer.style.width = rightBar.style.width;
-}
+//   activeTutorialsContainer = !activeTutorialsContainer;
+//   tutorialsContainer.style.display = activeTutorialsContainer ? 'block' : 'none';
+//   tutorialsContainer.style.width = rightBar.style.width;
+// }
 
-function toggleDropdown(contentId, button) {
-  const content = document.getElementById(contentId);
-  const chevron = button.querySelector('.chevron');
+// function toggleDropdown(contentId, button) {
+//   const content = document.getElementById(contentId);
+//   const chevron = button.querySelector('.chevron');
   
-  content.classList.toggle('active');
-  chevron.classList.toggle('active');
-}
+//   content.classList.toggle('active');
+//   chevron.classList.toggle('active');
+// }
 
-const scratchVids = ["1", "2"];
-function toggleVideo(videoId) {
-  const video = document.getElementById('video' + videoId);
-  console.log(videoId, scratchVids, videoId in scratchVids);
-  if (scratchVids.includes(String(videoId))) {
-    innerChannel.publish('video', {videoId: videoId});
-    return;
-  } 
-  if (video.style.display === 'none') {
-    video.style.display = 'block';
-  } else {
-    video.style.display = 'none';
-  }
-}
+// const scratchVids = ["1", "2"];
+// function toggleVideo(videoId) {
+//   const video = document.getElementById('video' + videoId);
+//   console.log(videoId, scratchVids, videoId in scratchVids);
+//   if (scratchVids.includes(String(videoId))) {
+//     innerChannel.publish('video', {videoId: videoId});
+//     return;
+//   } 
+//   if (video.style.display === 'none') {
+//     video.style.display = 'block';
+//   } else {
+//     video.style.display = 'none';
+//   }
+// }
 
-chatButton.addEventListener('click', toggleChat);
+// chatButton.addEventListener('click', toggleChat);
 
-function toggleChat(influenceMembers = false) {
-  if (activeTutorialsContainer) {
-    toggleTutorial();
-  }
+// function toggleChat(influenceMembers = false) {
+//   if (activeTutorialsContainer) {
+//     toggleTutorial();
+//   }
 
-  if (activeChatContainer) {
-    chatContainer.style.display = 'none';
-  } else {
-    chatContainer.style.display = 'block';
-    unreadMessages = 0;
-    updateMessageCounter();
-  }
+//   if (activeChatContainer) {
+//     chatContainer.style.display = 'none';
+//   } else {
+//     chatContainer.style.display = 'block';
+//     unreadMessages = 0;
+//     updateMessageCounter();
+//   }
 
-  if (activeMemberContainer && influenceMembers) {
-    toggleMembers();
-  }
+//   if (activeMemberContainer && influenceMembers) {
+//     toggleMembers();
+//   }
 
-  activeChatContainer = !activeChatContainer;
-  if (activeChatContainer) {
-    moveSlider({clientY: containerRect.height * 0.5}, true);
-  } else {
-    moveSlider({clientY: containerRect.height - 20}, true);
-  }
+//   activeChatContainer = !activeChatContainer;
+//   if (activeChatContainer) {
+//     moveSlider({clientY: containerRect.height * 0.5}, true);
+//   } else {
+//     moveSlider({clientY: containerRect.height - 20}, true);
+//   }
   
-  const messageForm = document.getElementById('message__form');
-  if (messageForm && rightBar) {
-    messageForm.style.width = (rightBar.offsetWidth - 20) + 'px';
-  }
-}
+//   const messageForm = document.getElementById('message__form');
+//   if (messageForm && rightBar) {
+//     messageForm.style.width = (rightBar.offsetWidth - 20) + 'px';
+//   }
+// }
 
-let expandVideoFrame = (e) => {
-  let child = displayFrame.children[0];
-  if (child) {
-    document.getElementById('stream__container').appendChild(child);
-  }
+// let expandVideoFrame = (e) => {
+//   let child = displayFrame.children[0];
+//   if (child) {
+//     document.getElementById('stream__container').appendChild(child);
+//   }
 
-  displayFrame.style.display = 'block';
-  displayFrame.appendChild(e.currentTarget);
-  userIdInDisplayFrame = e.currentTarget.id;
+//   displayFrame.style.display = 'block';
+//   displayFrame.appendChild(e.currentTarget);
+//   userIdInDisplayFrame = e.currentTarget.id;
 
-  for (let i = 0; i < videoFrames.length; i++) {
-    if (videoFrames[i].id != userIdInDisplayFrame) {
-      videoFrames[i].style.height = '136px';
-      videoFrames[i].style.width = '136px';
-    }
-  }
-}
+//   for (let i = 0; i < videoFrames.length; i++) {
+//     if (videoFrames[i].id != userIdInDisplayFrame) {
+//       videoFrames[i].style.height = '136px';
+//       videoFrames[i].style.width = '136px';
+//     }
+//   }
+// }
 
-for (let i = 0; i < videoFrames.length; i++) {
-  videoFrames[i].addEventListener('click', expandVideoFrame);
-}
+// for (let i = 0; i < videoFrames.length; i++) {
+//   videoFrames[i].addEventListener('click', expandVideoFrame);
+// }
 
-let hideDisplayFrame = () => {
-  userIdInDisplayFrame = null;
-  displayFrame.style.display = null;
+// let hideDisplayFrame = () => {
+//   userIdInDisplayFrame = null;
+//   displayFrame.style.display = null;
 
-  let child = displayFrame.children[0];
-  document.getElementById('stream__container').appendChild(child);
+//   let child = displayFrame.children[0];
+//   document.getElementById('stream__container').appendChild(child);
 
-  for (let i = 0; i < videoFrames.length; i++) {
-    videoFrames[i].style.height = '300px';
-    videoFrames[i].style.width = '300px';
-  }
-}
+//   for (let i = 0; i < videoFrames.length; i++) {
+//     videoFrames[i].style.height = '300px';
+//     videoFrames[i].style.width = '300px';
+//   }
+// }
 
-displayFrame.addEventListener('click', hideDisplayFrame);
+// displayFrame.addEventListener('click', hideDisplayFrame);
 
 // Slider movement function
-function moveSlider(event, override = false) {
-  if (!isDragging && !override) return;
+// function moveSlider(event, override = false) {
+//   if (!isDragging && !override) return;
   
-  if (activeChatContainer) {
-    slider.style.display = 'block';
-  } else {
-    slider.style.display = 'none';
-  }
+//   if (activeChatContainer) {
+//     slider.style.display = 'block';
+//   } else {
+//     slider.style.display = 'none';
+//   }
 
-  containerRect = rightBar.getBoundingClientRect();
+//   containerRect = rightBar.getBoundingClientRect();
   
-  let offsetY = event.clientY - containerRect.top;
+//   let offsetY = event.clientY - containerRect.top;
 
-  // Constrain slider position
-  if (offsetY < 200) offsetY = 200;
-  if (offsetY > containerRect.height * 0.8 && !override) offsetY = containerRect.height * 0.8;
+//   // Constrain slider position
+//   if (offsetY < 200) offsetY = 200;
+//   if (offsetY > containerRect.height * 0.8 && !override) offsetY = containerRect.height * 0.8;
 
-  setSliderPosition(offsetY);
+//   setSliderPosition(offsetY);
   
-  tutorialsContainer.style.width = rightBar.style.width;
-  memberContainer.style.width = rightBar.style.width;
-}
+//   tutorialsContainer.style.width = rightBar.style.width;
+//   memberContainer.style.width = rightBar.style.width;
+// }
 
-// Handle window resize
-window.addEventListener('resize', () => {
-  toggleChat();
-  toggleChat(); 
-});
+// // Handle window resize
+// window.addEventListener('resize', () => {
+//   toggleChat();
+//   toggleChat(); 
+// });
 
 function setSliderPosition(offsetY) {
   const topHeight = offsetY - 100;
@@ -479,7 +477,7 @@ function initEmojiSelector() {
 window.messagingReady.then(async () => {
   await load();
 
-  initEmojiSelector();
+  // initEmojiSelector();
 
   // Set random color for user
   sessionStorage.setItem('randomColor', ["red", "green", "blue", "teal", "salmon", "goldenrod"][Math.floor(Math.random() * 6)]);
@@ -494,14 +492,14 @@ window.messagingReady.then(async () => {
     isDragging = true;
   });
   
-  document.addEventListener('mousemove', moveSlider);
+  // document.addEventListener('mousemove', moveSlider);
   
   document.addEventListener('mouseup', function() {
     isDragging = false;
   });
 
   // Initialize UI
-  toggleChat();
+  // toggleChat();
   initAddMemberAutocomplete();
   
   // Add event listeners for member management
@@ -509,7 +507,7 @@ window.messagingReady.then(async () => {
   document.getElementById('confirm-add-member').addEventListener('click', addMemberToProject);
   
   // Add resize handle
-  addResizeHandle();
+  // addResizeHandle();
 });
 
 // Project navigation
@@ -519,15 +517,15 @@ function onProjectsButtonClicked() {
 }
 
 // Expand/collapse UI
-expandBtn.addEventListener('click', () => {
-  mainStream.style.width = '100%';
-  rightBar.style.display = 'none';
-  expandBtn.style.display = 'none';
-  revertBtn.style.display = 'block';
-  if (activeMemberContainer) {
-    toggleMembers();
-  }
-});
+// expandBtn.addEventListener('click', () => {
+//   mainStream.style.width = '100%';
+//   rightBar.style.display = 'none';
+//   expandBtn.style.display = 'none';
+//   revertBtn.style.display = 'block';
+//   if (activeMemberContainer) {
+//     toggleMembers();
+//   }
+// });
 
 revertBtn.addEventListener('click', () => {
   mainStream.style.width = '100%';
@@ -556,118 +554,7 @@ document.addEventListener('visibilitychange', () => {
 
 document.addEventListener('mousemove', resetInactivityTimeout);
 
-function addResizeHandle() {
-  const resizeHandle = document.getElementById('resize-handle');
-  
-  let isResizing = false;
-  let initialX;
-  let initialWidth;
 
-  const iframeShield = document.createElement('div');
-  iframeShield.style.position = 'fixed';
-  iframeShield.style.top = '0';
-  iframeShield.style.left = '0';
-  iframeShield.style.width = '100vw';
-  iframeShield.style.height = '100vh';
-  iframeShield.style.zIndex = '9999';
-  iframeShield.style.cursor = 'ew-resize';
-  iframeShield.style.background = 'transparent';
-  iframeShield.style.pointerEvents = 'auto';
-
-  function startResize(e) {
-    isResizing = true;
-    initialX = e.clientX;
-    initialWidth = rightBar.offsetWidth;
-    resizeHandle.classList.add('active');
-
-    document.body.style.userSelect = 'none';
-
-    document.body.appendChild(iframeShield);
-
-    e.preventDefault();
-  }
-
-  function performResize(e) {
-    if (!isResizing) return;
-
-    const deltaX = initialX - e.clientX;
-    const newWidth = Math.max(250, Math.min(600, initialWidth + deltaX));
-
-    rightBar.style.width = newWidth + 'px';
-    mainStream.style.width = `calc(100% - ${newWidth + 10}px)`;
-
-    const messageForm = document.getElementById('message__form');
-    if (messageForm) {
-      messageForm.style.width = (newWidth - 20) + 'px';
-    }
-
-    if (typeof containerRect !== 'undefined') {
-      containerRect = rightBar.getBoundingClientRect();
-    }
-
-    tutorialsContainer.style.width = rightBar.style.width;
-    memberContainer.style.width = rightBar.style.width;
-  }
-
-  function stopResize() {
-    if (!isResizing) return;
-
-    isResizing = false;
-    resizeHandle.classList.remove('active');
-    document.body.style.userSelect = '';
-
-    // Remove the iframe shield
-    if (document.body.contains(iframeShield)) {
-      document.body.removeChild(iframeShield);
-    }
-
-    if (typeof moveSlider === 'function' && activeChatContainer) {
-      moveSlider({ clientY: containerRect.height * 0.5 }, true);
-    }
-  }
-
-  function resetToDefault() {
-    const defaultWidth = 303;
-    rightBar.style.width = defaultWidth + 'px';
-    mainStream.style.width = `calc(100% - ${defaultWidth + 10}px)`;
-
-    if (typeof containerRect !== 'undefined') {
-      containerRect = rightBar.getBoundingClientRect();
-
-      if (typeof moveSlider === 'function' && activeChatContainer) {
-        moveSlider({ clientY: containerRect.height * 0.5 }, true);
-      }
-    }
-  }
-
-  resizeHandle.addEventListener('mousedown', startResize);
-  document.addEventListener('mousemove', performResize);
-  document.addEventListener('mouseup', stopResize);
-  resizeHandle.addEventListener('dblclick', resetToDefault);
-}
-
-if (expandBtn && revertBtn) {
-  const originalMainStreamWidth = mainStream.style.width;
-  const originalRightBarWidth = rightBar.style.width || '303px';
-
-  expandBtn.addEventListener('click', function () {
-    mainStream.style.width = '100%';
-    rightBar.style.display = 'none';
-    expandBtn.style.display = 'none';
-    revertBtn.style.display = 'block';
-    if (activeMemberContainer) {
-      toggleMembers();
-    }
-  });
-
-  revertBtn.addEventListener('click', function () {
-    mainStream.style.width = originalMainStreamWidth || `calc(100% - ${parseInt(originalRightBarWidth) + 10}px)`;
-    rightBar.style.display = 'block';
-    rightBar.style.width = originalRightBarWidth;
-    expandBtn.style.display = 'block';
-    revertBtn.style.display = 'none';
-  });
-}
 
 
 resetInactivityTimeout();

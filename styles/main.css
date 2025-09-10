@@ -144,7 +144,7 @@ a {
 }
 
 #members__button,
-#videos__button,
+#tasks__button,
 #chat__button {
   display: block;
   cursor: pointer;

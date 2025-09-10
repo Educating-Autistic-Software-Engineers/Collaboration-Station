@@ -5,16 +5,28 @@ let currentRoomCount = 3;
 
 async function showBreakoutRoomsPopup() {
 
-    const resp = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems');
-    const data = await resp.json();
-
-    POTENTIAL_MEMBERS = data.requests;
+    let emails = []
+    let tmpUsers = Object.keys(connectedUsers)
+    for (const user of tmpUsers) {
+        connectedUsers[user].email = connectedUsers[user].requestId;
+        emails.push(connectedUsers[user].email);
+    }
+    POTENTIAL_MEMBERS = tmpUsers.map(user => connectedUsers[user]);
 
     const popup = document.getElementById('breakout-rooms-popup');
     popup.style.display = 'block';
-    
-    // Initialize data when popup opens
+
+    const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${roomId.split(":")[0]}&batch=${emails.join(",")}`);
+    const data = await resp.json();
+    console.log(data);
+
     initializeBreakoutRooms();
+
+    for (const assignment of data) {
+        assignMemberToRoom(assignment.id.split(",")[1], assignment.redirect.toString())
+        updateRoomDisplay(assignment.redirect.toString());
+    }
+    updateUnassignedDisplay();
 }
 
 function hideBreakoutRoomsPopup() {
@@ -22,10 +34,12 @@ function hideBreakoutRoomsPopup() {
     popup.style.display = 'none';
 }
 
-function initializeBreakoutRooms() {
-    // Reset assignments
-    roomAssignments = {};
-    
+function initializeBreakoutRooms(refreshAssignments = true) {
+
+    if (refreshAssignments) {
+        roomAssignments = {};
+    }
+
     // Generate rooms based on current count
     generateRooms();
     
