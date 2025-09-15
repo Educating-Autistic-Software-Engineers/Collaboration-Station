@@ -243,7 +243,7 @@ function handleVolumeIndicator() {
 
 // Join stream and set up local tracks
 let joinStream = async () => {
-    document.getElementById('join-btn').style.display = 'none';
+    // document.getElementById('join-btn').style.display = 'none';
     document.getElementsByClassName('stream__actions')[0].style.display = 'flex';
 
     try {
@@ -511,7 +511,7 @@ let switchToCamera = async () => {
 let leaveStream = async (e) => {
     e.preventDefault();
     
-    document.getElementById('join-btn').style.display = 'block';
+    // document.getElementById('join-btn').style.display = 'block';
     document.getElementsByClassName('stream__actions')[0].style.display = 'none';
     
     if (meetingSession) {
@@ -532,7 +532,7 @@ window.messagingReady.then(() => {
     // Register event listeners
     document.getElementById('camera-btn').addEventListener('click', toggleCamera);
     document.getElementById('mic-btn').addEventListener('click', toggleMic);
-    document.getElementById('join-btn').addEventListener('click', joinStream);
+    // document.getElementById('join-btn').addEventListener('click', joinStream);
     document.getElementById('mute-mic-btn').addEventListener('click', toggleMuteMic);
     document.getElementById('mute-camera-btn').addEventListener('click', toggleMuteCamera);
     // Uncomment if screen sharing button exists

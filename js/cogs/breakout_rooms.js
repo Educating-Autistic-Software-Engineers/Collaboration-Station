@@ -52,7 +52,9 @@ function generateRooms() {
     const container = document.getElementById('rooms-container');
     const roomCount = parseInt(document.getElementById('room-count').value);
     currentRoomCount = roomCount;
-    
+
+    setupDropZone(document.getElementById('unassigned-section-box'));
+
     container.innerHTML = '';
     
     for (let i = 1; i <= roomCount; i++) {
@@ -137,7 +139,10 @@ function setupDropZone(roomCard) {
         roomCard.classList.remove('drag-over');
 
         const member = JSON.parse(e.dataTransfer.getData('text/plain'));
-        const roomId = roomCard.dataset.roomId;
+        var roomId = parseInt(roomCard.dataset.roomId);
+        if (isNaN(roomId) || roomId === null) {
+            roomId = 0;
+        }
 
         assignMemberToRoom(member, roomId);
     });
@@ -168,12 +173,12 @@ function assignMemberToRoom(member, roomId) {
     if (oldRoomId !== null) {
         updateRoomDisplay(oldRoomId);
     }
-    updateUnassignedDisplay();
+    // updateUnassignedDisplay();
 }
 
 function updateRoomDisplay(roomId) {
-    const membersContainer = document.getElementById(`room-${roomId}-members`);
-    const countElement = document.getElementById(`room-${roomId}-count`);
+    var membersContainer = (roomId > 0) ? document.getElementById(`room-${roomId}-members`) : document.getElementById('unassigned-members');
+    var countElement = (roomId > 0) ? document.getElementById(`room-${roomId}-count`) : document.getElementById('unassigned-count');
     
     const members = roomAssignments[roomId] || [];
     

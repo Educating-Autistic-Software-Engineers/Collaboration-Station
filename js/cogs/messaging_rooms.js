@@ -21,9 +21,11 @@ async function initSetup() {
     if (resp.ok) {
         // Handle valid breakout
         const breakoutdata = await resp.json();
-        roomName += ":" + breakoutdata.redirect;
-        breakoutId = breakoutdata.redirect;
-        roomId += ":" + breakoutdata.redirect;
+        if (breakoutdata === null && breakoutdata.redirect != 0) {
+            roomName += ":" + breakoutdata.redirect;
+            breakoutId = breakoutdata.redirect;
+            roomId += ":" + breakoutdata.redirect;
+        }
     }
     console.log("Room Name: " + roomName);
 
@@ -151,8 +153,6 @@ window.messagingReady.then(() => {
     }
 
     handleChannelMessage = async (messageData, MemberId) => {
-
-        return
 
         console.log('A new message was received')
         let data = JSON.parse(messageData.text)
@@ -365,16 +365,11 @@ window.messagingReady.then(() => {
     });
                 
 
-    sendMessage = async (e) => {
+    sendMessage = async (message) => {
         
-        e.preventDefault()
-
         if (!canSendMessages) {
             return;
         }
-
-        let message = e.target.message.value
-        e.target.reset()
 
         const displayName = sessionStorage.getItem('display_name');
 
@@ -426,9 +421,6 @@ window.messagingReady.then(() => {
         messagesWrapper.insertAdjacentHTML('beforeend', newMessage)
 
         let lastMessage = document.querySelector('#messages .message__wrapper:last-child')
-        if(lastMessage){
-            lastMessage.scrollIntoView()
-        }
     }
 
 
@@ -445,9 +437,6 @@ window.messagingReady.then(() => {
         messagesWrapper.insertAdjacentHTML('beforeend', newMessage)
 
         let lastMessage = document.querySelector('#messages .message__wrapper:last-child')
-        if(lastMessage){
-            lastMessage.scrollIntoView()
-        }
     }
 
 });

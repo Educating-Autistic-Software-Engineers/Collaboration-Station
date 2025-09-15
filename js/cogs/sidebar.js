@@ -308,13 +308,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-
 document.getElementById('message__form').addEventListener('submit', (e) => {
     e.preventDefault();
     const input = e.target.querySelector('input[name="message"]');
     if (input.value.trim()) {
-        // Add message to chat (you would implement actual messaging here)
         console.log('Message sent:', input.value);
+        sendMessage(input.value);
         input.value = '';
     }
 });

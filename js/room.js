@@ -365,14 +365,6 @@ function onProjectsButtonClicked() {
   window.location = 'projects.html?email=' + email;
 }
 
-
-revertBtn.addEventListener('click', () => {
-  mainStream.style.width = '100%';
-  expandBtn.style.display = 'block';
-  rightBar.style.display = 'block';
-  revertBtn.style.display = 'none';
-});
-
 let inactivityTimeout;
 const inactivityDuration = 3 * 60 * 60 * 1000; // 3 hours
 
