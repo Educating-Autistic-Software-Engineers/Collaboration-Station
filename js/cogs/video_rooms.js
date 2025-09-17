@@ -9,12 +9,6 @@ let token = null;
 let client;
 let meetingSession;
 
-const logger = new ChimeSDK.ConsoleLogger(
-    "ChimeMeetingLogs",
-    ChimeSDK.LogLevel.DEBUG
-);
-const deviceController = new ChimeSDK.DefaultDeviceController(logger);
-
 // Keep color functionality from original code
 const colors = [
     'red', 'green', 'blue', 'orange', 'purple',
@@ -43,6 +37,62 @@ let localScreenTracks;
 let sharingScreen = false;
 
 let meetingId = ""
+
+const audioLogger = {
+    success: (msg, data = '') => console.log(`🎵 AUDIO SUCCESS: ${msg}`, data),
+    error: (msg, data = '') => console.error(`❌ AUDIO ERROR: ${msg}`, data),
+    warn: (msg, data = '') => console.warn(`⚠️ AUDIO WARNING: ${msg}`, data),
+    info: (msg, data = '') => console.log(`📋 AUDIO INFO: ${msg}`, data)
+};
+
+const logger = new ChimeSDK.ConsoleLogger(
+    "ChimeMeetingLogs",
+    ChimeSDK.LogLevel.WARN
+);
+
+const deviceController = new ChimeSDK.DefaultDeviceController(logger);
+
+
+function setupCleanVolumeMonitoring() {
+    let userCount = 0;
+    
+    meetingSession.audioVideo.realtimeSubscribeToVolumeIndicator(
+        (attendeeId, volume, muted, signalStrength) => {
+            const isLocal = attendeeId === meetingSession.configuration.credentials.attendeeId;
+            
+            if (isLocal) {
+                // Update mic status
+                const micStatus = document.getElementById('mic-status');
+                const audioLevel = document.getElementById('audio-level');
+                
+                if (micStatus) {
+                    micStatus.textContent = muted ? 'Muted' : 'On';
+                    micStatus.style.color = muted ? '#ff4444' : '#44ff44';
+                }
+                
+                if (audioLevel) {
+                    audioLevel.textContent = `${(volume * 100).toFixed(0)}%`;
+                    audioLevel.style.color = volume > 0.1 ? '#44ff44' : '#888';
+                }
+                
+                // Only log significant changes for local user
+                if (volume > 0.2 && !muted) {
+                    audioLogger.info(`Speaking detected - Level: ${(volume * 100).toFixed(0)}%`);
+                }
+            }
+            
+            // Update user count
+            const activeUsers = new Set();
+            meetingSession.audioVideo.realtimeSubscribeToAttendeeIdPresence((id, present) => {
+                if (present) activeUsers.add(id);
+                else activeUsers.delete(id);
+                
+                const userCountEl = document.getElementById('user-count');
+                if (userCountEl) userCountEl.textContent = activeUsers.size;
+            });
+        }
+    );
+}
 
 // Initialize room and join meeting
 let joinRoomInit = async () => {
@@ -243,30 +293,54 @@ function handleVolumeIndicator() {
 
 // Join stream and set up local tracks
 let joinStream = async () => {
-    // document.getElementById('join-btn').style.display = 'none';
+
     document.getElementsByClassName('stream__actions')[0].style.display = 'flex';
 
     try {
-        // Get audio/video devices
+        // Get devices (no logging of device details to reduce spam)
         const audioInputs = await meetingSession.audioVideo.listAudioInputDevices();
+        const audioOutputs = await meetingSession.audioVideo.listAudioOutputDevices();
         const videoInputs = await meetingSession.audioVideo.listVideoInputDevices();
+        
+        audioLogger.info(`Found ${audioInputs.length} mics, ${audioOutputs.length} speakers, ${videoInputs.length} cameras`);
 
+        // Setup audio input
         if (audioInputs.length > 0) {
-            var s = await meetingSession.audioVideo.startAudioInput(audioInputs[0].deviceId);
-            localTracks[0] = {
-                setMuted: async (muted) => {
-                    if (muted) {
-                        await meetingSession.audioVideo.realtimeMuteLocalAudio();
-                    } else {
-                        await meetingSession.audioVideo.realtimeUnmuteLocalAudio();
-                    }
-                    return true;
-                },
-                muted: false
-            };
+            try {
+                await meetingSession.audioVideo.startAudioInput(audioInputs[0].deviceId);
+                
+                localTracks[0] = {
+                    setMuted: async (muted) => {
+                        if (muted) {
+                            await meetingSession.audioVideo.realtimeMuteLocalAudio();
+                        } else {
+                            await meetingSession.audioVideo.realtimeUnmuteLocalAudio();
+                        }
+                        return true;
+                    },
+                    muted: false
+                };
+            } catch (error) {
+                audioLogger.error("Failed to start microphone", error.message);
+            }
+        } else {
+            audioLogger.error("No microphones found");
         }
 
+        // Setup audio output
+        if (audioOutputs.length > 0) {
+            try {
+                await meetingSession.audioVideo.chooseAudioOutput(audioOutputs[0].deviceId);
+                
+                const audioElem = document.getElementById('meeting-audio');
+                if (audioElem) {
+                    meetingSession.audioVideo.bindAudioElement(audioElem);
+                } 
+            } catch (error) {
+            }
+        }
 
+        // Setup video (your existing logic)
         if (videoInputs.length > 0) {
             await meetingSession.audioVideo.startVideoInput(videoInputs[0].deviceId);
             localTracks[1] = {
@@ -275,16 +349,12 @@ let joinStream = async () => {
                         await meetingSession.audioVideo.stopLocalVideoTile();
                     } else {
                         await meetingSession.audioVideo.startLocalVideoTile();
-
                         setTimeout(() => {
-                            const localTile = meetingSession.audioVideo.getLocalVideoTile();
-                            if (localTile) {
-                                const localVideoElement = document.getElementById(`video-${uid}`);
-                                if (localVideoElement) {
-                                    localVideoElement.style.width = "100%";
-                                    localVideoElement.style.height = "100%";
-                                    localVideoElement.style.objectFit = "cover";
-                                }
+                            const localVideoElement = document.getElementById(`video-${uid}`);
+                            if (localVideoElement) {
+                                localVideoElement.style.width = "100%";
+                                localVideoElement.style.height = "100%";
+                                localVideoElement.style.objectFit = "cover";
                             }
                         }, 500);
                     }
@@ -294,29 +364,22 @@ let joinStream = async () => {
             };
         }
 
-        const audioOutputs = await meetingSession.audioVideo.listAudioOutputDevices();
-        if (audioOutputs.length > 0) {
-            await meetingSession.audioVideo.chooseAudioOutput(audioOutputs[0].deviceId);
-            const audioElem = document.getElementById('meeting-audio');
-            meetingSession.audioVideo.bindAudioElement(audioElem);
-        }
-
         // Start the meeting
-        meetingSession.audioVideo.start();
+        await meetingSession.audioVideo.start();
         meetingSession.audioVideo.startLocalVideoTile();
-
         
+        setupCleanVolumeMonitoring();
+        
+        audioLogger.success("Meeting started successfully");
 
-        // Handle role-based UI elements
+        // Role-based UI
         let role = sessionStorage.getItem('role');
-        console.log('ROLE IS', role);
         if (role === 'TA') {
             document.getElementById("mute-all-btn").style.display = 'block';
         }
 
-
     } catch (error) {
-        console.error('Error joining stream:', error);
+        audioLogger.error("Failed to join meeting", error.message);
     }
 };
 

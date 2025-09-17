@@ -413,8 +413,14 @@ window.messagingReady.then(() => {
 
         let newMessage = `<div class="message__wrapper">
                             <div class="message__body">
-                                <strong class="message__author" style=color:${color}>${name}</strong>
-                                <p class="message__text">${message}</p>
+                                <div class="message__header">
+                                    <div class="message__author-avatar" style="background: ${color || '#6366f1'}">
+                                        ${name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <strong class="message__author" style="color: ${color || '#6366f1'}">${name}</strong>
+                                    <span class="message__timestamp">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                </div>
+                                <div class="message__text">${message}</div>
                             </div>
                         </div>`
 
