@@ -73,6 +73,45 @@ header {
     filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.1));
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.shop-btn {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    color: var(--text-primary);
+    border: none;
+    padding: 0.625rem 1.25rem;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    min-width: 150px;
+    justify-content: center;
+    height: 38px;
+}
+
+.shop-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+.shop-btn:active {
+    transform: translateY(0);
+}
+
+.shop-icon {
+    font-size: 1.1rem;
+}
+
 .new-project-btn {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
     color: var(--text-primary);
@@ -87,6 +126,9 @@ header {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    min-width: 150px;
+    justify-content: center;
+    height: 38px;
 }
 
 .new-project-btn:hover {
@@ -565,6 +607,17 @@ h2::after {
         padding: 1rem;
         flex-direction: column;
         gap: 1rem;
+    }
+    
+    .header-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .shop-btn,
+    .new-project-btn {
+        flex: 1;
+        justify-content: center;
     }
     
     .container {

@@ -377,7 +377,7 @@ function resetInactivityTimeout() {
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
-    document.title = 'You are still sharing video/audio';
+    document.title = 'Collaboration Station!';
   } else {
     document.title = 'Collaboration Station!';
   }

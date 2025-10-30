@@ -110,21 +110,19 @@ window.messagingReady.then(() => {
     
         let membersWrapper = document.getElementById('member__list')
         let role = sessionStorage.getItem('role');
-        let moveButton = role === 'TA' ? `<button class="move__btn" onclick="moveParticipant('${memberEmail}')"><i class="fas fa-arrow-right"></i></button>` : '';
+        // let moveButton = role === 'TA' ? `<button class="move__btn" onclick="moveParticipant('${memberEmail}')"><i class="fas fa-arrow-right"></i></button>` : '';
         let removeButton = role === 'TA' ? `<button class="remove__btn" onclick="removeParticipant('${memberEmail}')"><i class="fas fa-user-times"></i></button>` : '';
         let muteButton = role === 'TA' ? `<button class="mute__btn" onclick="muteParticipant('${memberEmail}')"><i class='fas fa-volume-mute'></i></button>` : '';
-        let disableMessages = role === 'TA' ? `<button class="disableMessage__btn" onclick="disableMessage('${memberEmail}')"><i class='fas fa-comment-slash' style='font-size:15px;color:red'></i></button>` : '';
+        let disableMessages = role === 'TA' ? `<button class="disableMessage__btn" onclick="disableMessage('${memberEmail}')"><i class='fas fa-comment-slash' style='font-size:15px'></i></button>` : '';
         let memberItem = `<div class="member__wrapper" id="member__${memberEmail}__wrapper">
-                            <div style="display: flex; align-items: center;">
-                                <span class="green__icon"></span>
-                                <p class="member_name" id="rtmName" style="color:#${memberColor}; margin: 0;">${name}</p>
-                                <span class="member_name_buttons">
-                                    ${moveButton}
-                                    ${removeButton}
-                                    ${muteButton}
-                                    ${disableMessages}
-                                </span>
-                            </div>
+                            <span class="green__icon"></span>
+                            <span class="member-avatar">👤</span>
+                            <p class="member_name" id="rtmName">${name}</p>
+                            <span class="member_name_buttons">
+                                ${removeButton}
+                                ${muteButton}
+                                ${disableMessages}
+                            </span>
                         </div>`
     
     membersWrapper.insertAdjacentHTML('beforeend', memberItem)
@@ -232,14 +230,20 @@ window.messagingReady.then(() => {
             alert(`You have been disabled from sending messages for 5 minutes.`);
             const inputMessage = document.querySelector('input[name="message"]');
             inputMessage.disabled = true;
-            inputMessage.placeholder = `You are disabled from sending messages for 5 minutes.`;
-            // disableMessageInput(data.duration);
-
-            // Re-enable the message input after the specified duration
-            setTimeout(()=>{
-                inputMessage.disabled = false;
-                inputMessage.placeholder = `Send a message....`;
-            },  5* 60 * 1000);
+            
+            // update time shown remaining every second
+            let remainingTime = 5 * 60; 
+            const interval = setInterval(() => {
+                remainingTime--;
+                const minutes = Math.floor(remainingTime / 60);
+                const seconds = remainingTime % 60;
+                inputMessage.placeholder = `You are disabled from sending messages for ${minutes}:${seconds < 10 ? '0' : ''}${seconds}.`;
+                if (remainingTime <= 0) {
+                    clearInterval(interval);
+                    inputMessage.disabled = false;
+                    inputMessage.placeholder = `Send a message....`;
+                }
+            }, 1000);
 
         }
 
@@ -258,6 +262,7 @@ window.messagingReady.then(() => {
         }
         await ablyChannel.publish('removeParticipant', {participant: MemberId});
     };
+    window.removeParticipant = removeParticipant;
     ablyChannel.subscribe('removeParticipant', async (message) => {
         const { participant } = message.data;
         const to_email=sessionStorage.getItem('email')
@@ -328,8 +333,9 @@ window.messagingReady.then(() => {
         await channel.sendMessage({ text: JSON.stringify({ type: 'muteMember', target: MemberId }) });
 
     }
+    window.muteParticipant = muteParticipant;
 
-    let disableMessage= async (MemberId) => {
+    let disableMessage = async (MemberId) => {
 
         if (MemberId === sessionStorage.getItem('email')) {
             alert('You cannot disable yourself from sending messages.')
@@ -339,6 +345,7 @@ window.messagingReady.then(() => {
         await ablyChannel.publish('disable_messages', {target: MemberId, duration: 5*60*1000});
 
     }
+    window.disableMessage = disableMessage;
 
     ablyChannel.subscribe('disable_messages', async (message) => {
 

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Shop - Collaboration Station</title>
+    <link rel='stylesheet' type='text/css' media='screen' href='styles/shop.css'>
+</head>
+<body>
+    <div class="stars"></div>
+    <header>
+        <a href="projects.html" id="logo">
+            <img src="./images/logo.svg" alt="Site Logo">
+            <span>Collaboration Station</span>
+        </a>
+        <div class="coin-display">
+            <span class="coin-icon">🪙</span>
+            <span id="coin-balance">0</span> Coins
+        </div>
+    </header>
+    <div class="container">
+        <div class="shop-header">
+            <h1>🏆 Coin Shop</h1>
+            <p>Unlock profile icons by earning coins from completing tasks!</p>
+        </div>
+        <div id="progress-section">
+            <!-- Progress bar will be inserted here -->
+        </div>
+        <div id="shop-grid" class="shop-grid">
+            <!-- Profile items will be populated by JavaScript -->
+        </div>
+        <div id="unlock-notification" class="unlock-notification hidden">
+            <span id="notification-text"></span>
+        </div>
+    </div>
+    <script src="js/shop.js"></script>
+</body>
+</html>
