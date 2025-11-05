@@ -9,7 +9,7 @@ var ablyInstance;
 
 let isFirstMember = true;
 let canSendMessages = true;
-let unreadMessages = 0;
+window.unreadMessages = 0; // Make globally accessible
 let breakoutId = -1;
 let roomId = urlParams.get('project')
 let connectedUsers = {};
@@ -143,12 +143,15 @@ window.messagingReady.then(() => {
 
 
     updateMessageCounter = () => {
-        if(unreadMessages>9) {
+        if(window.unreadMessages>9) {
             document.getElementById('messageCount').innerText = '9+';
         } else {
-            document.getElementById('messageCount').innerText = unreadMessages;
+            document.getElementById('messageCount').innerText = window.unreadMessages;
         }
     }
+    
+    // Make updateMessageCounter globally accessible
+    window.updateMessageCounter = updateMessageCounter;
 
     handleChannelMessage = async (messageData, MemberId) => {
 
@@ -158,11 +161,12 @@ window.messagingReady.then(() => {
         console.log("DATA", data);
 
         if(data.type === 'chat'){
-            console.log(document.getElementById('messages__container').style.display)
-
-            if (document.getElementById('messages__container').style.display === 'none' || document.getElementById('messages__container').style.display === '') {
+            const messagesContainer = document.getElementById('messages__container');
+            const isChatVisible = messagesContainer && messagesContainer.classList.contains('active');
+            
+            if (!isChatVisible) {
                 console.log("Inside message counter")
-                unreadMessages++;
+                window.unreadMessages++;
                 updateMessageCounter();
             }
             

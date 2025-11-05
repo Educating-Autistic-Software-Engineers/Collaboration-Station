@@ -4,6 +4,12 @@
     display: flex;
     gap: 8px;
     margin-bottom: 16px;
+    text-align: center;
+}
+
+.toggle-btn-container {
+    width: 100%;
+    height: 100%;
 }
 
 .toggle-btn {
@@ -378,9 +384,10 @@
     background: rgba(15, 23, 42, 0.3);
     border: 1px solid rgba(148, 163, 184, 0.08);
     border-radius: 8px;
-    overflow: hidden;
+    overflow: visible; /* Changed from hidden to visible */
     display: flex;
     flex-direction: column;
+    max-height: 550px; /* Increased from 500px */
 }
 
 .help-chat-header {
@@ -415,12 +422,14 @@
 .help-chat-messages {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden; /* Prevent horizontal scrolling */
     padding: 12px;
+    padding-bottom: 30px; /* Extra padding at bottom for better scrolling */
     display: flex;
     flex-direction: column;
     gap: 12px;
-    min-height: 150px;
-    max-height: 200px;
+    min-height: 200px;
+    max-height: 350px; /* Increased to allow more content visibility */
 }
 
 .help-chat-messages.empty-chat {
@@ -437,7 +446,7 @@
     align-items: flex-start;
 }
 
-.help-message.teacher {
+.help-message.student {
     flex-direction: row-reverse;
 }
 
@@ -451,7 +460,15 @@
     background: rgba(66, 13, 55, 0.4);
     padding: 10px 12px;
     border-radius: 12px;
+}
+
+.help-message.teacher .message-bubble {
     border-bottom-left-radius: 4px;
+}
+
+.help-message.student .message-bubble {
+    border-bottom-right-radius: 4px;
+    background: rgba(99, 102, 241, 0.3);
 }
 
 .help-message.teacher .message-bubble {
@@ -474,11 +491,13 @@
 }
 
 .help-chat-input-area {
-    padding: 8px 12px;
+    padding: 10px 12px;
     border-top: 1px solid rgba(148, 163, 184, 0.08);
     background: rgba(0, 0, 0, 0.2);
     display: flex;
     gap: 8px;
+    flex-shrink: 0; /* Prevent input area from being compressed */
+    align-items: center;
 }
 
 .help-chat-input {
@@ -489,6 +508,9 @@
     background: rgba(255, 255, 255, 0.05);
     color: #e2e8f0;
     font-size: 14px;
+    min-width: 0; /* Allow input to shrink properly */
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .help-chat-input::placeholder {

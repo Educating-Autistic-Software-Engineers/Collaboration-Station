@@ -71,6 +71,13 @@ class CollapsibleRightBar {
                 
                 if (buttonId === 'chat__button') {
                     containerType = 'chat';
+                    // Reset unread message counter when opening chat
+                    if (window.unreadMessages !== undefined) {
+                        window.unreadMessages = 0;
+                        if (window.updateMessageCounter) {
+                            window.updateMessageCounter();
+                        }
+                    }
                 } else if (buttonId === 'members__button') {
                     containerType = 'members';
                 } else if (buttonId === 'tasks__button') {
@@ -200,6 +207,10 @@ class CollapsibleRightBar {
                 document.getElementById('tasks__container').classList.add('active');
                 if (streamContainer) {
                     streamContainer.style.display = 'none';
+                }
+                // Reset to "My Tasks" view when switching to tasks
+                if (window.tasksManager) {
+                    window.tasksManager.setActiveView('user');
                 }
                 break;
             case 'stream':
