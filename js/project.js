@@ -394,26 +394,33 @@ function populateUsernames() {
         .then(data => {
             const users = data.requests;
             const container = document.getElementById('user-list');
-
             
             container.style.display = 'flex';
             container.style.flexDirection = 'column';
-            container.style.gap = '2px';
+            container.style.gap = '6px';
             container.style.padding = '5px';
+            container.style.paddingLeft = '18px';
             
             users.forEach(user => {
+                console.log(user);
+                if (!("group" in user) || user.group != "P1") {
+                    return;
+                }
+
                 const statusRow = document.createElement('div');
                 statusRow.className = 'status-row';
                 
                 const userIcon = document.createElement('div');
                 userIcon.className = 'user-icon';
-                userIcon.textContent = user.name.charAt(0).toUpperCase();
+                
+                userIcon.textContent = user.emoji || user.name.charAt(0).toUpperCase();
                 
                 const userInfo = document.createElement('div');
                 userInfo.className = 'user-info';
                 
                 const userName = document.createElement('div');
                 userName.className = 'user-name';
+                // restore original full name text
                 userName.textContent = user.name;
                 
                 var lastActiveTime = new Date("2025/01/01");
@@ -422,27 +429,39 @@ function populateUsernames() {
                     console.log(lastActiveTime, user.lastActive);
                 }
                 const timeAgo = (new Date()) - lastActiveTime;
-                var timeString = "Last active: ";
+                // We'll render the label and the time on separate lines
+                var timeString = "";
                 var minutesAgo = Math.floor(timeAgo / (1000 * 60));
                 var hoursAgo = Math.floor(minutesAgo / 60);
                 var daysAgo = Math.floor(hoursAgo / 24);
                 var yearsAgo = Math.floor(daysAgo / 365);
                 if (minutesAgo < 2) {
                     statusRow.className = 'active-row';
-                    timeString += "Just now";
+                    timeString = "Just now";
                 } else if (daysAgo > 365) {
-                    timeString += yearsAgo + " year" + (yearsAgo == 1 ? "" : "s") + " ago";
+                    timeString = yearsAgo + " year" + (yearsAgo == 1 ? "" : "s") + " ago";
                 } else if (daysAgo > 0) {
-                    timeString += daysAgo + " day" + (daysAgo == 1 ? "" : "s") + " ago";
+                    timeString = daysAgo + " day" + (daysAgo == 1 ? "" : "s") + " ago";
                 } else if (hoursAgo > 0) {
-                    timeString += hoursAgo + " hour" + (hoursAgo == 1 ? "" : "s") + " ago";
+                    timeString = hoursAgo + " hour" + (hoursAgo == 1 ? "" : "s") + " ago";
                 } else {
-                    timeString += minutesAgo + " minute" + (minutesAgo == 1 ? "" : "s") + " ago";
+                    timeString = minutesAgo + " minute" + (minutesAgo == 1 ? "" : "s") + " ago";
                 }
 
+                // create container with two lines: label and time
                 const lastActive = document.createElement('div');
                 lastActive.className = 'last-active';
-                lastActive.textContent = timeString;
+
+                const lastLabel = document.createElement('div');
+                lastLabel.className = 'last-active-label';
+                lastLabel.textContent = 'Last active:';
+
+                const lastTime = document.createElement('div');
+                lastTime.className = 'last-active-time';
+                lastTime.textContent = timeString;
+
+                lastActive.appendChild(lastLabel);
+                lastActive.appendChild(lastTime);
                 
                 const chatBtn = document.createElement('button');
                 chatBtn.className = 'chat-btn';

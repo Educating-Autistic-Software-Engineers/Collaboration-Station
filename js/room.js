@@ -6,6 +6,11 @@ let activeChatContainer = false;
 let activeMemberContainer = false;
 let viewType = "space";
 let roomDict = {};
+let tasks = [];
+let tasksLoadedResolve;
+window.tasksLoaded = new Promise(resolve => {
+  tasksLoadedResolve = resolve;
+});
 let userIdInDisplayFrame = null;
 let POTENTIAL_MEMBERS;
 
@@ -39,6 +44,7 @@ function repeatKey(key, length) {
   for (let i = 0; i < length; i++) {
     repeatedKey.push(keyDigits[i % keyDigits.length]);
   }
+  
   return repeatedKey;
 }
 
@@ -243,6 +249,124 @@ async function initAddMemberAutocomplete() {
   });
 }
 
+// Refresh the members panel: show "present" vs "not present" members
+async function refreshMembers() {
+  try {
+    const membersWrapper = document.getElementById('member__list');
+    if (!membersWrapper) return;
+    membersWrapper.innerHTML = '';
+
+    let registered = [];
+    try {
+      const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        console.log(data);
+        if (data) {
+          if (data.request) {
+            tasks = data.request.tasks || [];
+            if (tasksLoadedResolve) {
+              tasksLoadedResolve();
+              tasksLoadedResolve = null;
+            }
+            if (Array.isArray(data.request.editors)) registered = data.request.editors;
+            else if (Array.isArray(data.request.users)) registered = data.request.users;
+          } else if (Array.isArray(data.editors)) {
+            registered = data.editors;
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Failed to fetch room registered members', e);
+    }
+
+    if ((!registered || registered.length === 0) && roomDict[roomId] && Array.isArray(roomDict[roomId].editors)) {
+      registered = roomDict[roomId].editors;
+    }
+
+    let present = [];
+    try {
+      if (window.getCurrentPresence) {
+        present = await window.getCurrentPresence();
+      }
+    } catch (e) {
+      console.error('Failed to get current presence', e);
+    }
+
+    const presentSet = new Set(present || []);
+
+    const findName = (email) => {
+      if (POTENTIAL_MEMBERS && Array.isArray(POTENTIAL_MEMBERS)) {
+        const m = POTENTIAL_MEMBERS.find(x => x.email === email);
+        if (m && m.name) return m.name;
+      }
+      return email;
+    };
+
+    const presentRegistered = (registered || []).filter(e => presentSet.has(e));
+    const notPresentRegistered = (registered || []).filter(e => !presentSet.has(e));
+
+    if (presentRegistered.length > 0) {
+      const header = `<div class="members-section-heading online-heading">Online (${presentRegistered.length})</div>`;
+      membersWrapper.insertAdjacentHTML('beforeend', header);
+    }
+    for (const email of presentRegistered) {
+      const name = findName(email);
+      const role = sessionStorage.getItem('role');
+      const removeButton = role === 'TA' ? `<button class="remove__btn" onclick="removeParticipant('${email}')"><i class="fas fa-user-times"></i></button>` : '';
+      const muteButton = role === 'TA' ? `<button class="mute__btn" onclick="muteParticipant('${email}')"><i class='fas fa-volume-mute'></i></button>` : '';
+      const disableMessages = role === 'TA' ? `<button class="disableMessage__btn" onclick="disableMessage('${email}')"><i class='fas fa-comment-slash' style='font-size:15px'></i></button>` : '';
+      const item = `<div class="member__wrapper" id="member__${email}__wrapper">
+                      <span class="green__icon"></span>
+                      <span class="member-avatar">👤</span>
+                      <p class="member_name">${name}</p>
+                      <span class="member_name_buttons">
+                        ${removeButton}
+                        ${muteButton}
+                        ${disableMessages}
+                      </span>
+                    </div>`;
+      membersWrapper.insertAdjacentHTML('beforeend', item);
+    }
+
+    // Render not-present members
+    if (notPresentRegistered.length > 0) {
+      const header2 = `<div class="members-section-heading offline-heading">Offline (${notPresentRegistered.length})</div>`;
+      membersWrapper.insertAdjacentHTML('beforeend', header2);
+    }
+    for (const email of notPresentRegistered) {
+      const name = findName(email);
+      const item = `<div class="member__wrapper offline" id="member__${email}__wrapper">
+                      <span class="gray__icon"></span>
+                      <span class="member-avatar">👤</span>
+                      <p class="member_name">${name}</p>
+                    </div>`;
+      membersWrapper.insertAdjacentHTML('beforeend', item);
+    }
+
+    // If nothing registered but presence exists, show present users
+    if ((!registered || registered.length === 0) && present && present.length > 0) {
+      for (const email of present) {
+        const name = findName(email);
+        const item = `<div class="member__wrapper" id="member__${email}__wrapper">
+                        <span class="green__icon"></span>
+                        <span class="member-avatar">👤</span>
+                        <p class="member_name">${name}</p>
+                      </div>`;
+        membersWrapper.insertAdjacentHTML('beforeend', item);
+      }
+    }
+
+    // Update counts
+    const totalRegistered = (registered && registered.length) || (present && present.length) || 0;
+    document.getElementById('members__count').innerText = totalRegistered;
+    document.getElementById('connectedCount').innerText = (present && present.length) || 0;
+
+  } catch (e) {
+    console.error('refreshMembers error', e);
+  }
+}
+
 // Emoji selector initialization
 function initEmojiSelector() {
   const emojiButton = document.getElementById('emoji-button');
@@ -326,40 +450,41 @@ function initEmojiSelector() {
 window.messagingReady.then(async () => {
   await load();
 
-  // initEmojiSelector();
 
-  // Set random color for user
   sessionStorage.setItem('randomColor', ["red", "green", "blue", "teal", "salmon", "goldenrod"][Math.floor(Math.random() * 6)]);
   
-  // Initialize iframe source
   console.log("roomID: ", String(roomId), viewType);
   const iFrame = document.getElementById("main-stream");
   iFrame.src = `vm/index.html?${viewType}=${String(roomId)}&name=${sessionStorage.getItem('display_name')}&color=${sessionStorage.getItem("randomColor")}`;
   
-  // Set up slider dragging
   slider.addEventListener('mousedown', function(event) {
     isDragging = true;
   });
   
-  // document.addEventListener('mousemove', moveSlider);
   
   document.addEventListener('mouseup', function() {
     isDragging = false;
   });
 
-  // Initialize UI
   // toggleChat();
   initAddMemberAutocomplete();
   
-  // Add event listeners for member management
   document.getElementById('cancel-add-member').addEventListener('click', hideAddMemberPopup);
   document.getElementById('confirm-add-member').addEventListener('click', addMemberToProject);
+
+  if (memberButton) {
+    memberButton.addEventListener('click', async () => {
+      activeMemberContainer = !activeMemberContainer;
+      memberContainer.classList.toggle('active', activeMemberContainer);
+      if (activeMemberContainer) {
+        await refreshMembers();
+      }
+    });
+  }
   
-  // Add resize handle
   // addResizeHandle();
 });
 
-// Project navigation
 function onProjectsButtonClicked() {
   let email = sessionStorage.getItem('email'); 
   window.location = 'projects.html?email=' + email;

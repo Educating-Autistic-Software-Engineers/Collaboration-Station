@@ -13,7 +13,8 @@
     --primary-color: #3b82f6;
     --primary-hover: #2563eb;
     --accent-color: #8b5cf6;
-    --text-primary: #f8fafc;
+    /* Softer primary text color: slightly gray-blue, less bright than pure white */
+    --text-primary: #c0ccd8;
     --text-secondary: #cbd5e1;
     --text-muted: #64748b;
     --border-color: rgba(148, 163, 184, 0.1);
@@ -30,13 +31,48 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    background: linear-gradient(135deg, var(--primary-bg) 0%, #020617 100%);
+    background: #0f172a;
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.12), transparent 32%),
+        radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.08), transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(59, 130, 246, 0.06), transparent 40%),
+        linear-gradient(135deg, #0f172a 0%, #020617 100%);
     color: var(--text-primary);
     min-height: 100vh;
     margin: 0;
     line-height: 1.6;
     overflow-x: hidden;
     font-feature-settings: 'kern' 1, 'liga' 1;
+    position: relative;
+}
+
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 140%;
+    height: 140%;
+    z-index: 0;
+    pointer-events: none;
+    background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/stars.png') repeat;
+    background-size: 140%;
+    animation: starsMove 200s linear infinite;
+    opacity: 0.4;
+}
+
+@keyframes starsMove {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-25%, -15%, 0); }
+}
+
+.planets {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
 }
 
 /* Header */
@@ -80,7 +116,7 @@ header {
 }
 
 .shop-btn {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    background: #8b5cf6;
     color: var(--text-primary);
     border: none;
     padding: 0.625rem 1.25rem;
@@ -112,8 +148,28 @@ header {
     font-size: 1.1rem;
 }
 
+/* Icon-only variant for compact profile button */
+.shop-btn--icon {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    min-width: 0;
+    border-radius: 999px;
+    justify-content: center;
+}
+.shop-btn--icon .shop-icon {
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.shop-btn--icon:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
 .new-project-btn {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    background: #8b5cf6;
     color: var(--text-primary);
     border: none;
     padding: 0.625rem 1.25rem;
@@ -143,9 +199,10 @@ header {
 /* Layout */
 .container {
     display: grid;
-    grid-template-columns: 1fr 320px;
-    gap: 2rem;
-    padding: 2rem;
+    /* make side panel more compact */
+    grid-template-columns: 1fr 260px;
+    gap: 1.25rem;
+    padding: 1.5rem;
     max-width: 1400px;
     margin: 0 auto;
 }
@@ -165,20 +222,14 @@ header {
 }
 
 /* Modern Cards */
-.project-card {
-    background: var(--surface);
-    backdrop-filter: blur(20px) saturate(180%);
-    border-radius: var(--radius-xl);
-    padding: 2rem;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+.project-grid {
+    /* Switch from horizontal scroll to responsive grid */
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1rem;
+    padding: 0.25rem 0;
 }
-
-.project-card:hover {
-    box-shadow: var(--shadow-lg);
-    border-color: var(--border-hover);
-}
+.project-grid::-webkit-scrollbar { display: none; }
 
 /* Section Headers */
 h2 {
@@ -204,9 +255,10 @@ h2::after {
 /* Selected Project */
 .selected-project {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-    align-items: start;
+    /* compact: thumbnail + info */
+    grid-template-columns: auto 1fr;
+    gap: 1rem;
+    align-items: center;
 }
 
 @media (max-width: 768px) {
@@ -217,20 +269,20 @@ h2::after {
 }
 
 .selected-project img {
-    width: 100%;
-    height: 240px;
+    width: 220px;
+    height: 150px;
     object-fit: cover;
-    border-radius: var(--radius-lg);
-    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    border: 1px solid rgba(148,163,184,0.08);
     box-shadow: var(--shadow-md);
 }
 
 .project-info h3 {
-    font-size: 1.5rem;
+    font-size: 1.125rem;
     font-weight: 600;
     color: var(--text-primary);
-    margin: 0 0 1rem 0;
-    letter-spacing: -0.025em;
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.01em;
 }
 
 .project-info p {
@@ -239,15 +291,6 @@ h2::after {
     line-height: 1.7;
 }
 
-.project-meta {
-    display: flex;
-    align-items: center;
-    gap: 1.5rem;
-    margin-bottom: 1.5rem;
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    flex-wrap: wrap;
-}
 
 .meta-item {
     display: flex;
@@ -268,7 +311,7 @@ h2::after {
 }
 
 .launch-btn {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    background: #8b5cf6;
     color: var(--text-primary);
     border: none;
     padding: 0.75rem 1.5rem;
@@ -341,29 +384,45 @@ h2::after {
     position: relative;
 }
 
-.project-grid {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    padding: 0.25rem;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
+/* Planets background (positioned independently of .stars) */
+.planets {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+}
+.planet {
+    position: absolute;
+    /* more in-focus */
+    opacity: 0.26;
+    transform-origin: center center;
+    will-change: transform, opacity;
+    filter: none;
+}
+.planet-1 { right: 6%; top: 6%; width: 320px; height: 320px; animation: floaty 16s ease-in-out infinite; opacity: 0.30; }
+.planet-2 { left: 4%; bottom: 8%; width: 300px; height: 300px; animation: floaty 20s ease-in-out infinite reverse; opacity: 0.26; }
+.planet-3 { right: 18%; bottom: 20%; width: 220px; height: 220px; animation: floaty 12s ease-in-out infinite; opacity: 0.24; }
+
+@keyframes floaty {
+    0% { transform: translateY(0) scale(1); opacity: 0.10; }
+    50% { transform: translateY(-8px) scale(1.03); opacity: 0.14; }
+    100% { transform: translateY(0) scale(1); opacity: 0.10; }
 }
 
-.project-grid::-webkit-scrollbar {
-    display: none;
-}
+/* asteroids small visual tweaks (they are animated inside SVG via animateTransform) */
+.planets svg circle { vector-effect: non-scaling-stroke; }
+
 
 .project-thumbnail {
     position: relative;
-    flex: 0 0 220px;
-    height: 160px;
+    width: 100%;
+    height: 140px;
     border-radius: var(--radius-lg);
     background: var(--surface);
-    border: 1px solid var(--border-color);
-    backdrop-filter: blur(20px);
+    border: 1px solid rgba(148,163,184,0.08);
+    backdrop-filter: blur(12px);
     overflow: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
     cursor: pointer;
     box-shadow: var(--shadow-sm);
 }
@@ -476,6 +535,9 @@ h2::after {
     transform: translateY(-50%) scale(1.05);
 }
 
+/* hide scroll buttons when using grid layout */
+.project-scroll-container .scroll-btn { display: none; }
+
 #scroll-left, #scroll-left-class { 
     left: -20px;
 }
@@ -486,15 +548,16 @@ h2::after {
 
 /* Side Panel */
 .side-panel {
-    background: var(--surface);
-    backdrop-filter: blur(20px) saturate(180%);
-    padding: 2rem;
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
+    /* match project card contrast for consistency */
+    background: rgba(12, 20, 34, 0.88);
+    backdrop-filter: blur(16px) saturate(140%);
+    padding: 1rem;
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(148,163,184,0.08);
+    box-shadow: 0 6px 14px rgba(2,6,23,0.55);
     height: fit-content;
     position: sticky;
-    top: 120px;
+    top: 96px;
 }
 
 #user-list {
@@ -502,7 +565,7 @@ h2::after {
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: var(--text-muted) transparent;
-    padding-right: 0.5rem;
+    padding-right: 0.25rem;
 }
 
 #user-list::-webkit-scrollbar {
@@ -528,8 +591,8 @@ h2::after {
     background: rgba(51, 65, 85, 0.3);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-lg);
-    padding: 1rem;
-    margin-bottom: 0.75rem;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -546,16 +609,16 @@ h2::after {
 }
 
 .user-icon {
-    width: 44px;
-    height: 44px;
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--accent-color) 100%);
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    font-size: 0.875rem;
-    margin-right: 1rem;
+    font-size: 0.85rem;
+    margin-right: 0.75rem;
     box-shadow: var(--shadow-sm);
 }
 
@@ -569,12 +632,26 @@ h2::after {
 .user-name {
     font-weight: 500;
     color: var(--text-primary);
-    font-size: 0.875rem;
+    font-size: 0.85rem;
 }
 
 .last-active {
     font-size: 0.75rem;
     color: var(--text-muted);
+}
+
+.last-active-label {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    opacity: 0.9;
+    line-height: 1;
+}
+.last-active-time {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    line-height: 1.05;
+    font-weight: 400;
+    opacity: 0.95;
 }
 
 /* Animations */

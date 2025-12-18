@@ -11,40 +11,15 @@
     <link rel='stylesheet' type='text/css' media='screen' href='styles/room.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='styles/tasks.css'>
     <link rel='stylesheet' type='text/css' media='screen' href='styles/task-management.css'>
-    <!-- <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            fetch('vm/index.html')
-                .then(response => response.text())
-                .then(data => {
-                    console.log("SBFEOIHFEO");
-                    document.getElementById('main-stream').innerHTML = data;
-                })
-                .catch(error => console.error('Error fetching the HTML:', error));
-        });
-    </script> -->
 
 </head>
 <body>
-
-    <!-- <header id="nav" style="padding-left: 36px; padding-right: 36px">
-       <div class="nav--list">
-            <a href="projects.html">
-                <h3 id="logo">
-                    <img src="./images/logo.svg" alt="Site Logo">
-                    <span>Collaboration Station</span>
-                </h3>
-            </a>
-       </div>
-
-        
-    </header> -->
 
     <div id="full_container">
         <div id="room__container">
 
             <!-- <button style="height: auto; width: auto;" onclick="startRecording()">Start Recording</button> -->
        
-            <!-- <div id="main-stream"></div> -->
             <iframe id="main-stream" src="vm/index.html" title="Stream"></iframe>
             <div id="pause_overlay">
                 <span id="pause_countdown">10:00</span>
@@ -115,6 +90,7 @@
                     <div id="member__list">
                     </div>
                     
+                    <div class="members__actions">
                     <button id="add-member-btn" onclick="showAddMemberPopup()">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -164,6 +140,7 @@
                                     
                         End Meeting
                     </button>
+                    </div>
 
                 </section>
                 

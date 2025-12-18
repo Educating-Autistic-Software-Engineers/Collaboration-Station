@@ -83,6 +83,7 @@ window.messagingReady.then(() => {
         connectedUsers[data.email] = data;
         addMemberToDom(data);
         updateMemberTotal(Object.keys(connectedUsers).length);
+        try { if (window.refreshMembers) window.refreshMembers(); } catch (e) { /* ignore */ }
         addBotMessageToDom(`Welcome to the room ${data.name}! 👋`)
     }
 
@@ -93,11 +94,23 @@ window.messagingReady.then(() => {
         delete connectedUsers[email];
         removeMemberFromDom(data)
         updateMemberTotal(Object.keys(connectedUsers).length)
+        try { if (window.refreshMembers) window.refreshMembers(); } catch (e) { /* ignore */ }
     }
     ablyChannel.presence.subscribe('leave', (member) => {
         const email = member.data;
         handleMemberLeft(email);
     });
+
+    // Expose a helper to get current presence (array of emails)
+    window.getCurrentPresence = async () => {
+        try {
+            const presenceSet = await ablyChannel.presence.get();
+            return presenceSet.map(m => m.data);
+        } catch (e) {
+            console.error('Failed to get presence', e);
+            return [];
+        }
+    }
 
 
     let addMemberToDom = async (member) => {
@@ -109,8 +122,12 @@ window.messagingReady.then(() => {
         let memberColor = "ff0000";
     
         let membersWrapper = document.getElementById('member__list')
+        
+        if (document.getElementById(`member__${memberEmail}__wrapper`)) {
+            return;
+        }
         let role = sessionStorage.getItem('role');
-        // let moveButton = role === 'TA' ? `<button class="move__btn" onclick="moveParticipant('${memberEmail}')"><i class="fas fa-arrow-right"></i></button>` : '';
+        
         let removeButton = role === 'TA' ? `<button class="remove__btn" onclick="removeParticipant('${memberEmail}')"><i class="fas fa-user-times"></i></button>` : '';
         let muteButton = role === 'TA' ? `<button class="mute__btn" onclick="muteParticipant('${memberEmail}')"><i class='fas fa-volume-mute'></i></button>` : '';
         let disableMessages = role === 'TA' ? `<button class="disableMessage__btn" onclick="disableMessage('${memberEmail}')"><i class='fas fa-comment-slash' style='font-size:15px'></i></button>` : '';
@@ -143,15 +160,26 @@ window.messagingReady.then(() => {
 
 
     updateMessageCounter = () => {
-        if(window.unreadMessages>9) {
-            document.getElementById('messageCount').innerText = '9+';
+        const el = document.getElementById('messageCount');
+        if (!el) return;
+
+        if (!window.unreadMessages || window.unreadMessages <= 0) {
+            el.style.display = 'none';
+            el.innerText = '';
+            return;
+        }
+
+        el.style.display = 'inline-block';
+        if (window.unreadMessages > 9) {
+            el.innerText = '9+';
         } else {
-            document.getElementById('messageCount').innerText = window.unreadMessages;
+            el.innerText = window.unreadMessages;
         }
     }
     
-    // Make updateMessageCounter globally accessible
     window.updateMessageCounter = updateMessageCounter;
+
+    try { updateMessageCounter(); } catch (e) {}
 
     handleChannelMessage = async (messageData, MemberId) => {
 
@@ -210,7 +238,6 @@ window.messagingReady.then(() => {
         }
 
         if (data.type === 'muteMember' && data.target === uid) {
-            // Mute the remote user's audio track
             if (localTracks[0]) {
                 await localTracks[0].setMuted(true);
                 localTracks[0]._mediaStreamTrack.enabled = false;

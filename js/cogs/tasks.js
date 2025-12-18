@@ -2,16 +2,7 @@ window.tasksManager;
 
 class TasksManager {
     constructor() {
-        this.roomTasks = [
-            { id: 1, title: "Drag a block into the editor", category: "coding", emoji: "🖱️", completed: false },
-            { id: 2, title: "Connect blocks together", category: "coding", emoji: "🔗", completed: false },
-            { id: 3, title: "Run your first program", category: "coding", emoji: "▶️", completed: false },
-            { id: 4, title: "Add a new sprite", category: "art", emoji: "🐱", completed: false },
-            { id: 5, title: "Make a sprite move", category: "coding", emoji: "🏃", completed: false },
-            { id: 6, title: "Change sprite costumes", category: "art", emoji: "�", completed: false },
-            { id: 7, title: "Add sounds to your project", category: "music", emoji: "🎵", completed: false },
-            { id: 8, title: "Use keyboard events", category: "coding", emoji: "⌨️", completed: false }
-        ];
+        this.roomTasks = [];
 
         // Store tasks per student using their email as the key
         this.studentTasks = {};
@@ -31,17 +22,71 @@ class TasksManager {
         this.init();
     }
 
-    init() {
-        // wait for users to populate from ably :0
-        window.messagingReady.then(() => {
-            setTimeout(() => {
-                // Initialize the selected student as soon as users are available
-                if (!this.managementSelectedStudent && Object.keys(connectedUsers).length > 0) {
-                    this.managementSelectedStudent = Object.keys(connectedUsers)[0];
-                }
-                this.render();
-            }, 100);
+    async init() {
+
+        await window.messagingReady;
+        await window.tasksLoaded;
+
+        await this.loadInitialRoomTasks();
+
+        if (!this.managementSelectedStudent && Object.keys(connectedUsers).length > 0) {
+            this.managementSelectedStudent = Object.keys(connectedUsers)[0];
+        }
+        this.render();
+    }
+
+    async loadInitialRoomTasks() {
+        // Fetch batch tasks by id list
+        const response = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/tasks?batchRequest=true", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ ids: tasks.join(",") })
         });
+
+        const data = await response.json();
+
+        // Normalize incoming task shape to our internal model
+        const rawTasks = data.tasks || (data.request && data.request.tasks) || [];
+        const normalized = (rawTasks || []).map(t => {
+            const usersAssigned = (t.users_assigned || t.usersAssigned || "")
+                .toString()
+                .split(",")
+                .map(s => s.trim())
+                .filter(Boolean);
+
+            const id = t.task_id || t.id || `${t.room_assigned || 'room'}-${t.task_content || 'task'}-${t.time_created || Date.now()}`;
+            const createdAt = (() => {
+                const raw = t.time_created || t.createdAt || Date.now();
+                return typeof raw === 'number' && raw < 1e12 ? raw * 1000 : raw;
+            })();
+
+            return {
+                id,
+                title: t.task_content || t.title || "Untitled task",
+                emoji: t.emoji || "🟣",
+                category: t.category || "assigned",
+                completed: Boolean(t.completed),
+                usersAssigned,
+                roomAssigned: t.room_assigned || t.roomAssigned || null,
+                createdAt
+            };
+        });
+
+        this.roomTasks = normalized;
+        console.log("Room tasks:", this.roomTasks);
+
+        normalized.forEach(task => {
+            if (!task.usersAssigned || task.usersAssigned.length === 0) return;
+            task.usersAssigned.forEach(email => {
+                const studentTasks = this.getStudentTasks(email);
+                if (!studentTasks.assigned.find(t => t.id === task.id)) {
+                    studentTasks.assigned.push(task);
+                }
+            });
+        });
+
     }
 
     getCategoryColor(category) {
@@ -152,12 +197,12 @@ class TasksManager {
                  data-category="${category}">
                 <div class="task-color-bar" style="background: ${color}"></div>
                 ${task.completed ? '<div class="task-complete-gradient"></div>' : ''}
-                <div class="task-content" onclick="tasksManager.toggleTaskCompletion(${task.id}, '${category}', '${this.activeView}')">
+                <div class="task-content" onclick="tasksManager.toggleTaskCompletion('${task.id}', '${category}', '${this.activeView}')">
                     <span class="task-emoji">${task.emoji}</span>
                     <span class="task-label">${task.title}</span>
                 </div>
                 <div class="task-help-gradient ${isChatActive ? 'chat-active' : ''}" 
-                     onclick="tasksManager.requestHelpForTask(${task.id}, '${category}', '${this.activeView}')">
+                     onclick="tasksManager.requestHelpForTask('${task.id}', '${category}', '${this.activeView}')">
                     <span class="help-icon">${isChatActive ? '💬' : '?'}</span>
                 </div>
             </div>
@@ -304,10 +349,9 @@ class TasksManager {
                                 <input type="hidden" id="new-room-task-emoji" value="📝" />
                                 
                                 <select id="new-room-task-category" class="task-input">
-                                    <option value="art">🎨 Art</option>
-                                    <option value="coding">� Coding</option>
-                                    <option value="music">🎵 Music</option>
-                                    <option value="other">� Other</option>
+                                    <option value="art">Art</option>
+                                    <option value="coding">Coding</option>
+                                    <option value="music">Music</option>
                                 </select>
                                 <button class="add-task-submit-btn" onclick="tasksManager.addNewRoomTask()">Add Task</button>
                             </div>
@@ -663,18 +707,18 @@ class TasksManager {
         }
     }
 
-    toggleTaskCompletion(taskId, category, view) {
+    async toggleTaskCompletion(taskId, category, view) {
         let task;
         if (view === 'room') {
-            task = this.roomTasks.find(t => t.id === taskId);
+            task = this.roomTasks.find(t => t.id == taskId);
         } else {
             const userTasks = this.getStudentTasks(sessionStorage.getItem('email'));
             const allUserTasks = [...userTasks.assigned, ...userTasks.improvement];
-            task = allUserTasks.find(t => t.id === taskId);
+            task = allUserTasks.find(t => t.id == taskId);
             
             // Also sync with room task if it exists
             if (task) {
-                const roomTask = this.roomTasks.find(t => t.id === taskId);
+                const roomTask = this.roomTasks.find(t => t.id == taskId);
                 if (roomTask) {
                     roomTask.completed = !task.completed;
                 }
@@ -693,6 +737,7 @@ class TasksManager {
             if (popup && !popup.classList.contains('hidden')) {
                 this.selectStudent(this.managementSelectedStudent);
             }
+
         }
     }
 
@@ -836,7 +881,7 @@ class TasksManager {
         event.target.classList.add('active');
     }
 
-    addNewRoomTask() {
+    async addNewRoomTask() {
         const title = document.getElementById('new-room-task-title').value.trim();
         const emoji = document.getElementById('new-room-task-emoji').value || '📝';
         const category = document.getElementById('new-room-task-category').value;
@@ -851,10 +896,15 @@ class TasksManager {
             title: title,
             emoji: emoji,
             category: category,
-            completed: false
+            completed: false,
+            usersAssigned: [],
+            roomAssigned: null,
+            createdAt: Date.now()
         };
 
         this.roomTasks.push(newTask);
+
+        await this.persistRoomTasksToApi();
         
         // Clear the form
         document.getElementById('new-room-task-title').value = '';
@@ -864,6 +914,33 @@ class TasksManager {
         
         // Refresh the popup to show the new task
         this.selectStudent(this.managementSelectedStudent);
+    }
+
+    async persistRoomTasksToApi() {
+        const payload = {
+            tasks: this.roomTasks.map(t => ({
+                task_id: t.id,
+                task_content: t.title,
+                users_assigned: Array.isArray(t.usersAssigned) ? t.usersAssigned.join(',') : '',
+                room_assigned: t.roomAssigned || null,
+                time_created: t.createdAt || Date.now(),
+                completed: Boolean(t.completed),
+                category: t.category || 'assigned',
+                emoji: t.emoji || '🟣'
+            }))
+        };
+
+        try {
+            await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/tasks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+        } catch (err) {
+            console.error('Failed to update tasks', err);
+        }
     }
 
     deleteRoomTask(e, taskId) {

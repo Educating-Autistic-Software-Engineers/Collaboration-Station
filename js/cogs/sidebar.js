@@ -21,7 +21,6 @@ class CollapsibleRightBar {
     }
     
     init() {
-        // Remove initializing class after a brief delay
         setTimeout(() => {
             this.rightBar.classList.remove('initializing');
         }, 100);
@@ -32,7 +31,6 @@ class CollapsibleRightBar {
         this.setupSlider();
         this.setupResize();
         
-        // Set initial state
         this.showContainer('stream');
     }
     
@@ -44,7 +42,6 @@ class CollapsibleRightBar {
             this.adjustLayout();
         });
         
-        // Prevent transitions during window resize
         let resizeTimer;
         window.addEventListener('resize', () => {
             this.rightBar.classList.add('initializing');
@@ -71,7 +68,6 @@ class CollapsibleRightBar {
                 
                 if (buttonId === 'chat__button') {
                     containerType = 'chat';
-                    // Reset unread message counter when opening chat
                     if (window.unreadMessages !== undefined) {
                         window.unreadMessages = 0;
                         if (window.updateMessageCounter) {
@@ -86,7 +82,6 @@ class CollapsibleRightBar {
                 
                 this.showContainer(containerType);
                 
-                // Update active state
                 navButtons.forEach(btn => btn.classList.remove('active'));
                 button.classList.add('active');
             });
@@ -124,7 +119,7 @@ class CollapsibleRightBar {
             this.initialWidth = this.currentWidth;
             e.preventDefault();
 
-            this.addShield(); // <--- activate shield
+            this.addShield();
         });
 
         document.addEventListener('mousemove', (e) => {
@@ -136,7 +131,7 @@ class CollapsibleRightBar {
             if (this.isResizing) {
                 this.isResizing = false;
                 this.resizeHandle.classList.remove('active');
-                this.removeShield(); // <--- remove shield
+                this.removeShield();
             }
         });
 
@@ -177,7 +172,6 @@ class CollapsibleRightBar {
         if (this.isCollapsed) {
             this.hideAllContainers();
         } else {
-            // Show the stream container by default when expanding
             this.showContainer('stream');
         }
     }
@@ -258,9 +252,8 @@ class CollapsibleRightBar {
         const navHeight = this.rightBar.querySelector('#nav__links').offsetHeight;
         let offsetY = event.clientY - this.containerRect.top;
         
-        // Constrain slider position relative to nav height
-        const minOffset = navHeight + 50; // Minimum space below nav
-        const maxOffset = this.containerRect.height - 100; // Leave space for message form
+        const minOffset = navHeight + 50;
+        const maxOffset = this.containerRect.height - 100;
         
         offsetY = Math.max(minOffset, Math.min(maxOffset, offsetY));
         this.setSliderPosition(offsetY);
@@ -271,12 +264,11 @@ class CollapsibleRightBar {
         
         const navHeight = this.rightBar.querySelector('#nav__links').offsetHeight;
         const streamHeight = offsetY - navHeight;
-        const messageHeight = this.containerRect.height - offsetY - 70; // Account for form height
+        const messageHeight = this.containerRect.height - offsetY - 70;
         
         this.streamContainer.style.height = streamHeight + 'px';
         this.messagesContainer.style.height = messageHeight + 'px';
         
-        // Position slider relative to its container
         this.slider.style.position = 'relative';
         this.slider.style.top = '0px';
         this.slider.style.margin = '0';

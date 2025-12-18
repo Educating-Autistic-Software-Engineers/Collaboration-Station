@@ -254,7 +254,7 @@ body {
   background-color: #262625;
   overflow-y: auto;
   display: none;
-  padding: 3rem 1rem 1rem 1rem; /* Significantly increased top padding */
+  padding: 1rem 1rem 1rem 1rem;
   opacity: 0;
   transition: opacity 0.3s ease;
   box-sizing: border-box;
@@ -263,8 +263,19 @@ body {
 
 
 .right_container.active {
-  display: block;
+  display: flex;
+  flex-direction: column;
   opacity: 1;
+}
+
+/* When the right container is hidden, prevent it from receiving pointer events
+   (stops clicks from 'bleeding' into hidden/offscreen elements). When active,
+   allow interactions. */
+.right_container:not(.active) {
+  pointer-events: none;
+}
+.right_container.active {
+  pointer-events: auto;
 }
 
 #right_bar.collapsed .right_container {
@@ -526,7 +537,7 @@ body {
   background: rgba(66, 13, 55, 0.3);
   opacity: 0;
   transition: opacity 0.3s ease;
-  z-index: 10;
+  z-index: 9999; /* keep resize handle above other UI so it's always clickable */
 }
 
 .resize-handle:hover, .resize-handle.active {
@@ -870,6 +881,11 @@ body {
 
 #members__container {
   padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0; /* allow flex child to shrink properly */
+  box-sizing: border-box;
 }
 
 #members__header {
@@ -899,8 +915,37 @@ body {
 
 #member__list {
   margin-bottom: 1rem;
-  max-height: 300px;
   overflow-y: auto;
+  flex: 1 1 auto;
+  min-height: 0; /* allow flex child to shrink properly */
+}
+
+.members__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  background: linear-gradient(180deg, rgba(0,0,0,0), rgba(0,0,0,0.02));
+  position: sticky;
+  bottom: 0;
+  z-index: 20;
+}
+
+.members-section-heading {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #cbd5e1;
+  margin: 0.5rem 0 0.25rem 0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 6px;
+}
+.members-section-heading.online-heading {
+  color: #86efac; /* greenish for online */
+}
+.members-section-heading.offline-heading {
+  color: #94a3b8; /* muted for offline */
 }
 
 /* Style for individual member items in the list */

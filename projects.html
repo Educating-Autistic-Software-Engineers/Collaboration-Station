@@ -8,16 +8,75 @@
 </head>
 <body>
     <div class="stars"></div>
+    <div class="planets" aria-hidden="true">
+        <svg class="planet planet-1" width="220" height="220" viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="p1g" cx="35%" cy="35%">
+                    <stop offset="0%" stop-color="#8b5a4a" />
+                    <stop offset="100%" stop-color="#5c3939" />
+                </radialGradient>
+            </defs>
+            <circle cx="110" cy="110" r="60" fill="url(#p1g)" />
+            <ellipse cx="110" cy="110" rx="95" ry="22" fill="none" stroke="#6b5555" stroke-opacity="0.45" stroke-width="6" transform="rotate(-18 110 110)" />
+            <g aria-hidden="true">
+                <g>
+                    <circle cx="200" cy="110" r="3" fill="#f0e6e6" />
+                    <animateTransform attributeName="transform" type="rotate" from="0 110 110" to="360 110 110" dur="9s" repeatCount="indefinite" />
+                </g>
+                <g>
+                    <circle cx="190" cy="110" r="2" fill="#efe2d9" />
+                    <animateTransform attributeName="transform" type="rotate" from="0 110 110" to="-360 110 110" dur="13s" repeatCount="indefinite" />
+                </g>
+                <g>
+                    <circle cx="170" cy="110" r="2.2" fill="#fff1ea" />
+                    <animateTransform attributeName="transform" type="rotate" from="0 110 110" to="360 110 110" dur="11s" repeatCount="indefinite" />
+                </g>
+            </g>
+        </svg>
+        <svg class="planet planet-2" width="260" height="260" viewBox="0 0 180 180" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="p2g" cx="40%" cy="30%">
+                    <stop offset="0%" stop-color="#4a7269" />
+                    <stop offset="100%" stop-color="#2a5a54" />
+                </radialGradient>
+            </defs>
+            <circle cx="90" cy="90" r="56" fill="url(#p2g)" />
+            <g aria-hidden="true">
+                <g>
+                    <circle cx="20" cy="90" r="2.5" fill="#e8fff7" />
+                    <animateTransform attributeName="transform" type="rotate" from="0 90 90" to="360 90 90" dur="7s" repeatCount="indefinite" />
+                </g>
+                <g>
+                    <circle cx="150" cy="90" r="2" fill="#d9fff5" />
+                    <animateTransform attributeName="transform" type="rotate" from="0 90 90" to="-360 90 90" dur="12s" repeatCount="indefinite" />
+                </g>
+            </g>
+        </svg>
+        <svg class="planet planet-3" width="180" height="180" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <radialGradient id="p3g" cx="35%" cy="35%">
+                    <stop offset="0%" stop-color="#5a4d73" />
+                    <stop offset="100%" stop-color="#3d2b62" />
+                </radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="44" fill="url(#p3g)" />
+            <g aria-hidden="true">
+                <g>
+                    <circle cx="110" cy="60" r="1.8" fill="#f6f0ff" />
+                    <animateTransform attributeName="transform" type="rotate" from="0 60 60" to="360 60 60" dur="6s" repeatCount="indefinite" />
+                </g>
+            </g>
+        </svg>
+    </div>
     <header>
         <a href="https://www.edase.org" target="_blank" id="logo">
-            <img src="./images/logo.svg" alt="Site Logo">
+            <img src="./images/logo.png" alt="Site Logo">
             <span>Collaboration Station</span>
         </a>
         <div class="header-actions">
-            <a href="shop.html" class="shop-btn">
-                <span class="shop-icon">🏪</span>
-                Profile Shop
-            </a>
+                <a href="shop.html" class="shop-btn shop-btn--icon" aria-label="Profile shop" title="Profile shop">
+                    <span class="shop-icon">👤</span>
+                </a>
             <button class="new-project-btn" onclick="addProject()">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -31,7 +90,7 @@
             <div class="project-card">
                 <h2>Current Project</h2>
                 <div id="selected-project" class="selected-project">
-                    <!-- Selected project details will be populated here by JavaScript -->
+
                 </div>
             </div>
             <div class="project-card">
@@ -39,7 +98,7 @@
                 <div class="project-scroll-container">
                     <button id="scroll-left" class="scroll-btn">&lt;</button>
                     <div id="past-projects" class="project-grid">
-                        <!-- Past projects will be populated here by JavaScript -->
+
                     </div>
                     <button id="scroll-right" class="scroll-btn">&gt;</button>
                 </div>
@@ -49,7 +108,7 @@
                 <div class="project-scroll-container">
                     <button id="scroll-left-class" class="scroll-btn">&lt;</button>
                     <div id="class-projects" class="project-grid">
-                        <!-- Class projects will be populated here by JavaScript -->
+                        
                     </div>
                     <button id="scroll-right-class" class="scroll-btn">&gt;</button>
                 </div>
