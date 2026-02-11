@@ -7,6 +7,10 @@ const targetEmail = roomId;
 let roomList = [];
 let roomDict = {};
 
+// Configure names/emails that should not be clickable in the user list
+// You can override by setting window.NON_TOGGLEABLE_USERS = ['Name', 'email@example.com'] before load()
+const NON_TOGGLEABLE_USERS = (window.NON_TOGGLEABLE_USERS || []);
+
 // Check if the user is logged in
 if (sessionStorage.getItem('email') == null) {
     console.log("User not logged in... returning");
@@ -41,7 +45,8 @@ async function fetchRooms() {
 // Fetch user's projects from the API
 async function fetchUserProjects() {
     try {
-        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${targetEmail}`);
+        const password = sessionStorage.getItem('password');
+        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${targetEmail}&password=${password}`);
         const data = await response.json();
         roomList = data.projects.split(", ");
     } catch (error) {
@@ -388,6 +393,98 @@ function createProjectElement(project) {
 }
 
 
+// Create animated popup effect with particles
+function createPopupEffect(container) {
+    container.innerHTML = '';
+    
+    // Create canvas for effect animation
+    const canvas = document.createElement('canvas');
+    canvas.width = 200;
+    canvas.height = 80;
+    canvas.className = 'effect-canvas';
+    
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+    
+    const particles = [];
+    const particleCount = 8;
+    
+    // Initialize particles
+    for (let i = 0; i < particleCount; i++) {
+        particles.push({
+            x: canvas.width / 2 + (Math.random() - 0.5) * 40,
+            y: canvas.height / 2 + (Math.random() - 0.5) * 40,
+            vx: (Math.random() - 0.5) * 3,
+            vy: (Math.random() - 0.5) * 3,
+            life: 1,
+            color: ['#7c3aed', '#a855f7', '#c084fc', '#e9d5ff'][Math.floor(Math.random() * 4)]
+        });
+    }
+    
+    function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 0.8;
+        
+        // Draw gradient background
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, 'rgba(124, 58, 237, 0.1)');
+        gradient.addColorStop(1, 'rgba(168, 85, 247, 0.1)');
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        ctx.globalAlpha = 1;
+        
+        // Update and draw particles
+        particles.forEach(particle => {
+            particle.x += particle.vx;
+            particle.y += particle.vy;
+            particle.life -= 0.02;
+            
+            // Bounce off edges
+            if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
+            if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
+            
+            // Wrap around
+            if (particle.x < 0) particle.x = canvas.width;
+            if (particle.x > canvas.width) particle.x = 0;
+            if (particle.y < 0) particle.y = canvas.height;
+            if (particle.y > canvas.height) particle.y = 0;
+            
+            // Reset if dead
+            if (particle.life <= 0) {
+                particle.x = canvas.width / 2 + (Math.random() - 0.5) * 40;
+                particle.y = canvas.height / 2 + (Math.random() - 0.5) * 40;
+                particle.vx = (Math.random() - 0.5) * 3;
+                particle.vy = (Math.random() - 0.5) * 3;
+                particle.life = 1;
+            }
+            
+            // Draw particle with glow
+            ctx.globalAlpha = particle.life;
+            ctx.shadowColor = particle.color;
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = particle.color;
+            ctx.beginPath();
+            ctx.arc(particle.x, particle.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        
+        ctx.globalAlpha = 1;
+        ctx.shadowColor = 'transparent';
+        
+        animationFrameId = requestAnimationFrame(animate);
+    }
+    
+    animate();
+    
+    // Stop animation after some time
+    setTimeout(() => {
+        cancelAnimationFrame(animationFrameId);
+    }, 3000);
+    
+    container.appendChild(canvas);
+}
+
 function populateUsernames() {
     fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems")
         .then(response => response.json())
@@ -409,11 +506,22 @@ function populateUsernames() {
 
                 const statusRow = document.createElement('div');
                 statusRow.className = 'status-row';
+                const isDisabled = NON_TOGGLEABLE_USERS.some(x => {
+                    const needle = (x || '').toString().toLowerCase();
+                    return needle && (
+                        (user.name && user.name.toLowerCase() === needle) ||
+                        (user.email && user.email.toLowerCase() === needle)
+                    );
+                });
+                if (isDisabled) {
+                    statusRow.classList.add('disabled-user');
+                    statusRow.setAttribute('aria-disabled', 'true');
+                }
                 
                 const userIcon = document.createElement('div');
                 userIcon.className = 'user-icon';
                 
-                userIcon.textContent = user.emoji || user.name.charAt(0).toUpperCase();
+                userIcon.textContent = user.emoji || '😊';
                 
                 const userInfo = document.createElement('div');
                 userInfo.className = 'user-info';
@@ -474,13 +582,133 @@ function populateUsernames() {
                 userInfo.appendChild(userName);
                 userInfo.appendChild(lastActive);
                 
+                // Create user stats overlay
+                const statsOverlay = document.createElement('div');
+                statsOverlay.className = 'user-stats-overlay';
+                
+                const statsGrid = document.createElement('div');
+                statsGrid.className = 'stats-grid';
+                
+                // Tasks completed stat
+                const tasksStatItem = document.createElement('div');
+                tasksStatItem.className = 'stat-item';
+                const tasksLabel = document.createElement('div');
+                tasksLabel.className = 'stat-label';
+                tasksLabel.textContent = 'Tasks';
+                const tasksValue = document.createElement('div');
+                tasksValue.className = 'stat-value';
+                tasksValue.textContent = user.tasksCompleted ? `${user.tasksCompleted}` : '0';
+                tasksStatItem.appendChild(tasksLabel);
+                tasksStatItem.appendChild(tasksValue);
+                
+                // Projects stat
+                const projectsStatItem = document.createElement('div');
+                projectsStatItem.className = 'stat-item';
+                const projectsLabel = document.createElement('div');
+                projectsLabel.className = 'stat-label';
+                projectsLabel.textContent = 'Projects';
+                const projectsValue = document.createElement('div');
+                projectsValue.className = 'stat-value';
+                projectsValue.textContent = user.projectsCount ? `${user.projectsCount}` : '0';
+                projectsStatItem.appendChild(projectsLabel);
+                projectsStatItem.appendChild(projectsValue);
+                
+                // Streak stat
+                const streakStatItem = document.createElement('div');
+                streakStatItem.className = 'stat-item';
+                const streakLabel = document.createElement('div');
+                streakLabel.className = 'stat-label';
+                streakLabel.textContent = 'Streak';
+                const streakValue = document.createElement('div');
+                streakValue.className = 'stat-value';
+                streakValue.textContent = user.streak ? `${user.streak}` : '0';
+                const streakBadge = document.createElement('span');
+                streakBadge.className = 'stat-badge';
+                streakBadge.textContent = '🔥';
+                streakValue.appendChild(streakBadge);
+                streakStatItem.appendChild(streakLabel);
+                streakStatItem.appendChild(streakValue);
+                
+                // Level stat
+                const levelStatItem = document.createElement('div');
+                levelStatItem.className = 'stat-item';
+                const levelLabel = document.createElement('div');
+                levelLabel.className = 'stat-label';
+                levelLabel.textContent = 'Level';
+                const levelValue = document.createElement('div');
+                levelValue.className = 'stat-value';
+                levelValue.textContent = user.level ? `${user.level}` : '1';
+                levelStatItem.appendChild(levelLabel);
+                levelStatItem.appendChild(levelValue);
+                
+                statsGrid.appendChild(tasksStatItem);
+                statsGrid.appendChild(projectsStatItem);
+                statsGrid.appendChild(streakStatItem);
+                statsGrid.appendChild(levelStatItem);
+                
+                statsOverlay.appendChild(statsGrid);
+                
+                // Create popup effect container
+                const popupEffect = document.createElement('div');
+                popupEffect.className = 'popup-effect';
+                
+                // Add event listeners for popup interaction
+                statusRow.addEventListener('mouseenter', function(e) {
+                    const rect = statusRow.getBoundingClientRect();
+                    
+                    // Position stats overlay to the right of the user row
+                    const xPos = rect.right + 10;
+                    const yPos = rect.top + (rect.height / 2);
+                    
+                    // Position stats overlay
+                    statsOverlay.style.left = xPos + 'px';
+                    statsOverlay.style.top = yPos + 'px';
+                    statsOverlay.style.transform = 'translateY(-50%)';
+                    
+                    // Randomly apply fire or space animation with 50/50 odds
+                    const randomAnimation = Math.random() < 0.5 ? 'fire-anim' : 'space-anim';
+                    statsOverlay.classList.remove('fire-anim', 'space-anim');
+                    statsOverlay.classList.add(randomAnimation);
+                    
+                    statsOverlay.classList.add('visible');
+                });
+                
+                statusRow.addEventListener('mouseleave', function() {
+                    // Use a small delay to allow cursor to move to popup without toggling
+                    setTimeout(() => {
+                        if (!statsOverlay.matches(':hover')) {
+                            statsOverlay.classList.remove('visible');
+                        }
+                    }, 50);
+                });
+                
+                // Keep popup visible if hovering over stats overlay
+                statsOverlay.addEventListener('mouseenter', function() {
+                    statsOverlay.classList.add('visible');
+                });
+                
+                statsOverlay.addEventListener('mouseleave', function() {
+                    setTimeout(() => {
+                        if (!statusRow.matches(':hover')) {
+                            statsOverlay.classList.remove('visible');
+                        }
+                    }, 50);
+                });
+                
                 statusRow.appendChild(userIcon);
                 statusRow.appendChild(userInfo);
+                statusRow.appendChild(statsOverlay);
                 // statusRow.appendChild(chatBtn);
                 
-                // statusRow.onclick = () => {
-                //     window.location.href = `projects.html?email=${user.email}`;
-                // };
+                // Append stats overlay to document.body so it's not constrained by parent containers
+                document.body.appendChild(statsOverlay);
+                
+                // Only allow clicking if not disabled
+                if (!isDisabled) {
+                    // statusRow.onclick = () => {
+                    //     window.location.href = `projects.html?email=${user.email}`;
+                    // };
+                }
                 
                 container.appendChild(statusRow);
             });

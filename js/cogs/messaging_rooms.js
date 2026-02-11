@@ -63,7 +63,8 @@ window.messagingReady.then(() => {
             return;
         }
         
-        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}`);
+        const password = sessionStorage.getItem('password');
+        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}&password=${password}`);
         const data = await response.json();
         data.email = email;
 

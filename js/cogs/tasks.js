@@ -75,7 +75,6 @@ class TasksManager {
         });
 
         this.roomTasks = normalized;
-        console.log("Room tasks:", this.roomTasks);
 
         normalized.forEach(task => {
             if (!task.usersAssigned || task.usersAssigned.length === 0) return;
@@ -190,6 +189,8 @@ class TasksManager {
         const color = this.getCategoryColor(category);
         const isSelected = this.selectedTask && this.selectedTask.id === task.id;
         const isChatActive = this.taskInHelpChat && this.taskInHelpChat.id === task.id;
+        // Determine if this task is from room or user tasks based on category
+        const view = ['assigned', 'improvement'].includes(category) ? 'user' : 'room';
         
         return `
             <div class="compact-task ${task.completed ? 'completed' : ''} ${isSelected ? 'selected' : ''}" 
@@ -197,12 +198,12 @@ class TasksManager {
                  data-category="${category}">
                 <div class="task-color-bar" style="background: ${color}"></div>
                 ${task.completed ? '<div class="task-complete-gradient"></div>' : ''}
-                <div class="task-content" onclick="tasksManager.toggleTaskCompletion('${task.id}', '${category}', '${this.activeView}')">
+                <div class="task-content" onclick="tasksManager.toggleTaskCompletion('${task.id}', '${category}', '${view}')">
                     <span class="task-emoji">${task.emoji}</span>
                     <span class="task-label">${task.title}</span>
                 </div>
                 <div class="task-help-gradient ${isChatActive ? 'chat-active' : ''}" 
-                     onclick="tasksManager.requestHelpForTask('${task.id}', '${category}', '${this.activeView}')">
+                     onclick="tasksManager.requestHelpForTask('${task.id}', '${category}', '${view}')">
                     <span class="help-icon">${isChatActive ? '💬' : '?'}</span>
                 </div>
             </div>
@@ -532,8 +533,6 @@ class TasksManager {
         const taskData = JSON.parse(e.dataTransfer.getData('text/plain'));
         const sourceCategory = e.dataTransfer.getData('source-category');
         const studentEmail = this.managementSelectedStudent;
-        
-        console.log('Dropping back to room:', taskData.title, 'from:', sourceCategory, 'for student:', studentEmail);
         
         // Only allow dropping back if it came from a student's tasks
         if (sourceCategory === 'assigned' || sourceCategory === 'improvement') {
@@ -898,15 +897,14 @@ class TasksManager {
             category: category,
             completed: false,
             usersAssigned: [],
-            roomAssigned: null,
+            roomAssigned: typeof roomId !== 'undefined' ? roomId : null,
             createdAt: Date.now()
         };
 
         this.roomTasks.push(newTask);
 
-        await this.persistRoomTasksToApi();
+        await this.uploadNewTaskToApi(newTask);
         
-        // Clear the form
         document.getElementById('new-room-task-title').value = '';
         document.getElementById('new-room-task-emoji').value = '📝';
         document.getElementById('new-room-task-category').value = 'art';
@@ -916,18 +914,12 @@ class TasksManager {
         this.selectStudent(this.managementSelectedStudent);
     }
 
-    async persistRoomTasksToApi() {
+    async uploadNewTaskToApi(task) {
         const payload = {
-            tasks: this.roomTasks.map(t => ({
-                task_id: t.id,
-                task_content: t.title,
-                users_assigned: Array.isArray(t.usersAssigned) ? t.usersAssigned.join(',') : '',
-                room_assigned: t.roomAssigned || null,
-                time_created: t.createdAt || Date.now(),
-                completed: Boolean(t.completed),
-                category: t.category || 'assigned',
-                emoji: t.emoji || '🟣'
-            }))
+            task_content: task.title,
+            room_assigned: typeof roomId !== 'undefined' ? roomId : (task.roomAssigned || null),
+            users_assigned: Array.isArray(task.usersAssigned) ? task.usersAssigned.join(',') : '',
+            emoji: task.emoji || '📝'
         };
 
         try {
@@ -939,7 +931,7 @@ class TasksManager {
                 body: JSON.stringify(payload)
             });
         } catch (err) {
-            console.error('Failed to update tasks', err);
+            console.error('Failed to upload new task', err);
         }
     }
 
@@ -967,8 +959,6 @@ class TasksManager {
         const users = [];
         const connectedUsersArray = Object.values(connectedUsers);
         
-        console.log('Getting users for task', taskId, 'from connected users:', connectedUsersArray.length);
-        
         connectedUsersArray.forEach(user => {
             const studentTasks = this.getStudentTasks(user.email);
             const hasTask = [...studentTasks.assigned, ...studentTasks.improvement]
@@ -980,12 +970,64 @@ class TasksManager {
             }
         });
         
-        console.log('Total users with task', taskId, ':', users.length);
         return users;
     }
 
-    saveTaskChanges() {
+    async saveTaskChanges() {
         this.hideTaskManagementPopup();
+        
+        // Build a map of task_id -> list of user emails
+        const taskAssignments = {};
+        
+        for (const [studentEmail, tasks] of Object.entries(this.studentTasks)) {
+            if (studentEmail && tasks) {
+                // Process assigned tasks
+                if (tasks.assigned) {
+                    tasks.assigned.forEach(task => {
+                        const taskId = task.id || task.task_id;
+                        if (!taskAssignments[taskId]) {
+                            taskAssignments[taskId] = [];
+                        }
+                        if (!taskAssignments[taskId].includes(studentEmail)) {
+                            taskAssignments[taskId].push(studentEmail);
+                        }
+                    });
+                }
+                
+                // Process improvement tasks
+                if (tasks.improvement) {
+                    tasks.improvement.forEach(task => {
+                        const taskId = task.id || task.task_id;
+                        if (!taskAssignments[taskId]) {
+                            taskAssignments[taskId] = [];
+                        }
+                        if (!taskAssignments[taskId].includes(studentEmail)) {
+                            taskAssignments[taskId].push(studentEmail);
+                        }
+                    });
+                }
+            }
+        }
+        
+        // Send PATCH request for each task with its assigned users
+        for (const [taskId, usersAssigned] of Object.entries(taskAssignments)) {
+            try {
+                await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/tasks', {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        task_id: taskId,
+                        users_assigned: usersAssigned
+                    })
+                });
+                console.log(`Task ${taskId} updated with users: ${usersAssigned.join(', ')}`);
+            } catch (error) {
+                console.error(`Error saving task ${taskId}:`, error);
+            }
+        }
+        
         // Refresh the main task view to show updated tasks for current user
         if (this.activeView === 'user') {
             this.render();

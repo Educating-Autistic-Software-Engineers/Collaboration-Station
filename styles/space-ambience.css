@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --primary-bg: #0f172a;
+    --secondary-bg: #1e293b;
+    --accent-bg: #334155;
+    --surface: rgba(30, 41, 59, 0.8);
+    --surface-hover: rgba(51, 65, 85, 0.9);
+    --primary-color: #3b82f6;
+    --primary-hover: #2563eb;
+    --accent-color: #3b82f6;
+    --text-primary: #c0ccd8;
+    --text-secondary: #cbd5e1;
+    --text-muted: #64748b;
+    --border-color: rgba(148, 163, 184, 0.1);
+    --border-hover: rgba(148, 163, 184, 0.2);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
+    --radius-xl: 1rem;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f172a;
+    background-image:
+        radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.12), transparent 32%),
+        radial-gradient(circle at 80% 10%, rgba(139, 92, 246, 0.08), transparent 30%),
+        radial-gradient(circle at 50% 80%, rgba(59, 130, 246, 0.06), transparent 40%),
+        linear-gradient(135deg, #0f172a 0%, #020617 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
+    margin: 0;
+    line-height: 1.6;
+    overflow-x: hidden;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    position: relative;
+}
+
+.stars {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 140%;
+    height: 140%;
+    z-index: 0;
+    pointer-events: none;
+    background: url('https://s3-us-west-2.amazonaws.com/s.cdpn.io/1231630/stars.png') repeat;
+    background-size: 140%;
+    animation: starsMove 200s linear infinite;
+    opacity: 0.4;
+}
+
+@keyframes starsMove {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(-25%, -15%, 0); }
+}
+
+/* Header */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--border-color);
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: 60px;
+}
+
+#logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+    gap: 0.5rem;
+}
+
+#logo:hover {
+    opacity: 0.8;
+}
+
+#logo img {
+    height: 32px;
+    width: auto;
+}

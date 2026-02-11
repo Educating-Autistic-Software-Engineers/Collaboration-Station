@@ -55,16 +55,10 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 
     let email = e.target.email.value;
     let password = e.target.password.value;
-    console.log(email);
 
-    let emailExists = await checkEmail(email);
+    let emailExists = await checkEmail(email, password);
 
     if (emailExists) {
-
-        if (password !== "password") {
-            alert("Incorrect Password. Please try again.");
-            return;
-        }
 
         if (redirect && redirect != "null") {
             const viewType = urlParams.get('view') == "true" ? "view" : "project";
@@ -74,14 +68,14 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
         }
     } else {
         // Show an error message if the email does not exist
-        alert('Email not found. Please contact prodegh@clemson.edu to sign up.');
+        alert('Email or password not correct. Please contact prodegh@clemson.edu to sign up.');
     }
 
 
 });
 
 
-async function checkEmail(email) {
+async function checkEmail(email, password) {
     // return new Promise((resolve) => {
     //     setTimeout(() => {
     //         // Simulate checking email; return true if email exists, false otherwise
@@ -89,18 +83,19 @@ async function checkEmail(email) {
     //     }, 1000);
     // });
 
-    console.log(email);
-
     try {
-        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}`);
-        console.log(response);
-        console.log(response.ok);
+        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}&password=${password}`);
+        
+        sessionStorage.setItem('password',password);
+
+        if (!response.ok) {
+            return false;
+        }
         const data = await response.json();
+
         sessionStorage.setItem('display_name',data.name);
         sessionStorage.setItem('email',data.requestId);
         sessionStorage.setItem('role',data.role);
-        console.log(data);
-        console.log(data.name);
         return data.requestId;
     } catch (error) {
         console.error('Error checking email:', error);

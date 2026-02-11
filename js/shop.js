@@ -1,140 +1,187 @@
 const emojiRewards = [
-    { id: 1, emoji: '😀', name: 'Happy Face', requiredCoins: 0 },
-    { id: 2, emoji: '🎨', name: 'Artist', requiredCoins: 50 },
-    { id: 3, emoji: '🚀', name: 'Rocket', requiredCoins: 100 },
-    { id: 4, emoji: '⭐', name: 'Star', requiredCoins: 150 },
-    { id: 5, emoji: '🎯', name: 'Target', requiredCoins: 200 },
-    { id: 6, emoji: '🏆', name: 'Trophy', requiredCoins: 300 },
-    { id: 7, emoji: '💎', name: 'Diamond', requiredCoins: 400 },
-    { id: 8, emoji: '👑', name: 'Crown', requiredCoins: 500 },
-    { id: 9, emoji: '🔥', name: 'Fire', requiredCoins: 600 },
-    { id: 10, emoji: '⚡', name: 'Lightning', requiredCoins: 750 },
-    { id: 11, emoji: '🌟', name: 'Glowing Star', requiredCoins: 1000 },
-    { id: 12, emoji: '🦄', name: 'Unicorn', requiredCoins: 1500 }
+    { id: 1, emoji: '😀', name: 'Happy Face', requiredTasks: 0 },
+    { id: 2, emoji: '🎨', name: 'Artist', requiredTasks: 5 },
+    { id: 3, emoji: '🚀', name: 'Rocket', requiredTasks: 10 },
+    { id: 4, emoji: '⭐', name: 'Star', requiredTasks: 15 },
+    { id: 5, emoji: '🎯', name: 'Target', requiredTasks: 20 },
+    { id: 6, emoji: '🏆', name: 'Trophy', requiredTasks: 30 },
+    { id: 7, emoji: '💎', name: 'Diamond', requiredTasks: 50 },
+    { id: 8, emoji: '👑', name: 'Crown', requiredTasks: 75 },
+    { id: 9, emoji: '🔥', name: 'Fire', requiredTasks: 100 },
+    { id: 10, emoji: '⚡', name: 'Lightning', requiredTasks: 150 },
+    { id: 11, emoji: '🌟', name: 'Glowing Star', requiredTasks: 200 },
+    { id: 12, emoji: '🦄', name: 'Unicorn', requiredTasks: 300 }
 ];
 
-let currentCoins = 0;
+const profileEffects = [
+    { id: 1, name: 'Sparkles', emoji: '✨', requiredTasks: 5 },
+    { id: 2, name: 'Fire Aura', emoji: '🔥', requiredTasks: 20 },
+    { id: 3, name: 'Rainbow', emoji: '🌈', requiredTasks: 50 },
+    { id: 4, name: 'Galaxy', emoji: '🌌', requiredTasks: 100 },
+    { id: 5, name: 'Neon Glow', emoji: '⚡', requiredTasks: 150 }
+];
+
+let tasksCompleted = 0;
 let selectedEmoji = null;
+let selectedEffect = null;
 let unlockedEmojis = new Set();
 
 function initializeShop() {
-    sessionStorage.setItem('currentCoins', '250');
-    sessionStorage.setItem('selectedEmoji', '1');
-    sessionStorage.setItem('unlockedEmojis', JSON.stringify([1, 2, 3]));
-    currentCoins = sessionStorage.getItem('currentCoins') ? parseInt(sessionStorage.getItem('currentCoins')) : 0; 
-    selectedEmoji = sessionStorage.getItem('selectedEmoji') ? parseInt(sessionStorage.getItem('selectedEmoji')) : null;
-    unlockedEmojis = new Set(JSON.parse(sessionStorage.getItem('unlockedEmojis')) || []); 
-
-    updateCoinDisplay();
-    renderShop();
-    checkNewUnlocks();
-}
-
-function updateCoinDisplay() {
-    document.getElementById('coin-balance').textContent = currentCoins;
-}
-
-function renderProgressBar() {
-    const progressSection = document.getElementById('progress-section');
+    // Get tasks completed from sessionStorage or set to demo value
+    tasksCompleted = parseInt(sessionStorage.getItem('tasksCompleted') || '0');
     
-    // Find next reward to unlock
-    const nextReward = emojiRewards.find(r => currentCoins < r.requiredCoins);
-    
-    if (!nextReward) {
-        // All rewards unlocked!
-        progressSection.innerHTML = `
-            <div class="all-unlocked">
-                <h2>🎉 All Rewards Unlocked! 🎉</h2>
-                <p>You've collected every icon in the gallery!</p>
-            </div>
-        `;
-        return;
+    // If demo and no tasks, set a demo value
+    if (tasksCompleted === 0 && !sessionStorage.getItem('tasksCompleted')) {
+        tasksCompleted = 42; // Demo value
+        sessionStorage.setItem('tasksCompleted', tasksCompleted);
     }
     
-    // Find previous reward threshold (or 0 if this is the first)
-    const currentRewardIndex = emojiRewards.findIndex(r => r.id === nextReward.id);
-    const previousReward = currentRewardIndex > 0 ? emojiRewards[currentRewardIndex - 1] : null;
-    const previousThreshold = previousReward ? previousReward.requiredCoins : 0;
+    sessionStorage.setItem('selectedEmoji', '1');
+    selectedEmoji = sessionStorage.getItem('selectedEmoji') ? parseInt(sessionStorage.getItem('selectedEmoji')) : null;
+    selectedEffect = sessionStorage.getItem('selectedEffect') ? parseInt(sessionStorage.getItem('selectedEffect')) : null;
+    unlockedEmojis = new Set(JSON.parse(sessionStorage.getItem('unlockedEmojis')) || [1]); 
     
-    // Calculate progress
-    const coinsNeeded = nextReward.requiredCoins - currentCoins;
-    const progressRange = nextReward.requiredCoins - previousThreshold;
-    const currentProgress = currentCoins - previousThreshold;
-    const progressPercent = Math.min(100, (currentProgress / progressRange) * 100);
+    // Auto-unlock emojis based on tasks
+    autoUnlockEmojis();
+
+    updateTasksDisplay();
+    renderShop();
+}
+
+function updateTasksDisplay() {
+    const taskDisplay = document.getElementById('tasks-completed');
+    if (taskDisplay) {
+        taskDisplay.textContent = tasksCompleted;
+    }
+}
+
+function autoUnlockEmojis() {
+    emojiRewards.forEach(reward => {
+        if (tasksCompleted >= reward.requiredTasks) {
+            unlockedEmojis.add(reward.id);
+        }
+    });
     
-    progressSection.innerHTML = `
-        <div class="progress-container">
-            <div class="progress-header">
-                <div class="progress-title">Next Reward</div>
-                <div class="progress-info">
-                    <span class="coin-icon">🪙</span>
-                    ${coinsNeeded} coins to go
-                </div>
-            </div>
-            <div class="next-reward">
-                <span class="next-reward-emoji">${nextReward.emoji}</span>
-                <span>${nextReward.name}</span>
-            </div>
-            <div class="progress-bar-container">
-                <div class="progress-bar-fill" style="width: ${progressPercent}%"></div>
-                <div class="progress-text">${currentCoins} / ${nextReward.requiredCoins}</div>
-            </div>
-        </div>
-    `;
+    // Save unlocked emojis
+    sessionStorage.setItem('unlockedEmojis', JSON.stringify(Array.from(unlockedEmojis)));
 }
 
 function renderShop() {
-    renderProgressBar();
-    renderProgressBar();
-    
     const shopGrid = document.getElementById('shop-grid');
     shopGrid.innerHTML = '';
 
     emojiRewards.forEach(reward => {
-        const isUnlocked = currentCoins >= reward.requiredCoins || unlockedEmojis.has(reward.id);
+        const isUnlocked = tasksCompleted >= reward.requiredTasks || unlockedEmojis.has(reward.id);
         const isSelected = selectedEmoji === reward.id;
         
         const itemDiv = document.createElement('div');
         itemDiv.className = `emoji-item ${isUnlocked ? 'unlocked' : 'locked'}`;
         
-        itemDiv.innerHTML = `
-            <div class="emoji-display">${reward.emoji}</div>
-            <div class="emoji-name">${reward.name}</div>
-            <div class="emoji-requirement">
-                <span class="coin-icon">🪙</span>
-                ${reward.requiredCoins} Coins
-            </div>
-            ${isUnlocked ? 
-                `<button class="select-btn ${isSelected ? 'selected' : ''}" onclick="selectEmoji(${reward.id})">
-                    ${isSelected ? '✓ Selected' : 'Select'}
-                </button>` :
-                `<div class="unlock-status locked">
-                    ${currentCoins}/${reward.requiredCoins} Coins
-                </div>`
-            }
-        `;
+        let itemContent;
+        if (isUnlocked) {
+            itemContent = `
+                <div class="emoji-display">${reward.emoji}</div>
+                <div class="emoji-name">${reward.name}</div>
+                <button class="emoji-btn ${isSelected ? 'selected' : ''}" onclick="selectEmoji(${reward.id})">
+                    ${isSelected ? 'Active' : 'Select'}
+                </button>
+            `;
+        } else {
+            const tasksUntilUnlock = reward.requiredTasks - tasksCompleted;
+            itemContent = `
+                <div class="emoji-display locked-emoji">${reward.emoji}</div>
+                <div class="emoji-name">${reward.name}</div>
+                <div class="emoji-requirement">
+                    ${tasksUntilUnlock} tasks
+                </div>
+            `;
+        }
         
+        itemDiv.innerHTML = itemContent;
         shopGrid.appendChild(itemDiv);
     });
+
+    renderProfileEffects();
 }
 
-function selectEmoji(emojiId) {
+function renderProfileEffects() {
+    const effectsContainer = document.getElementById('profile-effects');
+    if (!effectsContainer) return;
+    
+    effectsContainer.innerHTML = '';
+    
+    const title = document.createElement('h3');
+    title.className = 'effects-title';
+    title.textContent = '✨ Profile Effects';
+    effectsContainer.appendChild(title);
+    
+    const effectsGrid = document.createElement('div');
+    effectsGrid.className = 'effects-grid';
+    
+    profileEffects.forEach(effect => {
+        const isUnlocked = tasksCompleted >= effect.requiredTasks;
+        const isSelected = selectedEffect === effect.id;
+        
+        const effectDiv = document.createElement('div');
+        effectDiv.className = `effect-item ${isUnlocked ? 'unlocked' : 'locked'}`;
+        
+        let effectContent;
+        if (isUnlocked) {
+            effectContent = `
+                <div class="effect-display">${effect.emoji}</div>
+                <div class="effect-name">${effect.name}</div>
+                <button class="effect-btn ${isSelected ? 'selected' : ''}" onclick="selectEffect(${effect.id})">
+                    ${isSelected ? '✓ Active' : 'Activate'}
+                </button>
+            `;
+        } else {
+            const tasksUntilUnlock = effect.requiredTasks - tasksCompleted;
+            effectContent = `
+                <div class="effect-display locked-effect">${effect.emoji}</div>
+                <div class="effect-name">${effect.name}</div>
+                <div class="effect-requirement">${tasksUntilUnlock} tasks</div>
+            `;
+        }
+        
+        effectDiv.innerHTML = effectContent;
+        effectsGrid.appendChild(effectDiv);
+    });
+    
+    effectsContainer.appendChild(effectsGrid);
+}
+
+async function selectEmoji(emojiId) {
     const reward = emojiRewards.find(r => r.id === emojiId);
-    const isUnlocked = currentCoins >= reward.requiredCoins || unlockedEmojis.has(emojiId);
+    const isUnlocked = tasksCompleted >= reward.requiredTasks || unlockedEmojis.has(emojiId);
     
     if (!isUnlocked) return;
     
     selectedEmoji = emojiId;
+    
+    const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems', {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            "email": sessionStorage.getItem('email'),
+            "emoji": emojiRewards[emojiId - 1].emoji, 
+        })
+    });
+    console.log('Emoji update response:', await response.json());
+
     renderShop();
 }
 
-function checkNewUnlocks() {
-    emojiRewards.forEach(reward => {
-        if (currentCoins >= reward.requiredCoins && !unlockedEmojis.has(reward.id)) {
-            unlockedEmojis.add(reward.id);
-        }
-    });
+function selectEffect(effectId) {
+    const effect = profileEffects.find(e => e.id === effectId);
+    const isUnlocked = tasksCompleted >= effect.requiredTasks;
+    
+    if (!isUnlocked) return;
+    
+    selectedEffect = selectedEffect === effectId ? null : effectId;
+    sessionStorage.setItem('selectedEffect', selectedEffect || '');
+    renderShop();
 }
 
-// Initialize shop on page load
 initializeShop();
