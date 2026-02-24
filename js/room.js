@@ -295,38 +295,113 @@ async function refreshMembers() {
 
     const presentSet = new Set(present || []);
 
-    const findName = (email) => {
+    // Emoji map for selected emoji IDs
+    const emojiMap = {1:'😀',2:'🎨',3:'🚀',4:'⭐',5:'🎯',6:'🏆',7:'💎',8:'👑',9:'🔥',10:'⚡',11:'🌟',12:'🦄'};
+
+    const findMember = (email) => {
       if (POTENTIAL_MEMBERS && Array.isArray(POTENTIAL_MEMBERS)) {
         const m = POTENTIAL_MEMBERS.find(x => x.email === email);
-        if (m && m.name) return m.name;
+        if (m) return m;
       }
-      return email;
+      return { email, name: email };
+    };
+
+    const getUserEmoji = (member) => {
+      if (member.selectedEmoji && emojiMap[member.selectedEmoji]) {
+        return emojiMap[member.selectedEmoji];
+      }
+      return member.emoji || '😊';
     };
 
     const presentRegistered = (registered || []).filter(e => presentSet.has(e));
     const notPresentRegistered = (registered || []).filter(e => !presentSet.has(e));
+
+    // Create or get profile overlay element
+    let profileOverlay = document.getElementById('member-profile-overlay');
+    if (!profileOverlay) {
+      profileOverlay = document.createElement('div');
+      profileOverlay.id = 'member-profile-overlay';
+      profileOverlay.className = 'user-profile-overlay';
+      profileOverlay.innerHTML = `
+        <div class="profile-content">
+          <div class="profile-emoji"></div>
+          <div class="profile-name"></div>
+          <div class="profile-role"></div>
+          <div class="profile-tasks"></div>
+        </div>
+      `;
+      document.body.appendChild(profileOverlay);
+
+      // Keep popup visible when hovering over it
+      profileOverlay.addEventListener('mouseenter', () => {
+        profileOverlay.classList.add('visible');
+      });
+      profileOverlay.addEventListener('mouseleave', () => {
+        profileOverlay.classList.remove('visible');
+      });
+    }
+
+    const attachHoverEvents = (wrapper, member) => {
+      wrapper.addEventListener('mouseenter', (e) => {
+        const rect = wrapper.getBoundingClientRect();
+        // Position to the LEFT of the sidebar (popup is ~160px wide)
+        const popupWidth = 180;
+        const xPos = rect.left - popupWidth - 10;
+        const yPos = rect.top + (rect.height / 2);
+
+        profileOverlay.style.left = xPos + 'px';
+        profileOverlay.style.top = yPos + 'px';
+        profileOverlay.style.transform = 'translateY(-50%)';
+
+        // Update content
+        profileOverlay.querySelector('.profile-emoji').textContent = getUserEmoji(member);
+        profileOverlay.querySelector('.profile-name').textContent = member.name || member.email;
+        profileOverlay.querySelector('.profile-role').textContent = member.role === 'TA' ? 'Teaching Assistant' : 'Student';
+        const tasksCount = member.tasksCompleted || member.tasks_completed || 0;
+        profileOverlay.querySelector('.profile-tasks').textContent = `${tasksCount} tasks completed`;
+
+        // Apply fire or ice effect randomly
+        profileOverlay.classList.remove('effect-fire', 'effect-ice');
+        profileOverlay.classList.add(Math.random() < 0.5 ? 'effect-fire' : 'effect-ice');
+
+        profileOverlay.classList.add('visible');
+      });
+
+      wrapper.addEventListener('mouseleave', () => {
+        setTimeout(() => {
+          if (!profileOverlay.matches(':hover')) {
+            profileOverlay.classList.remove('visible');
+          }
+        }, 50);
+      });
+    };
 
     if (presentRegistered.length > 0) {
       const header = `<div class="members-section-heading online-heading">Online (${presentRegistered.length})</div>`;
       membersWrapper.insertAdjacentHTML('beforeend', header);
     }
     for (const email of presentRegistered) {
-      const name = findName(email);
+      const member = findMember(email);
+      const emoji = getUserEmoji(member);
       const role = sessionStorage.getItem('role');
       const removeButton = role === 'TA' ? `<button class="remove__btn" onclick="removeParticipant('${email}')"><i class="fas fa-user-times"></i></button>` : '';
       const muteButton = role === 'TA' ? `<button class="mute__btn" onclick="muteParticipant('${email}')"><i class='fas fa-volume-mute'></i></button>` : '';
       const disableMessages = role === 'TA' ? `<button class="disableMessage__btn" onclick="disableMessage('${email}')"><i class='fas fa-comment-slash' style='font-size:15px'></i></button>` : '';
-      const item = `<div class="member__wrapper" id="member__${email}__wrapper">
-                      <span class="green__icon"></span>
-                      <span class="member-avatar">👤</span>
-                      <p class="member_name">${name}</p>
-                      <span class="member_name_buttons">
-                        ${removeButton}
-                        ${muteButton}
-                        ${disableMessages}
-                      </span>
-                    </div>`;
-      membersWrapper.insertAdjacentHTML('beforeend', item);
+      const wrapper = document.createElement('div');
+      wrapper.className = 'member__wrapper';
+      wrapper.id = `member__${email}__wrapper`;
+      wrapper.innerHTML = `
+        <span class="green__icon"></span>
+        <span class="member-avatar">${emoji}</span>
+        <p class="member_name">${member.name || email}</p>
+        <span class="member_name_buttons">
+          ${removeButton}
+          ${muteButton}
+          ${disableMessages}
+        </span>
+      `;
+      membersWrapper.appendChild(wrapper);
+      attachHoverEvents(wrapper, member);
     }
 
     // Render not-present members
@@ -335,25 +410,35 @@ async function refreshMembers() {
       membersWrapper.insertAdjacentHTML('beforeend', header2);
     }
     for (const email of notPresentRegistered) {
-      const name = findName(email);
-      const item = `<div class="member__wrapper offline" id="member__${email}__wrapper">
-                      <span class="gray__icon"></span>
-                      <span class="member-avatar">👤</span>
-                      <p class="member_name">${name}</p>
-                    </div>`;
-      membersWrapper.insertAdjacentHTML('beforeend', item);
+      const member = findMember(email);
+      const emoji = getUserEmoji(member);
+      const wrapper = document.createElement('div');
+      wrapper.className = 'member__wrapper offline';
+      wrapper.id = `member__${email}__wrapper`;
+      wrapper.innerHTML = `
+        <span class="gray__icon"></span>
+        <span class="member-avatar">${emoji}</span>
+        <p class="member_name">${member.name || email}</p>
+      `;
+      membersWrapper.appendChild(wrapper);
+      attachHoverEvents(wrapper, member);
     }
 
     // If nothing registered but presence exists, show present users
     if ((!registered || registered.length === 0) && present && present.length > 0) {
       for (const email of present) {
-        const name = findName(email);
-        const item = `<div class="member__wrapper" id="member__${email}__wrapper">
-                        <span class="green__icon"></span>
-                        <span class="member-avatar">👤</span>
-                        <p class="member_name">${name}</p>
-                      </div>`;
-        membersWrapper.insertAdjacentHTML('beforeend', item);
+        const member = findMember(email);
+        const emoji = getUserEmoji(member);
+        const wrapper = document.createElement('div');
+        wrapper.className = 'member__wrapper';
+        wrapper.id = `member__${email}__wrapper`;
+        wrapper.innerHTML = `
+          <span class="green__icon"></span>
+          <span class="member-avatar">${emoji}</span>
+          <p class="member_name">${member.name || email}</p>
+        `;
+        membersWrapper.appendChild(wrapper);
+        attachHoverEvents(wrapper, member);
       }
     }
 

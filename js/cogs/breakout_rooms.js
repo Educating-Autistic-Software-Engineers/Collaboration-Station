@@ -2,22 +2,72 @@
 
 let roomAssignments = {};
 let currentRoomCount = 3;
+let onlineSet = new Set(); // tracks which emails are currently connected
 
 async function showBreakoutRoomsPopup() {
 
-    let emails = []
-    let tmpUsers = Object.keys(connectedUsers)
-    for (const user of tmpUsers) {
-        connectedUsers[user].email = connectedUsers[user].requestId;
-        emails.push(connectedUsers[user].email);
+    // 1. Fetch the room's registered editors from the API (not Ably connected users)
+    let editors = [];
+    try {
+        const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`);
+        if (resp.ok) {
+            const data = await resp.json();
+            if (data) {
+                if (data.request) {
+                    if (Array.isArray(data.request.editors)) editors = data.request.editors;
+                    else if (Array.isArray(data.request.users)) editors = data.request.users;
+                } else if (Array.isArray(data.editors)) {
+                    editors = data.editors;
+                }
+            }
+        }
+    } catch (e) {
+        console.error('Failed to fetch room editors for breakout rooms', e);
     }
-    POTENTIAL_MEMBERS = tmpUsers.map(user => connectedUsers[user]);
+
+    // Fallback: if API returned nothing, use connectedUsers as a last resort
+    if (editors.length === 0) {
+        editors = Object.values(connectedUsers).map(u => u.requestId || u.email);
+    }
+
+    // 2. Get Ably online presence to show green/grey dots
+    let present = [];
+    try {
+        if (window.getCurrentPresence) {
+            present = await window.getCurrentPresence();
+        }
+    } catch (e) { /* ignore */ }
+    onlineSet = new Set(present || []);
+
+    // 3. Build POTENTIAL_MEMBERS from editors list, resolving names
+    const findUser = (email) => {
+        // Check POTENTIAL_MEMBERS (loaded via /getAllItems)
+        if (typeof POTENTIAL_MEMBERS !== 'undefined' && Array.isArray(POTENTIAL_MEMBERS)) {
+            const m = POTENTIAL_MEMBERS.find(x => x.email === email);
+            if (m) return m;
+        }
+        // Check connectedUsers for name
+        if (typeof connectedUsers !== 'undefined') {
+            for (const key of Object.keys(connectedUsers)) {
+                const u = connectedUsers[key];
+                if ((u.requestId || u.email) === email) return { name: u.name, email: email };
+            }
+        }
+        return { name: email, email: email };
+    };
+
+    POTENTIAL_MEMBERS = editors.map(email => {
+        const u = findUser(email);
+        return { name: u.name || email, email: email };
+    });
 
     const popup = document.getElementById('breakout-rooms-popup');
     popup.style.display = 'block';
 
-    const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${roomId.split(":")[0]}&batch=${emails.join(",")}`);
-    const data = await resp.json();
+    // 4. Fetch existing breakout assignments
+    const emails = POTENTIAL_MEMBERS.map(m => m.email);
+    const batchResp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${roomId.split(":")[0]}&batch=${emails.join(",")}`);
+    const data = await batchResp.json();
     console.log(data);
 
     initializeBreakoutRooms();
@@ -101,8 +151,10 @@ function createMemberElement(member) {
     memberDiv.id = `member-${member.email}`;
 
     const initials = memberName.split(' ').map(name => name[0]).join('');
+    const isOnline = onlineSet.has(memberEmail);
     
     memberDiv.innerHTML = `
+        <span class="member-status-dot ${isOnline ? 'online' : 'offline'}"></span>
         <div class="member-avatar">${initials}</div>
         <div class="member-name">${memberName}</div>
     `;
@@ -220,7 +272,7 @@ function updateUnassignedCount() {
     const assignedMembers = new Set();
     Object.values(roomAssignments).forEach(members => {
         if (members) {
-            members.forEach(member => assignedMembers.add(member));
+            members.forEach(member => assignedMembers.add(member.email));
         }
     });
     
@@ -263,20 +315,25 @@ function setupEventListeners() {
         e.preventDefault();
         const member = JSON.parse(e.dataTransfer.getData('text/plain'));
 
+        // Remove member from all room assignments
         Object.keys(roomAssignments).forEach(room => {
             if (roomAssignments[room]) {
                 roomAssignments[room] = roomAssignments[room].filter(m => m.email !== member.email);
             }
         });
 
+        // Remove any existing DOM element for this member
         const oldEl = document.getElementById(`member-${member.email}`);
         if (oldEl && oldEl.parentNode) {
             oldEl.parentNode.removeChild(oldEl);
         }
 
+        // Update all room displays
         for (let i = 1; i <= currentRoomCount; i++) {
             updateRoomDisplay(i.toString());
         }
+        
+        // Update unassigned display - this will add the member back to unassigned list
         updateUnassignedDisplay();
     });
 }

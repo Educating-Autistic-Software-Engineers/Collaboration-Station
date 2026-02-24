@@ -159,7 +159,7 @@ class TasksManager {
                 </div>
                 
                 <div class="section-header">
-                    <h3>Improvement Goals</h3>
+                    <h3>Tomorrow's Tasks</h3>
                     <span class="task-count">${improvementCount}/${userTasks.improvement.length}</span>
                 </div>
                 <div class="task-list-compact">
@@ -191,19 +191,22 @@ class TasksManager {
         const isChatActive = this.taskInHelpChat && this.taskInHelpChat.id === task.id;
         // Determine if this task is from room or user tasks based on category
         const view = ['assigned', 'improvement'].includes(category) ? 'user' : 'room';
+        // Escape task.id for safe embedding in HTML attributes
+        const safeId = String(task.id).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
         
         return `
             <div class="compact-task ${task.completed ? 'completed' : ''} ${isSelected ? 'selected' : ''}" 
-                 data-task-id="${task.id}"
-                 data-category="${category}">
+                 data-task-id="${safeId}"
+                 data-category="${category}"
+                 data-view="${view}">
                 <div class="task-color-bar" style="background: ${color}"></div>
                 ${task.completed ? '<div class="task-complete-gradient"></div>' : ''}
-                <div class="task-content" onclick="tasksManager.toggleTaskCompletion('${task.id}', '${category}', '${view}')">
+                <div class="task-content" onclick="tasksManager.toggleTaskById(this.parentElement)">
                     <span class="task-emoji">${task.emoji}</span>
                     <span class="task-label">${task.title}</span>
                 </div>
                 <div class="task-help-gradient ${isChatActive ? 'chat-active' : ''}" 
-                     onclick="tasksManager.requestHelpForTask('${task.id}', '${category}', '${view}')">
+                     onclick="tasksManager.requestHelpById(this.parentElement)">
                     <span class="help-icon">${isChatActive ? '💬' : '?'}</span>
                 </div>
             </div>
@@ -219,7 +222,7 @@ class TasksManager {
             sprites: 'Sprites & Movement',
             multimedia: 'Sounds & Events',
             assigned: 'Assigned Task',
-            improvement: 'Improvement Goal'
+            improvement: 'Tomorrow\'s Task'
         };
         
         return `
@@ -385,7 +388,7 @@ class TasksManager {
 
                             <div class="management-section">
                                 <div class="section-title">
-                                    <h3>🎯 Stretch Goals</h3>
+                                    <h3>📌 Tomorrow's Tasks</h3>
                                 </div>
                                 <div class="task-management-list dropzone" data-category="improvement"
                                      ondrop="tasksManager.handleDrop(event, 'improvement')" 
@@ -428,7 +431,7 @@ class TasksManager {
                         <span class="stat-value">${assignedCompleted}/${assignedTotal}</span>
                     </div>
                     <div class="stat-item">
-                        <span class="stat-label">🎯 Stretch Goals</span>
+                        <span class="stat-label">📌 Tomorrow's Tasks</span>
                         <span class="stat-value">${improvementCompleted}/${improvementTotal}</span>
                     </div>
                     <div class="progress-bar-container">
@@ -443,6 +446,7 @@ class TasksManager {
     renderManagementTask(task, category, isDraggable) {
         const color = this.getCategoryColor(category);
         const draggableAttr = isDraggable ? 'draggable="true"' : '';
+        const safeId = String(task.id).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
         
         // Get list of users assigned to this task
         // Only show for room pool tasks
@@ -455,12 +459,12 @@ class TasksManager {
         return `
             <div class="management-task-item ${isDraggable ? 'draggable-task' : 'pool-task'} ${task.completed ? 'completed' : ''}" 
                  ${draggableAttr}
-                 data-task-id="${task.id}"
+                 data-task-id="${safeId}"
                  data-task-category="${category}"
                  data-task='${JSON.stringify(task).replace(/'/g, '&apos;')}'
                  ondragstart="tasksManager.handleDragStart(event)"
                  ondragend="tasksManager.handleDragEnd(event)"
-                 onclick="tasksManager.toggleTaskInManagement(${task.id}, '${category}')">
+                 onclick="tasksManager.toggleTaskInManagement(this.dataset.taskId, '${category}')">
                 <div class="task-color-indicator" style="background: ${color}"></div>
                 <span class="task-emoji">${task.emoji}</span>
                 <span class="task-title ${task.completed ? 'completed' : ''}">${task.title}</span>
@@ -475,9 +479,7 @@ class TasksManager {
                         ${assignedUsers.length > 3 ? `<span class="user-indicator more">+${assignedUsers.length - 3}</span>` : ''}
                     </div>
                 ` : ''}
-                ${isRoomPoolTask && task.category === 'other' ? `
-                    <button class="delete-room-task-btn" onclick="event.stopPropagation(); tasksManager.deleteRoomTask(event, ${task.id})" title="Delete from room">🗑️</button>
-                ` : ''}
+                <button class="delete-room-task-btn" onclick="event.stopPropagation(); tasksManager.deleteRoomTask(event, this.closest('[data-task-id]').dataset.taskId)" title="Delete task">×</button>
             </div>
         `;
     }
@@ -706,24 +708,31 @@ class TasksManager {
         }
     }
 
+    // ── Delegation helpers: read task data from the parent element's data-* attrs ──
+    toggleTaskById(el) {
+        const taskId = el.dataset.taskId;
+        const category = el.dataset.category;
+        const view = el.dataset.view;
+        this.toggleTaskCompletion(taskId, category, view);
+    }
+
+    requestHelpById(el) {
+        const taskId = el.dataset.taskId;
+        const category = el.dataset.category;
+        const view = el.dataset.view;
+        this.requestHelpForTask(taskId, category, view);
+    }
+
     async toggleTaskCompletion(taskId, category, view) {
-        let task;
-        if (view === 'room') {
-            task = this.roomTasks.find(t => t.id == taskId);
-        } else {
+        // Find the task – since room & student tasks share the same object reference,
+        // we only need to toggle once. Search roomTasks first, fall back to student.
+        let task = this.roomTasks.find(t => String(t.id) == String(taskId));
+        if (!task) {
             const userTasks = this.getStudentTasks(sessionStorage.getItem('email'));
             const allUserTasks = [...userTasks.assigned, ...userTasks.improvement];
-            task = allUserTasks.find(t => t.id == taskId);
-            
-            // Also sync with room task if it exists
-            if (task) {
-                const roomTask = this.roomTasks.find(t => t.id == taskId);
-                if (roomTask) {
-                    roomTask.completed = !task.completed;
-                }
-            }
+            task = allUserTasks.find(t => String(t.id) == String(taskId));
         }
-        
+
         if (task) {
             task.completed = !task.completed;
             if (task.completed) {
@@ -737,6 +746,8 @@ class TasksManager {
                 this.selectStudent(this.managementSelectedStudent);
             }
 
+            // Persist completion status to API
+            this.sendTaskCompletionToApi(task);
         }
     }
 
@@ -764,12 +775,13 @@ class TasksManager {
         
         let task = null;
         if (category === 'assigned') {
-            task = studentTasks.assigned.find(t => t.id === taskId);
+            task = studentTasks.assigned.find(t => String(t.id) == String(taskId));
         } else if (category === 'improvement') {
-            task = studentTasks.improvement.find(t => t.id === taskId);
-        } else {
-            // It's a room task
-            task = this.roomTasks.find(t => t.id === taskId);
+            task = studentTasks.improvement.find(t => String(t.id) == String(taskId));
+        }
+        // Also check roomTasks (they share references, but just in case)
+        if (!task) {
+            task = this.roomTasks.find(t => String(t.id) == String(taskId));
         }
         
         if (task) {
@@ -785,6 +797,26 @@ class TasksManager {
                     this.render();
                 }
             }
+
+            // Persist completion status to API
+            this.sendTaskCompletionToApi(task);
+        }
+    }
+
+    async sendTaskCompletionToApi(task) {
+        const taskId = task.id || task.task_id;
+        if (!taskId) return;
+        try {
+            await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/tasks', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    task_id: taskId,
+                    completed: task.completed
+                })
+            });
+        } catch (err) {
+            console.error('Failed to send task completion status', err);
         }
     }
 
@@ -847,7 +879,7 @@ class TasksManager {
 
                         <div class="management-section">
                             <div class="section-title">
-                                <h3>🎯 Stretch Goals</h3>
+                                <h3>📌 Tomorrow's Tasks</h3>
                             </div>
                             <div class="task-management-list dropzone" data-category="improvement"
                                 ondrop="tasksManager.handleDrop(event, 'improvement')" 

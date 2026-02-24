@@ -145,7 +145,7 @@
 
 .task-complete-check {
     margin-left: auto;
-    color: #10b981;
+    color: #818cf8;
     font-size: 1.2rem;
     font-weight: bold;
     padding-left: 0.5rem;
@@ -303,7 +303,7 @@
 
 .add-task-submit-btn {
     width: 100%;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
     color: white;
     border: none;
     padding: 0.65rem;
@@ -316,7 +316,7 @@
 
 .add-task-submit-btn:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 8px rgba(99, 102, 241, 0.35);
 }
 
 /* Emoji Picker */
@@ -471,14 +471,14 @@
 
 .progress-bar {
     height: 100%;
-    background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    background: linear-gradient(90deg, #818cf8 0%, #6366f1 100%);
     transition: width 0.3s ease;
     border-radius: 4px;
 }
 
 .progress-percentage {
     text-align: center;
-    color: #10b981;
+    color: #a5b4fc;
     font-size: 0.9rem;
     font-weight: 600;
     margin-top: 0.25rem;

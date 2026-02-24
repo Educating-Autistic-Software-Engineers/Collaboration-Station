@@ -12,73 +12,14 @@ body {
 }
 
 /*
-   Stars – rendered via box-shadow on the .stars element itself
-   (no pseudo-elements, maximum Firefox/Safari/Chrome compat)
+   Stars – rendered by starfield.js canvas (replaces old .stars div).
 */
-.stars {
+.star-canvas {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    width: auto;
-    height: auto;
     z-index: 0;
     pointer-events: none;
-    overflow: visible;
-    background: none !important;
-    background-image: none !important;
-    background-size: auto !important;
-    animation: none !important;
-    opacity: 1 !important;
-    box-shadow:
-         50px  120px 0 0.4px rgba(255,255,255,0.55),
-        180px   40px 0 0.4px rgba(255,255,255,0.40),
-        320px  210px 0 0.4px rgba(255,255,255,0.45),
-        470px   70px 0 0.3px rgba(255,255,255,0.35),
-        610px  300px 0 0.4px rgba(255,255,255,0.50),
-        740px  160px 0 0.3px rgba(255,255,255,0.40),
-        890px  350px 0 0.4px rgba(255,255,255,0.45),
-       1020px   90px 0 0.3px rgba(255,255,255,0.35),
-       1150px  280px 0 0.4px rgba(255,255,255,0.55),
-       1300px  130px 0 0.3px rgba(255,255,255,0.40),
-        100px  420px 0 0.3px rgba(255,255,255,0.35),
-        250px  530px 0 0.4px rgba(255,255,255,0.50),
-        400px  480px 0 0.3px rgba(255,255,255,0.40),
-        550px  610px 0 0.4px rgba(255,255,255,0.45),
-        700px  550px 0 0.3px rgba(255,255,255,0.35),
-        850px  680px 0 0.4px rgba(255,255,255,0.55),
-       1000px  590px 0 0.3px rgba(255,255,255,0.40),
-       1150px  470px 0 0.4px rgba(255,255,255,0.45),
-       1300px  640px 0 0.3px rgba(255,255,255,0.35),
-         60px  760px 0 0.4px rgba(255,255,255,0.50),
-        210px  820px 0 0.3px rgba(255,255,255,0.40),
-        380px  900px 0 0.4px rgba(255,255,255,0.45),
-        530px  780px 0 0.3px rgba(255,255,255,0.35),
-        690px  870px 0 0.4px rgba(255,255,255,0.55),
-        830px  950px 0 0.3px rgba(255,255,255,0.40),
-        980px  810px 0 0.4px rgba(255,255,255,0.45),
-       1120px  920px 0 0.3px rgba(255,255,255,0.35),
-       1280px  850px 0 0.4px rgba(255,255,255,0.50),
-        140px  260px 0 0.3px rgba(255,255,255,0.40),
-        430px  340px 0 0.3px rgba(255,255,255,0.30),
-        770px  440px 0 0.4px rgba(255,255,255,0.45),
-        960px  170px 0 0.3px rgba(255,255,255,0.35),
-       1210px  560px 0 0.3px rgba(255,255,255,0.40),
-        340px  720px 0 0.3px rgba(255,255,255,0.30),
-        590px  150px 0 0.4px rgba(255,255,255,0.45),
-        820px   50px 0 0.3px rgba(255,255,255,0.35),
-       1080px  800px 0 0.3px rgba(255,255,255,0.40),
-        260px   80px 0 0.8px rgba(255,255,255,0.75),
-        780px  220px 0 0.8px rgba(200,215,255,0.70),
-       1100px  420px 0 0.7px rgba(255,255,255,0.65),
-        430px  610px 0 0.7px rgba(200,215,255,0.60),
-        950px  750px 0 0.8px rgba(255,255,255,0.75),
-        150px  500px 0 0.7px rgba(200,220,255,0.55),
-       1250px  180px 0 0.7px rgba(255,255,255,0.65),
-        560px  320px 0 0.7px rgba(255,255,255,0.60),
-       1050px  110px 0 0.7px rgba(210,225,255,0.55),
-        310px  890px 0 0.7px rgba(255,255,255,0.65);
 }
 
 /* ──────────────────────────────────────────────

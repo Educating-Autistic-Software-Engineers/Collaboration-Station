@@ -88,7 +88,6 @@ body {
   flex-direction: column;
   transition: width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   overflow: hidden;
-  isolation: isolate;
 }
 
 #right_bar.collapsed {
@@ -303,7 +302,7 @@ body {
   border-radius: 2px;
   opacity: 0;
   transition: opacity 0.3s ease;
-  z-index: 5;
+  z-index: 1; /* Low z-index to prevent overlap with popups */
 }
 
 .slider:hover, .slider.dragging {
@@ -580,10 +579,28 @@ body {
   border-radius: 8px;
   margin-bottom: 0.5rem;
   transition: background 0.3s ease;
+  display: flex;
+  align-items: center;
 }
 
 .member-item:hover, .task-item:hover {
   background: rgba(255, 255, 255, 0.1);
+}
+
+/* Online / offline dot in breakout room member cards */
+.member-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+}
+.member-status-dot.online {
+  background: #22c55e;
+  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
+}
+.member-status-dot.offline {
+  background: #475569;
 }
 
 #tasks__container {
@@ -753,7 +770,7 @@ body {
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #10b981, #059669);
+  background: linear-gradient(90deg, #818cf8, #6366f1);
   transition: width 0.5s cubic-bezier(0.4, 0.0, 0.2, 1);
   border-radius: 3px;
 }
@@ -1263,12 +1280,12 @@ body {
 }
 
 #create-breakout-btn {
-    border-left: 3px solid #10b981;
+    border-left: 3px solid #8b5cf6;
 }
 
 #create-breakout-btn:hover {
-    border-left-color: #059669;
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
+    border-left-color: #7c3aed;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
 }
 
 #end-meet-btn {
@@ -1542,7 +1559,7 @@ body {
 }
 
 .auto-assign-btn {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
   color: white;
   border: none;
   padding: 0.5rem 1rem;
@@ -1810,12 +1827,12 @@ body {
 }
 
 #create-breakout-btn {
-  border-left: 3px solid #10b981;
+  border-left: 3px solid #8b5cf6;
 }
 
 #create-breakout-btn:hover {
-  border-left-color: #059669;
-  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+  border-left-color: #7c3aed;
+  box-shadow: 0 4px 8px rgba(139, 92, 246, 0.2);
 }
 
 #end-meet-btn {
@@ -2066,4 +2083,166 @@ body {
 
 .member__wrapper .member_name_buttons button:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* ──────────────────────────────────────────────
+   MEMBER PROFILE OVERLAY (Hover Popup)
+   ────────────────────────────────────────────── */
+
+.user-profile-overlay {
+    position: fixed;
+    background: rgba(14, 22, 42, 0.96);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 1rem;
+    min-width: 160px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.5);
+    z-index: 997;
+    pointer-events: auto;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.25s ease;
+    backdrop-filter: blur(16px);
+    overflow: hidden;
+}
+
+.user-profile-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.profile-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.profile-emoji {
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.profile-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    text-align: center;
+    margin-bottom: 0.2rem;
+}
+
+.profile-role {
+    font-size: 0.75rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.profile-tasks {
+    font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 500;
+}
+
+/* Fire effect - racing horizontal flames */
+@keyframes fireFlicker {
+    0%   { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 15px rgba(255,100,0,0.4), 0 0 30px rgba(255,60,0,0.2); border-color: rgba(255,120,0,0.4); }
+    25%  { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 25px rgba(255,150,0,0.5), 0 0 45px rgba(255,80,0,0.25); border-color: rgba(255,150,0,0.5); }
+    50%  { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 20px rgba(255,200,50,0.45), 0 0 40px rgba(255,100,0,0.3); border-color: rgba(255,180,0,0.45); }
+    75%  { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 30px rgba(255,120,0,0.55), 0 0 50px rgba(255,60,0,0.3); border-color: rgba(255,140,0,0.55); }
+    100% { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 15px rgba(255,100,0,0.4), 0 0 30px rgba(255,60,0,0.2); border-color: rgba(255,120,0,0.4); }
+}
+
+@keyframes fireRaceHorizontal {
+    0%   { transform: translateX(-30%) scaleX(1.2); opacity: 0.6; }
+    25%  { transform: translateX(-10%) scaleX(1.4); opacity: 1; }
+    50%  { transform: translateX(10%) scaleX(1.3); opacity: 0.85; }
+    75%  { transform: translateX(30%) scaleX(1.5); opacity: 1; }
+    100% { transform: translateX(-30%) scaleX(1.2); opacity: 0.6; }
+}
+
+@keyframes fireWave {
+    0%   { transform: translateX(-50%) scaleY(0.8); opacity: 0.5; }
+    33%  { transform: translateX(0%) scaleY(1.2); opacity: 0.9; }
+    66%  { transform: translateX(50%) scaleY(1); opacity: 0.7; }
+    100% { transform: translateX(-50%) scaleY(0.8); opacity: 0.5; }
+}
+
+.user-profile-overlay.effect-fire {
+    animation: fireFlicker 0.8s ease-in-out infinite;
+    border-color: rgba(255,120,0,0.4);
+    background: linear-gradient(180deg, rgba(14,22,42,0.96) 40%, rgba(255,80,0,0.12) 100%);
+}
+
+.user-profile-overlay.effect-fire::before {
+    content: '';
+    position: absolute;
+    left: -20%; right: -20%; bottom: 0;
+    height: 55%;
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(255,200,50,0.5) 15%,
+        rgba(255,120,0,0.6) 30%,
+        rgba(255,60,0,0.7) 50%,
+        rgba(255,120,0,0.6) 70%,
+        rgba(255,200,50,0.5) 85%,
+        transparent 100%);
+    pointer-events: none;
+    animation: fireRaceHorizontal 1.5s ease-in-out infinite;
+    z-index: -1;
+    filter: blur(8px);
+}
+
+.user-profile-overlay.effect-fire::after {
+    content: '';
+    position: absolute;
+    left: -10%; right: -10%; bottom: 0;
+    height: 40%;
+    background: linear-gradient(90deg, 
+        transparent 0%,
+        rgba(255,220,100,0.6) 20%,
+        rgba(255,150,0,0.8) 40%,
+        rgba(255,80,0,0.9) 50%,
+        rgba(255,150,0,0.8) 60%,
+        rgba(255,220,100,0.6) 80%,
+        transparent 100%);
+    pointer-events: none;
+    animation: fireWave 1.2s ease-in-out infinite reverse;
+    z-index: -1;
+    filter: blur(5px);
+}
+
+/* Ice effect - crystalline shimmer */
+@keyframes iceCrystal {
+    0%   { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 10px rgba(59,130,246,0.2), 0 0 20px rgba(147,197,253,0.1); border-color: rgba(59,130,246,0.25); }
+    50%  { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 18px rgba(59,130,246,0.35), 0 0 30px rgba(147,197,253,0.15), inset 0 0 6px rgba(147,197,253,0.05); border-color: rgba(59,130,246,0.4); }
+    100% { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 10px rgba(59,130,246,0.2), 0 0 20px rgba(147,197,253,0.1); border-color: rgba(59,130,246,0.25); }
+}
+
+@keyframes iceShimmer {
+    0%   { background-position: -100% 0%; }
+    50%  { background-position: 100% 100%; }
+    100% { background-position: -100% 0%; }
+}
+
+.user-profile-overlay.effect-ice {
+    animation: iceCrystal 2.5s ease-in-out infinite;
+    border-color: rgba(59,130,246,0.3);
+    background: linear-gradient(135deg, rgba(14,22,42,0.96) 0%, rgba(59,130,246,0.05) 50%, rgba(147,197,253,0.03) 100%);
+}
+
+.user-profile-overlay.effect-ice::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 14px;
+    background: linear-gradient(45deg, 
+        transparent 30%, 
+        rgba(147,197,253,0.08) 50%, 
+        transparent 70%);
+    pointer-events: none;
+    animation: iceShimmer 3s ease-in-out infinite;
+    background-size: 200% 200%;
+    z-index: -1;
 }

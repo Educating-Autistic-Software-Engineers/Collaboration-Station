@@ -521,7 +521,11 @@ function populateUsernames() {
                 const userIcon = document.createElement('div');
                 userIcon.className = 'user-icon';
                 
-                userIcon.textContent = user.emoji || '😊';
+                userIcon.textContent = (() => {
+                    const selectedEmoji = sessionStorage.getItem('selectedEmoji');
+                    const emojiMap = {1:'😀',2:'🎨',3:'🚀',4:'⭐',5:'🎯',6:'🏆',7:'💎',8:'👑',9:'🔥',10:'⚡',11:'🌟',12:'🦄'};
+                    return selectedEmoji ? (emojiMap[selectedEmoji] || user.emoji || '😊') : (user.emoji || '😊');
+                })();
                 
                 const userInfo = document.createElement('div');
                 userInfo.className = 'user-info';
@@ -582,71 +586,41 @@ function populateUsernames() {
                 userInfo.appendChild(userName);
                 userInfo.appendChild(lastActive);
                 
-                // Create user stats overlay
+                // Create simplified user profile overlay (name + tasks + role + effect)
                 const statsOverlay = document.createElement('div');
-                statsOverlay.className = 'user-stats-overlay';
+                statsOverlay.className = 'user-profile-overlay';
                 
-                const statsGrid = document.createElement('div');
-                statsGrid.className = 'stats-grid';
+                const profileContent = document.createElement('div');
+                profileContent.className = 'profile-content';
                 
-                // Tasks completed stat
-                const tasksStatItem = document.createElement('div');
-                tasksStatItem.className = 'stat-item';
-                const tasksLabel = document.createElement('div');
-                tasksLabel.className = 'stat-label';
-                tasksLabel.textContent = 'Tasks';
-                const tasksValue = document.createElement('div');
-                tasksValue.className = 'stat-value';
-                tasksValue.textContent = user.tasksCompleted ? `${user.tasksCompleted}` : '0';
-                tasksStatItem.appendChild(tasksLabel);
-                tasksStatItem.appendChild(tasksValue);
+                // User emoji/avatar (use selected emoji from shop or default)
+                const profileEmoji = document.createElement('div');
+                profileEmoji.className = 'profile-emoji';
+                const selectedEmoji = sessionStorage.getItem('selectedEmoji');
+                const emojiMap = {1:'😀',2:'🎨',3:'🚀',4:'⭐',5:'🎯',6:'🏆',7:'💎',8:'👑',9:'🔥',10:'⚡',11:'🌟',12:'🦄'};
+                profileEmoji.textContent = selectedEmoji ? (emojiMap[selectedEmoji] || user.emoji || '😊') : (user.emoji || '😊');
                 
-                // Projects stat
-                const projectsStatItem = document.createElement('div');
-                projectsStatItem.className = 'stat-item';
-                const projectsLabel = document.createElement('div');
-                projectsLabel.className = 'stat-label';
-                projectsLabel.textContent = 'Projects';
-                const projectsValue = document.createElement('div');
-                projectsValue.className = 'stat-value';
-                projectsValue.textContent = user.projectsCount ? `${user.projectsCount}` : '0';
-                projectsStatItem.appendChild(projectsLabel);
-                projectsStatItem.appendChild(projectsValue);
+                // User name
+                const profileName = document.createElement('div');
+                profileName.className = 'profile-name';
+                profileName.textContent = user.name;
                 
-                // Streak stat
-                const streakStatItem = document.createElement('div');
-                streakStatItem.className = 'stat-item';
-                const streakLabel = document.createElement('div');
-                streakLabel.className = 'stat-label';
-                streakLabel.textContent = 'Streak';
-                const streakValue = document.createElement('div');
-                streakValue.className = 'stat-value';
-                streakValue.textContent = user.streak ? `${user.streak}` : '0';
-                const streakBadge = document.createElement('span');
-                streakBadge.className = 'stat-badge';
-                streakBadge.textContent = '🔥';
-                streakValue.appendChild(streakBadge);
-                streakStatItem.appendChild(streakLabel);
-                streakStatItem.appendChild(streakValue);
+                // Role
+                const profileRole = document.createElement('div');
+                profileRole.className = 'profile-role';
+                profileRole.textContent = user.role === 'TA' ? 'Teaching Assistant' : 'Student';
                 
-                // Level stat
-                const levelStatItem = document.createElement('div');
-                levelStatItem.className = 'stat-item';
-                const levelLabel = document.createElement('div');
-                levelLabel.className = 'stat-label';
-                levelLabel.textContent = 'Level';
-                const levelValue = document.createElement('div');
-                levelValue.className = 'stat-value';
-                levelValue.textContent = user.level ? `${user.level}` : '1';
-                levelStatItem.appendChild(levelLabel);
-                levelStatItem.appendChild(levelValue);
+                // Tasks completed (fallback to 0 if not available)
+                const profileTasks = document.createElement('div');
+                profileTasks.className = 'profile-tasks';
+                const tasksCount = user.tasksCompleted || user.tasks_completed || 0;
+                profileTasks.textContent = `${tasksCount} tasks completed`;
                 
-                statsGrid.appendChild(tasksStatItem);
-                statsGrid.appendChild(projectsStatItem);
-                statsGrid.appendChild(streakStatItem);
-                statsGrid.appendChild(levelStatItem);
-                
-                statsOverlay.appendChild(statsGrid);
+                profileContent.appendChild(profileEmoji);
+                profileContent.appendChild(profileName);
+                profileContent.appendChild(profileRole);
+                profileContent.appendChild(profileTasks);
+                statsOverlay.appendChild(profileContent);
                 
                 // Create popup effect container
                 const popupEffect = document.createElement('div');
@@ -656,19 +630,19 @@ function populateUsernames() {
                 statusRow.addEventListener('mouseenter', function(e) {
                     const rect = statusRow.getBoundingClientRect();
                     
-                    // Position stats overlay to the right of the user row
+                    // Position profile overlay to the right of the user row
                     const xPos = rect.right + 10;
                     const yPos = rect.top + (rect.height / 2);
                     
-                    // Position stats overlay
+                    // Position profile overlay
                     statsOverlay.style.left = xPos + 'px';
                     statsOverlay.style.top = yPos + 'px';
                     statsOverlay.style.transform = 'translateY(-50%)';
                     
-                    // Randomly apply fire or space animation with 50/50 odds
-                    const randomAnimation = Math.random() < 0.5 ? 'fire-anim' : 'space-anim';
-                    statsOverlay.classList.remove('fire-anim', 'space-anim');
-                    statsOverlay.classList.add(randomAnimation);
+                    // Apply fire or ice effect randomly (50/50)
+                    const isFireUser = Math.random() < 0.5;
+                    statsOverlay.classList.remove('effect-fire', 'effect-ice');
+                    statsOverlay.classList.add(isFireUser ? 'effect-fire' : 'effect-ice');
                     
                     statsOverlay.classList.add('visible');
                 });

@@ -13,76 +13,15 @@ body {
 }
 
 /*
-   Stars – rendered entirely via box-shadow on the .stars element itself
-   (no pseudo-elements, maximum Firefox/Safari/Chrome compat)
+   Stars – rendered by starfield.js canvas (replaces old .stars div).
+   The .star-canvas element is injected by starfield.js.
 */
-.stars {
+.star-canvas {
     position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    width: auto;
-    height: auto;
     z-index: 0;
     pointer-events: none;
-    overflow: visible;
-    /* kill the inherited CDN background & animation from space-ambience */
-    background: none !important;
-    background-image: none !important;
-    background-size: auto !important;
-    animation: none !important;
-    opacity: 1 !important;
-    /* Stars: 2px white dots scattered via box-shadow */
-    box-shadow:
-         50px  120px 0 0.4px rgba(255,255,255,0.55),
-        180px   40px 0 0.4px rgba(255,255,255,0.40),
-        320px  210px 0 0.4px rgba(255,255,255,0.45),
-        470px   70px 0 0.3px rgba(255,255,255,0.35),
-        610px  300px 0 0.4px rgba(255,255,255,0.50),
-        740px  160px 0 0.3px rgba(255,255,255,0.40),
-        890px  350px 0 0.4px rgba(255,255,255,0.45),
-       1020px   90px 0 0.3px rgba(255,255,255,0.35),
-       1150px  280px 0 0.4px rgba(255,255,255,0.55),
-       1300px  130px 0 0.3px rgba(255,255,255,0.40),
-        100px  420px 0 0.3px rgba(255,255,255,0.35),
-        250px  530px 0 0.4px rgba(255,255,255,0.50),
-        400px  480px 0 0.3px rgba(255,255,255,0.40),
-        550px  610px 0 0.4px rgba(255,255,255,0.45),
-        700px  550px 0 0.3px rgba(255,255,255,0.35),
-        850px  680px 0 0.4px rgba(255,255,255,0.55),
-       1000px  590px 0 0.3px rgba(255,255,255,0.40),
-       1150px  470px 0 0.4px rgba(255,255,255,0.45),
-       1300px  640px 0 0.3px rgba(255,255,255,0.35),
-         60px  760px 0 0.4px rgba(255,255,255,0.50),
-        210px  820px 0 0.3px rgba(255,255,255,0.40),
-        380px  900px 0 0.4px rgba(255,255,255,0.45),
-        530px  780px 0 0.3px rgba(255,255,255,0.35),
-        690px  870px 0 0.4px rgba(255,255,255,0.55),
-        830px  950px 0 0.3px rgba(255,255,255,0.40),
-        980px  810px 0 0.4px rgba(255,255,255,0.45),
-       1120px  920px 0 0.3px rgba(255,255,255,0.35),
-       1280px  850px 0 0.4px rgba(255,255,255,0.50),
-        140px  260px 0 0.3px rgba(255,255,255,0.40),
-        430px  340px 0 0.3px rgba(255,255,255,0.30),
-        770px  440px 0 0.4px rgba(255,255,255,0.45),
-        960px  170px 0 0.3px rgba(255,255,255,0.35),
-       1210px  560px 0 0.3px rgba(255,255,255,0.40),
-        340px  720px 0 0.3px rgba(255,255,255,0.30),
-        590px  150px 0 0.4px rgba(255,255,255,0.45),
-        820px   50px 0 0.3px rgba(255,255,255,0.35),
-       1080px  800px 0 0.3px rgba(255,255,255,0.40),
-       /* Brighter accent stars (slightly larger spread) */
-        260px   80px 0 0.8px rgba(255,255,255,0.75),
-        780px  220px 0 0.8px rgba(200,215,255,0.70),
-       1100px  420px 0 0.7px rgba(255,255,255,0.65),
-        430px  610px 0 0.7px rgba(200,215,255,0.60),
-        950px  750px 0 0.8px rgba(255,255,255,0.75),
-        150px  500px 0 0.7px rgba(200,220,255,0.55),
-       1250px  180px 0 0.7px rgba(255,255,255,0.65),
-        560px  320px 0 0.7px rgba(255,255,255,0.60),
-       1050px  110px 0 0.7px rgba(210,225,255,0.55),
-        310px  890px 0 0.7px rgba(255,255,255,0.65);
 }
 
 /* Remove planet styles entirely */
@@ -93,9 +32,10 @@ body {
    ────────────────────────────────────────────── */
 
 header {
-    background: rgba(6, 13, 31, 0.92);
-    backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(255,255,255,0.06);
+    background: rgba(6, 13, 31, 0.94);
+    backdrop-filter: blur(20px) saturate(140%);
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.4);
 }
 
 #logo:hover {
@@ -210,6 +150,8 @@ header {
     padding-top: 90px;
     max-width: 1400px;
     margin: 0 auto;
+    position: relative;
+    z-index: 1;
 }
 
 @media (max-width: 1024px) {
@@ -232,12 +174,13 @@ header {
    ────────────────────────────────────────────── */
 
 .project-card {
-    background: rgba(14, 22, 42, 0.75);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(14, 22, 42, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.07);
     border-radius: 16px;
     padding: 1.75rem;
-    backdrop-filter: blur(12px);
+    backdrop-filter: blur(20px) saturate(130%);
     animation: slideIn 0.5s ease-out both;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
 }
 
 .project-card:nth-child(2) {
@@ -555,12 +498,12 @@ h2::after {
    ────────────────────────────────────────────── */
 
 .side-panel {
-    background: rgba(14, 22, 42, 0.75);
-    backdrop-filter: blur(12px);
+    background: rgba(14, 22, 42, 0.88);
+    backdrop-filter: blur(20px) saturate(130%);
     padding: 1.25rem;
     border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.06);
-    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.07);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3);
     height: fit-content;
     position: sticky;
     top: 80px;
@@ -676,16 +619,16 @@ h2::after {
 }
 
 /* ──────────────────────────────────────────────
-   USER STATS TOOLTIP
+   USER PROFILE TOOLTIP (Fire/Ice effects only)
    ────────────────────────────────────────────── */
 
-.user-stats-overlay {
+.user-profile-overlay {
     position: fixed;
     background: rgba(14, 22, 42, 0.96);
     border: 1px solid rgba(255,255,255,0.08);
     border-radius: 14px;
-    padding: 0.85rem;
-    min-width: 200px;
+    padding: 1rem;
+    min-width: 160px;
     box-shadow: 0 12px 32px rgba(0,0,0,0.5);
     z-index: 997;
     pointer-events: auto;
@@ -693,57 +636,165 @@ h2::after {
     visibility: hidden;
     transition: all 0.25s ease;
     backdrop-filter: blur(16px);
+    overflow: hidden;
 }
 
-.user-stats-overlay.visible {
+.user-profile-overlay.visible {
     opacity: 1;
     visibility: visible;
 }
 
-.stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.6rem;
-}
-
-.stat-item {
+.profile-content {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    align-items: center;
+    gap: 0.4rem;
 }
 
-.stat-label {
-    font-size: 0.6rem;
-    color: #475569;
+.profile-emoji {
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.profile-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #e2e8f0;
+    text-align: center;
+    margin-bottom: 0.2rem;
+}
+
+.profile-role {
+    font-size: 0.75rem;
+    color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.05em;
     font-weight: 500;
 }
 
-.stat-value {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #e2e8f0;
-}
-
-.stat-badge {
-    display: inline-block;
-    margin-left: 0.2rem;
+.profile-tasks {
     font-size: 0.8rem;
+    color: #94a3b8;
+    font-weight: 500;
 }
 
-/* Simplified overlay animations – subtle glow, not garish */
-@keyframes fireAnimation {
-    0%, 100% { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
-    50%      { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 20px rgba(251, 146, 60, 0.08); }
-}
-@keyframes spaceAnimation {
-    0%, 100% { box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
-    50%      { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 20px rgba(59, 130, 246, 0.08); }
+/* ── Profile effects ── */
+
+/* Fire: ambient glowing ember effect around the card */
+@keyframes fireGlow {
+    0%, 100% { 
+        box-shadow: 
+            0 12px 32px rgba(0,0,0,0.5),
+            0 0 20px rgba(255,100,0,0.3),
+            0 0 40px rgba(255,60,0,0.2),
+            inset 0 0 30px rgba(255,80,0,0.05);
+        border-color: rgba(255,120,0,0.35);
+    }
+    33% { 
+        box-shadow: 
+            0 12px 32px rgba(0,0,0,0.5),
+            0 0 35px rgba(255,150,0,0.45),
+            0 0 60px rgba(255,80,0,0.25),
+            inset 0 0 40px rgba(255,100,0,0.08);
+        border-color: rgba(255,150,0,0.5);
+    }
+    66% { 
+        box-shadow: 
+            0 12px 32px rgba(0,0,0,0.5),
+            0 0 25px rgba(255,180,50,0.4),
+            0 0 50px rgba(255,100,0,0.22),
+            inset 0 0 35px rgba(255,120,0,0.06);
+        border-color: rgba(255,140,0,0.45);
+    }
 }
 
-.user-stats-overlay.fire-anim { animation: fireAnimation 3s ease-in-out infinite; }
-.user-stats-overlay.space-anim { animation: spaceAnimation 3s ease-in-out infinite; }
+@keyframes emberPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+@keyframes emberDrift {
+    0% { transform: translateY(0) translateX(0); opacity: 0.6; }
+    25% { transform: translateY(-3px) translateX(2px); opacity: 0.8; }
+    50% { transform: translateY(-1px) translateX(-1px); opacity: 0.5; }
+    75% { transform: translateY(-4px) translateX(1px); opacity: 0.75; }
+    100% { transform: translateY(0) translateX(0); opacity: 0.6; }
+}
+
+.user-profile-overlay.effect-fire {
+    animation: fireGlow 2s ease-in-out infinite;
+    border-color: rgba(255,120,0,0.4);
+    background: 
+        radial-gradient(ellipse 120% 80% at 50% 100%, rgba(255,80,0,0.15) 0%, transparent 50%),
+        radial-gradient(ellipse 100% 60% at 20% 90%, rgba(255,150,0,0.1) 0%, transparent 40%),
+        radial-gradient(ellipse 100% 60% at 80% 90%, rgba(255,120,0,0.1) 0%, transparent 40%),
+        linear-gradient(180deg, rgba(14,22,42,0.96) 0%, rgba(14,22,42,0.94) 100%);
+}
+
+.user-profile-overlay.effect-fire::before {
+    content: '';
+    position: absolute;
+    left: -30%; right: -30%; bottom: -20%; top: -20%;
+    border-radius: 50%;
+    background: 
+        radial-gradient(ellipse 50% 40% at 30% 85%, rgba(255,180,50,0.35) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 70% 85%, rgba(255,100,0,0.3) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 50% 90%, rgba(255,60,0,0.4) 0%, transparent 55%);
+    pointer-events: none;
+    animation: emberPulse 1.5s ease-in-out infinite;
+    z-index: -1;
+    filter: blur(20px);
+}
+
+.user-profile-overlay.effect-fire::after {
+    content: '';
+    position: absolute;
+    left: -20%; right: -20%; bottom: -10%;
+    height: 70%;
+    border-radius: 50%;
+    background: 
+        radial-gradient(ellipse 40% 35% at 25% 80%, rgba(255,200,80,0.25) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 35% at 75% 80%, rgba(255,150,50,0.25) 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 50% 95%, rgba(255,120,0,0.35) 0%, transparent 50%);
+    pointer-events: none;
+    animation: emberDrift 2.5s ease-in-out infinite;
+    z-index: -1;
+    filter: blur(15px);
+}
+
+/* Ice: cool blue crystalline effect */
+@keyframes iceCrystal {
+    0%   { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 10px rgba(59,130,246,0.2), 0 0 20px rgba(147,197,253,0.1); border-color: rgba(59,130,246,0.25); }
+    50%  { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 18px rgba(59,130,246,0.35), 0 0 30px rgba(147,197,253,0.15), inset 0 0 6px rgba(147,197,253,0.05); border-color: rgba(59,130,246,0.4); }
+    100% { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 10px rgba(59,130,246,0.2), 0 0 20px rgba(147,197,253,0.1); border-color: rgba(59,130,246,0.25); }
+}
+
+@keyframes iceShimmer {
+    0%   { background-position: -100% 0%; }
+    50%  { background-position: 100% 100%; }
+    100% { background-position: -100% 0%; }
+}
+
+.user-profile-overlay.effect-ice {
+    animation: iceCrystal 2.5s ease-in-out infinite;
+    border-color: rgba(59,130,246,0.3);
+    background: linear-gradient(135deg, rgba(14,22,42,0.96) 0%, rgba(59,130,246,0.05) 50%, rgba(147,197,253,0.03) 100%);
+}
+
+.user-profile-overlay.effect-ice::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: 14px;
+    background: linear-gradient(45deg, 
+        transparent 30%, 
+        rgba(147,197,253,0.08) 50%, 
+        transparent 70%);
+    pointer-events: none;
+    animation: iceShimmer 3s ease-in-out infinite;
+    background-size: 200% 200%;
+    z-index: -1;
+}
 
 .effect-canvas {
     display: block;
