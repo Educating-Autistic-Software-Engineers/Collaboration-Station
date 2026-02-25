@@ -630,13 +630,16 @@ h2::after {
     padding: 1rem;
     min-width: 160px;
     box-shadow: 0 12px 32px rgba(0,0,0,0.5);
-    z-index: 997;
+    z-index: 1001;
     pointer-events: auto;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.25s ease;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
     backdrop-filter: blur(16px);
     overflow: hidden;
+    /* Ensure proper stacking and prevent transparency issues */
+    will-change: opacity, visibility;
+    transform-style: preserve-3d;
 }
 
 .user-profile-overlay.visible {
@@ -764,9 +767,9 @@ h2::after {
 
 /* Ice: cool blue crystalline effect */
 @keyframes iceCrystal {
-    0%   { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 10px rgba(59,130,246,0.2), 0 0 20px rgba(147,197,253,0.1); border-color: rgba(59,130,246,0.25); }
-    50%  { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 18px rgba(59,130,246,0.35), 0 0 30px rgba(147,197,253,0.15), inset 0 0 6px rgba(147,197,253,0.05); border-color: rgba(59,130,246,0.4); }
-    100% { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 10px rgba(59,130,246,0.2), 0 0 20px rgba(147,197,253,0.1); border-color: rgba(59,130,246,0.25); }
+    0%   { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 15px rgba(59,130,246,0.4), 0 0 25px rgba(147,197,253,0.2); border-color: rgba(59,130,246,0.4); }
+    50%  { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 25px rgba(59,130,246,0.6), 0 0 40px rgba(147,197,253,0.3), inset 0 0 10px rgba(147,197,253,0.1); border-color: rgba(59,130,246,0.6); }
+    100% { box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 15px rgba(59,130,246,0.4), 0 0 25px rgba(147,197,253,0.2); border-color: rgba(59,130,246,0.4); }
 }
 
 @keyframes iceShimmer {
@@ -777,8 +780,8 @@ h2::after {
 
 .user-profile-overlay.effect-ice {
     animation: iceCrystal 2.5s ease-in-out infinite;
-    border-color: rgba(59,130,246,0.3);
-    background: linear-gradient(135deg, rgba(14,22,42,0.96) 0%, rgba(59,130,246,0.05) 50%, rgba(147,197,253,0.03) 100%);
+    border-color: rgba(59,130,246,0.5);
+    background: linear-gradient(135deg, rgba(14,22,42,0.96) 0%, rgba(59,130,246,0.15) 50%, rgba(147,197,253,0.08) 100%);
 }
 
 .user-profile-overlay.effect-ice::before {
@@ -788,7 +791,7 @@ h2::after {
     border-radius: 14px;
     background: linear-gradient(45deg, 
         transparent 30%, 
-        rgba(147,197,253,0.08) 50%, 
+        rgba(147,197,253,0.25) 50%, 
         transparent 70%);
     pointer-events: none;
     animation: iceShimmer 3s ease-in-out infinite;

@@ -344,9 +344,24 @@ async function refreshMembers() {
     const attachHoverEvents = (wrapper, member) => {
       wrapper.addEventListener('mouseenter', (e) => {
         const rect = wrapper.getBoundingClientRect();
-        // Position to the LEFT of the sidebar (popup is ~160px wide)
         const popupWidth = 180;
-        const xPos = rect.left - popupWidth - 10;
+        const screenWidth = window.innerWidth;
+        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
+        
+        // Calculate position - try left side first (since this is in sidebar)
+        let xPos = rect.left - popupWidth - 10;
+        
+        // Check if popup would go off-screen on the left
+        if (xPos < scrollX) {
+            // Position on the right side instead
+            xPos = rect.right + 10;
+            
+            // If it would also go off-screen on the right, center it
+            if (xPos + popupWidth > screenWidth + scrollX) {
+                xPos = Math.max(scrollX + 10, (screenWidth + scrollX - popupWidth) / 2);
+            }
+        }
+        
         const yPos = rect.top + (rect.height / 2);
 
         profileOverlay.style.left = xPos + 'px';

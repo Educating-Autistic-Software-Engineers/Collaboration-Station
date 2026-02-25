@@ -629,9 +629,24 @@ function populateUsernames() {
                 // Add event listeners for popup interaction
                 statusRow.addEventListener('mouseenter', function(e) {
                     const rect = statusRow.getBoundingClientRect();
+                    const popupWidth = 180; // Approximate popup width
+                    const screenWidth = window.innerWidth;
+                    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
                     
-                    // Position profile overlay to the right of the user row
-                    const xPos = rect.right + 10;
+                    // Calculate position - try right side first
+                    let xPos = rect.right + 10;
+                    
+                    // Check if popup would go off-screen on the right
+                    if (xPos + popupWidth > screenWidth + scrollX) {
+                        // Position on the left side instead
+                        xPos = rect.left - popupWidth - 10;
+                        
+                        // If it would also go off-screen on the left, center it
+                        if (xPos < scrollX) {
+                            xPos = Math.max(scrollX + 10, (screenWidth + scrollX - popupWidth) / 2);
+                        }
+                    }
+                    
                     const yPos = rect.top + (rect.height / 2);
                     
                     // Position profile overlay

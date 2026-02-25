@@ -581,7 +581,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 9999;
+    z-index: 10000; /* Increased for Safari iframe compatibility */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -614,7 +614,7 @@
     overflow-y: auto;
     border: 1px solid rgba(148, 163, 184, 0.3);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
-    z-index: 10000;
+    z-index: 10001; /* Increased for Safari compatibility */
 }
 
 .management-popup-content h2 {

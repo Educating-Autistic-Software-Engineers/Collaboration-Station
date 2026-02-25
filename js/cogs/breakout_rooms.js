@@ -201,31 +201,41 @@ function setupDropZone(roomCard) {
 }
 
 function assignMemberToRoom(member, roomId) {
-    var oldRoomId = null;
+    let oldRoomId = null;
+    
+    // Find and remove member from all existing room assignments
     Object.keys(roomAssignments).forEach(room => {
-        if (roomAssignments[room]) {
-            if (roomAssignments[room].some(m => m.email === member.email)) {
+        if (roomAssignments[room] && Array.isArray(roomAssignments[room])) {
+            const memberIndex = roomAssignments[room].findIndex(m => m.email === member.email);
+            if (memberIndex !== -1) {
                 oldRoomId = room;
+                roomAssignments[room].splice(memberIndex, 1);
             }
-            roomAssignments[room] = roomAssignments[room].filter(m => m.email !== member.email);
         }
     });
     
+    // Initialize room if it doesn't exist
     if (!roomAssignments[roomId]) {
         roomAssignments[roomId] = [];
     }
+    
+    // Add member to new room
     roomAssignments[roomId].push(member);
 
-    const oldEl = document.getElementById(`member-${member.email}`);
-    if (oldEl) {
-        oldEl.parentNode.removeChild(oldEl);
-    }
+    // Remove any existing DOM elements for this member
+    const existingElements = document.querySelectorAll(`[id="member-${member.email}"]`);
+    existingElements.forEach(el => {
+        if (el.parentNode) {
+            el.parentNode.removeChild(el);
+        }
+    });
 
+    // Update displays
     updateRoomDisplay(roomId);
-    if (oldRoomId !== null) {
+    if (oldRoomId !== null && oldRoomId !== roomId) {
         updateRoomDisplay(oldRoomId);
     }
-    // updateUnassignedDisplay();
+    updateUnassignedDisplay();
 }
 
 function updateRoomDisplay(roomId) {
@@ -249,22 +259,31 @@ function updateRoomDisplay(roomId) {
 
 function updateUnassignedDisplay() {
     const container = document.getElementById('unassigned-members');
-    const assignedMembers = new Set();
     
+    // Build a set of all assigned members
+    const assignedMembers = new Set();
     Object.values(roomAssignments).forEach(members => {
-        if (members) {
+        if (Array.isArray(members)) {
             members.forEach(member => assignedMembers.add(member.email));
         }
     });
 
+    // Filter to get unassigned members
     const unassignedMembers = POTENTIAL_MEMBERS.filter(member => !assignedMembers.has(member.email));
 
+    // Clear and rebuild the container
     container.innerHTML = '';
-    unassignedMembers.forEach(member => {
-        const memberElement = createMemberElement(member);
-        container.appendChild(memberElement);
-    });
     
+    if (unassignedMembers.length === 0) {
+        container.innerHTML = '<div class="empty-room">All members assigned</div>';
+    } else {
+        unassignedMembers.forEach(member => {
+            const memberElement = createMemberElement(member);
+            container.appendChild(memberElement);
+        });
+    }
+    
+    // Update count
     updateUnassignedCount();
 }
 
@@ -315,26 +334,38 @@ function setupEventListeners() {
         e.preventDefault();
         const member = JSON.parse(e.dataTransfer.getData('text/plain'));
 
+        console.log('Dropping member back to main room:', member);
+
         // Remove member from all room assignments
         Object.keys(roomAssignments).forEach(room => {
-            if (roomAssignments[room]) {
+            if (roomAssignments[room] && Array.isArray(roomAssignments[room])) {
+                const oldLength = roomAssignments[room].length;
                 roomAssignments[room] = roomAssignments[room].filter(m => m.email !== member.email);
+                if (roomAssignments[room].length !== oldLength) {
+                    console.log(`Removed member from room ${room}`);
+                }
             }
         });
 
-        // Remove any existing DOM element for this member
-        const oldEl = document.getElementById(`member-${member.email}`);
-        if (oldEl && oldEl.parentNode) {
-            oldEl.parentNode.removeChild(oldEl);
-        }
+        // Remove any existing DOM element for this member across all sections
+        const existingElements = document.querySelectorAll(`[id="member-${member.email}"]`);
+        existingElements.forEach(el => {
+            if (el.parentNode) {
+                el.parentNode.removeChild(el);
+            }
+        });
 
-        // Update all room displays
+        // Update all room displays first to remove the member visually
         for (let i = 1; i <= currentRoomCount; i++) {
             updateRoomDisplay(i.toString());
         }
         
-        // Update unassigned display - this will add the member back to unassigned list
-        updateUnassignedDisplay();
+        // Small delay to ensure DOM updates are processed
+        setTimeout(() => {
+            // Update unassigned display - this will add the member back to unassigned list
+            updateUnassignedDisplay();
+            console.log('Updated unassigned display');
+        }, 10);
     });
 }
 

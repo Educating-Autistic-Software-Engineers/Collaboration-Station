@@ -6,7 +6,7 @@
     height: 100%;
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(10px);
-    z-index: 1000;
+    z-index: 10000; /* Increased for Safari iframe compatibility */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -27,6 +27,13 @@
     overflow-y: auto;
     border: 1px solid rgba(148, 163, 184, 0.2);
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.3);
+    z-index: 10001; /* Increased for Safari iframe compatibility */
+    /* Safari-specific properties for iframe overlay */
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+    isolation: isolate;
+    will-change: transform;
+    position: relative;
 }
 
 .management-popup-content h2 {
