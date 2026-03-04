@@ -125,8 +125,19 @@ class TasksManager {
             
             ${this.renderHelpChat()} 
             ${this.selectedTask ? this.renderTaskDetail() : ''}
-            ${this.isTeachingAssistant ? this.renderManagementPopup() : ''}
         `;
+
+        // Render management popup to document.body (outside iframe stacking context)
+        // so it reliably appears above the iframe on all browsers including Safari.
+        if (this.isTeachingAssistant) {
+            let popupHost = document.getElementById('task-management-popup-host');
+            if (!popupHost) {
+                popupHost = document.createElement('div');
+                popupHost.id = 'task-management-popup-host';
+                document.body.appendChild(popupHost);
+            }
+            popupHost.innerHTML = this.renderManagementPopup();
+        }
 
         if (this.taskInHelpChat) {
             setTimeout(() => {
@@ -654,7 +665,7 @@ class TasksManager {
         this.render();
     }
 
-    sendChatMessage(userMessage) {
+    async sendChatMessage(userMessage) {
         userMessage = userMessage.trim();
         if (userMessage === '' || !this.taskInHelpChat) return;
 
@@ -672,32 +683,60 @@ class TasksManager {
             }
         }, 50);
 
-        setTimeout(() => {
-            let response;
-            const taskTitle = this.taskInHelpChat.title;
-            if (userMessage.toLowerCase().includes('help')) {
-                response = `I can provide a step-by-step guide for **${taskTitle}**. Which step are you on?`;
-            } else if (userMessage.toLowerCase().includes('code')) {
-                response = `To get started with **${taskTitle}**, you usually need to find the blocks in the ${this.taskInHelpChat.category} palette.`;
-            } else {
-                response = `I see you're working on: "${taskTitle}". Can you tell me exactly what you tried?`;
+        // Disable input while waiting for response
+        const inputEl = document.querySelector('.help-chat-input');
+        const sendBtn = document.querySelector('.send-btn');
+        if (inputEl) inputEl.disabled = true;
+        if (sendBtn) sendBtn.disabled = true;
+
+        // Build context from the current task
+        const task = this.taskInHelpChat;
+        const taskDescription = this.getTaskDescription(task);
+        const body = `This is a Scratch coding environment for students learning to code. ` +
+            `The student is working on a task titled "${task.title}" ` +
+            `in the "${task.category}" category. ` +
+            `The task description is: ${taskDescription} ` +
+            `Please give a helpful, encouraging answer appropriate for a student learning Scratch. ` +
+            `The student asks: ${userMessage}`;
+
+        try {
+            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/task-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
             }
+
+            const data = await response.json();
+            const answer = data.response || JSON.stringify(data);
 
             this.chatMessages.push({
                 sender: 'teacher',
-                text: response,
+                text: answer,
                 time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
             });
+        } catch (err) {
+            this.chatMessages.push({
+                sender: 'teacher',
+                text: `Sorry, I couldn't reach the AI helper right now. (${err.message})`,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            });
+        } finally {
             this.render();
-            
-            // Auto-scroll to bottom after teacher response
             setTimeout(() => {
                 const messagesContainer = document.querySelector('.help-chat-messages');
                 if (messagesContainer) {
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 }
+                const el = document.querySelector('.help-chat-input');
+                if (el) { el.disabled = false; el.focus(); }
+                const btn = document.querySelector('.send-btn');
+                if (btn) btn.disabled = false;
             }, 50);
-        }, 1000);
+        }
     }
 
     handleChatInput(e, task) {

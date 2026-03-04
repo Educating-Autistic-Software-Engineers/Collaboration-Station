@@ -1,12 +1,7 @@
-/**
- * StarField – crisp, modern canvas-based star background with subtle nebula
- * Uses simplex-style noise for organic nebula clouds.
- * Auto-initialises on DOMContentLoaded; works on any page that has .stars elements.
- */
+
 (function () {
     'use strict';
 
-    /* ── Simplex-like 2D noise (self-contained, no deps) ───── */
     const Noise = (function () {
         const F2 = 0.5 * (Math.sqrt(3) - 1);
         const G2 = (3 - Math.sqrt(3)) / 6;
@@ -56,12 +51,10 @@
         const parent = oldStars[0].parentElement;
         console.log('StarField: Parent element:', parent);
 
-        /* ── create canvas ─────────────────────────────────── */
         const canvas = document.createElement('canvas');
         canvas.className = 'star-canvas';
         parent.insertBefore(canvas, oldStars[0]);
 
-        // Remove the old star elements
         oldStars.forEach(el => el.remove());
 
         const ctx = canvas.getContext('2d');
@@ -76,11 +69,9 @@
         let stars = [];
         let shootingStars = [];
 
-        // Offscreen nebula texture (drawn once, composited each frame for drift)
         let nebulaCanvas = null;
         let nebulaW = 0, nebulaH = 0;
 
-        /* ── sizing (HiDPI-aware) ──────────────────────────── */
         function resize() {
             w = canvas.parentElement === document.body
                 ? window.innerWidth
@@ -299,7 +290,6 @@
             requestAnimationFrame(frame);
         }
 
-        /* ── kick off ──────────────────────────────────────── */
         try {
             console.log('StarField: Starting resize and animation...');
             resize();

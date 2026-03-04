@@ -689,10 +689,8 @@ function populateUsernames() {
                 statusRow.appendChild(statsOverlay);
                 // statusRow.appendChild(chatBtn);
                 
-                // Append stats overlay to document.body so it's not constrained by parent containers
                 document.body.appendChild(statsOverlay);
                 
-                // Only allow clicking if not disabled
                 if (!isDisabled) {
                     // statusRow.onclick = () => {
                     //     window.location.href = `projects.html?email=${user.email}`;

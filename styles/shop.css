@@ -1,9 +1,5 @@
 @import url('space-ambience.css');
 
-/* ──────────────────────────────────────────────
-   OVERRIDES – match projects page aesthetic
-   ────────────────────────────────────────────── */
-
 body {
     background: #060d1f;
     background-image:
@@ -11,9 +7,6 @@ body {
         linear-gradient(180deg, #060d1f 0%, #0a0f1e 100%);
 }
 
-/*
-   Stars – rendered by starfield.js canvas (replaces old .stars div).
-*/
 .star-canvas {
     position: fixed;
     top: 0;
@@ -21,10 +14,6 @@ body {
     z-index: 0;
     pointer-events: none;
 }
-
-/* ──────────────────────────────────────────────
-   HEADER
-   ────────────────────────────────────────────── */
 
 header {
     background: rgba(6, 13, 31, 0.92);
@@ -58,19 +47,11 @@ header {
     font-size: 1.1rem;
 }
 
-/* ──────────────────────────────────────────────
-   LAYOUT
-   ────────────────────────────────────────────── */
-
 .container {
     max-width: 1400px;
     margin: 0 auto;
     padding: 90px 2rem 2rem;
 }
-
-/* ──────────────────────────────────────────────
-   PROGRESS SECTION
-   ────────────────────────────────────────────── */
 
 .progress-container {
     background: rgba(14, 22, 42, 0.75);
@@ -329,10 +310,6 @@ header {
     display: none;
 }
 
-/* ──────────────────────────────────────────────
-   PROFILE EFFECTS SECTION
-   ────────────────────────────────────────────── */
-
 .profile-effects-section {
     margin-top: 3rem;
     padding-top: 2rem;
@@ -430,10 +407,6 @@ header {
 .effect-btn.selected {
     background: #1d4ed8;
 }
-
-/* ──────────────────────────────────────────────
-   RESPONSIVE
-   ────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
     .shop-header h1 {
