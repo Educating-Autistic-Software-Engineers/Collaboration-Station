@@ -7,6 +7,7 @@ class CollapsibleRightBar {
         this.resizeHandle = document.getElementById('resize-handle');
         this.streamContainer = document.getElementById('stream__container');
         this.messagesContainer = document.getElementById('messages__container');
+        this.messagesContainerBot = document.getElementById('messages__container__bot');
         
         this.isCollapsed = false;
         this.isDragging = false;
@@ -187,6 +188,7 @@ class CollapsibleRightBar {
         switch(type) {
             case 'chat':
                 this.messagesContainer.classList.add('active');
+                this.messagesContainerBot.classList.add('active');
                 if (streamContainer) {
                     streamContainer.style.display = '';
                 }
@@ -220,6 +222,7 @@ class CollapsibleRightBar {
     
     hideAllContainers() {
         this.messagesContainer.classList.remove('active');
+        this.messagesContainerBot.classList.remove('active');
         document.getElementById('members__container').classList.remove('active');
         document.getElementById('tasks__container').classList.remove('active');
     }
@@ -268,6 +271,7 @@ class CollapsibleRightBar {
         
         this.streamContainer.style.height = streamHeight + 'px';
         this.messagesContainer.style.height = messageHeight + 'px';
+        this.messagesContainerBot.style.height = messageHeight + 'px';
         
         this.slider.style.position = 'relative';
         this.slider.style.top = '0px';
@@ -314,6 +318,17 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('message__form').addEventListener('submit', (e) => {
     e.preventDefault();
     const input = e.target.querySelector('input[name="message"]');
+    if (input.value.trim()) {
+        console.log('Message sent:', input.value);
+        sendMessage(input.value);
+        input.value = '';
+    }
+});
+
+
+document.getElementById('message__form__bot').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = e.target.querySelector('input[name="message__bot"]');
     if (input.value.trim()) {
         console.log('Message sent:', input.value);
         sendMessage(input.value);

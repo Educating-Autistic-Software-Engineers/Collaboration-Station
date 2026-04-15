@@ -2,7 +2,8 @@ let breakSecsLeft = 0;
 let isBreak = false;
 let isDragging = false;
 let activeTutorialsContainer = false;
-let activeChatContainer = false;
+//let activeChatContainer = false;
+//let activeChatContainerBot = false;
 let activeMemberContainer = false;
 let viewType = "space";
 let roomDict = {};
@@ -18,18 +19,22 @@ const messagesContainer = document.getElementById('messages');
 const memberContainer = document.getElementById('members__container');
 const memberButton = document.getElementById('members__button');
 const tasksButton = document.getElementById('tasks__button');
-const chatContainer = document.getElementById('messages__container');
+
 const chatButton = document.getElementById('chat__button');
 const rightBar = document.getElementById('right_bar');
 const streamContainer = document.getElementById('stream__container');
 const tutorialsContainer = document.getElementById('tutorials__container');
-const chatPanel = document.getElementById('messages__container');
+
 const expandBtn = document.getElementById('expand-btn');
 const revertBtn = document.getElementById('revert-btn');
 const mainStream = document.getElementById('main-stream');
 const displayFrame = document.getElementById('stream__box');
 const videoFrames = document.getElementsByClassName('video__container');
 const slider = document.getElementById('slider');
+
+
+
+const chatContainer = document.getElementById('messages__container');
 
 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 let containerRect = rightBar.getBoundingClientRect();
@@ -87,6 +92,7 @@ async function load() {
 }
 
 document.querySelector('#message__form').addEventListener('submit', sendMessage);
+document.querySelector('#message__form__bot').addEventListener('submit', sendMessageBot);
 
 
 function setSliderPosition(offsetY) {
@@ -94,7 +100,7 @@ function setSliderPosition(offsetY) {
   const bottomHeight = containerRect.height - offsetY - 60;
 
   streamContainer.style.height = topHeight + 'px';
-  chatPanel.style.height = bottomHeight + 'px';
+  chatContainer.style.height = bottomHeight + 'px';
 
   slider.style.top = (offsetY - (slider.clientHeight / 2)) - 20 + 'px';
 }
