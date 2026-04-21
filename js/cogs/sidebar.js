@@ -330,8 +330,8 @@ document.getElementById('message__form__bot').addEventListener('submit', (e) => 
     e.preventDefault();
     const input = e.target.querySelector('input[name="message__bot"]');
     if (input.value.trim()) {
-        console.log('Message sent:', input.value);
-        sendMessage(input.value);
+        console.log('Message sent for bot:', input.value);
+        sendMessage(input.value, 'bot');
         input.value = '';
     }
 });

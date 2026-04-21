@@ -283,6 +283,7 @@ window.messagingReady.then(() => {
         
     }
 
+    //todo: Move Participant 
     let moveParticipant = async (MemberId) => {
         
     }
@@ -404,7 +405,7 @@ window.messagingReady.then(() => {
     });
                 
 
-    sendMessage = async (message) => {
+    sendMessage = async (message, type='user') => {
         
         if (!canSendMessages) {
             return;
@@ -422,7 +423,10 @@ window.messagingReady.then(() => {
             minute: 'numeric',
             second: 'numeric',
         });
-        await fetch('https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/addMessage', {
+
+
+        if (type === 'user') {
+            await fetch('https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/addMessage', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -436,7 +440,50 @@ window.messagingReady.then(() => {
             })
         });
         ablyChannel.publish("chat", {displayName, message, color: sessionStorage.getItem("randomColor")})
+        }
+       
+        else if (type === 'bot') {
+                try { 
+                await fetch('https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/AddMessageBot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: Date.now().toString(),
+                    project_id: projectId,
+                    Username: displayName,
+                    Message: message,
+                    Time: readableDate
+            })
+            });
+
+        if (!response.ok) {
+            const body = await response.text();
+            console.error('Bot message failed', {
+                url: response.url,
+                status: response.status,
+                statusText: response.statusText,
+                responseBody: body,
+                payload: {
+                    projectId,
+                    displayName,
+                    message,
+                    readableDate
+                }
+            });
+            throw new Error(`Bot message failed ${response.status}: ${response.statusText}`);
+        }
+
+        ablyChannel.publish("chat", {displayName, message, color: sessionStorage.getItem("randomColor")})
+        } catch (error)
+     {console.error('sendMessage bot error', error);
     }
+
+
+
+       
+    }}
 
     ablyChannel.subscribe("chat", async (message) => {
         addMessageToDom(message.data.displayName, message.data.message, message.data.color)
