@@ -416,7 +416,7 @@ body {
 }
 
 /* Update the messages container to remove the placeholder text styling */
-#messages {
+#messages, #messages_bot {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;

@@ -40,6 +40,11 @@ async function initSetup() {
     // get project URL id
     ablyChannel = ablyInstance.channels.get( roomName );
     innerChannel = ablyInstance.channels.get( roomName + "_inner" );
+    llmChannel = ablyInstance.channels.get( roomName + "_bot" );
+
+    llmChannel.once('attached', () => {
+    console.log('LLM Channel attached and ready:', llmChannel.name);
+    });
 
     ablyChannel.presence.enter(sessionStorage.getItem("email"), (err) => {
     if (err) {
@@ -427,6 +432,10 @@ window.messagingReady.then(() => {
 
 
         if (type === 'user') {
+
+            try{
+                console.log("Starting user message - canSendMessages:", canSendMessages);
+       
             await fetch('https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/addMessage', {
             method: 'POST',
             headers: {
@@ -440,12 +449,21 @@ window.messagingReady.then(() => {
                 Time: readableDate
             })
         });
+        console.log("User message Initiated");
         ablyChannel.publish("chat", {displayName, message, color: sessionStorage.getItem("randomColor")})
+        console.log('User message sent successfully');
+        } catch (error) {
+            console.error('sendMessage user error', error);
         }
+        finally{
+            console.log("end of block")
+
+        }}
        
         else if (type === 'bot') {
+                console.log('LLM Channel name:', llmChannel);
                 try { 
-                const response =await fetch('https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/AddMessageBot', {
+                await fetch('https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/AddMessageBot', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -459,49 +477,44 @@ window.messagingReady.then(() => {
             })
             });
 
-        if (!response.ok) {
-            const body = await response.text();
-            console.error('Bot message failed', {
-                url: response.url,
-                status: response.status,
-                statusText: response.statusText,
-                responseBody: body,
-                payload: {
-                    projectId,
-                    displayName,
-                    message,
-                    readableDate
-                }
-            });
-            throw new Error(`Bot message failed ${response.status}: ${response.statusText}`);
-        }
+            console.log("bot message Initiated");
+            llmChannel.publish("bot_chat", {displayName, message, color: sessionStorage.getItem("randomColor")})
+            console.log('Bot message sent successfully');
 
-        ablyChannel.publish("bot_chat", {displayName, message, color: sessionStorage.getItem("randomColor")})
+      
         } catch (error)
      {console.error('sendMessage bot error', error);
     }
-
+     
 
 
        
     }}
 
     ablyChannel.subscribe("chat", async (message) => {
-        addMessageToDom(message.data.displayName, message.data.message, message.data.color)
+        addMessageToDom(1, message.data.displayName, message.data.message, message.data.color)
     })
 
-    ablyChannel.subscribe("bot_chat", async (message) => {
+    llmChannel.subscribe("bot_chat", async (message) => {
         
-        addBotMessageToDom(message.data.displayName, message.data.message, message.data.color)
+        addMessageToDom(2, message.data.displayName, message.data.message, message.data.color)
     })
 
-    let addMessageToDom = (name, message,color) => {
+    let addMessageToDom = (channel, name, message, color) => {
+        console.log(channel," : Add message to dom")
 
         // messageCount+=1;
         // console.log(messageCount)
         // document.getElementById("messageCount").innerText=messageCount;
-
-        let messagesWrapper = document.getElementById('messages')
+        let messagesWrapper;
+        if (channel == 1) {
+            messagesWrapper = document.getElementById('messages')
+        }
+        else if (channel ==2) {
+            messagesWrapper = document.getElementById('messages_bot')
+        }
+        
+        
 
         let newMessage = `<div class="message__wrapper">
                             <div class="message__body">
@@ -521,7 +534,7 @@ window.messagingReady.then(() => {
         let lastMessage = document.querySelector('#messages .message__wrapper:last-child')
     }
 
-
+    //Automatic messages to greet new users and say when users leave
     function addBotMessageToDom (botMessage) {
         let messagesWrapper = document.getElementById('messages')
 
