@@ -326,7 +326,7 @@ body {
   background: rgba(59, 130, 246, 0.5);
 }
 
-#messages__container {
+#messages__container, #messages__container__bot {
   flex: 1;
   display: none;
   flex-direction: column;
@@ -334,7 +334,7 @@ body {
   overflow: hidden;
 }
 
-#messages__container.active {
+#messages__container.active,  #messages__container__bot.active {
   display: flex;
 }
 
@@ -416,7 +416,7 @@ body {
 }
 
 /* Update the messages container to remove the placeholder text styling */
-#messages {
+#messages, #messages_bot {
   flex: 1;
   overflow-y: auto;
   padding: 1rem;
@@ -502,7 +502,7 @@ body {
   }
 }
 
-#message__form {
+#message__form , #message__form__bot {
   display: flex;
   align-items: center;
   padding: 1.25rem 1rem;
@@ -510,7 +510,7 @@ body {
   border-top: 1px solid rgba(255,255,255,0.06);
 }
 
-#message__form input {
+#message__form input, #message__form__bot input {
   flex: 1;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.06);
@@ -522,12 +522,12 @@ body {
   min-height: 50px;
 }
 
-#message__form input:focus {
+#message__form input:focus ,#message__form__bot input:focus {
   outline: none;
   border-color: rgba(59, 130, 246, 0.4);
 }
 
-#message__form input::placeholder {
+#message__form input::placeholder , #message__form__bot input::placeholder {
   color: #707575;
 }
 
@@ -1066,11 +1066,11 @@ body {
     width: 100%;
     left: 0;
   }
-  #messages__container {
+  #messages__container , #messages__container__bot {
     max-width: 20rem;
   }
 
-  #message__form {
+  #message__form, #message__form__bot {
     width: 18.2rem;
   }
 
@@ -1090,7 +1090,7 @@ body {
     width: 136px;
   }
 
-  #messages__container {
+  #messages__container, #messages__container__bot {
     display: none;
   }
 

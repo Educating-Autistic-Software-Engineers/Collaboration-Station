@@ -203,7 +203,7 @@ let joinRoomInit = async () => {
             },
 
             metricsDidReceive: clientMetricReport => {
-                console.log('Chime metrics:', clientMetricReport.getObservableMetrics());
+                //console.log('Chime metrics:', clientMetricReport.getObservableMetrics());
             },
 
             audioInputFailed: (e) => console.log('Audio input failed:', e),
