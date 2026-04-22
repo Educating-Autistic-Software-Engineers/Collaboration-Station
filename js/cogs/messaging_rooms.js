@@ -49,7 +49,8 @@ async function initSetup() {
     });
 }
 
-var sendMessage, handleChannelMessage, removeParticipant, muteAllParticipants, updateMessageCounter, muteParticipant, disableMessage;
+//Added sendMessageBot to load here 
+var sendMessage, sendMessageBot, handleChannelMessage, removeParticipant, muteAllParticipants, updateMessageCounter, muteParticipant, disableMessage;
 
 window.messagingReady = (async () => {
     await initSetup();
@@ -85,7 +86,7 @@ window.messagingReady.then(() => {
         addMemberToDom(data);
         updateMemberTotal(Object.keys(connectedUsers).length);
         try { if (window.refreshMembers) window.refreshMembers(); } catch (e) { /* ignore */ }
-        addBotMessageToDom(`Welcome to the room ${data.name}! 👋`)
+        addBotMessageToDom(`Welcome to the room ${data.name}! 👋 Happy to see you`)
     }
 
     let handleMemberLeft = (email) => {
@@ -444,7 +445,7 @@ window.messagingReady.then(() => {
        
         else if (type === 'bot') {
                 try { 
-                await fetch('https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/AddMessageBot', {
+                const response =await fetch('https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/AddMessageBot', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -475,7 +476,7 @@ window.messagingReady.then(() => {
             throw new Error(`Bot message failed ${response.status}: ${response.statusText}`);
         }
 
-        ablyChannel.publish("chat", {displayName, message, color: sessionStorage.getItem("randomColor")})
+        ablyChannel.publish("bot_chat", {displayName, message, color: sessionStorage.getItem("randomColor")})
         } catch (error)
      {console.error('sendMessage bot error', error);
     }
@@ -487,6 +488,11 @@ window.messagingReady.then(() => {
 
     ablyChannel.subscribe("chat", async (message) => {
         addMessageToDom(message.data.displayName, message.data.message, message.data.color)
+    })
+
+    ablyChannel.subscribe("bot_chat", async (message) => {
+        
+        addBotMessageToDom(message.data.displayName, message.data.message, message.data.color)
     })
 
     let addMessageToDom = (name, message,color) => {
@@ -521,7 +527,7 @@ window.messagingReady.then(() => {
 
         let newMessage = `<div class="message__wrapper">
                             <div class="message__body__bot">
-                                <strong class="message__author__bot">🤖 CollabStation Bot</strong>
+                             <strong class="message__author__bot">🤖 CollabStation Bot</strong>
                                 <p class="message__text__bot">${botMessage}</p>
                             </div>
                         </div>`
