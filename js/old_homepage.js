@@ -16,7 +16,7 @@ console.log(displayName);
 // }
 
 function newAuth() {
-    window.location.href = 'new_index.html';
+    return;
 }
 
 function createStars() {

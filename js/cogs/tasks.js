@@ -22,6 +22,14 @@ class TasksManager {
         this.init();
     }
 
+    logTaskEvent(type, data = {}) {
+        if (typeof window.logWorkspaceEvent !== 'function') return;
+        window.logWorkspaceEvent(type, {
+            source: 'tasksManager',
+            ...data
+        });
+    }
+
     async init() {
 
         await window.messagingReady;
@@ -106,8 +114,15 @@ class TasksManager {
 
         container.innerHTML = `
             <div class="main-task-area">
-                ${this.isTeachingAssistant ? `
-                    <div class="tasks-view-toggle">
+                <div class="tasks-view-toggle">
+                    <div class="toggle-btn-container">
+                        <button class="toggle-btn highlight-block-btn"
+                                onclick="window.scratchParser && typeof window.scratchParser.explainScratchBlocks === 'function' ? window.scratchParser.explainScratchBlocks() : tasksManager.highlightAnyScratchBlock()"
+                                style="width: 100%;">
+                            Explain Scratch Blocks
+                        </button>
+                    </div>
+                    ${this.isTeachingAssistant ? `
                         <div class="toggle-btn-container">
                             <button class="toggle-btn manage-btn" 
                                     onclick="tasksManager.showTaskManagementPopup()"
@@ -115,8 +130,8 @@ class TasksManager {
                                 ⚙️ Manage Tasks
                             </button>
                         </div>
-                    </div>
-                ` : ''}
+                    ` : ''}
+                </div>
 
                 <div class="tasks-content">
                     ${this.renderUserTasks()}
@@ -127,8 +142,6 @@ class TasksManager {
             ${this.selectedTask ? this.renderTaskDetail() : ''}
         `;
 
-        // Render management popup to document.body (outside iframe stacking context)
-        // so it reliably appears above the iframe on all browsers including Safari.
         if (this.isTeachingAssistant) {
             let popupHost = document.getElementById('task-management-popup-host');
             if (!popupHost) {
@@ -140,16 +153,12 @@ class TasksManager {
         }
 
         if (this.taskInHelpChat) {
-            setTimeout(() => {
+            requestAnimationFrame(() => {
                 const inputEl = document.querySelector('.help-chat-input');
                 if (inputEl) {
-                    inputEl.onkeypress = (e) => this.handleChatInput(e, this.taskInHelpChat); 
+                    inputEl.onkeypress = (e) => this.handleChatInput(e, this.taskInHelpChat);
                 }
-                const messagesEl = document.querySelector('.help-chat-messages');
-                if (messagesEl) {
-                    messagesEl.scrollTop = messagesEl.scrollHeight;
-                }
-            }, 0);
+            });
         }
     }
 
@@ -295,14 +304,34 @@ class TasksManager {
         `;
     }
 
+    // Convert **bold** markdown to <strong> HTML and \n to <br>
+    formatMessageText(text) {
+        return text
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+    }
+
+    // Scroll both the outer tasks panel and the inner messages list to the bottom
+    scrollChatToBottom() {
+        requestAnimationFrame(() => {
+            const outer = document.getElementById('tasks__container');
+            if (outer) outer.scrollTop = outer.scrollHeight;
+            const inner = document.querySelector('.help-chat-messages');
+            if (inner) inner.scrollTop = inner.scrollHeight;
+        });
+    }
+
     renderChatMessage(message) {
         const time = message.time || new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
         
         return `
             <div class="help-message ${message.sender}">
-                ${message.sender === 'teacher' ? '<div class="message-avatar">👩‍🏫</div>' : ''}
+                ${message.sender === 'teacher' ? '<div class="message-avatar">👩\u200d🏫</div>' : ''}
                 <div class="message-bubble">
-                    <div class="message-text">${message.text}</div>
+                    <div class="message-text">${this.formatMessageText(message.text)}</div>
                     <div class="message-time">${time}</div>
                 </div>
             </div>
@@ -552,6 +581,13 @@ class TasksManager {
             const studentTasks = this.getStudentTasks(studentEmail);
             studentTasks.assigned = studentTasks.assigned.filter(t => t.id !== taskData.id);
             studentTasks.improvement = studentTasks.improvement.filter(t => t.id !== taskData.id);
+
+            this.logTaskEvent('custom:taskUnassigned', {
+                taskId: taskData.id,
+                taskTitle: taskData.title,
+                assignee: studentEmail,
+                fromCategory: sourceCategory
+            });
             
             // Save the updated tasks back to the main store
             this.studentTasks[studentEmail] = studentTasks;
@@ -597,6 +633,14 @@ class TasksManager {
             studentTasks.improvement.push(newTask);
         }
 
+        this.logTaskEvent('custom:taskAssigned', {
+            taskId: newTask.id,
+            taskTitle: newTask.title,
+            assignee: studentEmail,
+            targetCategory,
+            sourceCategory: e.dataTransfer.getData('source-category') || null
+        });
+
         this.studentTasks[studentEmail] = studentTasks;
         
         this.selectStudent(this.managementSelectedStudent);
@@ -629,18 +673,155 @@ class TasksManager {
         }
     }
 
-    selectTaskForHelp(task) {
+    async selectTaskForHelp(task) {
         this.taskInHelpChat = task;
         this.selectedTask = null;
-        
-        const initialMessage = this.getTaskDescription(task);
+
+        // Show a helpful analyzing placeholder while we query the analyzer
         this.chatMessages = [{
             sender: 'teacher',
-            text: `Hi! I'm here to help you with the task: **${task.title}**. This is what you need to do: ${initialMessage}`,
+            text: `Hi! I'm going to analyze your current workspace and suggest concrete next steps for: **${task.title}**. One moment...`,
             time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
         }];
 
         this.render();
+        this.scrollChatToBottom();
+
+        // Try to collect code chunks from the embedded VM and call the same task-chat analyzer
+        try {
+            const frame = document.getElementById('main-stream');
+            const frameWindow = frame && frame.contentWindow ? frame.contentWindow : null;
+
+            let chunks = [];
+            if (window.scratchParser && typeof window.scratchParser.requestCodeChunks === 'function' && frameWindow) {
+                try {
+                    chunks = await window.scratchParser.requestCodeChunks(frameWindow);
+                } catch (e) {
+                    console.warn('Failed to collect code chunks from VM', e);
+                    chunks = [];
+                }
+            }
+
+            // Prepare analyzer prompt
+            const taskDescription = this.getTaskDescription(task);
+            let codeSummary = '';
+            if (Array.isArray(chunks) && chunks.length > 0) {
+                // Join a few chunks (up to 6) into a compact summary for the model
+                const joined = chunks.slice(0, 6).map((c, i) => `Chunk ${i+1}: ${String(c.chunkText || c.text || '').trim()}`).join('\n---\n');
+                codeSummary = `Current workspace code chunks:\n${joined}`;
+            }
+
+            const body = `You are helping a student with Scratch code.\n` +
+                `Task title: ${task.title}\n` +
+                `Task description: ${taskDescription}\n` +
+                (codeSummary ? `${codeSummary}\n` : '') +
+                `Please analyze the student's current blocks and provide 3 concrete, step-by-step suggestions the student can try next. Keep the response concise: use brief bullet points or at most 3 short sentences per suggestion. Do NOT produce long paragraphs.\n` +
+                `Do NOT label code sections as \"Chunk 4\". If you must reference a specific code region, describe it without numeric chunk labels (for example: \"the first block sequence that checks for input\"). If the response nonetheless includes an explicit \"Chunk N\" reference, the client will automatically pin a short note to that chunk in the workspace.`;
+
+            const resp = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/task-chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain' },
+                body
+            });
+
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            const answer = data.response || data.message || JSON.stringify(data);
+
+            // Replace placeholder with the real analyzer output
+            this.chatMessages = [{ sender: 'teacher', text: answer, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }];
+
+            // Post-process analyzer output: attach short notes to any chunk that the analyzer
+            // appears to reference. We match explicit "Chunk N" labels, substrings of chunk
+            // text appearing verbatim in the answer, or shared keywords. Also handle code
+            // fences/backticks by attaching a generic note to the most likely chunk.
+            try {
+                const canAttach = frameWindow && window.scratchParser && typeof window.scratchParser.attachNoteToChunk === 'function';
+                if (typeof answer === 'string' && Array.isArray(chunks) && chunks.length > 0 && canAttach) {
+                    const answerLower = answer.toLowerCase();
+
+                    // 1) explicit "Chunk N" references
+                    const refs = Array.from(answer.matchAll(/Chunk\s*(\d+)/gi)).map(m => parseInt(m[1], 10)).filter(n => !Number.isNaN(n));
+                    const uniqueRefs = [...new Set(refs)];
+                    uniqueRefs.forEach(num => {
+                        const idx = num - 1;
+                        if (idx >= 0 && idx < chunks.length) {
+                            const regex = new RegExp(`Chunk\\s*${num}[:\\s-]*(.*?)((\\.|\\n)|$)`, 'i');
+                            const m = answer.match(regex);
+                            let note = (m && m[1]) ? m[1].trim() : `Referenced in help: see suggested guidance.`;
+                            if (note.length > 140) note = note.slice(0, 137) + '...';
+                            try { window.scratchParser.attachNoteToChunk(frameWindow, chunks[idx], note); } catch (e) { console.warn('Failed to attach note to chunk', e); }
+                        }
+                    });
+
+                    // 2) match chunk snippets or keywords appearing in the answer
+                    const matchedIndices = new Set(uniqueRefs.map(n => n - 1));
+                    for (let i = 0; i < chunks.length; i++) {
+                        if (matchedIndices.has(i)) continue; // already handled
+                        const ct = String(chunks[i].chunkText || chunks[i].text || '').trim();
+                        if (!ct) continue;
+                        const sample = ct.slice(0, 60).toLowerCase();
+                        let matched = false;
+
+                        // direct substring match
+                        if (sample && answerLower.includes(sample)) matched = true;
+
+                        // keyword match: look for any 5+ letter token from chunk in answer
+                        if (!matched) {
+                            const tokens = ct.split(/[^a-zA-Z0-9_]+/).filter(t => t.length >= 5).slice(0, 10);
+                            for (const tok of tokens) {
+                                if (answerLower.includes(tok.toLowerCase())) { matched = true; break; }
+                            }
+                        }
+
+                        if (matched) {
+                            // extract a short surrounding snippet from answer mentioning the token/sample
+                            let note = '';
+                            const idx = answerLower.indexOf(sample);
+                            if (idx >= 0) {
+                                const start = Math.max(0, idx - 40);
+                                note = answer.slice(start, Math.min(answer.length, idx + 100)).trim();
+                            } else {
+                                // find first token occurrence
+                                let foundIdx = -1;
+                                for (const tok of ct.split(/[^a-zA-Z0-9_]+/).filter(t=>t.length>=5)) {
+                                    const pos = answerLower.indexOf(tok.toLowerCase());
+                                    if (pos >= 0) { foundIdx = pos; break; }
+                                }
+                                if (foundIdx >= 0) {
+                                    const start = Math.max(0, foundIdx - 40);
+                                    note = answer.slice(start, Math.min(answer.length, foundIdx + 100)).trim();
+                                }
+                            }
+                            if (!note) note = 'Referenced in help: see suggested guidance.';
+                            if (note.length > 140) note = note.slice(0,137) + '...';
+                            try { window.scratchParser.attachNoteToChunk(frameWindow, chunks[i], note); } catch (e) { console.warn('Failed to attach note to chunk', e); }
+                            matchedIndices.add(i);
+                        }
+                    }
+
+                    // 3) if answer contains code fences/backticks and no chunk matched yet, pin a generic note to the first chunk
+                    if (matchedIndices.size === 0 && (/```|`/.test(answer) || /\b(block|script|when|if|repeat|forever|move|turn)\b/i.test(answer))) {
+                        const note = 'Analyzer referenced code in the response. See suggested guidance in chat.';
+                        try { window.scratchParser.attachNoteToChunk(frameWindow, chunks[0], note); } catch (e) { console.warn('Failed to attach fallback note', e); }
+                    }
+                }
+            } catch (e) {
+                console.warn('Post-processing analyzer output failed', e);
+            }
+        } catch (err) {
+            // Fallback to original generic guidance when analyzer fails
+            const initialMessage = this.getTaskDescription(task);
+            this.chatMessages = [{
+                sender: 'teacher',
+                text: `Hi! I'm here to help you with the task: **${task.title}**. This is what you need to do: ${initialMessage}`,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+            }];
+            console.error('Task analyzer failed', err);
+        } finally {
+            this.render();
+            this.scrollChatToBottom();
+        }
     }
 
     requestHelpForTask(taskId, category, view) {
@@ -674,14 +855,7 @@ class TasksManager {
         this.chatMessages.push({ sender: 'student', text: userMessage, time });
         document.querySelector('.help-chat-input').value = '';
         this.render();
-        
-        // Auto-scroll to bottom after rendering
-        setTimeout(() => {
-            const messagesContainer = document.querySelector('.help-chat-messages');
-            if (messagesContainer) {
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-            }
-        }, 50);
+        this.scrollChatToBottom();
 
         // Disable input while waiting for response
         const inputEl = document.querySelector('.help-chat-input');
@@ -726,16 +900,13 @@ class TasksManager {
             });
         } finally {
             this.render();
-            setTimeout(() => {
-                const messagesContainer = document.querySelector('.help-chat-messages');
-                if (messagesContainer) {
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                }
+            this.scrollChatToBottom();
+            requestAnimationFrame(() => {
                 const el = document.querySelector('.help-chat-input');
                 if (el) { el.disabled = false; el.focus(); }
                 const btn = document.querySelector('.send-btn');
                 if (btn) btn.disabled = false;
-            }, 50);
+            });
         }
     }
 
@@ -774,6 +945,13 @@ class TasksManager {
 
         if (task) {
             task.completed = !task.completed;
+            this.logTaskEvent('custom:taskCompletionToggled', {
+                taskId: task.id,
+                taskTitle: task.title,
+                completed: task.completed,
+                category,
+                view
+            });
             if (task.completed) {
                 this.animateTaskCompletion(taskId);
             }
@@ -825,6 +1003,13 @@ class TasksManager {
         
         if (task) {
             task.completed = !task.completed;
+            this.logTaskEvent('custom:taskCompletionToggled', {
+                taskId: task.id,
+                taskTitle: task.title,
+                completed: task.completed,
+                category,
+                view: 'management'
+            });
             
             // Refresh the popup to show updated state
             this.selectStudent(studentEmail);
@@ -974,6 +1159,12 @@ class TasksManager {
 
         this.roomTasks.push(newTask);
 
+        this.logTaskEvent('custom:taskCreated', {
+            taskId: newTask.id,
+            taskTitle: newTask.title,
+            category: newTask.category
+        });
+
         await this.uploadNewTaskToApi(newTask);
         
         document.getElementById('new-room-task-title').value = '';
@@ -1013,8 +1204,15 @@ class TasksManager {
             return;
         }
 
+        const taskToDelete = this.roomTasks.find(t => String(t.id) === String(taskId));
+
         // Remove from room tasks
         this.roomTasks = this.roomTasks.filter(t => t.id !== taskId);
+
+        this.logTaskEvent('custom:taskDeleted', {
+            taskId,
+            taskTitle: taskToDelete ? taskToDelete.title : null
+        });
         
         // Remove from all students
         Object.keys(this.studentTasks).forEach(email => {
@@ -1098,6 +1296,10 @@ class TasksManager {
                 console.error(`Error saving task ${taskId}:`, error);
             }
         }
+
+        this.logTaskEvent('custom:taskAssignmentsSaved', {
+            updatedTaskCount: Object.keys(taskAssignments).length
+        });
         
         // Refresh the main task view to show updated tasks for current user
         if (this.activeView === 'user') {
@@ -1164,6 +1366,42 @@ class TasksManager {
             this.activeView = view;
             this.selectedTask = null;
             this.render();
+        }
+    }
+
+    getScratchIframeWindow() {
+        const frame = document.getElementById('main-stream');
+        if (!frame) return null;
+        return frame.contentWindow || null;
+    }
+
+    async highlightAnyScratchBlock() {
+        const frameWindow = this.getScratchIframeWindow();
+        if (!frameWindow) {
+            alert('Scratch VM frame is not available yet.');
+            return;
+        }
+
+        const noteText = this.selectedTask && this.selectedTask.title
+            ? `Task Hint: ${this.selectedTask.title}`
+            : (this.taskInHelpChat && this.taskInHelpChat.title
+                ? `Help Focus: ${this.taskInHelpChat.title}`
+                : 'Try editing this block first.');
+
+        const payload = {
+            durationMs: 1500,
+            noteText
+        };
+
+        try {
+            frameWindow.postMessage({
+                type: 'highlightAnyBlock',
+                ...payload
+            }, '*');
+            console.log('Requested highlightAnyBlock in iframe:', payload);
+        } catch (error) {
+            console.error('Failed to highlight Scratch block:', error);
+            alert('Failed to call iframe highlight function.');
         }
     }
 

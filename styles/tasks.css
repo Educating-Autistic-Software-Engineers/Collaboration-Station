@@ -41,6 +41,16 @@
     border-color: rgba(100, 116, 139, 0.3);
 }
 
+.toggle-btn.highlight-block-btn {
+    background: rgba(14, 116, 144, 0.28);
+    border-color: rgba(14, 116, 144, 0.45);
+}
+
+.toggle-btn.highlight-block-btn:hover {
+    background: rgba(14, 116, 144, 0.4);
+    border-color: rgba(34, 211, 238, 0.6);
+}
+
 .toggle-btn.manage-btn:hover {
     background: rgba(100, 116, 139, 0.3);
     border-color: rgba(100, 116, 139, 0.5);

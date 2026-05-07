@@ -12583,6 +12583,11 @@ const _excluded = ["url"],
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } } return target; }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == typeof i ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 
@@ -12658,7 +12663,8 @@ const uname = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name;
 const s3Client = new (aws_sdk__WEBPACK_IMPORTED_MODULE_33___default().S3)();
 const nid = (0,nanoid__WEBPACK_IMPORTED_MODULE_38__.nanoid)();
 const ably = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablyInstance;
-var channel = ably.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace);
+const innerChannelName = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace && _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace.endsWith('_inner') ? _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace : "".concat(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace, "_inner");
+var channel = ably.channels.get(innerChannelName);
 let hasInited = false;
 let flag1 = false;
 let flag2 = false;
@@ -12689,7 +12695,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //     ogWorkspaceDragger(workspace);
     // }.bind(this.ScratchBlocks)
 
-    lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['attachVM', 'detachVM', 'getToolboxXML', 'handleCategorySelected', 'handleConnectionModalStart', 'handleDrop', 'handleStatusButtonUpdate', 'handleOpenSoundRecorder', 'handlePromptStart', 'handlePromptCallback', 'handlePromptClose', 'handleCustomProceduresClose', 'onScriptGlowOn', 'onScriptGlowOff', 'onBlockGlowOn', 'onBlockGlowOff', 'handleMonitorsUpdate', 'handleExtensionAdded', 'handleBlocksInfoUpdate', 'onTargetsUpdate', 'onVisualReport', 'onWorkspaceUpdate', 'onWorkspaceMetricsChange', 'setBlocks', 'setLocale']);
+    lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['attachVM', 'detachVM', 'getToolboxXML', 'handleParentMessage', 'handleRemoteHighlightMessage', 'handleCategorySelected', 'handleConnectionModalStart', 'handleDrop', 'handleStatusButtonUpdate', 'handleOpenSoundRecorder', 'handlePromptStart', 'handlePromptCallback', 'handlePromptClose', 'handleCustomProceduresClose', 'onScriptGlowOn', 'onScriptGlowOff', 'onBlockGlowOn', 'onBlockGlowOff', 'handleMonitorsUpdate', 'handleExtensionAdded', 'handleBlocksInfoUpdate', 'onTargetsUpdate', 'onVisualReport', 'onWorkspaceUpdate', 'onWorkspaceMetricsChange', 'highlightBlockById', 'setBlocks', 'setLocale']);
     this.ScratchBlocks.prompt = this.handlePromptStart;
     this.ScratchBlocks.statusButtonCallback = this.handleConnectionModalStart;
     this.ScratchBlocks.recordSoundCallback = this.handleOpenSoundRecorder;
@@ -12701,6 +12707,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.myRef = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_4__.createRef();
     this.onTargetsUpdate = lodash_debounce__WEBPACK_IMPORTED_MODULE_1___default()(this.onTargetsUpdate, 100);
     this.toolboxUpdateQueue = [];
+    this.highlightTimeout = null;
+    this.noteTimeouts = new Map();
     setInterval(() => {
       // if (this.queue.length == 1 && this.queue[0].type == "move") {
       //     //console.log("blah")
@@ -12727,6 +12735,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     document.addEventListener('click', this.handleClick.bind(this));
   }
   componentDidMount() {
+    var _this = this;
     // console.log("blocks", this.ScratchBlocks)
 
     this.ScratchBlocks = (0,_lib_blocks__WEBPACK_IMPORTED_MODULE_5__["default"])(this.props.vm, this.props.useCatBlocks);
@@ -12782,6 +12791,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
     this.updateDimensions();
     window.addEventListener('resize', this.updateDimensions);
+    window.addEventListener('message', this.handleParentMessage);
+    window.highlightScratchBlock = function (blockId) {
+      let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+      return _this.highlightBlockById(blockId, options);
+    };
   }
   shouldComponentUpdate(nextProps, nextState) {
     return this.state.prompt !== nextState.prompt || this.props.isVisible !== nextProps.isVisible || this._renderedToolboxXML !== nextProps.toolboxXML || this.props.extensionLibraryVisible !== nextProps.extensionLibraryVisible || this.props.customProceduresVisible !== nextProps.customProceduresVisible || this.props.locale !== nextProps.locale || this.props.anyModalVisible !== nextProps.anyModalVisible || this.props.stageSize !== nextProps.stageSize;
@@ -12828,10 +12842,15 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.detachVM();
     this.workspace.dispose();
     clearTimeout(this.toolboxUpdateTimeout);
+    clearTimeout(this.highlightTimeout);
+    this.noteTimeouts.forEach(timeoutId => clearTimeout(timeoutId));
+    this.noteTimeouts.clear();
 
     // Clear the flyout blocks so that they can be recreated on mount.
     this.props.vm.clearFlyoutBlocks();
     window.removeEventListener('resize', this.updateDimensions);
+    window.removeEventListener('message', this.handleParentMessage);
+    delete window.highlightScratchBlock;
   }
   requestToolboxUpdate() {
     clearTimeout(this.toolboxUpdateTimeout);
@@ -12954,60 +12973,61 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
   }
   initInformation() {
-    var _this = this;
+    var _this2 = this;
     return _asyncToGenerator(function* () {
       if (!hasInited) {
-        _this.isViewOnly = sessionStorage.getItem('isViewOnly') == "T";
-        _this.hasLoadedFully = false;
-        _this.hasLoadedInitially = false;
-        _this.queueWorkspaceUpdate = false;
-        _this.pauseWorkspaceUpdate = false;
-        _this.queueFurtherSends = false;
-        _this.stopEmission = false;
-        _this.holdingBlock = false;
-        _this.errorLoading = false;
-        _this.keyMarker = null;
-        _this.versionIdMarker = null;
-        _this.lastBlockId = "";
-        _this.lastBlockType = "";
-        _this.lastTempId = "";
-        _this.randomIndex = 0;
-        _this.cacheEventTime = 50; //ms
-        _this.vid = -1;
+        _this2.isViewOnly = sessionStorage.getItem('isViewOnly') == "T";
+        _this2.hasLoadedFully = false;
+        _this2.hasLoadedInitially = false;
+        _this2.queueWorkspaceUpdate = false;
+        _this2.pauseWorkspaceUpdate = false;
+        _this2.queueFurtherSends = false;
+        _this2.stopEmission = false;
+        _this2.holdingBlock = false;
+        _this2.errorLoading = false;
+        _this2.keyMarker = null;
+        _this2.versionIdMarker = null;
+        _this2.lastBlockId = "";
+        _this2.lastBlockType = "";
+        _this2.lastTempId = "";
+        _this2.randomIndex = 0;
+        _this2.cacheEventTime = 50; //ms
+        _this2.vid = -1;
         hasInited = true;
-        _this.timer = null;
+        _this2.timer = null;
 
         // this.varCallbackFunc = function(a,b,c) {console.log(a,b,c, "callback var trigged early")};
 
-        _this.messageQueue = [];
-        _this.backlog = [];
-        _this.queue = [];
+        _this2.messageQueue = [];
+        _this2.backlog = [];
+        _this2.queue = [];
         //this.blocks = [];
-        _this.idToAll = {};
-        _this.amountOfBlocks = 0;
+        _this2.idToAll = {};
+        _this2.amountOfBlocks = 0;
         console.log("EDING", ably);
-        yield _this.waitForAbly();
+        yield _this2.waitForAbly();
         if (!ably.connection.state == "connected") {
           console.log("waiting");
         } else {
           console.log("already connected");
         }
         console.log("connected to Ably!!");
-        yield channel.subscribe('event', message => _this.recieveInformation(message));
+        yield channel.subscribe('event', message => _this2.recieveInformation(message));
+        yield channel.subscribe('highlightBlock', _this2.handleRemoteHighlightMessage);
         //await channel.subscribe('onSelect', (message) => this.spriteOnSelect(message));
-        yield channel.subscribe('imageUpdated', message => _this.imageUpdated(message));
-        yield channel.subscribe('newJoin', _this.newUserJoined.bind(_this));
-        yield channel.subscribe('categorySelected', _this.parseCategorySelected);
+        yield channel.subscribe('imageUpdated', message => _this2.imageUpdated(message));
+        yield channel.subscribe('newJoin', _this2.newUserJoined.bind(_this2));
+        yield channel.subscribe('categorySelected', _this2.parseCategorySelected);
         yield channel.subscribe('goodForLoad', /*#__PURE__*/function () {
           var _ref = _asyncToGenerator(function* (msg) {
             const uid = JSON.parse(msg.data).uid;
             if (uid == nid) {
               return;
             }
-            if (!_this.hasLoadedInitially) {
-              yield _this.load();
-              _this.hasLoadedInitially = true;
-              _this.hasLoadedFully = true;
+            if (!_this2.hasLoadedInitially) {
+              yield _this2.load();
+              _this2.hasLoadedInitially = true;
+              _this2.hasLoadedFully = true;
               console.log("fully loaded");
             }
           });
@@ -13037,28 +13057,162 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
             uid: nid
           }));
         } else {
-          yield _this.load();
-          _this.hasLoadedFully = true;
+          yield _this2.load();
+          _this2.hasLoadedFully = true;
           console.log("fully loaded");
         }
         yield channel.presence.enter();
       }
     })();
   }
+  handleParentMessage(event) {
+    if (!event || !event.data) return;
+    const data = event.data;
+    if (typeof data !== 'object') return;
+    if (data.type === 'collectCodeChunks') {
+      const chunks = this.getCodeChunksForExplanation();
+      if (event.source && typeof event.source.postMessage === 'function') {
+        event.source.postMessage({
+          type: 'codeChunks',
+          requestId: data.requestId,
+          chunks
+        }, '*');
+      }
+      return;
+    }
+    if (data.type === 'highlightAnyBlock') {
+      const resolvedId = this.getAnyHighlightableBlockId();
+      if (!resolvedId) return;
+      this.highlightBlockById(resolvedId, _objectSpread(_objectSpread({}, data), {}, {
+        blockId: resolvedId
+      }));
+      return;
+    }
+    if (data.type !== 'highlightBlock') return;
+    if (!data.blockId) {
+      const fallbackId = this.getAnyHighlightableBlockId();
+      if (!fallbackId) return;
+      this.highlightBlockById(fallbackId, _objectSpread(_objectSpread({}, data), {}, {
+        blockId: fallbackId
+      }));
+      return;
+    }
+    this.highlightBlockById(data.blockId, data);
+  }
+  handleRemoteHighlightMessage(message) {
+    if (!message || !message.data) return;
+    let payload = message.data;
+    if (typeof payload === 'string') {
+      try {
+        payload = JSON.parse(payload);
+      } catch (_unused) {
+        return;
+      }
+    }
+    if (!payload || typeof payload !== 'object') return;
+    if (!payload.blockId) return;
+    this.highlightBlockById(payload.blockId, payload);
+  }
+  getCodeChunksForExplanation() {
+    if (!this.workspace || typeof this.workspace.getTopBlocks !== 'function') return [];
+    const topBlocks = this.workspace.getTopBlocks(false) || [];
+    return topBlocks.filter(block => block && block.id).map((block, index) => {
+      let chunkText = '';
+      try {
+        const descendants = typeof block.getDescendants === 'function' ? block.getDescendants(false) : [block];
+        chunkText = descendants.map(descendant => {
+          if (!descendant) return '';
+          if (typeof descendant.toString === 'function') {
+            return descendant.toString();
+          }
+          return descendant.type || '';
+        }).filter(Boolean).join(' -> ');
+      } catch (_unused2) {
+        chunkText = block.type || `chunk_${index + 1}`;
+      }
+      return {
+        blockId: block.id,
+        chunkText
+      };
+    });
+  }
+  getAnyHighlightableBlockId() {
+    if (!this.workspace || typeof this.workspace.getAllBlocks !== 'function') return null;
+    const blocks = this.workspace.getAllBlocks(false);
+    if (!blocks || blocks.length === 0) return null;
+    const topBlock = typeof this.workspace.getTopBlocks === 'function' ? this.workspace.getTopBlocks(false).find(block => block && block.id) : null;
+    if (topBlock && topBlock.id) {
+      return topBlock.id;
+    }
+    const firstBlock = blocks.find(block => block && block.id);
+    return firstBlock && firstBlock.id ? firstBlock.id : null;
+  }
+  highlightBlockById(blockId) {
+    let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+    if (!this.workspace || !blockId) return false;
+    const durationMs = Number(options.durationMs) > 0 ? Number(options.durationMs) : 1500;
+    const targetName = options.targetName || options.spriteName;
+    if (targetName && this.props.vm && this.props.vm.editingTarget && this.props.vm.editingTarget.sprite && this.props.vm.editingTarget.sprite.name !== targetName) {
+      const target = this.getTargetByName(targetName);
+      if (target) {
+        this.props.vm.setEditingTarget(target.id);
+        setTimeout(() => this.highlightBlockById(blockId, _objectSpread(_objectSpread({}, options), {}, {
+          targetName: null,
+          spriteName: null
+        })), 60);
+        return true;
+      }
+    }
+    const block = this.workspace.getBlockById(blockId);
+    if (!block) {
+      return false;
+    }
+    if (typeof options.noteText === 'string' && options.noteText.trim()) {
+      const blockPosition = typeof block.getRelativeToSurfaceXY === 'function' ? block.getRelativeToSurfaceXY() : {
+        x: 0,
+        y: 0
+      };
+      const blockWidth = typeof block.getWidth === 'function' ? block.getWidth() : 0;
+      const noteX = blockPosition.x + blockWidth + 32;
+      const noteY = blockPosition.y;
+      if (typeof block.setCommentText === 'function') {
+        block.setCommentText(options.noteText, null, noteX, noteY, false);
+        if (block.comment && typeof block.comment.setVisible === 'function') {
+          block.comment.setVisible(true);
+        }
+      }
+    }
+
+    // Match Scratch runtime style glow: block glow plus script glow, without selecting or recentering.
+    const rootBlock = typeof block.getRootBlock === 'function' ? block.getRootBlock() : null;
+    if (rootBlock && rootBlock.id) {
+      this.workspace.glowStack(rootBlock.id, true);
+    }
+    this.workspace.glowBlock(blockId, true);
+    clearTimeout(this.highlightTimeout);
+    this.highlightTimeout = setTimeout(() => {
+      if (!this.workspace) return;
+      if (rootBlock && rootBlock.id) {
+        this.workspace.glowStack(rootBlock.id, false);
+      }
+      this.workspace.glowBlock(blockId, false);
+    }, durationMs);
+    return true;
+  }
   spriteOnSelect(msg) {
-    var _this2 = this;
+    var _this3 = this;
     return _asyncToGenerator(function* () {
       //if (blockEmission) {return}
 
       const data = JSON.parse(msg.data);
       let id = data.num;
       const eventInfo = data.data;
-      _this2.stopEmission = true;
+      _this3.stopEmission = true;
       console.log(JSON.stringify(eventInfo));
-      _this2.props.vm.addSprite(JSON.stringify(eventInfo)).then(() => {
-        _this2.props.onActivateBlockTab(0);
+      _this3.props.vm.addSprite(JSON.stringify(eventInfo)).then(() => {
+        _this3.props.onActivateBlockTab(0);
       });
-      _this2.stopEmission = false;
+      _this3.stopEmission = false;
     })();
   }
   fetchAndConvertToImageData(url) {
@@ -13106,7 +13260,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     })();
   }
   imageUpdated(msg) {
-    var _this3 = this;
+    var _this4 = this;
     return _asyncToGenerator(function* () {
       const data = JSON.parse(msg.data);
       if (data.name == uname) {
@@ -13122,7 +13276,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const resload = yield fetch("https://d3pl0tx5n82s71.cloudfront.net/".concat(md5, ".").concat(ext));
         const image = yield resload.text();
         console.log('recieved', image);
-        _this3.props.vm.updateSvg(costumeIndex, image, rotationCenterX, rotationCenterY, data.editingTarget);
+        _this4.props.vm.updateSvg(costumeIndex, image, rotationCenterX, rotationCenterY, data.editingTarget);
       } else {
         // const arrayBuffer = await resload.arrayBuffer();
         // const uint8Array = new Uint8Array(arrayBuffer);
@@ -13130,10 +13284,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         // for (let i = 0; i < uint8Array.length; i++) {
         //     binaryString += String.fromCharCode(uint8Array[i]);
         // }
-        const image = yield _this3.fetchAndConvertToImageData("https://d3pl0tx5n82s71.cloudfront.net/".concat(md5, ".").concat(ext));
+        const image = yield _this4.fetchAndConvertToImageData("https://d3pl0tx5n82s71.cloudfront.net/".concat(md5, ".").concat(ext));
         // console.log('recieved', image)
         // console.log("class", this.fetchAndConvertToImageData(binaryString))
-        _this3.props.vm.updateBitmap(costumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */, data.editingTarget);
+        _this4.props.vm.updateBitmap(costumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */, data.editingTarget);
       }
 
       // const res2 = await fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/assetID",{
@@ -13150,19 +13304,19 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     })();
   }
   load() {
-    var _this4 = this;
+    var _this5 = this;
     return _asyncToGenerator(function* () {
-      if (_this4.startingLoad) {
+      if (_this5.startingLoad) {
         return;
       }
       try {
-        _this4.startingLoad = true;
-        _this4.stopEmission = true;
+        _this5.startingLoad = true;
+        _this5.stopEmission = true;
         const datas = {
           key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
-          vid: _this4.vid,
-          keyMarker: _this4.keyMarker,
-          versionIdMarker: _this4.versionIdMarker
+          vid: _this5.vid,
+          keyMarker: _this5.keyMarker,
+          versionIdMarker: _this5.versionIdMarker
         };
         console.log("TOLOAD", datas);
 
@@ -13195,8 +13349,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           } else {
             const jsonParsed = JSON.parse(jsonString);
             console.log("JSPARESE");
-            _this4.keyMarker = jsonParsed.keyMarker;
-            _this4.versionIdMarker = jsonParsed.versionIdMarker;
+            _this5.keyMarker = jsonParsed.keyMarker;
+            _this5.versionIdMarker = jsonParsed.versionIdMarker;
             const data = JSON.parse(jsonParsed.versionData);
             console.log(data);
             const targets = data.targets;
@@ -13231,11 +13385,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
               }
             }
             const data2 = JSON.stringify(data);
-            yield _this4.props.vm.loadProject(data2);
+            yield _this5.props.vm.loadProject(data2);
           }
         } else {}
         if (sessionStorage.getItem('analMode') == "T") {
-          _this4.startingLoad = false;
+          _this5.startingLoad = false;
         }
 
         //this.props.vm.editingTarget.setCostume(1);
@@ -13243,36 +13397,36 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         console.log(error);
         alert("Error loading project: " + JSON.stringify(error));
         console.error('Error fetching data from S3:', error);
-        _this4.errorLoading = true;
+        _this5.errorLoading = true;
       }
 
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Apple");
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Taco");
 
-      _this4.stopEmission = false;
+      _this5.stopEmission = false;
     })();
   }
   ret() {
     return 3;
   }
   save() {
-    var _this5 = this;
+    var _this6 = this;
     return _asyncToGenerator(function* () {
-      if (_this5.isViewOnly) {
+      if (_this6.isViewOnly) {
         console.log("view only mode; ignoring save");
         return;
       }
-      if (!_this5.hasLoadedFully) {
+      if (!_this6.hasLoadedFully) {
         console.log("not loaded fully; trying to save. Ignoring.");
         return;
       }
-      const s = JSON.stringify(_this5.props.vm.toJSON());
+      const s = JSON.stringify(_this6.props.vm.toJSON());
       console.log("SAVED!!!");
       yield fetch('https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/s3-storage', {
         method: 'POST',
         body: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace + "~|@^|@|~" + s
       });
-      _this5.props.vm.renderer.requestSnapshot( /*#__PURE__*/function () {
+      _this6.props.vm.renderer.requestSnapshot( /*#__PURE__*/function () {
         var _ref2 = _asyncToGenerator(function* (dataURI) {
           dataURI = dataURI.replace(/^data:image\/\w+;base64,/, '');
           const imagename = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace + ".png";
@@ -13319,9 +13473,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }).then(resp => console.log('logged', resp));
   }
   sendInformation(eve) {
-    var _this6 = this;
+    var _this7 = this;
     return _asyncToGenerator(function* () {
-      if (_this6.isViewOnly) {
+      if (_this7.isViewOnly) {
         console.log("view only mode; ignoring event");
         return;
       }
@@ -13336,7 +13490,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
       // handing field events since they don't have a consistent blockId
       if (eve.element == "field") {
-        const parentBlock = _this6.workspace.getBlockById(eve.blockId).parentBlock_;
+        const parentBlock = _this7.workspace.getBlockById(eve.blockId).parentBlock_;
         if (!!parentBlock) {
           parentID = parentBlock.id;
           for (let childBlock of parentBlock.childBlocks_) {
@@ -13346,32 +13500,32 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           }
         }
       }
-      if (_this6.stopEmission) {
-        console.log("recieved own event;", _this6.pauseWorkspaceUpdate, _this6.lastBlockId, eve.blockId, _this6.lastBlockType, eve.type);
+      if (_this7.stopEmission) {
+        console.log("recieved own event;", _this7.pauseWorkspaceUpdate, _this7.lastBlockId, eve.blockId, _this7.lastBlockType, eve.type);
         // debugger
-        if (_this6.lastBlockId == eve.blockId && _this6.lastBlockType == eve.type) {
-          _this6.stopEmission = false;
-          if (_this6.lastTempId != "") {
+        if (_this7.lastBlockId == eve.blockId && _this7.lastBlockType == eve.type) {
+          _this7.stopEmission = false;
+          if (_this7.lastTempId != "") {
             // this.revertToOriginalTarget();
             // this.lastTempId = ""
           }
         }
         return;
       }
-      if (_this6.holdingBlock) {
+      if (_this7.holdingBlock) {
         return;
       }
       //console.log(eve.element, eve.recordUndo, eve.group, eve)
 
-      console.log('loading', _this6.hasLoadedFully);
-      if (_this6.hasLoadedFully) {
-        _this6.logData({
-          moveId: _this6.getRandomHexString(16),
+      console.log('loading', _this7.hasLoadedFully);
+      if (_this7.hasLoadedFully) {
+        _this7.logData({
+          moveId: _this7.getRandomHexString(16),
           time: Date.now(),
           user: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name,
           room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
           type: eve.type,
-          target: _this6.props.vm.editingTarget.sprite.name,
+          target: _this7.props.vm.editingTarget.sprite.name,
           event: eve
         });
       }
@@ -13380,23 +13534,23 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // we queue the event to be sent after the current event is sent
       // this is not correlated with the other this.queue system
       let singleMessage = eve.toJson();
-      if (_this6.queueFurtherSends || _this6.queueWhileOnDifferentTarget) {
+      if (_this7.queueFurtherSends || _this7.queueWhileOnDifferentTarget) {
         console.log("backlogged", singleMessage);
-        _this6.backlog.push(singleMessage);
+        _this7.backlog.push(singleMessage);
         return;
       }
 
       // we queue the create event because it has to immediately be moved after
       if (eve.type == "create" || eve.element == "click" || eve.type == 'move' && eve.oldParentId) {
         console.log(singleMessage, eve.type == "create" ? "queueing create" : "queueing other");
-        _this6.queue.push(singleMessage);
+        _this7.queue.push(singleMessage);
         return;
       }
       if (eve.type == "change" && eve.name == "BROADCAST_OPTION") {
-        var _this6$props$vm$runti, _this6$props$vm$runti2;
+        var _this7$props$vm$runti, _this7$props$vm$runti2;
         singleMessage.broadcastInfo = {
-          broadcastName: (_this6$props$vm$runti = _this6.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this6$props$vm$runti === void 0 ? void 0 : _this6$props$vm$runti.name,
-          broadcastId: (_this6$props$vm$runti2 = _this6.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this6$props$vm$runti2 === void 0 ? void 0 : _this6$props$vm$runti2.id
+          broadcastName: (_this7$props$vm$runti = _this7.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this7$props$vm$runti === void 0 ? void 0 : _this7$props$vm$runti.name,
+          broadcastId: (_this7$props$vm$runti2 = _this7.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this7$props$vm$runti2 === void 0 ? void 0 : _this7$props$vm$runti2.id
         };
       }
       if (eve.type == "comment_create") {
@@ -13404,38 +13558,38 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
 
       //console.log(this.queue, this.queue.length, "sending");
-      _this6.queue.push(singleMessage);
+      _this7.queue.push(singleMessage);
       console.log('pushing to queue', singleMessage, eve);
       //console.log(this.queue, this.queue.length, "sending");
 
-      console.log('sending array of length: ', _this6.queue.length);
-      _this6.sendArray(_this6.queue, parentID, childIDX);
-      _this6.queue.length = 0;
-      console.log("sending backlog:", _this6.backlog);
-      yield _this6.sendBacklog(parentID, childIDX);
+      console.log('sending array of length: ', _this7.queue.length);
+      _this7.sendArray(_this7.queue, parentID, childIDX);
+      _this7.queue.length = 0;
+      console.log("sending backlog:", _this7.backlog);
+      yield _this7.sendBacklog(parentID, childIDX);
 
       //this.save.bind(this)();
     })();
   }
   sendArray(arr) {
-    var _this7 = this;
+    var _this8 = this;
     let parentID = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
     let childIDX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
     let dir = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
     return _asyncToGenerator(function* () {
       // Add the new events to the queue
-      _this7.messageQueue.push(...arr);
+      _this8.messageQueue.push(...arr);
 
       // If a timer is already running, do nothing
-      if (_this7.timer) {
+      if (_this8.timer) {
         return;
       }
-      _this7.timer = setTimeout( /*#__PURE__*/_asyncToGenerator(function* () {
+      _this8.timer = setTimeout( /*#__PURE__*/_asyncToGenerator(function* () {
         // handing field events since they don't have a consistent blockId
         if (parentID == -1) {
-          const eve = _this7.messageQueue[0];
+          const eve = _this8.messageQueue[0];
           if (eve.element == "field") {
-            const parentBlock = _this7.workspace.getBlockById(eve.blockId).parentBlock_;
+            const parentBlock = _this8.workspace.getBlockById(eve.blockId).parentBlock_;
             if (!!parentBlock) {
               parentID = parentBlock.id;
               for (let childBlock of parentBlock.childBlocks_) {
@@ -13448,22 +13602,22 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         }
         const message = {
           uid: nid,
-          target: _this7.props.vm.editingTarget.sprite.name,
-          messages: _this7.messageQueue,
+          target: _this8.props.vm.editingTarget.sprite.name,
+          messages: _this8.messageQueue,
           parentID: parentID,
           childIDX: childIDX,
-          rIDX: _this7.randomIndex,
+          rIDX: _this8.randomIndex,
           dir: dir
         };
         console.log("sending array", message);
-        _this7.queueFurtherSends = true;
+        _this8.queueFurtherSends = true;
         channel.publish('event', JSON.stringify(message));
-        _this7.queueFurtherSends = false;
+        _this8.queueFurtherSends = false;
 
         // Clear the queue and timer
-        _this7.messageQueue = [];
-        _this7.timer = null;
-      }), _this7.cacheEventTime);
+        _this8.messageQueue = [];
+        _this8.timer = null;
+      }), _this8.cacheEventTime);
     })();
   }
   enableEmission() {
@@ -13542,24 +13696,24 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
   }
   revertToOriginalTarget() {
-    var _this8 = this;
+    var _this9 = this;
     setTimeout( /*#__PURE__*/_asyncToGenerator(function* () {
-      if (_this8.lastTempId == "") {
+      if (_this9.lastTempId == "") {
         return;
       }
-      const ogTarget = _this8.props.vm.runtime.getTargetById(_this8.lastTempId);
-      if (ogTarget.id === _this8.props.vm.editingTarget.id) {
-        _this8.stopEmission = false;
+      const ogTarget = _this9.props.vm.runtime.getTargetById(_this9.lastTempId);
+      if (ogTarget.id === _this9.props.vm.editingTarget.id) {
+        _this9.stopEmission = false;
         return;
       }
-      _this8.lastTempId = "";
+      _this9.lastTempId = "";
       // this.queueWhileOnDifferentTarget = false;
       // this.queueFurtherSends = true;
       // await this.sendBacklog();
       // this.queueFurtherSends = false;
-      _this8.enableWorkspaceUpdate();
-      _this8.props.vm.setEditingTarget(ogTarget.id);
-      _this8.stopEmission = false;
+      _this9.enableWorkspaceUpdate();
+      _this9.props.vm.setEditingTarget(ogTarget.id);
+      _this9.stopEmission = false;
       console.log("OG TARGET SET");
     }), 1);
   }
@@ -13670,19 +13824,19 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
   }
   sendBacklog() {
-    var _this9 = this;
+    var _this10 = this;
     let parentID = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
     let childIDX = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
     return _asyncToGenerator(function* () {
-      while (_this9.backlog.length > 0) {
-        const tmp = _this9.backlog;
-        _this9.backlog = [];
-        yield _this9.sendArray(tmp, parentID, childIDX);
+      while (_this10.backlog.length > 0) {
+        const tmp = _this10.backlog;
+        _this10.backlog = [];
+        yield _this10.sendArray(tmp, parentID, childIDX);
       }
     })();
   }
   attachVM() {
-    var _this10 = this;
+    var _this11 = this;
     let oldEWU = this.props.vm.emitWorkspaceUpdate.bind(this.props.vm);
     this.props.vm.emitWorkspaceUpdate = function () {
       if (this.pauseWorkspaceUpdate) {
@@ -13767,9 +13921,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           return;
         }
         const input = data.input;
-        const ogName = _this10.props.vm.editingTarget.sprite.name;
+        const ogName = _this11.props.vm.editingTarget.sprite.name;
         yield ogAddSprite(input);
-        _this10.props.vm.setEditingTarget(_this10.getTargetByName(ogName).id);
+        _this11.props.vm.setEditingTarget(_this11.getTargetByName(ogName).id);
         // this.props.vm.editingTarget = this.getTargetByName(ogName);
         // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget); 
       });
@@ -13815,13 +13969,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogRenameSprite = this.props.vm.renameSprite.bind(this.props.vm);
     this.props.vm.renameSprite = /*#__PURE__*/function () {
       var _ref7 = _asyncToGenerator(function* (id, name) {
-        const spriteName = _this10.props.vm.runtime.getTargetById(id).sprite.name;
+        const spriteName = _this11.props.vm.runtime.getTargetById(id).sprite.name;
         if (name == "Stage") {
           name = "Stage1";
         }
-        while ( true && _this10.hasLoadedFully) {
+        while ( true && _this11.hasLoadedFully) {
           let isDuplicate = false;
-          for (let target of _this10.props.vm.runtime.targets) {
+          for (let target of _this11.props.vm.runtime.targets) {
             if (target.sprite.name == name && target.sprite.name != spriteName) {
               name = incrementStringNumber(name);
               isDuplicate = true;
@@ -13833,8 +13987,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
             break;
           }
         }
-        _this10.logData({
-          moveId: _this10.getRandomHexString(16),
+        _this11.logData({
+          moveId: _this11.getRandomHexString(16),
           time: Date.now(),
           user: uname,
           room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
@@ -13859,7 +14013,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogDuplicateSprite = this.props.vm.duplicateSprite.bind(this.props.vm);
     this.props.vm.duplicateSprite = /*#__PURE__*/function () {
       var _ref8 = _asyncToGenerator(function* (id) {
-        const name = _this10.props.vm.runtime.getTargetById(id).sprite.name;
+        const name = _this11.props.vm.runtime.getTargetById(id).sprite.name;
         return channel.publish('duplicateSprite', JSON.stringify(name));
       });
       return function (_x8) {
@@ -13981,14 +14135,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
     this.props.vm.deleteSound = /*#__PURE__*/function () {
       var _ref9 = _asyncToGenerator(function* (soundIndex) {
-        const name = _this10.props.vm.editingTarget.sprite.name;
+        const name = _this11.props.vm.editingTarget.sprite.name;
         const msg = {
           soundIndex: soundIndex,
           name: name,
           uid: nid
         };
         yield channel.publish('deleteSound', JSON.stringify(msg));
-        return deleteSound(soundIndex, _this10.props.vm.editingTarget);
+        return deleteSound(soundIndex, _this11.props.vm.editingTarget);
       });
       return function (_x9) {
         return _ref9.apply(this, arguments);
@@ -14015,7 +14169,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         let idx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "AMONGUSLMAO";
         return function* () {
           console.log("SOUND", sound);
-          const name = idx == "AMONGUSLMAO" ? _this10.props.vm.editingTarget.sprite.name : _this10.props.vm.runtime.getTargetById(idx).sprite.name;
+          const name = idx == "AMONGUSLMAO" ? _this11.props.vm.editingTarget.sprite.name : _this11.props.vm.runtime.getTargetById(idx).sprite.name;
           const msg = {
             sound: sound,
             spriteName: name
@@ -14037,7 +14191,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const msg = {
           soundIndex: soundIndex,
           newName: newName,
-          spriteName: _this10.props.vm.editingTarget.sprite.name
+          spriteName: _this11.props.vm.editingTarget.sprite.name
         };
         channel.publish('renameSound', JSON.stringify(msg));
       });
@@ -14065,14 +14219,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }.bind(this.props.vm);
     this.props.vm.deleteCostume = /*#__PURE__*/function () {
       var _ref13 = _asyncToGenerator(function* (costumeIndex) {
-        const spriteName = _this10.props.vm.editingTarget.sprite.name;
+        const spriteName = _this11.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           spriteName: spriteName,
           uid: nid
         };
         channel.publish('deleteCostume', JSON.stringify(msg));
-        return deleteCostume(costumeIndex, _this10.props.vm.editingTarget);
+        return deleteCostume(costumeIndex, _this11.props.vm.editingTarget);
       });
       return function (_x16) {
         return _ref13.apply(this, arguments);
@@ -14124,7 +14278,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //let ogRenameCostume = this.props.vm.renameCostume.bind(this.props.vm);
     this.props.vm.renameCostume = /*#__PURE__*/function () {
       var _ref15 = _asyncToGenerator(function* (costumeIndex, newName) {
-        const spriteName = _this10.props.vm.editingTarget.sprite.name;
+        const spriteName = _this11.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           newName: newName,
@@ -14237,7 +14391,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         // }
 
         console.log("ADDING COSTUME", d);
-        const targetId = _this10.getTargetByName(d.spriteName).id;
+        const targetId = _this11.getTargetByName(d.spriteName).id;
         ogAddCostume(d.md5, d.costumeObject, targetId, d.optVersion);
       });
       return function (_x20) {
@@ -14629,12 +14783,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     return name == "Stage" ? this.props.vm.runtime.getTargetForStage() : this.props.vm.runtime.getSpriteTargetByName(name);
   }
   newUserJoined(msg) {
-    var _this11 = this;
+    var _this12 = this;
     return _asyncToGenerator(function* () {
       if (JSON.parse(msg.data).uid == nid) {
         return;
       }
-      yield _this11.save();
+      yield _this12.save();
       console.log("JOINED!!");
       yield channel.publish('goodForLoad', JSON.stringify({
         uid: nid
@@ -14721,7 +14875,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       const targetSounds = target.getSounds();
       const dynamicBlocksXML = (0,_lib_themes_blockHelpers__WEBPACK_IMPORTED_MODULE_20__.injectExtensionCategoryTheme)(this.props.vm.runtime.getBlocksXML(target), this.props.theme);
       return (0,_lib_make_toolbox_xml__WEBPACK_IMPORTED_MODULE_3__["default"])(false, target.isStage, target.id, dynamicBlocksXML, targetCostumes[targetCostumes.length - 1].name, stageCostumes[stageCostumes.length - 1].name, targetSounds.length > 0 ? targetSounds[targetSounds.length - 1].name : '', (0,_lib_themes__WEBPACK_IMPORTED_MODULE_19__.getColorsForTheme)(this.props.theme));
-    } catch (_unused) {
+    } catch (_unused2) {
       return null;
     }
   }
@@ -44954,4 +45108,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.d581f5dab42c7e40237b.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.632137b6f9606430e8ab.js.map

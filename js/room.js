@@ -13,6 +13,7 @@ window.tasksLoaded = new Promise(resolve => {
 });
 let userIdInDisplayFrame = null;
 let POTENTIAL_MEMBERS;
+const LOG_ENDPOINT = 'https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/blockPlacement';
 
 const messagesContainer = document.getElementById('messages');
 const memberContainer = document.getElementById('members__container');
@@ -30,6 +31,46 @@ const mainStream = document.getElementById('main-stream');
 const displayFrame = document.getElementById('stream__box');
 const videoFrames = document.getElementsByClassName('video__container');
 const slider = document.getElementById('slider');
+
+function randomHexString(length) {
+  const chars = 'abcdef0123456789';
+  let output = '';
+  for (let i = 0; i < length; i++) {
+    output += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return output;
+}
+
+function buildWorkspaceLogEvent(type, extraData = {}) {
+  const user = sessionStorage.getItem('display_name') || sessionStorage.getItem('email') || 'unknown';
+  const time = Date.now();
+
+  return {
+    moveId: randomHexString(16),
+    ...extraData,
+    room: roomId,
+    type,
+    user,
+    time,
+    date: new Date(time).toISOString()
+  };
+}
+
+function postWorkspaceLogEvent(type, extraData = {}) {
+  const payload = buildWorkspaceLogEvent(type, extraData);
+  try {
+    fetch(LOG_ENDPOINT, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    }).catch(err => {
+      console.warn('Failed to log workspace event', err);
+    });
+  } catch (err) {
+    console.warn('Failed to queue workspace log event', err);
+  }
+}
+
+window.logWorkspaceEvent = postWorkspaceLogEvent;
 
 messagesContainer.scrollTop = messagesContainer.scrollHeight;
 let containerRect = rightBar.getBoundingClientRect();
@@ -148,6 +189,9 @@ async function addMemberToProject() {
 
 // Break management functions
 function onBreakBtnClicked() {
+  postWorkspaceLogEvent('custom:breakButtonClicked', {
+    wasOnBreak: Boolean(isBreak)
+  });
   ablyChannel.publish('break', {secs: 600});
 }
 
@@ -164,6 +208,9 @@ window.messagingReady.then(() => {
 function startBreak(secs) {
   breakSecsLeft = secs;
   isBreak = true;
+  postWorkspaceLogEvent('custom:breakStarted', {
+    durationSeconds: secs
+  });
   document.getElementById('pause_overlay').style.visibility = 'visible';
   document.getElementById('break-btn').lastChild.nodeValue = ' End Break';
 }
@@ -171,6 +218,7 @@ function startBreak(secs) {
 function endBreak() {
   breakSecsLeft = 0;
   isBreak = false;
+  postWorkspaceLogEvent('custom:breakEnded');
   document.getElementById('pause_countdown').textContent = '00:00';
   document.getElementById('pause_overlay').style.visibility = 'hidden';
   document.getElementById('break-btn').lastChild.nodeValue = ' 10 Minute Break';
@@ -316,80 +364,7 @@ async function refreshMembers() {
     const presentRegistered = (registered || []).filter(e => presentSet.has(e));
     const notPresentRegistered = (registered || []).filter(e => !presentSet.has(e));
 
-    // Create or get profile overlay element
-    let profileOverlay = document.getElementById('member-profile-overlay');
-    if (!profileOverlay) {
-      profileOverlay = document.createElement('div');
-      profileOverlay.id = 'member-profile-overlay';
-      profileOverlay.className = 'user-profile-overlay';
-      profileOverlay.innerHTML = `
-        <div class="profile-content">
-          <div class="profile-emoji"></div>
-          <div class="profile-name"></div>
-          <div class="profile-role"></div>
-          <div class="profile-tasks"></div>
-        </div>
-      `;
-      document.body.appendChild(profileOverlay);
-
-      // Keep popup visible when hovering over it
-      profileOverlay.addEventListener('mouseenter', () => {
-        profileOverlay.classList.add('visible');
-      });
-      profileOverlay.addEventListener('mouseleave', () => {
-        profileOverlay.classList.remove('visible');
-      });
-    }
-
-    const attachHoverEvents = (wrapper, member) => {
-      wrapper.addEventListener('mouseenter', (e) => {
-        const rect = wrapper.getBoundingClientRect();
-        const popupWidth = 180;
-        const screenWidth = window.innerWidth;
-        const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-        
-        // Calculate position - try left side first (since this is in sidebar)
-        let xPos = rect.left - popupWidth - 10;
-        
-        // Check if popup would go off-screen on the left
-        if (xPos < scrollX) {
-            // Position on the right side instead
-            xPos = rect.right + 10;
-            
-            // If it would also go off-screen on the right, center it
-            if (xPos + popupWidth > screenWidth + scrollX) {
-                xPos = Math.max(scrollX + 10, (screenWidth + scrollX - popupWidth) / 2);
-            }
-        }
-        
-        const yPos = rect.top + (rect.height / 2);
-
-        profileOverlay.style.left = xPos + 'px';
-        profileOverlay.style.top = yPos + 'px';
-        profileOverlay.style.transform = 'translateY(-50%)';
-
-        // Update content
-        profileOverlay.querySelector('.profile-emoji').textContent = getUserEmoji(member);
-        profileOverlay.querySelector('.profile-name').textContent = member.name || member.email;
-        profileOverlay.querySelector('.profile-role').textContent = member.role === 'TA' ? 'Teaching Assistant' : 'Student';
-        const tasksCount = member.tasksCompleted || member.tasks_completed || 0;
-        profileOverlay.querySelector('.profile-tasks').textContent = `${tasksCount} tasks completed`;
-
-        // Apply fire or ice effect randomly
-        profileOverlay.classList.remove('effect-fire', 'effect-ice');
-        profileOverlay.classList.add(Math.random() < 0.5 ? 'effect-fire' : 'effect-ice');
-
-        profileOverlay.classList.add('visible');
-      });
-
-      wrapper.addEventListener('mouseleave', () => {
-        setTimeout(() => {
-          if (!profileOverlay.matches(':hover')) {
-            profileOverlay.classList.remove('visible');
-          }
-        }, 50);
-      });
-    };
+    const attachHoverEvents = () => {};
 
     if (presentRegistered.length > 0) {
       const header = `<div class="members-section-heading online-heading">Online (${presentRegistered.length})</div>`;
@@ -550,6 +525,10 @@ function initEmojiSelector() {
 window.messagingReady.then(async () => {
   await load();
 
+  postWorkspaceLogEvent('custom:roomEntered', {
+    page: 'room.html'
+  });
+
 
   sessionStorage.setItem('randomColor', ["red", "green", "blue", "teal", "salmon", "goldenrod"][Math.floor(Math.random() * 6)]);
   
@@ -613,3 +592,20 @@ document.addEventListener('mousemove', resetInactivityTimeout);
 
 
 resetInactivityTimeout();
+
+window.addEventListener('beforeunload', () => {
+  const payload = buildWorkspaceLogEvent('custom:roomExited', {
+    page: 'room.html'
+  });
+
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(LOG_ENDPOINT, JSON.stringify(payload));
+    return;
+  }
+
+  fetch(LOG_ENDPOINT, {
+    method: 'POST',
+    body: JSON.stringify(payload),
+    keepalive: true
+  }).catch(() => {});
+});
