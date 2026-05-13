@@ -114,15 +114,8 @@ class TasksManager {
 
         container.innerHTML = `
             <div class="main-task-area">
-                <div class="tasks-view-toggle">
-                    <div class="toggle-btn-container">
-                        <button class="toggle-btn highlight-block-btn"
-                                onclick="window.scratchParser && typeof window.scratchParser.explainScratchBlocks === 'function' ? window.scratchParser.explainScratchBlocks() : tasksManager.highlightAnyScratchBlock()"
-                                style="width: 100%;">
-                            Explain Scratch Blocks
-                        </button>
-                    </div>
-                    ${this.isTeachingAssistant ? `
+                ${this.isTeachingAssistant ? `
+                    <div class="tasks-view-toggle">
                         <div class="toggle-btn-container">
                             <button class="toggle-btn manage-btn" 
                                     onclick="tasksManager.showTaskManagementPopup()"
@@ -130,8 +123,8 @@ class TasksManager {
                                 ⚙️ Manage Tasks
                             </button>
                         </div>
-                    ` : ''}
-                </div>
+                    </div>
+                ` : ''}
 
                 <div class="tasks-content">
                     ${this.renderUserTasks()}

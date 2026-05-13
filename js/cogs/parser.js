@@ -151,7 +151,6 @@
 
         async explainScratchBlocks() {
             if (this.isRunning) {
-                alert('Explain Scratch Blocks is already running.');
                 return;
             }
 
@@ -165,7 +164,7 @@
             try {
                 const chunks = await this.requestCodeChunks(frameWindow);
                 if (!chunks.length) {
-                    alert('No Scratch code chunks found yet. Add code blocks first.');
+                    alert('No Scratch code chunks found yet!');
                     return;
                 }
 
@@ -173,7 +172,7 @@
                 const eligibleChunks = chunks.filter(chunk => this.countBlocksInChunk(chunk) > 3);
                 
                 if (!eligibleChunks.length) {
-                    alert('No chunks with more than 3 blocks found. Add more complex code to explain.');
+                    alert('No chunks with more than 3 blocks found!');
                     return;
                 }
 
@@ -198,7 +197,6 @@
 
             } catch (error) {
                 console.error('Explain Scratch Blocks failed:', error);
-                alert(`Failed to explain Scratch blocks: ${error.message}`);
             } finally {
                 this.isRunning = false;
             }

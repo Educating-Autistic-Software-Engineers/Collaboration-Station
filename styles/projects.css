@@ -642,6 +642,24 @@ h2::after {
     transform-style: preserve-3d;
 }
 
+/* Disable the profile hover overlay and any visual effects — keep member hover card styling only */
+.user-profile-overlay {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.user-profile-overlay.effect-fire,
+.user-profile-overlay.effect-ice {
+    animation: none !important;
+    background: transparent !important;
+}
+.user-profile-overlay.visible {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
 .user-profile-overlay.visible {
     opacity: 1;
     visibility: visible;

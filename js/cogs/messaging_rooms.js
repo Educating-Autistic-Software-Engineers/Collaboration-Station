@@ -10,23 +10,46 @@ var ablyInstance;
 let isFirstMember = true;
 let canSendMessages = true;
 window.unreadMessages = 0; // Make globally accessible
-let breakoutId = -1;
+let breakoutId = 0;
 let roomId = urlParams.get('project')
 let connectedUsers = {};
 
 async function initSetup() {
 
-    const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${urlParams.get('project')}&user=${sessionStorage.getItem('email')}`);
-    roomName = "room:" + urlParams.get('project');
-    if (resp.ok) {
-        // Handle valid breakout
-        const breakoutdata = await resp.json();
-        if (breakoutdata === null && breakoutdata.redirect != 0) {
-            roomName += ":" + breakoutdata.redirect;
-            breakoutId = breakoutdata.redirect;
-            roomId += ":" + breakoutdata.redirect;
+    // Get the roomId from URL parameters (could be 'project' or 'roomId')
+    let baseProjectId = urlParams.get('project') || urlParams.get('roomId');
+    let breakoutNum = null;
+    
+    // Check if roomId contains a breakout component (format: "projectId:breakoutNum")
+    if (baseProjectId && baseProjectId.includes(':')) {
+        const parts = baseProjectId.split(':');
+        baseProjectId = parts[0];
+        breakoutNum = parts[1];
+    }
+    
+    roomId = baseProjectId;
+    roomName = "room:" + baseProjectId;
+
+    // If no breakout number in URL, check the API for the current user's breakout assignment
+    if (breakoutNum === null) {
+        const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${baseProjectId}&user=${sessionStorage.getItem('email')}`);
+        if (resp.ok) {
+            const breakoutdata = await resp.json();
+            if (breakoutdata && breakoutdata.redirect && breakoutdata.redirect !== 0) {
+                breakoutNum = breakoutdata.redirect;
+            }
         }
     }
+    
+    // If we have a breakout number, add it to room identifiers
+    if (breakoutNum !== null) {
+        roomName += ":" + breakoutNum;
+        breakoutId = breakoutNum;
+        roomId += ":" + breakoutNum;
+    } else {
+        breakoutId = 0;
+    }
+    
     console.log("Room Name: " + roomName);
 
     ablyInstance = new Ably.Realtime({

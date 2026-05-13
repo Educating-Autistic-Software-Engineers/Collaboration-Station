@@ -249,14 +249,14 @@ body {
 
 .right_container {
   position: absolute;
-  top: 80px; /* Match the nav__links height from the media query */
+  top: 80px; /* Keep the nav icons visible above the content */
   left: 0;
   width: 100%;
-  height: calc(100% - 80px); /* Subtract the nav height */
+  height: calc(100% - 80px);
   background-color: #0e1628;
   overflow-y: auto;
   display: none;
-  padding: 1rem 1rem 1rem 1rem;
+  padding: 0 1rem 1rem 1rem; /* trim the blank space below the nav */
   opacity: 0;
   transition: opacity 0.3s ease;
   box-sizing: border-box;
@@ -289,7 +289,7 @@ body {
   .right_container {
     top: 200px; /* Match the default min-height of nav__links */
     height: calc(100% - 200px);
-    padding-top: 1.5rem; /* Consistent increased top padding */
+    padding-top: 0; /* Keep content tight under the nav */
   }
 }
 
@@ -1860,6 +1860,13 @@ body {
   border: 1px solid rgba(148, 163, 184, 0.1);
   border-radius: 12px;
   padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.unassigned-section.drag-over {
+  background: rgba(59, 130, 246, 0.1);
+  border: 2px dashed #3b82f6;
+  transform: scale(1.02);
 }
 
 .section-header {
@@ -1877,6 +1884,7 @@ body {
   gap: 0.5rem;
   max-height: 400px;
   overflow-y: auto;
+  pointer-events: auto;
 }
 
 .popup-actions {
@@ -2107,6 +2115,24 @@ body {
     /* Ensure proper stacking and prevent transparency issues */
     will-change: opacity, visibility;
     transform-style: preserve-3d;
+}
+
+/* Disable the profile hover overlay and any visual effects — keep member hover card styling only */
+.user-profile-overlay {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
+.user-profile-overlay.effect-fire,
+.user-profile-overlay.effect-ice {
+    animation: none !important;
+    background: transparent !important;
+}
+.user-profile-overlay.visible {
+    opacity: 0 !important;
+    visibility: hidden !important;
 }
 
 .user-profile-overlay.visible {

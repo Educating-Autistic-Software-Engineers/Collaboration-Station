@@ -151,37 +151,13 @@ function renderProfileEffects() {
 }
 
 async function selectEmoji(emojiId) {
-    const reward = emojiRewards.find(r => r.id === emojiId);
-    const isUnlocked = tasksCompleted >= reward.requiredTasks || unlockedEmojis.has(emojiId);
-    
-    if (!isUnlocked) return;
-    
-    selectedEmoji = emojiId;
-    
-    const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems', {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            "email": sessionStorage.getItem('email'),
-            "emoji": emojiRewards[emojiId - 1].emoji, 
-        })
-    });
-    console.log('Emoji update response:', await response.json());
-
-    renderShop();
+    // Profile emoji selection disabled in production — no-op to prevent user changes.
+    return;
 }
 
 function selectEffect(effectId) {
-    const effect = profileEffects.find(e => e.id === effectId);
-    const isUnlocked = tasksCompleted >= effect.requiredTasks;
-    
-    if (!isUnlocked) return;
-    
-    selectedEffect = selectedEffect === effectId ? null : effectId;
-    sessionStorage.setItem('selectedEffect', selectedEffect || '');
-    renderShop();
+    // Profile effects activation disabled in production — no-op to prevent user changes.
+    return;
 }
 
 initializeShop();

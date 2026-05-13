@@ -1,15 +1,14 @@
 
-
 let roomAssignments = {};
 let currentRoomCount = 3;
-let onlineSet = new Set(); // tracks which emails are currently connected
+let onlineSet = new Set();
 
 async function showBreakoutRoomsPopup() {
+    const baseRoomId = roomId.split(":")[0];
 
-    // 1. Fetch the room's registered editors from the API (not Ably connected users)
     let editors = [];
     try {
-        const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`);
+        const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${baseRoomId}`);
         if (resp.ok) {
             const data = await resp.json();
             if (data) {
@@ -25,12 +24,15 @@ async function showBreakoutRoomsPopup() {
         console.error('Failed to fetch room editors for breakout rooms', e);
     }
 
-    // Fallback: if API returned nothing, use connectedUsers as a last resort
     if (editors.length === 0) {
         editors = Object.values(connectedUsers).map(u => u.requestId || u.email);
     }
 
-    // 2. Get Ably online presence to show green/grey dots
+    const currentUserEmail = sessionStorage.getItem('email');
+    if (currentUserEmail && !editors.includes(currentUserEmail)) {
+        editors.unshift(currentUserEmail);
+    }
+
     let present = [];
     try {
         if (window.getCurrentPresence) {
@@ -41,17 +43,19 @@ async function showBreakoutRoomsPopup() {
 
     // 3. Build POTENTIAL_MEMBERS from editors list, resolving names
     const findUser = (email) => {
+        // First check connectedUsers for the current user (might have display name)
+        if (typeof connectedUsers !== 'undefined') {
+            for (const key of Object.keys(connectedUsers)) {
+                const u = connectedUsers[key];
+                if ((u.requestId || u.email) === email) {
+                    return { name: u.name || u.display_name || email, email: email };
+                }
+            }
+        }
         // Check POTENTIAL_MEMBERS (loaded via /getAllItems)
         if (typeof POTENTIAL_MEMBERS !== 'undefined' && Array.isArray(POTENTIAL_MEMBERS)) {
             const m = POTENTIAL_MEMBERS.find(x => x.email === email);
             if (m) return m;
-        }
-        // Check connectedUsers for name
-        if (typeof connectedUsers !== 'undefined') {
-            for (const key of Object.keys(connectedUsers)) {
-                const u = connectedUsers[key];
-                if ((u.requestId || u.email) === email) return { name: u.name, email: email };
-            }
         }
         return { name: email, email: email };
     };
@@ -60,13 +64,16 @@ async function showBreakoutRoomsPopup() {
         const u = findUser(email);
         return { name: u.name || email, email: email };
     });
+    
+    console.log('POTENTIAL_MEMBERS:', POTENTIAL_MEMBERS);
+    console.log('Current user email from sessionStorage:', currentUserEmail);
 
     const popup = document.getElementById('breakout-rooms-popup');
     popup.style.display = 'block';
 
     // 4. Fetch existing breakout assignments
     const emails = POTENTIAL_MEMBERS.map(m => m.email);
-    const batchResp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${roomId.split(":")[0]}&batch=${emails.join(",")}`);
+    const batchResp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${baseRoomId}&batch=${emails.join(",")}`);
     const data = await batchResp.json();
     console.log(data);
 
@@ -74,8 +81,12 @@ async function showBreakoutRoomsPopup() {
 
     for (const assignment of data) {
         let member = POTENTIAL_MEMBERS.find(m => m.email === assignment.id.split(":")[1]);
-        assignMemberToRoom(member, assignment.redirect.toString())
-        updateRoomDisplay(assignment.redirect.toString());
+        const roomNum = parseInt(assignment.redirect);
+        // Only assign to a room if redirect is > 0 (0 means unassigned)
+        if (roomNum > 0 && member) {
+            assignMemberToRoom(member, roomNum);
+            updateRoomDisplay(roomNum);
+        }
     }
     updateUnassignedDisplay();
 }
@@ -102,8 +113,6 @@ function generateRooms() {
     const container = document.getElementById('rooms-container');
     const roomCount = parseInt(document.getElementById('room-count').value);
     currentRoomCount = roomCount;
-
-    setupDropZone(document.getElementById('unassigned-section-box'));
 
     container.innerHTML = '';
     
@@ -201,6 +210,8 @@ function setupDropZone(roomCard) {
 }
 
 function assignMemberToRoom(member, roomId) {
+    // Normalize roomId to integer
+    roomId = parseInt(roomId) || 0;
     let oldRoomId = null;
     
     // Find and remove member from all existing room assignments
@@ -239,6 +250,8 @@ function assignMemberToRoom(member, roomId) {
 }
 
 function updateRoomDisplay(roomId) {
+    // Normalize roomId to integer
+    roomId = parseInt(roomId) || 0;
     var membersContainer = (roomId > 0) ? document.getElementById(`room-${roomId}-members`) : document.getElementById('unassigned-members');
     var countElement = (roomId > 0) ? document.getElementById(`room-${roomId}-count`) : document.getElementById('unassigned-count');
     
@@ -306,11 +319,11 @@ function autoAssignMembers() {
     
     shuffledMembers.forEach((member, index) => {
         const roomId = (index % currentRoomCount) + 1;
-        assignMemberToRoom(member, roomId.toString());
+        assignMemberToRoom(member, roomId);
     });
     
     for (let i = 1; i <= currentRoomCount; i++) {
-        updateRoomDisplay(i.toString());
+        updateRoomDisplay(i);
     }
     updateUnassignedDisplay();
 }
@@ -324,16 +337,31 @@ function setupEventListeners() {
         }
     });
     
+    // Setup main room (unassigned) area as a drop zone
+    const unassignedSection = document.getElementById('unassigned-section-box');
     const unassignedArea = document.getElementById('unassigned-members');
-    unassignedArea.addEventListener('dragover', (e) => {
+    
+    unassignedSection.addEventListener('dragover', (e) => {
         e.preventDefault();
-        // e.dataTransfer.dropEffect = 'move';
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = 'move';
+        unassignedSection.classList.add('drag-over');
     });
     
-    unassignedArea.addEventListener('drop', (e) => {
+    unassignedSection.addEventListener('dragleave', (e) => {
+        e.stopPropagation();
+        // Remove class only when we completely leave the section
+        if (!unassignedSection.contains(e.relatedTarget)) {
+            unassignedSection.classList.remove('drag-over');
+        }
+    });
+    
+    unassignedSection.addEventListener('drop', (e) => {
         e.preventDefault();
+        e.stopPropagation();
+        unassignedSection.classList.remove('drag-over');
+        
         const member = JSON.parse(e.dataTransfer.getData('text/plain'));
-
         console.log('Dropping member back to main room:', member);
 
         // Remove member from all room assignments
@@ -357,31 +385,32 @@ function setupEventListeners() {
 
         // Update all room displays first to remove the member visually
         for (let i = 1; i <= currentRoomCount; i++) {
-            updateRoomDisplay(i.toString());
+            updateRoomDisplay(i);
         }
         
-        // Small delay to ensure DOM updates are processed
-        setTimeout(() => {
-            // Update unassigned display - this will add the member back to unassigned list
-            updateUnassignedDisplay();
-            console.log('Updated unassigned display');
-        }, 10);
+        // Update unassigned display - this will add the member back to unassigned list
+        updateUnassignedDisplay();
+        console.log('Updated unassigned display');
     });
 }
 
 async function saveBreakoutRooms() {
-    
+    const baseRoomId = roomId.split(":")[0];
+    const assignedEmails = new Set();
+
     for (const roomnum in roomAssignments) {
         const members = roomAssignments[roomnum];
 
         for (const member of members) {
+            assignedEmails.add(member.email);
+
             const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    room: roomId.split(":")[0],
+                    room: baseRoomId,
                     user: member.email,
                     roomnum: Number(roomnum)
                 })
@@ -390,6 +419,28 @@ async function saveBreakoutRooms() {
             if (!response.ok) {
                 console.error(`Failed to add member ${member.email} to room ${roomnum}`);
             }
+        }
+    }
+
+    for (const member of POTENTIAL_MEMBERS) {
+        if (assignedEmails.has(member.email)) {
+            continue;
+        }
+
+        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                room: baseRoomId,
+                user: member.email,
+                roomnum: 0
+            })
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to add member ${member.email} to main room`);
         }
     }
 
