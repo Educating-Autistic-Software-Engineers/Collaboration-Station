@@ -167,6 +167,7 @@ class CollapsibleRightBar {
     toggleCollapse() {
         this.isCollapsed = !this.isCollapsed;
         this.rightBar.classList.toggle('collapsed', this.isCollapsed);
+        this.rightBar.style.width = this.isCollapsed ? '60px' : this.currentWidth + 'px';
         this.adjustLayout();
         
         if (this.isCollapsed) {
@@ -284,7 +285,9 @@ class CollapsibleRightBar {
     setWidth(width) {
         this.currentWidth = width;
         this.rightBar.style.width = width + 'px';
-        this.mainStream.style.width = `calc(100% - ${width}px)`;
+        this.mainStream.style.flex = '1 1 auto';
+        this.mainStream.style.width = '';
+        this.mainStream.style.minWidth = '0';
         this.updateContainerRect();
     }
     
@@ -297,11 +300,9 @@ class CollapsibleRightBar {
     }
     
     adjustLayout() {
-        if (this.isCollapsed) {
-            this.mainStream.style.width = 'calc(100% - 60px)';
-        } else {
-            this.mainStream.style.width = `calc(100% - ${this.currentWidth}px)`;
-        }
+        this.mainStream.style.flex = '1 1 auto';
+        this.mainStream.style.width = '';
+        this.mainStream.style.minWidth = '0';
         this.updateContainerRect();
     }
 }

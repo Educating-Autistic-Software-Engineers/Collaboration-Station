@@ -13,9 +13,13 @@
 }
 
 #main-stream {
-  height: 99%;
-  width: calc(100% - 310px);
-  transition: width 0.1s ease;
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+  height: 100%;
+  display: block;
+  border: 0;
+  overflow: hidden;
 }
 
 .resize-handle {
@@ -88,7 +92,7 @@ body {
   display: flex;
   flex-direction: column;
   transition: width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-  overflow: hidden;
+  overflow: visible;
   margin-left: auto;
 }
 
@@ -106,11 +110,11 @@ body {
 
 .collapse-toggle {
   position: absolute;
-  left: -15px;
+  left: -16px;
   top: 50%;
   transform: translateY(-50%);
-  width: 30px;
-  height: 60px;
+  width: 32px;
+  height: 64px;
   background: rgba(14, 22, 42, 0.9);
   border: 1px solid rgba(255,255,255,0.06);
   border-right: none;
@@ -120,7 +124,7 @@ body {
   align-items: center;
   justify-content: center;
   color: #94a3b8;
-  font-size: 16px;
+  font-size: 18px;
   z-index: 1000;
   transition: all 0.3s ease;
   backdrop-filter: blur(5px);
@@ -173,12 +177,14 @@ body {
   border: none;
   color: #94a3b8;
   cursor: pointer;
-  padding: 0.75rem;
+  padding: 0.5rem 0.25rem;
   border-radius: 8px;
   transition: all 0.3s ease;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.35rem;
   width: 100%;
   min-width: 40px;
   opacity: 0.7;
@@ -203,8 +209,9 @@ body {
 }
 
 .nav-button-text {
-  margin-left: 0.5rem;
-  font-size: 14px;
+  margin-left: 0;
+  font-size: 12px;
+  line-height: 1;
   white-space: nowrap;
   opacity: 1;
   transition: opacity 0.3s ease;
@@ -215,6 +222,12 @@ body {
   width: 0;
   margin: 0;
   overflow: hidden;
+}
+
+#right_bar.collapsed .nav-button {
+  width: 100%;
+  min-width: 0;
+  padding: 0.4rem 0;
 }
 
 .num_label {
@@ -241,6 +254,10 @@ body {
   overflow-y: auto;
   min-height: 200px;
   flex-shrink: 0; 
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 4px;
   transition: all 0.3s ease;
 }
 
@@ -872,13 +889,15 @@ body {
     cursor: pointer;
     overflow: hidden;
     height: 136px;
-    width: 136px;
+    width: calc(50% - 2px);
+    flex: 0 0 calc(50% - 2px);
+    min-width: 136px;
     background-image: url(../vm/static/assets/logo.ccaf208e9a497ee9854d.svg);
     background-repeat: no-repeat;
     background-position: center;
     background-size: 75px;
     position: relative;
-    margin: 2px;
+    margin: 0;
 }
 
 #member_name, #remote-member_name
@@ -1040,6 +1059,12 @@ body {
     justify-content: space-around;
     min-height: 80px;
     padding: 1rem;
+  }
+
+  #right_bar:not(.collapsed) .nav-button {
+    width: auto;
+    flex: 1 1 0;
+    min-width: 0;
   }
 }
 
