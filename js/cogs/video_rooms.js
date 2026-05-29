@@ -386,6 +386,15 @@ let joinStream = async () => {
 // Update video tiles for all participants
 function updateTiles(meetingSession) {
     const tiles = meetingSession.audioVideo.getAllVideoTiles();
+    const streamContainer = document.getElementById('stream__container');
+
+    if (streamContainer && tiles.length > 0) {
+        Array.from(streamContainer.children).forEach(child => {
+            if (!child.classList.contains('video__container')) {
+                child.remove();
+            }
+        });
+    }
     
     tiles.forEach(tile => {
         const tileState = tile.state();

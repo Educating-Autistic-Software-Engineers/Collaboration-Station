@@ -161,16 +161,6 @@ body {
   padding: 1rem 0.25rem;
 }
 
-/* When expanded and wide enough, make buttons horizontal */
-@media (min-width: 400px) {
-  #right_bar:not(.collapsed) #nav__links {
-      flex-direction: row;
-      justify-content: space-around;
-      min-height: 80px;
-      padding: 1rem;
-  }
-}
-
 .nav-button {
   position: relative;
   background: transparent;
@@ -257,8 +247,28 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-content: flex-start;
+  justify-content: center;
   gap: 4px;
   transition: all 0.3s ease;
+}
+
+#right_bar.collapsed #stream__container {
+  min-height: 0;
+  height: auto;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  justify-content: center;
+}
+
+#right_bar.collapsed .video__container {
+  width: 100%;
+  max-width: 100%;
+  flex: 0 0 100%;
+  height: auto;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  margin: 0;
 }
 
 #stream__container[style*="display: none"] {
