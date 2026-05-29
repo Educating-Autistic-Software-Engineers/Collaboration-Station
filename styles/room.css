@@ -161,6 +161,31 @@ body {
   padding: 1rem 0.25rem;
 }
 
+#right_bar #chat__button,
+#right_bar #members__button,
+#right_bar #tasks__button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#right_bar #chat__button svg,
+#right_bar #members__button svg,
+#right_bar #tasks__button svg {
+  display: block;
+  margin: 0 auto;
+  flex-shrink: 0;
+}
+
+#right_bar #chat__button .nav-button-text,
+#right_bar #members__button .nav-button-text,
+#right_bar #tasks__button .nav-button-text {
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
 .nav-button {
   position: relative;
   background: transparent;

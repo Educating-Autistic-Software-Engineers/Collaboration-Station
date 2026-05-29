@@ -12695,7 +12695,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //     ogWorkspaceDragger(workspace);
     // }.bind(this.ScratchBlocks)
 
-    lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['attachVM', 'detachVM', 'getToolboxXML', 'handleParentMessage', 'handleRemoteHighlightMessage', 'handleCategorySelected', 'handleConnectionModalStart', 'handleDrop', 'handleStatusButtonUpdate', 'handleOpenSoundRecorder', 'handlePromptStart', 'handlePromptCallback', 'handlePromptClose', 'handleCustomProceduresClose', 'onScriptGlowOn', 'onScriptGlowOff', 'onBlockGlowOn', 'onBlockGlowOff', 'handleMonitorsUpdate', 'handleExtensionAdded', 'handleBlocksInfoUpdate', 'onTargetsUpdate', 'onVisualReport', 'onWorkspaceUpdate', 'onWorkspaceMetricsChange', 'highlightBlockById', 'setBlocks', 'setLocale']);
+    lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['attachVM', 'detachVM', 'getToolboxXML', 'handleParentMessage', 'handleRemoteHighlightMessage', 'resolveBlockIdForHighlight', 'handleCategorySelected', 'handleConnectionModalStart', 'handleDrop', 'handleStatusButtonUpdate', 'handleOpenSoundRecorder', 'handlePromptStart', 'handlePromptCallback', 'handlePromptClose', 'handleCustomProceduresClose', 'onScriptGlowOn', 'onScriptGlowOff', 'onBlockGlowOn', 'onBlockGlowOff', 'handleMonitorsUpdate', 'handleExtensionAdded', 'handleBlocksInfoUpdate', 'onTargetsUpdate', 'onVisualReport', 'onWorkspaceUpdate', 'onWorkspaceMetricsChange', 'highlightBlockById', 'setBlocks', 'setLocale']);
     this.ScratchBlocks.prompt = this.handlePromptStart;
     this.ScratchBlocks.statusButtonCallback = this.handleConnectionModalStart;
     this.ScratchBlocks.recordSoundCallback = this.handleOpenSoundRecorder;
@@ -13069,35 +13069,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     if (!event || !event.data) return;
     const data = event.data;
     if (typeof data !== 'object') return;
-    if (data.type === 'collectCodeChunks') {
-      const chunks = this.getCodeChunksForExplanation();
-      if (event.source && typeof event.source.postMessage === 'function') {
-        event.source.postMessage({
-          type: 'codeChunks',
-          requestId: data.requestId,
-          chunks
-        }, '*');
-      }
-      return;
-    }
-    if (data.type === 'highlightAnyBlock') {
-      const resolvedId = this.getAnyHighlightableBlockId();
-      if (!resolvedId) return;
-      this.highlightBlockById(resolvedId, _objectSpread(_objectSpread({}, data), {}, {
-        blockId: resolvedId
-      }));
-      return;
-    }
-    if (data.type !== 'highlightBlock') return;
-    if (!data.blockId) {
-      const fallbackId = this.getAnyHighlightableBlockId();
-      if (!fallbackId) return;
-      this.highlightBlockById(fallbackId, _objectSpread(_objectSpread({}, data), {}, {
-        blockId: fallbackId
-      }));
-      return;
-    }
-    this.highlightBlockById(data.blockId, data);
+    if (data.type !== 'highlightBlock' && data.type !== 'highlightAnyBlock') return;
+    const blockId = data.blockId || this.resolveBlockIdForHighlight(data);
+    if (!blockId) return;
+    this.highlightBlockById(blockId, data);
   }
   handleRemoteHighlightMessage(message) {
     if (!message || !message.data) return;
@@ -13110,42 +13085,45 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
     }
     if (!payload || typeof payload !== 'object') return;
+    if (!payload.blockId) {
+      payload.blockId = this.resolveBlockIdForHighlight(payload);
+    }
     if (!payload.blockId) return;
     this.highlightBlockById(payload.blockId, payload);
   }
-  getCodeChunksForExplanation() {
-    if (!this.workspace || typeof this.workspace.getTopBlocks !== 'function') return [];
-    const topBlocks = this.workspace.getTopBlocks(false) || [];
-    return topBlocks.filter(block => block && block.id).map((block, index) => {
-      let chunkText = '';
-      try {
-        const descendants = typeof block.getDescendants === 'function' ? block.getDescendants(false) : [block];
-        chunkText = descendants.map(descendant => {
-          if (!descendant) return '';
-          if (typeof descendant.toString === 'function') {
-            return descendant.toString();
-          }
-          return descendant.type || '';
-        }).filter(Boolean).join(' -> ');
-      } catch (_unused2) {
-        chunkText = block.type || `chunk_${index + 1}`;
-      }
-      return {
-        blockId: block.id,
-        chunkText
-      };
-    });
-  }
-  getAnyHighlightableBlockId() {
+  resolveBlockIdForHighlight() {
+    let options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     if (!this.workspace || typeof this.workspace.getAllBlocks !== 'function') return null;
-    const blocks = this.workspace.getAllBlocks(false);
-    if (!blocks || blocks.length === 0) return null;
-    const topBlock = typeof this.workspace.getTopBlocks === 'function' ? this.workspace.getTopBlocks(false).find(block => block && block.id) : null;
-    if (topBlock && topBlock.id) {
-      return topBlock.id;
+    const allBlocks = this.workspace.getAllBlocks(false);
+    if (!Array.isArray(allBlocks) || allBlocks.length === 0) return null;
+    const opcode = options.opcode || options.blockType;
+    const containsText = typeof options.containsText === 'string' && options.containsText.trim() ? options.containsText.toLowerCase() : null;
+    let candidates = allBlocks;
+    if (opcode) {
+      candidates = candidates.filter(block => block && block.type === opcode);
     }
-    const firstBlock = blocks.find(block => block && block.id);
-    return firstBlock && firstBlock.id ? firstBlock.id : null;
+    if (containsText) {
+      candidates = candidates.filter(block => {
+        if (!block) return false;
+        if (typeof block.toString === 'function' && String(block.toString()).toLowerCase().includes(containsText)) {
+          return true;
+        }
+        if (!Array.isArray(block.inputList)) return false;
+        return block.inputList.some(input => Array.isArray(input.fieldRow) && input.fieldRow.some(field => {
+          let fieldText = '';
+          if (field && typeof field.getText === 'function') {
+            fieldText = field.getText();
+          } else if (field && typeof field.getValue === 'function') {
+            fieldText = field.getValue();
+          }
+          return String(fieldText).toLowerCase().includes(containsText);
+        }));
+      });
+    }
+    if (candidates.length === 0) return null;
+    const topLevelBlock = candidates.find(block => block && typeof block.getSurroundParent === 'function' && !block.getSurroundParent());
+    const resolved = topLevelBlock || candidates[0];
+    return resolved && resolved.id ? resolved.id : null;
   }
   highlightBlockById(blockId) {
     let options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
@@ -14786,6 +14764,21 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     var _this12 = this;
     return _asyncToGenerator(function* () {
       if (JSON.parse(msg.data).uid == nid) {
+        return;
+      }
+      const presenceSet = yield channel.presence.get();
+      const syncOwner = presenceSet.slice().sort((first, second) => {
+        const firstClientId = first.clientId || '';
+        const secondClientId = second.clientId || '';
+        if (firstClientId < secondClientId) return -1;
+        if (firstClientId > secondClientId) return 1;
+        const firstConnectionId = first.connectionId || '';
+        const secondConnectionId = second.connectionId || '';
+        if (firstConnectionId < secondConnectionId) return -1;
+        if (firstConnectionId > secondConnectionId) return 1;
+        return 0;
+      })[0];
+      if (!syncOwner || syncOwner.clientId !== _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name) {
         return;
       }
       yield _this12.save();
@@ -36171,7 +36164,7 @@ __webpack_require__.r(__webpack_exports__);
 
 const SET_STAGE_SIZE = 'scratch-gui/StageSize/SET_STAGE_SIZE';
 const initialState = {
-  stageSize: _lib_layout_constants_js__WEBPACK_IMPORTED_MODULE_0__.STAGE_DISPLAY_SIZES.large
+  stageSize: _lib_layout_constants_js__WEBPACK_IMPORTED_MODULE_0__.STAGE_DISPLAY_SIZES.small
 };
 const reducer = function reducer(state, action) {
   if (typeof state === 'undefined') state = initialState;
@@ -45108,4 +45101,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.632137b6f9606430e8ab.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.01e7441ae54cee629d21.js.map
