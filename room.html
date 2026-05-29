@@ -20,7 +20,14 @@
 
             <!-- <button style="height: auto; width: auto;" onclick="startRecording()">Start Recording</button> -->
        
-            <iframe id="main-stream" src="vm/index.html" title="Stream"></iframe>
+            <iframe id="main-stream" src="about:blank" title="Stream"></iframe>
+            <div id="speaker-spotlight" style="display: none;">
+                <video id="speaker-spotlight-video" autoplay playsinline muted></video>
+                <div class="speaker-spotlight__overlay">
+                    <span class="speaker-spotlight__status">Current speaker</span>
+                    <span class="speaker-spotlight__name" id="speaker-spotlight-label">Waiting for someone to speak...</span>
+                </div>
+            </div>
             <div id="pause_overlay">
                 <span id="pause_countdown">10:00</span>
             </div>

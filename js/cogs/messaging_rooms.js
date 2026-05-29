@@ -4,6 +4,7 @@ var urlParams = new URLSearchParams(queryString);
 
 var roomName;
 var ablyChannel;
+var roomControlChannel;
 var innerChannel;
 var ablyInstance;
 
@@ -63,6 +64,7 @@ async function initSetup() {
     // get project URL id
     ablyChannel = ablyInstance.channels.get( roomName );
     innerChannel = ablyInstance.channels.get( roomName + "_inner" );
+    roomControlChannel = ablyInstance.channels.get(`room:${baseProjectId}:control`);
 
     ablyChannel.presence.enter(sessionStorage.getItem("email"), (err) => {
     if (err) {
@@ -123,6 +125,10 @@ window.messagingReady.then(() => {
     ablyChannel.presence.subscribe('leave', (member) => {
         const email = member.data;
         handleMemberLeft(email);
+    });
+
+    roomControlChannel.subscribe('breakout_refresh', () => {
+        window.location.reload();
     });
 
     // Expose a helper to get current presence (array of emails)

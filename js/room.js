@@ -28,9 +28,16 @@ const chatPanel = document.getElementById('messages__container');
 const expandBtn = document.getElementById('expand-btn');
 const revertBtn = document.getElementById('revert-btn');
 const mainStream = document.getElementById('main-stream');
+const speakerSpotlight = document.getElementById('speaker-spotlight');
+const speakerSpotlightVideo = document.getElementById('speaker-spotlight-video');
+const speakerSpotlightLabel = document.getElementById('speaker-spotlight-label');
 const displayFrame = document.getElementById('stream__box');
 const videoFrames = document.getElementsByClassName('video__container');
 const slider = document.getElementById('slider');
+
+let speakerSpotlightTimer = null;
+let currentSpotlightSpeakerId = null;
+let isViewOnlyRoom = false;
 
 function randomHexString(length) {
   const chars = 'abcdef0123456789';
@@ -54,6 +61,105 @@ function buildWorkspaceLogEvent(type, extraData = {}) {
     time,
     date: new Date(time).toISOString()
   };
+}
+
+function getSpeakerTileLabel(attendeeId) {
+  const tileContainer = document.getElementById(`user-container-${attendeeId}`);
+  if (!tileContainer) {
+    return attendeeId;
+  }
+
+  const nameNode = tileContainer.querySelector('#remote-member_name');
+  const label = nameNode ? nameNode.textContent.trim() : '';
+  return label || attendeeId;
+}
+
+function getFallbackSpeakerId() {
+  const tiles = meetingSession?.audioVideo?.getAllVideoTiles?.() || [];
+
+  for (const tile of tiles) {
+    const tileState = tile.state();
+    if (tileState?.boundAttendeeId) {
+      return tileState.boundAttendeeId;
+    }
+  }
+
+  return null;
+}
+
+function syncSpeakerSpotlight(forceUpdate = false) {
+  if (!isViewOnlyRoom || !speakerSpotlightVideo || !speakerSpotlightLabel) {
+    return;
+  }
+
+  const speakerId = activeSpeaker || getFallbackSpeakerId();
+
+  if (!speakerId) {
+    currentSpotlightSpeakerId = null;
+    speakerSpotlightLabel.textContent = 'Waiting for someone to speak...';
+    speakerSpotlightVideo.removeAttribute('srcObject');
+    speakerSpotlightVideo.srcObject = null;
+    return;
+  }
+
+  const sourceVideo = document.getElementById(`video-${speakerId}`);
+  if (!sourceVideo || !sourceVideo.srcObject) {
+    currentSpotlightSpeakerId = speakerId;
+    speakerSpotlightLabel.textContent = getSpeakerTileLabel(speakerId);
+    return;
+  }
+
+  if (!forceUpdate && currentSpotlightSpeakerId === speakerId && speakerSpotlightVideo.srcObject === sourceVideo.srcObject) {
+    return;
+  }
+
+  currentSpotlightSpeakerId = speakerId;
+  speakerSpotlightLabel.textContent = getSpeakerTileLabel(speakerId);
+  speakerSpotlightVideo.srcObject = sourceVideo.srcObject;
+  speakerSpotlightVideo.play().catch(() => {});
+}
+
+function setSpeakerSpotlightEnabled(enabled) {
+  if (mainStream) {
+    mainStream.style.display = '';
+    mainStream.style.visibility = enabled ? 'hidden' : '';
+    mainStream.style.pointerEvents = enabled ? 'none' : '';
+    mainStream.style.flex = enabled ? '0 0 0' : '1 1 auto';
+    mainStream.style.width = enabled ? '0' : '';
+    mainStream.style.minWidth = enabled ? '0' : '';
+  }
+
+  if (speakerSpotlight) {
+    speakerSpotlight.style.display = enabled ? 'flex' : 'none';
+    speakerSpotlight.style.flex = enabled ? '1 1 auto' : '';
+    speakerSpotlight.style.minWidth = enabled ? '0' : '';
+    speakerSpotlight.style.width = enabled ? '100%' : '';
+  }
+
+  if (!enabled) {
+    currentSpotlightSpeakerId = null;
+    if (speakerSpotlightTimer) {
+      clearInterval(speakerSpotlightTimer);
+      speakerSpotlightTimer = null;
+    }
+    if (speakerSpotlightVideo) {
+      speakerSpotlightVideo.pause();
+      speakerSpotlightVideo.srcObject = null;
+      speakerSpotlightVideo.removeAttribute('srcObject');
+    }
+    if (speakerSpotlightLabel) {
+      speakerSpotlightLabel.textContent = 'Waiting for someone to speak...';
+    }
+    return;
+  }
+
+  syncSpeakerSpotlight(true);
+
+  if (!speakerSpotlightTimer) {
+    speakerSpotlightTimer = setInterval(() => {
+      syncSpeakerSpotlight();
+    }, 500);
+  }
 }
 
 function postWorkspaceLogEvent(type, extraData = {}) {
@@ -534,7 +640,17 @@ window.messagingReady.then(async () => {
   
   console.log("roomID: ", String(roomId), viewType);
   const iFrame = document.getElementById("main-stream");
-  iFrame.src = `vm/index.html?${viewType}=${String(roomId)}&name=${sessionStorage.getItem('display_name')}&color=${sessionStorage.getItem("randomColor")}`;
+
+  const roomRecord = roomDict[roomId] || roomDict[String(roomId)];
+  isViewOnlyRoom = Boolean(roomRecord && roomRecord.view_only);
+
+  setSpeakerSpotlightEnabled(isViewOnlyRoom);
+
+  if (!isViewOnlyRoom) {
+    iFrame.src = `vm/index.html?${viewType}=${String(roomId)}&name=${sessionStorage.getItem('display_name')}&color=${sessionStorage.getItem("randomColor")}`;
+  } else {
+    iFrame.src = 'about:blank';
+  }
   
   slider.addEventListener('mousedown', function(event) {
     isDragging = true;

@@ -2,15 +2,19 @@
 let roomAssignments = {};
 let currentRoomCount = 3;
 let onlineSet = new Set();
+let roomViewOnlyFlags = {};
 
 async function showBreakoutRoomsPopup() {
     const baseRoomId = roomId.split(":")[0];
+    roomViewOnlyFlags = {};
 
     let editors = [];
+    let baseRoomData = null;
     try {
         const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${baseRoomId}`);
         if (resp.ok) {
             const data = await resp.json();
+            baseRoomData = data && data.request ? data.request : data;
             if (data) {
                 if (data.request) {
                     if (Array.isArray(data.request.editors)) editors = data.request.editors;
@@ -71,11 +75,32 @@ async function showBreakoutRoomsPopup() {
     const popup = document.getElementById('breakout-rooms-popup');
     popup.style.display = 'block';
 
+    const roomCountInput = document.getElementById('room-count');
+    if (roomCountInput && baseRoomData && Number.isFinite(Number(baseRoomData.breakouts))) {
+        roomCountInput.value = String(Math.max(1, Math.min(10, Number(baseRoomData.breakouts))));
+    }
+
     // 4. Fetch existing breakout assignments
     const emails = POTENTIAL_MEMBERS.map(m => m.email);
     const batchResp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${baseRoomId}&batch=${emails.join(",")}`);
     const data = await batchResp.json();
     console.log(data);
+
+    const roomCount = parseInt(document.getElementById('room-count').value) || 3;
+    const roomSettingResponses = await Promise.all(
+        Array.from({ length: roomCount }, (_, index) => {
+            const breakoutId = index + 1;
+            return fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${baseRoomId}:${breakoutId}`)
+                .then(resp => resp.ok ? resp.json() : null)
+                .catch(() => null);
+        })
+    );
+
+    roomSettingResponses.forEach((response, index) => {
+        const breakoutId = index + 1;
+        const record = response && response.request ? response.request : response;
+        roomViewOnlyFlags[breakoutId] = Boolean(record && record.view_only);
+    });
 
     initializeBreakoutRooms();
 
@@ -126,12 +151,22 @@ function generateRooms() {
                 <div class="room-title">Room ${i}</div>
                 <div class="member-count" id="room-${i}-count">0 members</div>
             </div>
+            <label class="room-view-only-toggle">
+                <input type="checkbox" class="room-view-only-input" data-room-id="${i}" ${roomViewOnlyFlags[i] ? 'checked' : ''}>
+                <span>View only</span>
+            </label>
             <div class="room-members" id="room-${i}-members">
                 <div class="empty-room">Drop members here</div>
             </div>
         `;
         
         container.appendChild(roomCard);
+        const toggle = roomCard.querySelector('.room-view-only-input');
+        if (toggle) {
+            toggle.addEventListener('change', () => {
+                roomViewOnlyFlags[i] = toggle.checked;
+            });
+        }
         setupDropZone(roomCard);
     }
 }
@@ -397,6 +432,26 @@ function setupEventListeners() {
 async function saveBreakoutRooms() {
     const baseRoomId = roomId.split(":")[0];
     const assignedEmails = new Set();
+    let hasSaveFailure = false;
+
+    for (let roomnum = 1; roomnum <= currentRoomCount; roomnum++) {
+        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                room: baseRoomId,
+                roomnum,
+                view_only: Boolean(roomViewOnlyFlags[roomnum])
+            })
+        });
+
+        if (!response.ok) {
+            console.error(`Failed to save room settings for room ${roomnum}`);
+            hasSaveFailure = true;
+        }
+    }
 
     for (const roomnum in roomAssignments) {
         const members = roomAssignments[roomnum];
@@ -412,12 +467,14 @@ async function saveBreakoutRooms() {
                 body: JSON.stringify({
                     room: baseRoomId,
                     user: member.email,
-                    roomnum: Number(roomnum)
+                    roomnum: Number(roomnum),
+                    view_only: Boolean(roomViewOnlyFlags[Number(roomnum)])
                 })
             });
 
             if (!response.ok) {
                 console.error(`Failed to add member ${member.email} to room ${roomnum}`);
+                hasSaveFailure = true;
             }
         }
     }
@@ -435,12 +492,31 @@ async function saveBreakoutRooms() {
             body: JSON.stringify({
                 room: baseRoomId,
                 user: member.email,
-                roomnum: 0
+                roomnum: 0,
+                view_only: false
             })
         });
 
         if (!response.ok) {
             console.error(`Failed to add member ${member.email} to main room`);
+            hasSaveFailure = true;
+        }
+    }
+
+    if (hasSaveFailure) {
+        alert('Some breakout room changes failed to save. Check the console for details and try again after the lambda is updated.');
+        return;
+    }
+
+    if (typeof ablyInstance !== 'undefined' && ablyInstance) {
+        try {
+            const controlChannel = ablyInstance.channels.get(`room:${baseRoomId}:control`);
+            await controlChannel.publish('breakout_refresh', {
+                room: baseRoomId,
+                timestamp: Date.now()
+            });
+        } catch (e) {
+            console.error('Failed to broadcast breakout refresh', e);
         }
     }
 

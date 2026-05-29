@@ -63,16 +63,16 @@ body {
 }
 
 #main-stream {
-  height: 99%;
-  width: calc(100% - 303px);
-  transition: width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-  background: #0a0f1e;
-  border: 1px solid rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #64748b;
-  font-size: 18px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#speaker-spotlight {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  width: 100%;
+  align-self: stretch;
 }
 
 #right_bar {
@@ -82,12 +82,14 @@ body {
   width: 303px;
   min-width: 60px;
   max-width: 600px;
+  flex: 0 0 auto;
   background-color: #0e1628;
   border-left: 1px solid rgba(255,255,255,0.06);
   display: flex;
   flex-direction: column;
   transition: width 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   overflow: hidden;
+  margin-left: auto;
 }
 
 #right_bar.collapsed {
@@ -95,6 +97,10 @@ body {
 }
 
 #right_bar.collapsed #main-stream {
+  width: calc(100% - 60px);
+}
+
+#right_bar.collapsed #speaker-spotlight {
   width: calc(100% - 60px);
 }
 
@@ -251,10 +257,12 @@ body {
   position: absolute;
   top: 80px; /* Keep the nav icons visible above the content */
   left: 0;
-  width: 100%;
+  right: 0;
+  width: auto;
   height: calc(100% - 80px);
   background-color: #0e1628;
   overflow-y: auto;
+  overflow-x: hidden;
   display: none;
   padding: 0 1rem 1rem 1rem; /* trim the blank space below the nav */
   opacity: 0;
@@ -268,6 +276,7 @@ body {
   display: flex;
   flex-direction: column;
   opacity: 1;
+  min-width: 0;
 }
 
 /* When the right container is hidden, prevent it from receiving pointer events
@@ -1117,6 +1126,49 @@ body {
   height: 100%;
 }
 
+#speaker-spotlight {
+  display: none;
+  position: relative;
+  overflow: hidden;
+}
+
+#speaker-spotlight video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #050816;
+  display: block;
+}
+
+.speaker-spotlight__overlay {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(5, 8, 22, 0.08), rgba(5, 8, 22, 0.82));
+  border: 1px solid rgba(255,255,255,0.08);
+  backdrop-filter: blur(10px);
+  color: #f8fafc;
+}
+
+.speaker-spotlight__status {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #93c5fd;
+}
+
+.speaker-spotlight__name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
 .stream__actions {
   position: fixed;
   top: 5px;
@@ -1593,6 +1645,26 @@ body {
   padding: 1rem;
   min-height: 200px;
   transition: all 0.3s ease;
+}
+
+.room-view-only-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.room-view-only-toggle input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #22c55e;
 }
 
 .room-card.drag-over {
