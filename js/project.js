@@ -127,7 +127,7 @@ function selectProject(projectId) {
         console.error('Error selecting project:', error);
         return;
     }
-    
+    //TODO: Stubbed to this date needs to be pulled from usage. 
     project.lastEdited = "Jan 2, 2025";
     
     let collaboratorCount = 0;
