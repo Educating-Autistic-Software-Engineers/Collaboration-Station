@@ -796,7 +796,7 @@ class TasksManager {
         `Please analyze the student's current blocks and provide 3 concrete, step-by-step suggestions the student can try next. Keep the response concise: use brief bullet points or at most 3 short sentences per suggestion. Do NOT produce long paragraphs.\n` +
         `Do NOT label code sections as \"Chunk 4\". If you must reference a specific code region, describe it without numeric chunk labels (for example: \"the first block sequence that checks for input\"). If the response nonetheless includes an explicit \"Chunk N\" reference, the client will automatically pin a short note to that chunk in the workspace.`;
 
-      const payload = (payload = {
+      const payload = {
         messageVersion: "1.0",
         agent: {
           name: "TimeAssistantAgent",
@@ -810,13 +810,13 @@ class TasksManager {
         inputText: `What time is it right now? ` + body,
         sessionAttributes: {},
         promptSessionAttributes: {},
-      });
+      };
       const resp = await fetch(
         "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/task-chat",
         {
           method: "POST",
-          headers: { "Content-Type": "json" },
-          body,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         },
       );
 
