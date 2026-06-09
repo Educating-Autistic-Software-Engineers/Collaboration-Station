@@ -1051,13 +1051,29 @@ class TasksManager {
       `Please give a helpful, encouraging answer appropriate for a student learning Scratch. ` +
       `The student asks: ${userMessage}`;
 
+    const payload = {
+      messageVersion: "1.0",
+      agent: {
+        name: "TimeAssistantAgent",
+        id: "AGT1234567",
+        alias: "TSTALIASID",
+        version: "DRAFT",
+      },
+      actionGroup: "DateTimeActionGroup",
+      apiPath: "/current-time",
+      httpMethod: "POST",
+      inputText: `Current Prompt ` + body,
+      sessionAttributes: {},
+      promptSessionAttributes: {},
+    };
+
     try {
       const response = await fetch(
         "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/task-chat",
         {
           method: "POST",
-          headers: { "Content-Type": "text/plain" },
-          body,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
         },
       );
 
