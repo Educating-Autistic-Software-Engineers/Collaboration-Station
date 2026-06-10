@@ -19,8 +19,6 @@ async function initSetup() {
   let baseProjectId = urlParams.get("project") || urlParams.get("roomId");
   let breakoutNum = null;
 
-  
-
   // Check if roomId contains a breakout component (format: "projectId:breakoutNum")
   if (baseProjectId && baseProjectId.includes(":")) {
     const parts = baseProjectId.split(":");
@@ -28,23 +26,31 @@ async function initSetup() {
     breakoutNum = parts[1];
   }
 
+  if (!baseProjectId) {
+    throw new Error("Missing Project or roomId URL parameter");
+  }
+
   roomId = baseProjectId;
   roomName = "room:" + baseProjectId;
 
   // If no breakout number in URL, check the API for the current user's breakout assignment
   if (breakoutNum === null) {
-    const resp = await fetch(
-      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${baseProjectId}&user=${sessionStorage.getItem("email")}`,
-    );
-    if (resp.ok) {
-      const breakoutdata = await resp.json();
-      if (
-        breakoutdata &&
-        breakoutdata.redirect &&
-        breakoutdata.redirect !== 0
-      ) {
-        breakoutNum = breakoutdata.redirect;
+    try {
+      const resp = await fetch(
+        `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${baseProjectId}&user=${sessionStorage.getItem("email")}`,
+      );
+      if (resp.ok) {
+        const breakoutdata = await resp.json();
+        if (
+          breakoutdata &&
+          breakoutdata.redirect &&
+          breakoutdata.redirect !== 0
+        ) {
+          breakoutNum = breakoutdata.redirect;
+        }
       }
+    } catch (err) {
+      console.error("initSetup breakoutfetch failed", err);
     }
   }
 
@@ -68,6 +74,9 @@ async function initSetup() {
   ablyInstance.connection.once("connected").then(() => {
     console.log("Connected to Ably!!!!!!!!");
   });
+  ablyInstance.connection.on("failed", (err) => {
+    console.error("Ably connection failed", err);
+  });
 
   // get project URL id
   ablyChannel = ablyInstance.channels.get(roomName);
@@ -76,16 +85,13 @@ async function initSetup() {
     `room:${baseProjectId}:control`,
   );
 
-  ablyChannel.presence.enter(sessionStorage.getItem("email"), (err) => {
-    if (err) {
-      alert(
-        "Failed to join the room. Please try again. If the issue persists, contact prodegh@clemson.edu.",
-      );
-      return;
-    } else {
-      alert("No issues But wanted to confirm this gets triggered");
-    }
-  });
+  try {
+    await ablyChannel.presence.enter(sessionStorage.getItem("email"), (err) => {
+      console.log("entered Presense");
+    });
+  } catch (err) {
+    console.error("Failed to enter Ably presence", err);
+  }
 }
 
 var sendMessage,
@@ -103,6 +109,10 @@ window.sendMessage = async (message) => {
 window.messagingReady = (async () => {
   await initSetup();
 })();
+
+window.messagingReady.catch((err) => {
+  console.error("Failed to initialize messaging system", err);
+});
 
 window.messagingReady.then(() => {
   const addPerson = async (email) => {
