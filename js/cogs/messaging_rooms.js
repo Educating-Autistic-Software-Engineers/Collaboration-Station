@@ -1,4 +1,3 @@
-
 var queryString = window.location.search;
 var urlParams = new URLSearchParams(queryString);
 
@@ -12,156 +11,207 @@ let isFirstMember = true;
 let canSendMessages = true;
 window.unreadMessages = 0; // Make globally accessible
 let breakoutId = 0;
-let roomId = urlParams.get('project')
+let roomId = urlParams.get("project");
 let connectedUsers = {};
 
 async function initSetup() {
+  // Get the roomId from URL parameters (could be 'project' or 'roomId')
+  let baseProjectId = urlParams.get("project") || urlParams.get("roomId");
+  let breakoutNum = null;
 
-    // Get the roomId from URL parameters (could be 'project' or 'roomId')
-    let baseProjectId = urlParams.get('project') || urlParams.get('roomId');
-    let breakoutNum = null;
-    
-    // Check if roomId contains a breakout component (format: "projectId:breakoutNum")
-    if (baseProjectId && baseProjectId.includes(':')) {
-        const parts = baseProjectId.split(':');
-        baseProjectId = parts[0];
-        breakoutNum = parts[1];
-    }
-    
-    roomId = baseProjectId;
-    roomName = "room:" + baseProjectId;
+  // Check if roomId contains a breakout component (format: "projectId:breakoutNum")
+  if (baseProjectId && baseProjectId.includes(":")) {
+    const parts = baseProjectId.split(":");
+    baseProjectId = parts[0];
+    breakoutNum = parts[1];
+  }
 
-    // If no breakout number in URL, check the API for the current user's breakout assignment
-    if (breakoutNum === null) {
-        const resp = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${baseProjectId}&user=${sessionStorage.getItem('email')}`);
-        if (resp.ok) {
-            const breakoutdata = await resp.json();
-            if (breakoutdata && breakoutdata.redirect && breakoutdata.redirect !== 0) {
-                breakoutNum = breakoutdata.redirect;
-            }
+  if (!baseProjectId) {
+    throw new Error("Missing Project or roomId URL parameter");
+  }
+
+  roomId = baseProjectId;
+  roomName = "room:" + baseProjectId;
+
+  // If no breakout number in URL, check the API for the current user's breakout assignment
+  if (breakoutNum === null) {
+    try {
+      const resp = await fetch(
+        `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${baseProjectId}&user=${sessionStorage.getItem("email")}`,
+      );
+      if (resp.ok) {
+        const breakoutdata = await resp.json();
+        if (
+          breakoutdata &&
+          breakoutdata.redirect &&
+          breakoutdata.redirect !== 0
+        ) {
+          breakoutNum = breakoutdata.redirect;
         }
+      }
+    } catch (err) {
+      console.error("initSetup breakoutfetch failed", err);
     }
-    
-    // If we have a breakout number, add it to room identifiers
-    if (breakoutNum !== null) {
-        roomName += ":" + breakoutNum;
-        breakoutId = breakoutNum;
-        roomId += ":" + breakoutNum;
-    } else {
-        breakoutId = 0;
-    }
-    
-    console.log("Room Name: " + roomName);
+  }
 
-    ablyInstance = new Ably.Realtime({
-        authUrl: "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/ablyToken?name=" + sessionStorage.getItem('name'),
+  // If we have a breakout number, add it to room identifiers
+  if (breakoutNum !== null) {
+    roomName += ":" + breakoutNum;
+    breakoutId = breakoutNum;
+    roomId += ":" + breakoutNum;
+  } else {
+    breakoutId = 0;
+  }
+
+  console.log("Room Name: " + roomName);
+
+  ablyInstance = new Ably.Realtime({
+    authUrl:
+      "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/ablyToken?name=" +
+      sessionStorage.getItem("name"),
+  });
+
+  ablyInstance.connection.once("connected").then(() => {
+    console.log("Connected to Ably!!!!!!!!");
+  });
+  ablyInstance.connection.on("failed", (err) => {
+    console.error("Ably connection failed", err);
+  });
+
+  // get project URL id
+  ablyChannel = ablyInstance.channels.get(roomName);
+  innerChannel = ablyInstance.channels.get(roomName + "_inner");
+  roomControlChannel = ablyInstance.channels.get(
+    `room:${baseProjectId}:control`,
+  );
+
+  try {
+    await ablyChannel.presence.enter(sessionStorage.getItem("email"), (err) => {
+      console.log("entered Presense");
     });
-
-    ablyInstance.connection.once('connected').then(() => {
-        console.log('Connected to Ably!!!!!!!!')
-    })
-
-    // get project URL id
-    ablyChannel = ablyInstance.channels.get( roomName );
-    innerChannel = ablyInstance.channels.get( roomName + "_inner" );
-    roomControlChannel = ablyInstance.channels.get(`room:${baseProjectId}:control`);
-
-    ablyChannel.presence.enter(sessionStorage.getItem("email"), (err) => {
-    if (err) {
-        alert("Failed to join the room. Please try again. If the issue persists, contact prodegh@clemson.edu.");
-        return
-    } 
-    });
+  } catch (err) {
+    console.error("Failed to enter Ably presence", err);
+  }
 }
 
-var sendMessage, handleChannelMessage, removeParticipant, muteAllParticipants, updateMessageCounter, muteParticipant, disableMessage;
+var sendMessage,
+  handleChannelMessage,
+  removeParticipant,
+  muteAllParticipants,
+  updateMessageCounter,
+  muteParticipant,
+  disableMessage;
+
+window.sendMessage = async (message) => {
+  console.warn("sendMessage called before messaging is ready");
+};
 
 window.messagingReady = (async () => {
-    await initSetup();
-})()
+  await initSetup();
+})();
+
+window.messagingReady.catch((err) => {
+  console.error("Failed to initialize messaging system", err);
+});
 
 window.messagingReady.then(() => {
-
-    const addPerson = async (email) => {
-
-        if (email in connectedUsers) {
-            return;
-        }
-        
-        const password = sessionStorage.getItem('password');
-        const response = await fetch(`https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}&password=${password}`);
-        const data = await response.json();
-        data.email = email;
-
-        handleUserJoined(data);
-    };
-    ablyChannel.presence.subscribe('enter', async (member) => {
-        const presenceSet = await ablyChannel.presence.get();
-        const users = presenceSet.map((member) => member.data);
-        for (const user of users) {
-            addPerson(user);
-        }
-    });
-
-    let handleUserJoined = (data) => {
-        console.log("Ably Joined: ", data.name)
-
-        connectedUsers[data.email] = data;
-        addMemberToDom(data);
-        updateMemberTotal(Object.keys(connectedUsers).length);
-        try { if (window.refreshMembers) window.refreshMembers(); } catch (e) { /* ignore */ }
-        addBotMessageToDom(`Welcome to the room ${data.name}! 👋`)
+  const addPerson = async (email) => {
+    if (email in connectedUsers) {
+      return;
     }
 
-    let handleMemberLeft = (email) => {
-        console.log("Ably Left: ", email)
+    const password = sessionStorage.getItem("password");
+    const response = await fetch(
+      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}&password=${password}`,
+    );
+    const data = await response.json();
+    data.email = email;
 
-        var data = connectedUsers[email];
-        delete connectedUsers[email];
-        removeMemberFromDom(data)
-        updateMemberTotal(Object.keys(connectedUsers).length)
-        try { if (window.refreshMembers) window.refreshMembers(); } catch (e) { /* ignore */ }
+    handleUserJoined(data);
+  };
+  ablyChannel.presence.subscribe("enter", async (member) => {
+    const presenceSet = await ablyChannel.presence.get();
+    const users = presenceSet.map((member) => member.data);
+    for (const user of users) {
+      addPerson(user);
     }
-    ablyChannel.presence.subscribe('leave', (member) => {
-        const email = member.data;
-        handleMemberLeft(email);
-    });
+  });
 
-    roomControlChannel.subscribe('breakout_refresh', () => {
-        window.location.reload();
-    });
+  let handleUserJoined = (data) => {
+    console.log("Ably Joined: ", data.name);
 
-    // Expose a helper to get current presence (array of emails)
-    window.getCurrentPresence = async () => {
-        try {
-            const presenceSet = await ablyChannel.presence.get();
-            return presenceSet.map(m => m.data);
-        } catch (e) {
-            console.error('Failed to get presence', e);
-            return [];
-        }
+    connectedUsers[data.email] = data;
+    addMemberToDom(data);
+    updateMemberTotal(Object.keys(connectedUsers).length);
+    try {
+      if (window.refreshMembers) window.refreshMembers();
+    } catch (e) {
+      /* ignore */
     }
+    addBotMessageToDom(`Welcome to the room ${data.name}! 👋`);
+  };
 
+  let handleMemberLeft = (email) => {
+    console.log("Ably Left: ", email);
 
-    let addMemberToDom = async (member) => {
+    var data = connectedUsers[email];
+    delete connectedUsers[email];
+    removeMemberFromDom(data);
+    updateMemberTotal(Object.keys(connectedUsers).length);
+    try {
+      if (window.refreshMembers) window.refreshMembers();
+    } catch (e) {
+      /* ignore */
+    }
+  };
+  ablyChannel.presence.subscribe("leave", (member) => {
+    const email = member.data;
+    handleMemberLeft(email);
+  });
 
-        console.log("ably MEMBER", member);
+  roomControlChannel.subscribe("breakout_refresh", () => {
+    window.location.reload();
+  });
 
-        let memberEmail = member.email;
-        let name = member.name;
-        let memberColor = "ff0000";
-    
-        let membersWrapper = document.getElementById('member__list')
-        
-        if (document.getElementById(`member__${memberEmail}__wrapper`)) {
-            return;
-        }
-        let role = sessionStorage.getItem('role');
-        
-        let removeButton = role === 'TA' ? `<button class="remove__btn" onclick="removeParticipant('${memberEmail}')"><i class="fas fa-user-times"></i></button>` : '';
-        let muteButton = role === 'TA' ? `<button class="mute__btn" onclick="muteParticipant('${memberEmail}')"><i class='fas fa-volume-mute'></i></button>` : '';
-        let disableMessages = role === 'TA' ? `<button class="disableMessage__btn" onclick="disableMessage('${memberEmail}')"><i class='fas fa-comment-slash' style='font-size:15px'></i></button>` : '';
-        let memberItem = `<div class="member__wrapper" id="member__${memberEmail}__wrapper">
+  // Expose a helper to get current presence (array of emails)
+  window.getCurrentPresence = async () => {
+    try {
+      const presenceSet = await ablyChannel.presence.get();
+      console.log("Gained a presence");
+      return presenceSet.map((m) => m.data);
+    } catch (e) {
+      console.error("Failed to get presence", e);
+      return [];
+    }
+  };
+
+  let addMemberToDom = async (member) => {
+    console.log("ably MEMBER", member);
+
+    let memberEmail = member.email;
+    let name = member.name;
+    let memberColor = "ff0000";
+
+    let membersWrapper = document.getElementById("member__list");
+
+    if (document.getElementById(`member__${memberEmail}__wrapper`)) {
+      return;
+    }
+    let role = sessionStorage.getItem("role");
+
+    let removeButton =
+      role === "TA"
+        ? `<button class="remove__btn" onclick="removeParticipant('${memberEmail}')"><i class="fas fa-user-times"></i></button>`
+        : "";
+    let muteButton =
+      role === "TA"
+        ? `<button class="mute__btn" onclick="muteParticipant('${memberEmail}')"><i class='fas fa-volume-mute'></i></button>`
+        : "";
+    let disableMessages =
+      role === "TA"
+        ? `<button class="disableMessage__btn" onclick="disableMessage('${memberEmail}')"><i class='fas fa-comment-slash' style='font-size:15px'></i></button>`
+        : "";
+    let memberItem = `<div class="member__wrapper" id="member__${memberEmail}__wrapper">
                             <span class="green__icon"></span>
                             <span class="member-avatar">👤</span>
                             <p class="member_name" id="rtmName">${name}</p>
@@ -170,347 +220,359 @@ window.messagingReady.then(() => {
                                 ${muteButton}
                                 ${disableMessages}
                             </span>
-                        </div>`
-    
-    membersWrapper.insertAdjacentHTML('beforeend', memberItem)
+                        </div>`;
+
+    membersWrapper.insertAdjacentHTML("beforeend", memberItem);
+  };
+
+  let updateMemberTotal = async (membersAmount) => {
+    document.getElementById("members__count").innerText = membersAmount;
+    document.getElementById("connectedCount").innerText = membersAmount;
+  };
+
+  let removeMemberFromDom = async (data) => {
+    let email = data.email;
+    let memberWrapper = document.getElementById(`member__${email}__wrapper`);
+    addBotMessageToDom(`${data.name} has left the room.`);
+
+    memberWrapper.remove();
+  };
+
+  updateMessageCounter = () => {
+    const el = document.getElementById("messageCount");
+    if (!el) return;
+
+    if (!window.unreadMessages || window.unreadMessages <= 0) {
+      el.style.display = "none";
+      el.innerText = "";
+      return;
     }
 
-    let updateMemberTotal = async (membersAmount) => {
-        document.getElementById('members__count').innerText = membersAmount
-        document.getElementById('connectedCount').innerText = membersAmount
+    el.style.display = "inline-block";
+    if (window.unreadMessages > 9) {
+      el.innerText = "9+";
+    } else {
+      el.innerText = window.unreadMessages;
     }
-    
-    let removeMemberFromDom = async (data) => {
-        let email = data.email;
-        let memberWrapper = document.getElementById(`member__${email}__wrapper`)
-        addBotMessageToDom(`${data.name} has left the room.`)
-            
-        memberWrapper.remove()
-    }
+  };
 
+  window.updateMessageCounter = updateMessageCounter;
 
-    updateMessageCounter = () => {
-        const el = document.getElementById('messageCount');
-        if (!el) return;
+  try {
+    updateMessageCounter();
+  } catch (e) {}
 
-        if (!window.unreadMessages || window.unreadMessages <= 0) {
-            el.style.display = 'none';
-            el.innerText = '';
-            return;
-        }
+  handleChannelMessage = async (messageData, MemberId) => {
+    console.log("A new message was received");
+    let data = JSON.parse(messageData.text);
 
-        el.style.display = 'inline-block';
-        if (window.unreadMessages > 9) {
-            el.innerText = '9+';
-        } else {
-            el.innerText = window.unreadMessages;
-        }
-    }
-    
-    window.updateMessageCounter = updateMessageCounter;
+    console.log("DATA", data);
 
-    try { updateMessageCounter(); } catch (e) {}
+    if (data.type === "chat") {
+      const messagesContainer = document.getElementById("messages__container");
+      const isChatVisible =
+        messagesContainer && messagesContainer.classList.contains("active");
 
-    handleChannelMessage = async (messageData, MemberId) => {
+      if (!isChatVisible) {
+        console.log("Inside message counter");
+        window.unreadMessages++;
+        updateMessageCounter();
+      }
 
-        console.log('A new message was received')
-        let data = JSON.parse(messageData.text)
-
-        console.log("DATA", data);
-
-        if(data.type === 'chat'){
-            const messagesContainer = document.getElementById('messages__container');
-            const isChatVisible = messagesContainer && messagesContainer.classList.contains('active');
-            
-            if (!isChatVisible) {
-                console.log("Inside message counter")
-                window.unreadMessages++;
-                updateMessageCounter();
-            }
-            
-
-            addMessageToDom(data.displayName, data.message, data.color)
-            
-        }
-
-        if(data.type === 'user_left'){
-            document.getElementById(`user-container-${data.uid}`).remove()
-
-            if(userIdInDisplayFrame === `user-container-${uid}`){
-                displayFrame.style.display = null
-        
-                for(let i = 0; videoFrames.length > i; i++){
-                    videoFrames[i].style.height = '300px'
-                    videoFrames[i].style.width = '300px'
-                }
-            }
-            
-        }
-        
-        if (data.type === 'remove' && data.target === uid) {
-            alert('You have been removed from the channel.');
-            let email=sessionStorage.getItem('email')
-            window.location.href = `projects.html?email=${email}`;
-            await leaveStream();
-        }
-
-        if (data.type === 'mute') {
-            // Mute the remote user's audio track
-            if (localTracks[0]) {
-                await localTracks[0].setMuted(true);
-                localTracks[0]._mediaStreamTrack.enabled = false;
-                document.getElementById("mic-btn").classList.remove('active')
-                document.getElementById("mic-btn").style.display='none'
-                document.getElementById("mute-mic-btn").style.display='block'
-                document.getElementById(`mute-video-${MemberId}`).style.display='inline'
-            }
-            alert('You have been muted by the TA.');
-        }
-
-        if (data.type === 'muteMember' && data.target === uid) {
-            if (localTracks[0]) {
-                await localTracks[0].setMuted(true);
-                localTracks[0]._mediaStreamTrack.enabled = false;
-                document.getElementById("mic-btn").classList.remove('active')
-                document.getElementById("mic-btn").style.display='none'
-                document.getElementById("mute-mic-btn").style.display='block'
-                document.getElementById(`mute-video-${MemberId}`).style.display='inline'
-            }
-            alert('You have been muted by the TA.');
-        }
-        //  else if (data.type === 'unmute' && data.target === uid) {
-        //     // Unmute the remote user's audio track
-        //     if (localTracks[0]) {
-        //         await localTracks[0].setMuted(false);
-        //         localTracks[0]._mediaStreamTrack.enabled = true;
-        //     }
-        //     alert('You have been unmuted by the TA.');
-        // }
-
-        if (data.type === 'disable_messages' && data.target === uid) {
-            alert(`You have been disabled from sending messages for 5 minutes.`);
-            const inputMessage = document.querySelector('input[name="message"]');
-            inputMessage.disabled = true;
-            
-            // update time shown remaining every second
-            let remainingTime = 5 * 60; 
-            const interval = setInterval(() => {
-                remainingTime--;
-                const minutes = Math.floor(remainingTime / 60);
-                const seconds = remainingTime % 60;
-                inputMessage.placeholder = `You are disabled from sending messages for ${minutes}:${seconds < 10 ? '0' : ''}${seconds}.`;
-                if (remainingTime <= 0) {
-                    clearInterval(interval);
-                    inputMessage.disabled = false;
-                    inputMessage.placeholder = `Send a message....`;
-                }
-            }, 1000);
-
-        }
-
-        
-        
+      addMessageToDom(data.displayName, data.message, data.color);
     }
 
-    let moveParticipant = async (MemberId) => {
-        
+    if (data.type === "user_left") {
+      document.getElementById(`user-container-${data.uid}`).remove();
+
+      if (userIdInDisplayFrame === `user-container-${uid}`) {
+        displayFrame.style.display = null;
+
+        for (let i = 0; videoFrames.length > i; i++) {
+          videoFrames[i].style.height = "300px";
+          videoFrames[i].style.width = "300px";
+        }
+      }
     }
 
-    let removeParticipant = async (MemberId) => {
-        if (MemberId === sessionStorage.getItem('email')) {
-            alert('You cannot remove yourself from the channel.')
-            return;
+    if (data.type === "remove" && data.target === uid) {
+      alert("You have been removed from the channel.");
+      let email = sessionStorage.getItem("email");
+      window.location.href = `projects.html?email=${email}`;
+      await leaveStream();
+    }
+
+    if (data.type === "mute") {
+      // Mute the remote user's audio track
+      if (localTracks[0]) {
+        await localTracks[0].setMuted(true);
+        localTracks[0]._mediaStreamTrack.enabled = false;
+        document.getElementById("mic-btn").classList.remove("active");
+        document.getElementById("mic-btn").style.display = "none";
+        document.getElementById("mute-mic-btn").style.display = "block";
+        document.getElementById(`mute-video-${MemberId}`).style.display =
+          "inline";
+      }
+      alert("You have been muted by the TA.");
+    }
+
+    if (data.type === "muteMember" && data.target === uid) {
+      if (localTracks[0]) {
+        await localTracks[0].setMuted(true);
+        localTracks[0]._mediaStreamTrack.enabled = false;
+        document.getElementById("mic-btn").classList.remove("active");
+        document.getElementById("mic-btn").style.display = "none";
+        document.getElementById("mute-mic-btn").style.display = "block";
+        document.getElementById(`mute-video-${MemberId}`).style.display =
+          "inline";
+      }
+      alert("You have been muted by the TA.");
+    }
+    //  else if (data.type === 'unmute' && data.target === uid) {
+    //     // Unmute the remote user's audio track
+    //     if (localTracks[0]) {
+    //         await localTracks[0].setMuted(false);
+    //         localTracks[0]._mediaStreamTrack.enabled = true;
+    //     }
+    //     alert('You have been unmuted by the TA.');
+    // }
+
+    if (data.type === "disable_messages" && data.target === uid) {
+      alert(`You have been disabled from sending messages for 5 minutes.`);
+      const inputMessage = document.querySelector('input[name="message"]');
+      inputMessage.disabled = true;
+
+      // update time shown remaining every second
+      let remainingTime = 5 * 60;
+      const interval = setInterval(() => {
+        remainingTime--;
+        const minutes = Math.floor(remainingTime / 60);
+        const seconds = remainingTime % 60;
+        inputMessage.placeholder = `You are disabled from sending messages for ${minutes}:${seconds < 10 ? "0" : ""}${seconds}.`;
+        if (remainingTime <= 0) {
+          clearInterval(interval);
+          inputMessage.disabled = false;
+          inputMessage.placeholder = `Send a message....`;
         }
-        await ablyChannel.publish('removeParticipant', {participant: MemberId});
-    };
-    window.removeParticipant = removeParticipant;
-    ablyChannel.subscribe('removeParticipant', async (message) => {
-        const { participant } = message.data;
-        const to_email=sessionStorage.getItem('email')
-        console.log(participant, to_email)
-        try {
-            if (participant == to_email) {
-                ablyChannel.unsubscribe();
-                alert('You have been removed from the channel.');
-                window.location.href = `projects.html?email=${to_email}`
-            }
-            addBotMessageToDom(`${participant} has been removed from the channel.`);
-        } catch (error) {
-            console.error(error);
-        }
+      }, 1000);
+    }
+  };
+
+  let moveParticipant = async (MemberId) => {};
+
+  let removeParticipant = async (MemberId) => {
+    if (MemberId === sessionStorage.getItem("email")) {
+      alert("You cannot remove yourself from the channel.");
+      return;
+    }
+    await ablyChannel.publish("removeParticipant", { participant: MemberId });
+  };
+  window.removeParticipant = removeParticipant;
+  ablyChannel.subscribe("removeParticipant", async (message) => {
+    const { participant } = message.data;
+    const to_email = sessionStorage.getItem("email");
+    console.log(participant, to_email);
+    try {
+      if (participant == to_email) {
+        ablyChannel.unsubscribe();
+        alert("You have been removed from the channel.");
+        window.location.href = `projects.html?email=${to_email}`;
+      }
+      addBotMessageToDom(`${participant} has been removed from the channel.`);
+    } catch (error) {
+      console.error(error);
+    }
+  });
+
+  document
+    .getElementById("end-meet-btn")
+    .addEventListener("click", async () => {
+      if (!confirm("Are you sure you want to end the meeting?")) {
+        return;
+      }
+      await ablyChannel.publish("end_meeting", "");
+      window.location.href =
+        "projects.html?email=" + sessionStorage.getItem("email");
     });
+  ablyChannel.subscribe("end_meeting", () => {
+    window.location.href =
+      "projects.html?email=" + sessionStorage.getItem("email");
+  });
 
+  async function muteAllParticipants() {
+    // const members = await channel.getMembers();
+    // members.forEach(async member => {
+    //     if (member !== uid) { // Skip muting the local user (TA)
+    //         console.log("insideMember")
+    //         const remoteUser = remoteUsers[member];
+    //         if (remoteUser && remoteUser.audioTrack) {
+    //             console.log("inside Mute")
+    //             console.log(remoteUser)
+    //             remoteUser.audioTrack.setVolume(0); // Mute remote user's audio track
+    //         }
+    //     }
+    // });
 
-    document.getElementById('end-meet-btn').addEventListener('click', async () => {
-        if (!confirm('Are you sure you want to end the meeting?')) {
-            return;
+    await channel.sendMessage({ text: JSON.stringify({ type: "mute" }) });
+
+    for (const member in remoteUsers) {
+      console.log("aghsadf", member, remoteUsers, remoteUsers[member]);
+      if (member !== uid) {
+        // Skip muting the local user (TA)
+        const remoteUser = remoteUsers[member];
+        if (remoteUser && remoteUser.audioTrack) {
+          if (
+            remoteUser &&
+            remoteUser.audioTrack &&
+            remoteUser.audioTrack._mediaStreamTrack
+          ) {
+            // remoteUser.audioTrack._mediaStreamTrack.enabled = false; // Mute the audio track
+            //    remoteUser.localTracks[0].setMuted(true);
+            // document.getElementById('mic-btn').classList.remove('active')
+          }
         }
-        await ablyChannel.publish('end_meeting', "");
-        window.location.href = 'projects.html?email=' + sessionStorage.getItem('email');
-    })
-    ablyChannel.subscribe('end_meeting', () => {
-        window.location.href = 'projects.html?email=' + sessionStorage.getItem('email');
+      }
+    }
+    alert("All participants have been muted.");
+  }
+
+  async function muteParticipant(MemberId) {
+    await channel.sendMessage({
+      text: JSON.stringify({ type: "muteMember", target: MemberId }),
     });
+  }
+  window.muteParticipant = muteParticipant;
 
-    async function muteAllParticipants(){
-
-        
-        // const members = await channel.getMembers();
-        // members.forEach(async member => {
-        //     if (member !== uid) { // Skip muting the local user (TA)
-        //         console.log("insideMember")
-        //         const remoteUser = remoteUsers[member];
-        //         if (remoteUser && remoteUser.audioTrack) {
-        //             console.log("inside Mute")
-        //             console.log(remoteUser)
-        //             remoteUser.audioTrack.setVolume(0); // Mute remote user's audio track
-        //         }
-        //     }
-        // });
-
-        await channel.sendMessage({ text: JSON.stringify({ type: 'mute' }) });
-
-        for (const member in remoteUsers) {
-            console.log('aghsadf', member, remoteUsers, remoteUsers[member]);
-            if (member !== uid) { // Skip muting the local user (TA)
-                const remoteUser = remoteUsers[member];
-                if (remoteUser && remoteUser.audioTrack) {
-                    if (remoteUser && remoteUser.audioTrack && remoteUser.audioTrack._mediaStreamTrack) {
-                        // remoteUser.audioTrack._mediaStreamTrack.enabled = false; // Mute the audio track
-                    //    remoteUser.localTracks[0].setMuted(true);
-                        // document.getElementById('mic-btn').classList.remove('active')
-                        
-
-                    }
-                }
-            }
-            
-        }
-        alert('All participants have been muted.'); 
+  let disableMessage = async (MemberId) => {
+    if (MemberId === sessionStorage.getItem("email")) {
+      alert("You cannot disable yourself from sending messages.");
+      return;
     }
 
-    async function muteParticipant(MemberId){
-
-        await channel.sendMessage({ text: JSON.stringify({ type: 'muteMember', target: MemberId }) });
-
-    }
-    window.muteParticipant = muteParticipant;
-
-    let disableMessage = async (MemberId) => {
-
-        if (MemberId === sessionStorage.getItem('email')) {
-            alert('You cannot disable yourself from sending messages.')
-            return;
-        }
-        
-        await ablyChannel.publish('disable_messages', {target: MemberId, duration: 5*60*1000});
-
-    }
-    window.disableMessage = disableMessage;
-
-    ablyChannel.subscribe('disable_messages', async (message) => {
-
-        if (!canSendMessages) {
-            return;
-        }
-
-        const { target, duration } = message.data;
-        const to_email = sessionStorage.getItem('email');
-        console.log(target, to_email);
-        try {
-            if (target == to_email) {
-                alert('You have been disabled from sending messages for 5 minutes.');
-                canSendMessages = false;
-                setTimeout(() => {
-                    canSendMessages = true;
-                    alert('You can now send messages again.');
-                }, duration);
-            }
-            addBotMessageToDom(`${target} has been disabled from sending messages for 5 minutes.`);
-        } catch (error) {
-            console.error(error);
-        }
+    await ablyChannel.publish("disable_messages", {
+      target: MemberId,
+      duration: 5 * 60 * 1000,
     });
-                
+  };
+  window.disableMessage = disableMessage;
 
-    sendMessage = async (message) => {
-        
-        if (!canSendMessages) {
-            return;
-        }
-
-        const displayName = sessionStorage.getItem('display_name');
-
-        let projectId = urlParams.get('project')
-        const date = new Date();
-        let readableDate = date.toLocaleString('en-US', {
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-            hour: 'numeric',
-            minute: 'numeric',
-            second: 'numeric',
-        });
-        await fetch('https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/addMessage', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                id: Date.now().toString(),
-                project_id: projectId,
-                Username: displayName,
-                Message: message,
-                Time: readableDate
-            })
-        });
-        ablyChannel.publish("chat", {displayName, message, color: sessionStorage.getItem("randomColor")})
+  ablyChannel.subscribe("disable_messages", async (message) => {
+    if (!canSendMessages) {
+      return;
     }
 
-    ablyChannel.subscribe("chat", async (message) => {
-        addMessageToDom(message.data.displayName, message.data.message, message.data.color)
-    })
+    const { target, duration } = message.data;
+    const to_email = sessionStorage.getItem("email");
+    console.log(target, to_email);
+    try {
+      if (target == to_email) {
+        alert("You have been disabled from sending messages for 5 minutes.");
+        canSendMessages = false;
+        setTimeout(() => {
+          canSendMessages = true;
+          alert("You can now send messages again.");
+        }, duration);
+      }
+      addBotMessageToDom(
+        `${target} has been disabled from sending messages for 5 minutes.`,
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  });
 
-    let addMessageToDom = (name, message,color) => {
+  sendMessage = async (message) => {
+    if (!canSendMessages) {
+      return;
+    }
 
-        // messageCount+=1;
-        // console.log(messageCount)
-        // document.getElementById("messageCount").innerText=messageCount;
+    const displayName = sessionStorage.getItem("display_name");
 
-        let messagesWrapper = document.getElementById('messages')
+    let projectId = urlParams.get("project");
+    const date = new Date();
+    let readableDate = date.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    });
+    await fetch(
+      "https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/addMessage",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: Date.now().toString(),
+          project_id: projectId,
+          Username: displayName,
+          Message: message,
+          Time: readableDate,
+        }),
+      },
+    );
+    ablyChannel.publish("chat", {
+      displayName,
+      message,
+      color: sessionStorage.getItem("randomColor"),
+    });
+  };
 
-        let newMessage = `<div class="message__wrapper">
+  window.sendMessage = sendMessage;
+  console.log("sendMessage initialized:", sendMessage);
+
+  ablyChannel.subscribe("chat", async (message) => {
+    addMessageToDom(
+      message.data.displayName,
+      message.data.message,
+      message.data.color,
+    );
+  });
+
+  let addMessageToDom = (name, message, color) => {
+    // messageCount+=1;
+    // console.log(messageCount)
+    // document.getElementById("messageCount").innerText=messageCount;
+
+    let messagesWrapper = document.getElementById("messages");
+
+    let newMessage = `<div class="message__wrapper">
                             <div class="message__body">
                                 <div class="message__header">
-                                    <div class="message__author-avatar" style="background: ${color || '#6366f1'}">
+                                    <div class="message__author-avatar" style="background: ${color || "#6366f1"}">
                                         ${name.charAt(0).toUpperCase()}
                                     </div>
-                                    <strong class="message__author" style="color: ${color || '#6366f1'}">${name}</strong>
-                                    <span class="message__timestamp">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                                    <strong class="message__author" style="color: ${color || "#6366f1"}">${name}</strong>
+                                    <span class="message__timestamp">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
                                 </div>
                                 <div class="message__text">${message}</div>
                             </div>
-                        </div>`
+                        </div>`;
 
-        messagesWrapper.insertAdjacentHTML('beforeend', newMessage)
+    messagesWrapper.insertAdjacentHTML("beforeend", newMessage);
 
-        let lastMessage = document.querySelector('#messages .message__wrapper:last-child')
-    }
+    let lastMessage = document.querySelector(
+      "#messages .message__wrapper:last-child",
+    );
+  };
 
+  function addBotMessageToDom(botMessage) {
+    let messagesWrapper = document.getElementById("messages");
 
-    function addBotMessageToDom (botMessage) {
-        let messagesWrapper = document.getElementById('messages')
-
-        let newMessage = `<div class="message__wrapper">
+    let newMessage = `<div class="message__wrapper">
                             <div class="message__body__bot">
                                 <strong class="message__author__bot">🤖 CollabStation Bot</strong>
                                 <p class="message__text__bot">${botMessage}</p>
                             </div>
-                        </div>`
+                        </div>`;
 
-        messagesWrapper.insertAdjacentHTML('beforeend', newMessage)
+    messagesWrapper.insertAdjacentHTML("beforeend", newMessage);
 
-        let lastMessage = document.querySelector('#messages .message__wrapper:last-child')
-    }
-
+    let lastMessage = document.querySelector(
+      "#messages .message__wrapper:last-child",
+    );
+  }
 });
