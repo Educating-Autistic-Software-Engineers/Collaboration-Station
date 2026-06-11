@@ -50,7 +50,7 @@ async function initSetup() {
         }
       }
     } catch (err) {
-      console.error("initSetup breakoutfetch failed", err);
+      console.error("initSetup breakout fetch failed", err);
     }
   }
 
@@ -86,11 +86,13 @@ async function initSetup() {
   );
 
   try {
-    await ablyChannel.presence.enter(sessionStorage.getItem("email"), (err) => {
-      console.log("entered Presense");
-    });
+    await ablyChannel.presence.enter(sessionStorage.getItem("email"))
+    
   } catch (err) {
-    console.error("Failed to enter Ably presence", err);
+    console.error(
+      "Failed to enter Ably presence.  If the issue persists, contact prodegh@clemson.edu.",
+      err,
+    );
   }
 }
 
@@ -416,7 +418,7 @@ window.messagingReady.then(() => {
     await channel.sendMessage({ text: JSON.stringify({ type: "mute" }) });
 
     for (const member in remoteUsers) {
-      console.log("aghsadf", member, remoteUsers, remoteUsers[member]);
+     
       if (member !== uid) {
         // Skip muting the local user (TA)
         const remoteUser = remoteUsers[member];
