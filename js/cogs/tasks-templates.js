@@ -68,6 +68,7 @@ function renderRoomTasksView() {
 }
 
 function renderCompactTask(task, category) {
+  console.log("renderCompactTasks");
   const color = this.getCategoryColor(category);
   const isSelected = this.selectedTask && this.selectedTask.id === task.id;
   const isChatActive =
