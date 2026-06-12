@@ -50,8 +50,8 @@ async function initSetup() {
         }
       } else {
         console.log("BreakoutRoom not found");
-        console.log(baseProjectId)
-        console.log(sessionStorage.getItem("email"))
+        console.log(baseProjectId);
+        console.log(sessionStorage.getItem("email"));
       }
     } catch (err) {
       console.error("initSetup breakoutfetch failed", err);
@@ -104,10 +104,6 @@ var sendMessage,
   updateMessageCounter,
   muteParticipant,
   disableMessage;
-
-window.sendMessage = async (message) => {
-  console.warn("sendMessage called before messaging is ready");
-};
 
 window.messagingReady = (async () => {
   await initSetup();
@@ -234,6 +230,7 @@ window.messagingReady.then(() => {
   };
 
   let removeMemberFromDom = async (data) => {
+    console.log(data);
     let email = data.email;
     let memberWrapper = document.getElementById(`member__${email}__wrapper`);
     addBotMessageToDom(`${data.name} has left the room.`);
@@ -419,7 +416,7 @@ window.messagingReady.then(() => {
     await channel.sendMessage({ text: JSON.stringify({ type: "mute" }) });
 
     for (const member in remoteUsers) {
-      console.log("aghsadf", member, remoteUsers, remoteUsers[member]);
+      console.log("Remote Users calls", member, remoteUsers, remoteUsers[member]);
       if (member !== uid) {
         // Skip muting the local user (TA)
         const remoteUser = remoteUsers[member];

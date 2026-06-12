@@ -470,6 +470,7 @@ async function initAddMemberAutocomplete() {
 
 // Refresh the members panel: show "present" vs "not present" members
 async function refreshMembers() {
+  console.log("Refreshing members");
   try {
     const membersWrapper = document.getElementById("member__list");
     if (!membersWrapper) return;

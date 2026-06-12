@@ -355,7 +355,7 @@ class TasksManager {
   }
 
   renderManagementPopup() {
-    console.log("RenderManagementPopup : " + roomMembersData.registered);
+    
     // Get connected users from the room
     const studentsList = Object.values(roomMembersData.registered).map(
       (user) => ({
@@ -368,9 +368,7 @@ class TasksManager {
       (studentsList.length > 0 ? studentsList[0].email : null);
 
     const studentTasks = this.getStudentTasks(selectedStudent);
-    console.log(selectedStudent + " : " + studentTasks);
-    console.log(connectedUsers);
-
+    
     return `
             <div id="task-management-popup" class="task-popup hidden" onclick="if (event.target === this) tasksManager.hideTaskManagementPopup()">
                 <div class="management-popup-content" onclick="event.stopPropagation()">
