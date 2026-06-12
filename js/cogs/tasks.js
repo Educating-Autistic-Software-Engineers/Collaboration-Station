@@ -369,6 +369,7 @@ class TasksManager {
 
     const studentTasks = this.getStudentTasks(selectedStudent);
     console.log(selectedStudent + " : " + studentTasks);
+    console.log(connectedUsers);
 
     return `
             <div id="task-management-popup" class="task-popup hidden" onclick="if (event.target === this) tasksManager.hideTaskManagementPopup()">
@@ -423,48 +424,8 @@ class TasksManager {
                         </div>
 
                         <div class="student-tasks-section">
-                            <div class="management-section">
-                                <label class="management-label">Select Student</label>
-                                <select class="student-select" onchange="tasksManager.selectStudent(this.value)">
-                                    ${Object.values(connectedUsers)
-                                      .map(
-                                        (user) => `
-                                        <option value="${user.email}" ${user.email === selectedStudent ? "selected" : ""}>
-                                            ${user.name} (${user.email})
-                                        </option>
-                                    `,
-                                      )
-                                      .join("")}
-                                </select>
-                            </div>
-
-                            <div class="management-section">
-                                <div class="section-title">
-                                    <h3>📅 Today's Goals</h3>
-                                </div>
-                                <div class="task-management-list dropzone" data-category="assigned" 
-                                     ondrop="tasksManager.handleDrop(event, 'assigned')" 
-                                     ondragover="tasksManager.handleDragOver(event)"
-                                     ondragleave="tasksManager.handleDragLeave(event)">
-                                    ${studentTasks.assigned.map((task) => this.renderManagementTask(task, "assigned", true)).join("")}
-                                    ${studentTasks.assigned.length === 0 ? '<div class="empty-state">Drag tasks here</div>' : ""}
-                                </div>
-                            </div>
-
-                            <div class="management-section">
-                                <div class="section-title">
-                                    <h3>📌 Tomorrow's Tasks</h3>
-                                </div>
-                                <div class="task-management-list dropzone" data-category="improvement"
-                                     ondrop="tasksManager.handleDrop(event, 'improvement')" 
-                                     ondragover="tasksManager.handleDragOver(event)"
-                                     ondragleave="tasksManager.handleDragLeave(event)">
-                                    ${studentTasks.improvement.map((task) => this.renderManagementTask(task, "improvement", true)).join("")}
-                                    ${studentTasks.improvement.length === 0 ? '<div class="empty-state">Drag tasks here</div>' : ""}
-                                </div>
-                            </div>
-                            
-                            ${this.renderProgressStats(studentTasks)}
+                        ${this.getInnerHTML(studentTasks, selectedStudent)}
+                       
                         </div>
                     </div>
 
@@ -1284,50 +1245,7 @@ class TasksManager {
         // Update the student tasks section without rerendering the whole popup
         const studentSection = content.querySelector(".student-tasks-section");
         if (studentSection) {
-          studentSection.innerHTML = `
-                        <div class="management-section">
-                            <label class="management-label">Select Student</label>
-                            <select class="student-select" onchange="tasksManager.selectStudent(this.value)">
-                                ${Object.values(connectedUsers)
-                                  .map(
-                                    (user) => `
-                                    <option value="${user.email}" ${user.email === student ? "selected" : ""}>
-                                        ${user.name} (${user.email})
-                                    </option>
-                                `,
-                                  )
-                                  .join("")}
-                            </select>
-                        </div>
-
-                        <div class="management-section">
-                            <div class="section-title">
-                                <h3>📅 Today's Goals</h3>
-                            </div>
-                            <div class="task-management-list dropzone" data-category="assigned"
-                                ondrop="tasksManager.handleDrop(event, 'assigned')" 
-                                ondragover="tasksManager.handleDragOver(event)"
-                                ondragleave="tasksManager.handleDragLeave(event)">
-                                ${studentTasks.assigned.map((task) => this.renderManagementTask(task, "assigned", true)).join("")}
-                                ${studentTasks.assigned.length === 0 ? '<div class="empty-state">Drag tasks here</div>' : ""}
-                            </div>
-                        </div>
-
-                        <div class="management-section">
-                            <div class="section-title">
-                                <h3>📌 Tomorrow's Tasks</h3>
-                            </div>
-                            <div class="task-management-list dropzone" data-category="improvement"
-                                ondrop="tasksManager.handleDrop(event, 'improvement')" 
-                                ondragover="tasksManager.handleDragOver(event)"
-                                ondragleave="tasksManager.handleDragLeave(event)">
-                                ${studentTasks.improvement.map((task) => this.renderManagementTask(task, "improvement", true)).join("")}
-                                ${studentTasks.improvement.length === 0 ? '<div class="empty-state">Drag tasks here</div>' : ""}
-                            </div>
-                        </div>
-                        
-                        ${this.renderProgressStats(studentTasks)}
-                    `;
+          studentSection.innerHTML = this.getInnerHTML(studentTasks, student);
         }
 
         // Refresh the room tasks pool to update user indicators
@@ -1339,6 +1257,76 @@ class TasksManager {
         }
       }
     }
+  }
+  getInnerHTML(studentTasks, selectedStudent) {
+    console.log(studentTasks, selectedStudent);
+    const studentsList = Object.values(roomMembersData.registered).map(
+      (user) => ({
+        email: user,
+        name: user,
+      }),
+    );
+
+    const usersArray =
+      studentsList && typeof studentsList === "object"
+        ? Object.values(studentsList).filter((user) => user && user.email)
+        : [];
+    console.log(usersArray);
+    const studentOptions =
+      usersArray.length > 0
+        ? usersArray
+            .map(
+              (user) => `
+              <option value="${user.email}" ${
+                user.email === selectedStudent ? "selected" : ""
+              }>
+                ${user.name || user.email} (${user.email})
+              </option>
+            `,
+            )
+            .join("")
+        : `<option disabled>No students available</option>`;
+
+    return `
+    <div class="management-section">
+      <label class="management-label">Select Student</label>
+      <select class="student-select" onchange="tasksManager.selectStudent(this.value)">
+        ${studentOptions}
+      </select>
+    </div>
+
+    <div class="management-section">
+      <div class="section-title">
+        <h3>📅 Today's Goals</h3>
+      </div>
+      <div class="task-management-list dropzone" data-category="assigned"
+           ondrop="tasksManager.handleDrop(event, 'assigned')"
+           ondragover="tasksManager.handleDragOver(event)"
+           ondragleave="tasksManager.handleDragLeave(event)">
+        ${studentTasks.assigned
+          .map((task) => this.renderManagementTask(task, "assigned", true))
+          .join("")}
+        ${studentTasks.assigned.length === 0 ? '<div class="empty-state">Drag tasks here</div>' : ""}
+      </div>
+    </div>
+
+    <div class="management-section">
+      <div class="section-title">
+        <h3>📌 Tomorrow's Tasks</h3>
+      </div>
+      <div class="task-management-list dropzone" data-category="improvement"
+           ondrop="tasksManager.handleDrop(event, 'improvement')"
+           ondragover="tasksManager.handleDragOver(event)"
+           ondragleave="tasksManager.handleDragLeave(event)">
+        ${studentTasks.improvement
+          .map((task) => this.renderManagementTask(task, "improvement", true))
+          .join("")}
+        ${studentTasks.improvement.length === 0 ? '<div class="empty-state">Drag tasks here</div>' : ""}
+      </div>
+    </div>
+
+    ${this.renderProgressStats(studentTasks)}
+  `;
   }
 
   selectEmoji(emoji) {
