@@ -355,16 +355,20 @@ class TasksManager {
   }
 
   renderManagementPopup() {
+    console.log("RenderManagementPopup : " + roomMembersData.registered);
     // Get connected users from the room
-    const studentsList = Object.values(connectedUsers).map((user) => ({
-      email: user.email,
-      name: user.name,
-    }));
+    const studentsList = Object.values(roomMembersData.registered).map(
+      (user) => ({
+        email: user,
+        name: user,
+      }),
+    );
     const selectedStudent =
       this.managementSelectedStudent ||
       (studentsList.length > 0 ? studentsList[0].email : null);
 
     const studentTasks = this.getStudentTasks(selectedStudent);
+    console.log(selectedStudent + " : " + studentTasks);
 
     return `
             <div id="task-management-popup" class="task-popup hidden" onclick="if (event.target === this) tasksManager.hideTaskManagementPopup()">
@@ -563,6 +567,12 @@ class TasksManager {
                 <button class="delete-room-task-btn" onclick="event.stopPropagation(); tasksManager.deleteRoomTask(event, this.closest('[data-task-id]').dataset.taskId)" title="Delete task">×</button>
             </div>
         `;
+  }
+
+  onRoomMembersUpdated(members) {
+    // update internal state or re-render
+    this.roomMembers = members;
+    this.render();
   }
 
   // Drag and Drop handlers
@@ -1682,3 +1692,17 @@ if (document.readyState === "loading") {
 } else {
   window.tasksManager = new TasksManager();
 }
+
+const membersData = window.getRoomMembersData();
+console.log(membersData);
+
+window.addEventListener("roomMembersUpdated", (event) => {
+  const data = event.detail;
+  console.log("Members updated", data);
+  if (
+    window.tasksManager &&
+    typeof window.tasksManager.onRoomMembersUpdated === "function"
+  ) {
+    window.tasksManager.onRoomMembersUpdated(data);
+  }
+});

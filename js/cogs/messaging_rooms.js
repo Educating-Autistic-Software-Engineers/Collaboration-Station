@@ -48,6 +48,10 @@ async function initSetup() {
         ) {
           breakoutNum = breakoutdata.redirect;
         }
+      } else {
+        console.log("BreakoutRoom not found");
+        console.log(baseProjectId)
+        console.log(sessionStorage.getItem("email"))
       }
     } catch (err) {
       console.error("initSetup breakoutfetch failed", err);
@@ -64,6 +68,7 @@ async function initSetup() {
   }
 
   console.log("Room Name: " + roomName);
+  console.log(sessionStorage.getItem("name"));
 
   ablyInstance = new Ably.Realtime({
     authUrl:
@@ -86,9 +91,7 @@ async function initSetup() {
   );
 
   try {
-    await ablyChannel.presence.enter(sessionStorage.getItem("email"), (err) => {
-      console.log("entered Presense");
-    });
+    await ablyChannel.presence.enter(sessionStorage.getItem("email"));
   } catch (err) {
     console.error("Failed to enter Ably presence", err);
   }
