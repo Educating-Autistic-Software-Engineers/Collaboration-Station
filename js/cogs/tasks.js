@@ -35,6 +35,7 @@ class TasksManager {
     await window.tasksLoaded;
 
     await this.loadInitialRoomTasks();
+    console.log("Connected Users" + connectedUsers);
 
     if (
       !this.managementSelectedStudent &&
@@ -1280,6 +1281,7 @@ class TasksManager {
   }
 
   selectStudent(student) {
+    console.log("SelectedStudent :" + student);
     this.managementSelectedStudent = student;
     // Find the task-management-popup and its content to refresh just this part
     const popup = document.getElementById("task-management-popup");
@@ -1674,6 +1676,8 @@ class TasksManager {
   }
 
   showTaskManagementPopup() {
+    console.log(this.managementSelectedStudent);
+    console.log(Object.keys(connectedUsers).length)
     // Ensure we have a selected student before showing the popup
     if (
       !this.managementSelectedStudent &&
