@@ -35,6 +35,8 @@ class CollapsibleRightBar {
 
     this.membersContainer = document.getElementById("members__container");
     this.tasksContainer = document.getElementById("tasks__container");
+
+    console.log(this.membersContainer);
   }
 
   setupEventListeners() {
