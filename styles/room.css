@@ -1111,9 +1111,9 @@ body {
 }
 
 @media (max-width: 1200px) {
-  #members__container {
+  /*#members__container {
     display: none;
-  }
+  }*/
 
   #members__button {
     display: block;

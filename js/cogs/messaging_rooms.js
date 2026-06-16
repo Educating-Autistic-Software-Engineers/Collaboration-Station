@@ -48,6 +48,10 @@ async function initSetup() {
         ) {
           breakoutNum = breakoutdata.redirect;
         }
+      } else {
+        console.log("BreakoutRoom not found");
+        console.log(baseProjectId);
+        console.log(sessionStorage.getItem("email"));
       }
     } catch (err) {
       console.error("initSetup breakoutfetch failed", err);
@@ -64,6 +68,7 @@ async function initSetup() {
   }
 
   console.log("Room Name: " + roomName);
+  console.log(sessionStorage.getItem("name"));
 
   ablyInstance = new Ably.Realtime({
     authUrl:
@@ -86,8 +91,9 @@ async function initSetup() {
   );
 
   try {
-    await ablyChannel.presence.enter(sessionStorage.getItem("email"), (err) => {
-      console.log("entered Presense");
+    await ablyChannel.presence.enter({
+      email: sessionStorage.getItem("email"),
+      name: sessionStorage.getItem("display_name"),
     });
   } catch (err) {
     console.error("Failed to enter Ably presence", err);
@@ -102,10 +108,6 @@ var sendMessage,
   muteParticipant,
   disableMessage;
 
-window.sendMessage = async (message) => {
-  console.warn("sendMessage called before messaging is ready");
-};
-
 window.messagingReady = (async () => {
   await initSetup();
 })();
@@ -115,19 +117,39 @@ window.messagingReady.catch((err) => {
 });
 
 window.messagingReady.then(() => {
-  const addPerson = async (email) => {
-    if (email in connectedUsers) {
+  const getMemberEmail = (memberData) => {
+    if (memberData && typeof memberData === "object") {
+      return memberData.email || memberData.requestId || "";
+    }
+
+    return memberData || "";
+  };
+
+  const getMemberName = (memberData) => {
+    if (memberData && typeof memberData === "object") {
+      return (
+        memberData.name ||
+        memberData.display_name ||
+        memberData.email ||
+        memberData.requestId ||
+        "Unknown user"
+      );
+    }
+
+    return memberData || "Unknown user";
+  };
+
+  const addPerson = async (memberData) => {
+    const email = getMemberEmail(memberData);
+
+    if (!email || email in connectedUsers) {
       return;
     }
 
-    const password = sessionStorage.getItem("password");
-    const response = await fetch(
-      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}&password=${password}`,
-    );
-    const data = await response.json();
-    data.email = email;
-
-    handleUserJoined(data);
+    handleUserJoined({
+      email,
+      name: getMemberName(memberData),
+    });
   };
   ablyChannel.presence.subscribe("enter", async (member) => {
     const presenceSet = await ablyChannel.presence.get();
@@ -138,23 +160,31 @@ window.messagingReady.then(() => {
   });
 
   let handleUserJoined = (data) => {
-    console.log("Ably Joined: ", data.name);
+    const email = getMemberEmail(data);
+    const name = getMemberName(data);
 
-    connectedUsers[data.email] = data;
-    addMemberToDom(data);
+    console.log("Ably Joined: ", name);
+
+    connectedUsers[email] = { ...data, email, name };
+    addMemberToDom({ ...data, email, name });
     updateMemberTotal(Object.keys(connectedUsers).length);
     try {
       if (window.refreshMembers) window.refreshMembers();
     } catch (e) {
       /* ignore */
     }
-    addBotMessageToDom(`Welcome to the room ${data.name}! 👋`);
+    addBotMessageToDom(`Welcome to the room ${name}! 👋`);
   };
 
-  let handleMemberLeft = (email) => {
+  let handleMemberLeft = (memberData) => {
+    const email = getMemberEmail(memberData);
+
     console.log("Ably Left: ", email);
 
-    var data = connectedUsers[email];
+    var data = connectedUsers[email] || {
+      email,
+      name: getMemberName(memberData),
+    };
     delete connectedUsers[email];
     removeMemberFromDom(data);
     updateMemberTotal(Object.keys(connectedUsers).length);
@@ -165,11 +195,15 @@ window.messagingReady.then(() => {
     }
   };
   ablyChannel.presence.subscribe("leave", (member) => {
-    const email = member.data;
-    handleMemberLeft(email);
+    handleMemberLeft(member.data);
   });
 
   roomControlChannel.subscribe("breakout_refresh", () => {
+    try {
+      if (window.onbeforeunload) window.onbeforeunload = null;
+    } catch (e) {
+      
+    }
     window.location.reload();
   });
 
@@ -178,7 +212,7 @@ window.messagingReady.then(() => {
     try {
       const presenceSet = await ablyChannel.presence.get();
       console.log("Gained a presence");
-      return presenceSet.map((m) => m.data);
+      return presenceSet.map((m) => getMemberEmail(m.data));
     } catch (e) {
       console.error("Failed to get presence", e);
       return [];
@@ -231,6 +265,7 @@ window.messagingReady.then(() => {
   };
 
   let removeMemberFromDom = async (data) => {
+    console.log(data);
     let email = data.email;
     let memberWrapper = document.getElementById(`member__${email}__wrapper`);
     addBotMessageToDom(`${data.name} has left the room.`);
@@ -416,7 +451,7 @@ window.messagingReady.then(() => {
     await channel.sendMessage({ text: JSON.stringify({ type: "mute" }) });
 
     for (const member in remoteUsers) {
-      console.log("aghsadf", member, remoteUsers, remoteUsers[member]);
+      console.log("Remote Users calls", member, remoteUsers, remoteUsers[member]);
       if (member !== uid) {
         // Skip muting the local user (TA)
         const remoteUser = remoteUsers[member];
