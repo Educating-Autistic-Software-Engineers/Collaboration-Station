@@ -34,6 +34,7 @@ class CollapsibleRightBar {
     this.showContainer("stream");
 
     this.membersContainer = document.getElementById("members__container");
+    this.membersActionContainer = document.getElementById("members__actions");
     this.tasksContainer = document.getElementById("tasks__container");
 
     console.log(this.membersContainer);
@@ -202,7 +203,11 @@ class CollapsibleRightBar {
       case "members":
         if (this.membersContainer) {
           this.membersContainer.classList.add("active");
-          
+          console.log("Switch " + sessionStorage.role);
+          console.log(this.membersActionContainer);
+          if (sessionStorage.role != "TA")
+            {this.membersActionContainer.classList.add("hide");
+            }
         }
         //document.getElementById('members__container').classList.add('active');
         if (streamContainer) {

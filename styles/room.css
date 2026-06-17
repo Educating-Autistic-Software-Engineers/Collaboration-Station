@@ -1005,6 +1005,9 @@ body {
   flex: 1 1 auto;
   min-height: 0; /* allow flex child to shrink properly */
 }
+.members__actions.hide{
+  display: none;
+}
 
 .members__actions {
   display: flex;
@@ -1018,6 +1021,8 @@ body {
   bottom: 0;
   z-index: 20;
 }
+
+
 
 .members-section-heading {
   font-size: 0.95rem;

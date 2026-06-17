@@ -12,7 +12,7 @@ let canSendMessages = true;
 window.unreadMessages = 0; // Make globally accessible
 let breakoutId = 0;
 let roomId = urlParams.get("project");
-let connectedUsers = {};
+let connectedUsers = this.sessionStorage.email;
 
 async function initSetup() {
   // Get the roomId from URL parameters (could be 'project' or 'roomId')
@@ -564,7 +564,6 @@ window.messagingReady.then(() => {
   };
 
   window.sendMessage = sendMessage;
-  console.log("sendMessage initialized:", sendMessage);
 
   ablyChannel.subscribe("chat", async (message) => {
     addMessageToDom(

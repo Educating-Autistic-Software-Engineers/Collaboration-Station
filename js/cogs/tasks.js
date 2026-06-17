@@ -35,13 +35,14 @@ class TasksManager {
     await window.tasksLoaded;
 
     await this.loadInitialRoomTasks();
-    console.log("Connected Users" + connectedUsers);
+    console.log("Connected Users :: " + connectedUsers);
 
     if (
       !this.managementSelectedStudent &&
       Object.keys(connectedUsers).length > 0
     ) {
       this.managementSelectedStudent = Object.keys(connectedUsers)[0];
+      console.log(managementSelectedStudent)
     }
     this.render();
   }
