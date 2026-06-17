@@ -201,9 +201,7 @@ window.messagingReady.then(() => {
   roomControlChannel.subscribe("breakout_refresh", () => {
     try {
       if (window.onbeforeunload) window.onbeforeunload = null;
-    } catch (e) {
-      
-    }
+    } catch (e) {}
     window.location.reload();
   });
 
@@ -267,10 +265,14 @@ window.messagingReady.then(() => {
   let removeMemberFromDom = async (data) => {
     console.log(data);
     let email = data.email;
-    let memberWrapper = document.getElementById(`member__${email}__wrapper`);
-    addBotMessageToDom(`${data.name} has left the room.`);
+    try {
+      let memberWrapper = document.getElementById(`member__${email}__wrapper`);
+      addBotMessageToDom(`${data.name} has left the room.`);
 
-    memberWrapper.remove();
+      memberWrapper.remove();
+    } catch (e) {
+      console.warn("Member DNE: " + e);
+    }
   };
 
   updateMessageCounter = () => {
@@ -451,7 +453,12 @@ window.messagingReady.then(() => {
     await channel.sendMessage({ text: JSON.stringify({ type: "mute" }) });
 
     for (const member in remoteUsers) {
-      console.log("Remote Users calls", member, remoteUsers, remoteUsers[member]);
+      console.log(
+        "Remote Users calls",
+        member,
+        remoteUsers,
+        remoteUsers[member],
+      );
       if (member !== uid) {
         // Skip muting the local user (TA)
         const remoteUser = remoteUsers[member];

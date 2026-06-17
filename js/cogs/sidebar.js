@@ -202,6 +202,7 @@ class CollapsibleRightBar {
       case "members":
         if (this.membersContainer) {
           this.membersContainer.classList.add("active");
+          
         }
         //document.getElementById('members__container').classList.add('active');
         if (streamContainer) {

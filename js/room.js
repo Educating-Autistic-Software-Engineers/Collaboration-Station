@@ -800,7 +800,6 @@ window.messagingReady.then(async () => {
   if (memberButton) {
     memberButton.addEventListener("click", async () => {
       activeMemberContainer = !activeMemberContainer;
-      memberContainer.classList.toggle("active", activeMemberContainer);
       if (activeMemberContainer) {
         await refreshMembers();
       }

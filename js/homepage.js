@@ -11,7 +11,7 @@ form.addEventListener("submit", async (e) => {
 
   try {
     const response = await fetch(
-      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}&hashedPassword=${hashedPassword}`
+      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${email}&hashedPassword=${hashedPassword}`,
     );
     const data = await response.json();
     console.log(data);
@@ -22,11 +22,13 @@ form.addEventListener("submit", async (e) => {
     } else {
       // Redirect to the next page if email and password are correct
 
-      sessionStorage.setItem('display_name',data.name);
-      sessionStorage.setItem('email',data.requestId);
-      sessionStorage.setItem('role',data.role);
+      sessionStorage.setItem("display_name", data.name);
+      sessionStorage.setItem("email", data.requestId);
+      sessionStorage.setItem("role", data.role);
 
-      alert("Collaboration Station is disabled for today! Please work on the camp :)")
+      alert(
+        "Collaboration Station is disabled for today! Please work on the camp :)",
+      );
 
       // window.location = `projects.html?email=${email}`;
     }
