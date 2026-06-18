@@ -66,10 +66,6 @@ async function initSetup() {
   } else {
     breakoutId = 0;
   }
-
-  console.log("Room Name: " + roomName);
-  console.log(sessionStorage.getItem("name"));
-
   ablyInstance = new Ably.Realtime({
     authUrl:
       "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/ablyToken?name=" +

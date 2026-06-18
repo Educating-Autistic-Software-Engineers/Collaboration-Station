@@ -203,8 +203,6 @@ class CollapsibleRightBar {
       case "members":
         if (this.membersContainer) {
           this.membersContainer.classList.add("active");
-          console.log("Switch " + sessionStorage.role);
-          console.log(this.membersActionContainer);
           if (sessionStorage.role != "TA")
             {this.membersActionContainer.classList.add("hide");
             }

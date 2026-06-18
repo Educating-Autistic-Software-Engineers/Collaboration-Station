@@ -35,6 +35,7 @@ class TasksManager {
     await window.tasksLoaded;
 
     await this.loadInitialRoomTasks();
+    //Changes to connected users has broken this section
     console.log("Connected Users :: " + connectedUsers);
 
     if (
@@ -42,7 +43,7 @@ class TasksManager {
       Object.keys(connectedUsers).length > 0
     ) {
       this.managementSelectedStudent = Object.keys(connectedUsers)[0];
-      console.log(managementSelectedStudent);
+      console.log(this.managementSelectedStudent);
     }
     this.render();
   }
@@ -174,6 +175,7 @@ class TasksManager {
     const currentUserEmail =
       sessionStorage.getItem("email") || this.managementSelectedStudent;
     const userTasks = this.getStudentTasks(currentUserEmail);
+    console.log("Current User Email: " + currentUserEmail);
     console.log(userTasks);
 
     const assignedCount = userTasks.assigned.filter((t) => t.completed).length;
@@ -1237,6 +1239,7 @@ class TasksManager {
 
   getStudentTasks(studentEmail) {
     if (!studentEmail) {
+      console.log("no Active student email");
       // Return a copy of default tasks if no email, but don't store it
       return {
         assigned: JSON.parse(JSON.stringify(this.defaultTasks.assigned)),
@@ -1251,6 +1254,12 @@ class TasksManager {
         improvement: JSON.parse(JSON.stringify(this.defaultTasks.improvement)),
       };
     }
+    console.log(
+      "Outputting student Tasks :" +
+        studentEmail +
+        " from getStudent Tasks" +
+        this.studentTasks[studentEmail],
+    );
 
     // Return the reference to the stored object so modifications persist
     return this.studentTasks[studentEmail];
