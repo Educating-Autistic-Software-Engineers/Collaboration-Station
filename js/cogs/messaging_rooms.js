@@ -12,12 +12,13 @@ let canSendMessages = true;
 window.unreadMessages = 0; // Make globally accessible
 let breakoutId = 0;
 let roomId = urlParams.get("project");
-let connectedUsers = this.sessionStorage.email;
+let connectedUsers = {};
 
 async function initSetup() {
   // Get the roomId from URL parameters (could be 'project' or 'roomId')
   let baseProjectId = urlParams.get("project") || urlParams.get("roomId");
   let breakoutNum = null;
+  
 
   // Check if roomId contains a breakout component (format: "projectId:breakoutNum")
   if (baseProjectId && baseProjectId.includes(":")) {
