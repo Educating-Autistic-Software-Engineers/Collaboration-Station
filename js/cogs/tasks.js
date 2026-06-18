@@ -42,7 +42,7 @@ class TasksManager {
       Object.keys(connectedUsers).length > 0
     ) {
       this.managementSelectedStudent = Object.keys(connectedUsers)[0];
-      console.log(managementSelectedStudent)
+      console.log(managementSelectedStudent);
     }
     this.render();
   }
@@ -170,8 +170,12 @@ class TasksManager {
   }
 
   renderUserTasks() {
-    const currentUserEmail = sessionStorage.getItem("email");
+    console.log("Render UserTasks");
+    const currentUserEmail =
+      sessionStorage.getItem("email") || this.managementSelectedStudent;
     const userTasks = this.getStudentTasks(currentUserEmail);
+    console.log(userTasks);
+
     const assignedCount = userTasks.assigned.filter((t) => t.completed).length;
     const improvementCount = userTasks.improvement.filter(
       (t) => t.completed,
@@ -357,7 +361,6 @@ class TasksManager {
   }
 
   renderManagementPopup() {
-    
     // Get connected users from the room
     const studentsList = Object.values(roomMembersData.registered).map(
       (user) => ({
@@ -365,12 +368,14 @@ class TasksManager {
         name: user,
       }),
     );
+    console.log("roomMembersData: " + this.roomMembersData);
     const selectedStudent =
       this.managementSelectedStudent ||
       (studentsList.length > 0 ? studentsList[0].email : null);
 
     const studentTasks = this.getStudentTasks(selectedStudent);
-    
+    console.log(this.roomTasks + " This RoomTasks Option A");
+
     return `
             <div id="task-management-popup" class="task-popup hidden" onclick="if (event.target === this) tasksManager.hideTaskManagementPopup()">
                 <div class="management-popup-content" onclick="event.stopPropagation()">
@@ -477,6 +482,7 @@ class TasksManager {
   }
 
   renderManagementTask(task, category, isDraggable) {
+    console.log("RenderManagement Tasks Loaded");
     const color = this.getCategoryColor(category);
     const draggableAttr = isDraggable ? 'draggable="true"' : "";
     const safeId = String(task.id)
@@ -1267,6 +1273,7 @@ class TasksManager {
 
         // Refresh the room tasks pool to update user indicators
         const poolList = content.querySelector(".pool-tasks-list");
+        console.log("Option B");
         if (poolList) {
           poolList.innerHTML = this.roomTasks
             .map((task) => this.renderManagementTask(task, task.category, true))
@@ -1303,7 +1310,7 @@ class TasksManager {
             )
             .join("")
         : `<option disabled>No students available</option>`;
-
+    console.log("Option C");
     return `
     <div class="management-section">
       <label class="management-label">Select Student</label>
@@ -1674,7 +1681,7 @@ class TasksManager {
 
   showTaskManagementPopup() {
     console.log(this.managementSelectedStudent);
-    console.log(Object.keys(connectedUsers).length)
+    console.log(Object.keys(connectedUsers).length);
     // Ensure we have a selected student before showing the popup
     if (
       !this.managementSelectedStudent &&
