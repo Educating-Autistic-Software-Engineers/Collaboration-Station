@@ -132,12 +132,14 @@ let joinRoomInit = async () => {
 
   sessionStorage.setItem("roomId", baseRoomId);
   sessionStorage.setItem("breakoutId", breakoutId || "0");
-  console.log()
+  console.log(sessionStorage.getItem("breakoutId"));
 
   // wait for ably instance ablyInstance (already defined)
   // to be ready before proceeding
-  await ablyInstance.connection.once("connected");
+  await window.messagingReady;
+  await window.messagingConnected;
 
+  console.log(" AblyConnected Joining Room");
   try {
     let numMembers = 0;
     const members = await ablyChannel.presence.get();
@@ -147,8 +149,27 @@ let joinRoomInit = async () => {
         numMembers++;
       }
     }
-
+    console.log(numMembers + ": Number of members");
     if (numMembers === 0) {
+      //Check for ExistingMeeting ID tied to X
+      try {
+        console.log();
+        const response = await fetch(
+          `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          },
+        );
+        const data = await response.json();
+        console.log("JOINED MEETING Connected To BaseRoom", data);
+        meetingId = data.request.meetingID;
+      } catch (err) {
+        console.log("No existing meeting, creating new one...");
+      }
+
       const createResponse = await fetch(
         "https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/create-meeting",
         {
@@ -189,27 +210,34 @@ let joinRoomInit = async () => {
     }
 
     // Call backend to join meeting
-    const response = await fetch(
-      "https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/join-meeting",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await fetch(
+        "https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/join-meeting",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            meetingId: meetingId,
+            userId: displayName,
+          }),
         },
-        body: JSON.stringify({
-          meetingId: meetingId,
-          userId: displayName,
-        }),
-      },
-    );
+      );
 
-    const joinData = await response.json();
-
-    console.log("SUCC", joinData);
+      const joinData = await response.json();
+      console.log("SUCC", joinData);
+    } catch (err) {
+      console.error("Error joining meeting:", err);
+    }
 
     const meetingInfo = { Meeting: joinData.Meeting };
     const attendeeInfo = { Attendee: joinData.Attendee };
 
+
+    //***
+    // Connecting to meeting overhall.
+    //  */
     // Configure meeting session
     const configuration = new ChimeSDK.MeetingSessionConfiguration(
       meetingInfo.Meeting,

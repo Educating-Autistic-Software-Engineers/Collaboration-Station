@@ -18,7 +18,6 @@ async function initSetup() {
   // Get the roomId from URL parameters (could be 'project' or 'roomId')
   let baseProjectId = urlParams.get("project") || urlParams.get("roomId");
   let breakoutNum = null;
-  
 
   // Check if roomId contains a breakout component (format: "projectId:breakoutNum")
   if (baseProjectId && baseProjectId.includes(":")) {
@@ -73,9 +72,14 @@ async function initSetup() {
       sessionStorage.getItem("name"),
   });
 
-  ablyInstance.connection.once("connected").then(() => {
-    console.log("Connected to Ably!!!!!!!!");
+  window.messagingConnected = new Promise((resolve) => {
+    ablyInstance.connection.once("connected", () => {
+      console.log("Ably connected in messaging!!!!!!!!");
+      resolve();
+    });
   });
+
+ 
   ablyInstance.connection.on("failed", (err) => {
     console.error("Ably connection failed", err);
   });
