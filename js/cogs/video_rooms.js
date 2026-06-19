@@ -119,6 +119,21 @@ function setupCleanVolumeMonitoring() {
 
 // Initialize room and join meeting
 let joinRoomInit = async () => {
+  console.log("Got to HERE!!!");
+  const params = new URLSearchParams(window.location.search);
+  const rawRoom = params.get("project") || params.get("roomId");
+
+  if (!rawRoom) {
+    throw new Error("Missing project/roomId in URL");
+  }
+
+  // Supports values like "382841700:2" for breakout rooms
+  const [baseRoomId, breakoutId] = rawRoom.split(":");
+
+  sessionStorage.setItem("roomId", baseRoomId);
+  sessionStorage.setItem("breakoutId", breakoutId || "0");
+  console.log()
+
   // wait for ably instance ablyInstance (already defined)
   // to be ready before proceeding
   await ablyInstance.connection.once("connected");
