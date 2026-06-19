@@ -149,8 +149,17 @@ let joinRoomInit = async () => {
       }
     }
     console.log(numMembers + ": Number of members");
+    /***
+     * Jason messed up on June 10th and created unreachable if
+     *
+     */
     if (numMembers === 1) {
       //Check for ExistingMeeting ID tied to X
+      /**
+       * TODO Check if there already exists a meeting
+       * in the main project room or a breakroom
+       *
+       */
       try {
       } catch (err) {
         console.log("No existing meeting, creating new one...");
@@ -181,6 +190,9 @@ let joinRoomInit = async () => {
         },
       );
     } else {
+      //**
+      // Possibly add a DB call here to sync up project meetings.
+      //  */
       const response = await fetch(
         `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`,
         {
