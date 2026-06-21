@@ -17,7 +17,7 @@ class TasksManager {
     this.selectedTask = null;
     this.taskInHelpChat = null;
     this.chatMessages = [];
-    this.isTeachingAssistant = true;
+    this.isTeachingAssistant = sessionStorage.role;
     this.managementSelectedStudent = null;
     this.init();
   }
@@ -35,11 +35,20 @@ class TasksManager {
     await window.tasksLoaded;
 
     await this.loadInitialRoomTasks();
-    console.log("Connected Users" + connectedUsers);
-
+    //Changes to connected users has broken this section
+    //
+    //console.log("Connected Users :: " + connectedUsers);
+    //console.log(this.managementSelectedStudent);
+    //These if statements are not occuring.
     if (
       !this.managementSelectedStudent &&
-      Object.keys(connectedUsers).length > 0
+      Object.keys(connectedUsers).length == 1
+    ) {
+      this.managementSelectedStudent = connectedUsers;
+      //console.log(this.managementSelectedStudent);
+    } else if (
+      !this.managementSelectedStudent &&
+      Object.keys(connectedUsers).length > 1
     ) {
       this.managementSelectedStudent = Object.keys(connectedUsers)[0];
     }
@@ -123,7 +132,7 @@ class TasksManager {
     container.innerHTML = `
             <div class="main-task-area">
                 ${
-                  this.isTeachingAssistant
+                  this.isTeachingAssistant == "TA"
                     ? `
                     <div class="tasks-view-toggle">
                         <div class="toggle-btn-container">
@@ -169,8 +178,10 @@ class TasksManager {
   }
 
   renderUserTasks() {
-    const currentUserEmail = sessionStorage.getItem("email");
+    const currentUserEmail =
+      sessionStorage.getItem("email") || this.managementSelectedStudent;
     const userTasks = this.getStudentTasks(currentUserEmail);
+
     const assignedCount = userTasks.assigned.filter((t) => t.completed).length;
     const improvementCount = userTasks.improvement.filter(
       (t) => t.completed,
@@ -356,7 +367,6 @@ class TasksManager {
   }
 
   renderManagementPopup() {
-    
     // Get connected users from the room
     const studentsList = Object.values(roomMembersData.registered).map(
       (user) => ({
@@ -369,7 +379,6 @@ class TasksManager {
       (studentsList.length > 0 ? studentsList[0].email : null);
 
     const studentTasks = this.getStudentTasks(selectedStudent);
-    
     return `
             <div id="task-management-popup" class="task-popup hidden" onclick="if (event.target === this) tasksManager.hideTaskManagementPopup()">
                 <div class="management-popup-content" onclick="event.stopPropagation()">
@@ -1230,6 +1239,7 @@ class TasksManager {
 
   getStudentTasks(studentEmail) {
     if (!studentEmail) {
+      console.warn("no Active student email");
       // Return a copy of default tasks if no email, but don't store it
       return {
         assigned: JSON.parse(JSON.stringify(this.defaultTasks.assigned)),
@@ -1244,6 +1254,12 @@ class TasksManager {
         improvement: JSON.parse(JSON.stringify(this.defaultTasks.improvement)),
       };
     }
+    console.log(
+      "Outputting student Tasks :" +
+        studentEmail +
+        " from getStudent Tasks" +
+        this.studentTasks[studentEmail],
+    );
 
     // Return the reference to the stored object so modifications persist
     return this.studentTasks[studentEmail];
@@ -1266,6 +1282,7 @@ class TasksManager {
 
         // Refresh the room tasks pool to update user indicators
         const poolList = content.querySelector(".pool-tasks-list");
+
         if (poolList) {
           poolList.innerHTML = this.roomTasks
             .map((task) => this.renderManagementTask(task, task.category, true))
@@ -1275,7 +1292,6 @@ class TasksManager {
     }
   }
   getInnerHTML(studentTasks, selectedStudent) {
-    console.log(studentTasks, selectedStudent);
     const studentsList = Object.values(roomMembersData.registered).map(
       (user) => ({
         email: user,
@@ -1287,7 +1303,7 @@ class TasksManager {
       studentsList && typeof studentsList === "object"
         ? Object.values(studentsList).filter((user) => user && user.email)
         : [];
-    console.log(usersArray);
+
     const studentOptions =
       usersArray.length > 0
         ? usersArray
@@ -1672,8 +1688,6 @@ class TasksManager {
   }
 
   showTaskManagementPopup() {
-    console.log(this.managementSelectedStudent);
-    console.log(Object.keys(connectedUsers).length)
     // Ensure we have a selected student before showing the popup
     if (
       !this.managementSelectedStudent &&
@@ -1700,7 +1714,9 @@ if (document.readyState === "loading") {
 }
 
 const membersData = window.getRoomMembersData();
-console.log(membersData);
+if (!membersData) {
+  console.warn("No roomMembersData found on window");
+}
 
 window.addEventListener("roomMembersUpdated", (event) => {
   const data = event.detail;

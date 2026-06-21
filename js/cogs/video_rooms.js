@@ -119,21 +119,52 @@ function setupCleanVolumeMonitoring() {
 
 // Initialize room and join meeting
 let joinRoomInit = async () => {
+  const params = new URLSearchParams(window.location.search);
+  const rawRoom = params.get("project") || params.get("roomId");
+
+  if (!rawRoom) {
+    throw new Error("Missing project/roomId in URL");
+  }
+
+  // Supports values like "382841700:2" for breakout rooms
+  const [baseRoomId, breakoutId] = rawRoom.split(":");
+
+  sessionStorage.setItem("roomId", baseRoomId);
+  sessionStorage.setItem("breakoutId", breakoutId || "0");
+  console.log(sessionStorage.getItem("breakoutId"));
+
   // wait for ably instance ablyInstance (already defined)
   // to be ready before proceeding
-  await ablyInstance.connection.once("connected");
+  await window.messagingReady;
+  await window.messagingConnected;
 
+  console.log(" AblyConnected Joining Room");
   try {
     let numMembers = 0;
     const members = await ablyChannel.presence.get();
+    console.log(members);
     for (let member in members) {
-      console.log(members[member].data, sessionStorage.getItem("email"));
       if (members[member].data !== sessionStorage.getItem("email")) {
         numMembers++;
       }
     }
+    console.log(numMembers + ": Number of members");
+    /***
+     * Jason messed up on June 10th and created unreachable if
+     *
+     */
+    if (numMembers === 1) {
+      //Check for ExistingMeeting ID tied to X
+      /**
+       * TODO Check if there already exists a meeting
+       * in the main project room or a breakroom
+       *
+       */
+      try {
+      } catch (err) {
+        console.log("No existing meeting, creating new one...");
+      }
 
-    if (numMembers === 0) {
       const createResponse = await fetch(
         "https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/create-meeting",
         {
@@ -159,6 +190,9 @@ let joinRoomInit = async () => {
         },
       );
     } else {
+      //**
+      // Possibly add a DB call here to sync up project meetings.
+      //  */
       const response = await fetch(
         `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`,
         {
@@ -174,102 +208,108 @@ let joinRoomInit = async () => {
     }
 
     // Call backend to join meeting
-    const response = await fetch(
-      "https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/join-meeting",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+    try {
+      const response = await fetch(
+        "https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/join-meeting",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            meetingId: meetingId,
+            userId: displayName,
+          }),
         },
-        body: JSON.stringify({
-          meetingId: meetingId,
-          userId: displayName,
-        }),
-      },
-    );
+      );
 
-    const joinData = await response.json();
+      const joinData = await response.json();
+      console.log("SUCC", joinData);
 
-    console.log("SUCC", joinData);
+      const meetingInfo = { Meeting: joinData.Meeting };
+      const attendeeInfo = { Attendee: joinData.Attendee };
 
-    const meetingInfo = { Meeting: joinData.Meeting };
-    const attendeeInfo = { Attendee: joinData.Attendee };
+      //***
+      // Connecting to meeting overhall.
+      //  */
+      // Configure meeting session
+      const configuration = new ChimeSDK.MeetingSessionConfiguration(
+        meetingInfo.Meeting,
+        attendeeInfo.Attendee,
+      );
 
-    // Configure meeting session
-    const configuration = new ChimeSDK.MeetingSessionConfiguration(
-      meetingInfo.Meeting,
-      attendeeInfo.Attendee,
-    );
+      meetingSession = new ChimeSDK.DefaultMeetingSession(
+        configuration,
+        logger,
+        deviceController,
+      );
 
-    meetingSession = new ChimeSDK.DefaultMeetingSession(
-      configuration,
-      logger,
-      deviceController,
-    );
+      // Set up observers for video tiles and events
+      const observer = {
+        videoTileDidUpdate: (tileState) => {
+          if (!tileState.boundAttendeeId) {
+            return;
+          }
+          updateTiles(meetingSession);
+          handleVolumeIndicator(); // Update volume indicators
+        },
 
-    // Set up observers for video tiles and events
-    const observer = {
-      videoTileDidUpdate: (tileState) => {
-        if (!tileState.boundAttendeeId) {
-          return;
-        }
-        updateTiles(meetingSession);
-        handleVolumeIndicator(); // Update volume indicators
-      },
+        audioVideoDidStart: () => {
+          console.log("Meeting started successfully");
+        },
 
-      audioVideoDidStart: () => {
-        console.log("Meeting started successfully");
-      },
+        connectionDidBecomePoor: () => {
+          console.log("Connection quality became poor");
+        },
 
-      connectionDidBecomePoor: () => {
-        console.log("Connection quality became poor");
-      },
+        connectionDidSuggestStopVideo: () => {
+          console.log("Connection suggests stopping video");
+        },
 
-      connectionDidSuggestStopVideo: () => {
-        console.log("Connection suggests stopping video");
-      },
+        audioSendingBitrateChanged: (bitrateKbps) => {
+          console.log(`Audio sending bitrate changed to ${bitrateKbps} kbps`);
+        },
 
-      audioSendingBitrateChanged: (bitrateKbps) => {
-        console.log(`Audio sending bitrate changed to ${bitrateKbps} kbps`);
-      },
+        metricsDidReceive: (clientMetricReport) => {
+          //console.log(  "Chime metrics:",clientMetricReport.getObservableMetrics(),);
+        },
 
-      metricsDidReceive: (clientMetricReport) => {
-        // console.log('Chime metrics:', clientMetricReport.getObservableMetrics());
-      },
+        audioInputFailed: (e) => console.log("Audio input failed:", e),
+        audioOutputFailed: (e) => console.log("Audio output failed:", e),
+      };
 
-      audioInputFailed: (e) => console.log("Audio input failed:", e),
-      audioOutputFailed: (e) => console.log("Audio output failed:", e),
-    };
+      const eventObserver = {
+        eventDidReceive(name, attributes) {
+          switch (name) {
+            case "meetingEnded":
+              handleUserLeft();
+              console.log("Meeting Ended", attributes);
+              break;
+            case "meetingReconnected":
+              console.log("Meeting Reconnected...");
+              break;
+          }
+        },
+      };
+      console.log("Pre Observer check");
+      // Add observers
+      meetingSession.audioVideo.addObserver(observer);
+      meetingSession.eventController.addObserver(eventObserver);
 
-    const eventObserver = {
-      eventDidReceive(name, attributes) {
-        switch (name) {
-          case "meetingEnded":
-            handleUserLeft();
-            console.log("Meeting Ended", attributes);
-            break;
-          case "meetingReconnected":
-            console.log("Meeting Reconnected...");
-            break;
-        }
-      },
-    };
-
-    // Add observers
-    meetingSession.audioVideo.addObserver(observer);
-    meetingSession.eventController.addObserver(eventObserver);
-
-    meetingSession.audioVideo.realtimeSubscribeToVolumeIndicator(
-      (attendeeId, volume, muted, signalStrength) => {
-        console.log(
-          `Attendee ID: ${attendeeId}, Volume: ${volume}, Muted: ${muted}, Signal Strength: ${signalStrength}`,
-        );
-        if (volume > 0.5 && !muted) {
-          // Threshold for "speaking"
-          handleActiveVolumeIndicator(attendeeId, volume);
-        }
-      },
-    );
+      meetingSession.audioVideo.realtimeSubscribeToVolumeIndicator(
+        (attendeeId, volume, muted, signalStrength) => {
+          console.log(
+            `Attendee ID: ${attendeeId}, Volume: ${volume}, Muted: ${muted}, Signal Strength: ${signalStrength}`,
+          );
+          if (volume > 0.5 && !muted) {
+            // Threshold for "speaking"
+            handleActiveVolumeIndicator(attendeeId, volume);
+          }
+        },
+      );
+    } catch (err) {
+      console.error("Error joining meeting:", err);
+    }
 
     await joinStream();
   } catch (error) {

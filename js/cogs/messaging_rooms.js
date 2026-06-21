@@ -66,19 +66,20 @@ async function initSetup() {
   } else {
     breakoutId = 0;
   }
-
-  console.log("Room Name: " + roomName);
-  console.log(sessionStorage.getItem("name"));
-
   ablyInstance = new Ably.Realtime({
     authUrl:
       "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/ablyToken?name=" +
       sessionStorage.getItem("name"),
   });
 
-  ablyInstance.connection.once("connected").then(() => {
-    console.log("Connected to Ably!!!!!!!!");
+  window.messagingConnected = new Promise((resolve) => {
+    ablyInstance.connection.once("connected", () => {
+      console.log("Ably connected in messaging!!!!!!!!");
+      resolve();
+    });
   });
+
+ 
   ablyInstance.connection.on("failed", (err) => {
     console.error("Ably connection failed", err);
   });
@@ -201,9 +202,7 @@ window.messagingReady.then(() => {
   roomControlChannel.subscribe("breakout_refresh", () => {
     try {
       if (window.onbeforeunload) window.onbeforeunload = null;
-    } catch (e) {
-      
-    }
+    } catch (e) {}
     window.location.reload();
   });
 
@@ -267,10 +266,14 @@ window.messagingReady.then(() => {
   let removeMemberFromDom = async (data) => {
     console.log(data);
     let email = data.email;
-    let memberWrapper = document.getElementById(`member__${email}__wrapper`);
-    addBotMessageToDom(`${data.name} has left the room.`);
+    try {
+      let memberWrapper = document.getElementById(`member__${email}__wrapper`);
+      addBotMessageToDom(`${data.name} has left the room.`);
 
-    memberWrapper.remove();
+      memberWrapper.remove();
+    } catch (e) {
+      console.warn("Member DNE: " + e);
+    }
   };
 
   updateMessageCounter = () => {
@@ -451,7 +454,12 @@ window.messagingReady.then(() => {
     await channel.sendMessage({ text: JSON.stringify({ type: "mute" }) });
 
     for (const member in remoteUsers) {
-      console.log("Remote Users calls", member, remoteUsers, remoteUsers[member]);
+      console.log(
+        "Remote Users calls",
+        member,
+        remoteUsers,
+        remoteUsers[member],
+      );
       if (member !== uid) {
         // Skip muting the local user (TA)
         const remoteUser = remoteUsers[member];
@@ -557,7 +565,6 @@ window.messagingReady.then(() => {
   };
 
   window.sendMessage = sendMessage;
-  console.log("sendMessage initialized:", sendMessage);
 
   ablyChannel.subscribe("chat", async (message) => {
     addMessageToDom(
