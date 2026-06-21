@@ -96,6 +96,7 @@ async function checkEmail(email, password) {
         sessionStorage.setItem('display_name',data.name);
         sessionStorage.setItem('email',data.requestId);
         sessionStorage.setItem('role',data.role);
+        sessionStorage.setItem('token',data.token);
         return data.requestId;
     } catch (error) {
         console.error('Error checking email:', error);

@@ -406,9 +406,13 @@ setInterval(() => {
 
 // Member autocomplete
 async function initAddMemberAutocomplete() {
-  const resp = await fetch(
+  const getAllItemsUrl = new URL(
     "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems",
   );
+  getAllItemsUrl.searchParams.set("email", sessionStorage.getItem("email") || "");
+  getAllItemsUrl.searchParams.set("token", sessionStorage.getItem("token") || "");
+
+  const resp = await fetch(getAllItemsUrl.toString());
   const data = await resp.json();
 
   POTENTIAL_MEMBERS = data.requests;

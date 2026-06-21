@@ -2,7 +2,11 @@ let rooms = [];
 
 console.log("HISDF")
 document.addEventListener('DOMContentLoaded', async () => {
-    const rest = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems');
+    const getAllItemsUrl = new URL('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems');
+    getAllItemsUrl.searchParams.set('email', sessionStorage.getItem('email') || '');
+    getAllItemsUrl.searchParams.set('token', sessionStorage.getItem('token') || '');
+
+    const rest = await fetch(getAllItemsUrl.toString());
     const res = await rest.json();
     let requests= res.requests;
 

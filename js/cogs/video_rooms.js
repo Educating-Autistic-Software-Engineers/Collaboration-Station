@@ -149,10 +149,6 @@ let joinRoomInit = async () => {
       }
     }
     console.log(numMembers + ": Number of members");
-    /***
-     * Jason messed up on June 10th and created unreachable if
-     *
-     */
     if (numMembers === 1) {
       //Check for ExistingMeeting ID tied to X
       /**

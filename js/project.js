@@ -486,7 +486,12 @@ function createPopupEffect(container) {
 }
 
 function populateUsernames() {
-    fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems")
+    const getAllItemsUrl = new URL("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems");
+    getAllItemsUrl.searchParams.set("user", "");
+    getAllItemsUrl.searchParams.set("email", sessionStorage.getItem("email") || "");
+    getAllItemsUrl.searchParams.set("token", sessionStorage.getItem("token") || "");
+
+    fetch(getAllItemsUrl.toString())
         .then(response => response.json())
         .then(data => {
             const users = data.requests;
