@@ -3,6 +3,20 @@ let currentRoomCount = 3;
 let onlineSet = new Set();
 let roomViewOnlyFlags = {};
 
+function buildRoomDbUrl(extraParams = {}) {
+  const url = new URL("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
+  url.searchParams.set("user", sessionStorage.getItem("email") || "");
+  url.searchParams.set("token", sessionStorage.getItem("token") || "");
+
+  Object.entries(extraParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.set(key, String(value));
+    }
+  });
+
+  return url.toString();
+}
+
 async function showBreakoutRoomsPopup() {
   console.log("showing breakoutrooms");
   const baseRoomId = roomId.split(":")[0];
@@ -12,7 +26,7 @@ async function showBreakoutRoomsPopup() {
   let baseRoomData = null;
   try {
     const resp = await fetch(
-      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${baseRoomId}`,
+      buildRoomDbUrl({ roomId: baseRoomId }),
     );
     if (resp.ok) {
       const data = await resp.json();
@@ -108,7 +122,7 @@ async function showBreakoutRoomsPopup() {
     Array.from({ length: roomCount }, (_, index) => {
       const breakoutId = index + 1;
       return fetch(
-        `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${baseRoomId}:${breakoutId}`,
+        buildRoomDbUrl({ roomId: `${baseRoomId}:${breakoutId}` }),
       )
         .then((resp) => (resp.ok ? resp.json() : null))
         .catch(() => null);

@@ -4,6 +4,20 @@ if (!uid) {
   sessionStorage.setItem("uid", uid);
 }
 
+function buildRoomDbUrl(extraParams = {}) {
+  const url = new URL("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
+  url.searchParams.set("user", sessionStorage.getItem("email") || "");
+  url.searchParams.set("token", sessionStorage.getItem("token") || "");
+
+  Object.entries(extraParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.set(key, String(value));
+    }
+  });
+
+  return url.toString();
+}
+
 let token = null;
 let client;
 let meetingSession;
@@ -173,7 +187,7 @@ let joinRoomInit = async () => {
       console.log("CREATED MEETING", createData);
 
       await fetch(
-        "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
+        buildRoomDbUrl(),
         {
           method: "PUT",
           headers: {
@@ -190,7 +204,7 @@ let joinRoomInit = async () => {
       // Possibly add a DB call here to sync up project meetings.
       //  */
       const response = await fetch(
-        `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`,
+        buildRoomDbUrl({ roomId }),
         {
           method: "GET",
           headers: {

@@ -13,6 +13,20 @@ window.tasksLoaded = new Promise((resolve) => {
 });
 let userIdInDisplayFrame = null;
 let POTENTIAL_MEMBERS;
+
+function buildRoomDbUrl(extraParams = {}) {
+  const url = new URL("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
+  url.searchParams.set("user", sessionStorage.getItem("email") || "");
+  url.searchParams.set("token", sessionStorage.getItem("token") || "");
+
+  Object.entries(extraParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.set(key, String(value));
+    }
+  });
+
+  return url.toString();
+}
 window.roomMembersData = {
   registered: [],
   present: [],
@@ -272,9 +286,7 @@ if (roomId == null) {
 }
 
 async function load() {
-  const response = await fetch(
-    "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
-  );
+  const response = await fetch(buildRoomDbUrl());
   const roomsData = await response.json();
   const rooms = roomsData.requests;
   for (let room of rooms) {
@@ -317,9 +329,7 @@ async function addMemberToProject() {
   }
 
   // Add user to room
-  await fetch(
-    "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
-    {
+  await fetch(buildRoomDbUrl(), {
       method: "PATCH",
       headers: {
         "Content-Type": "application/json",
@@ -482,9 +492,7 @@ async function refreshMembers() {
 
     let registered = [];
     try {
-      const resp = await fetch(
-        `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`,
-      );
+      const resp = await fetch(buildRoomDbUrl({ roomId }));
       if (resp.ok) {
         const data = await resp.json();
         console.log(data);

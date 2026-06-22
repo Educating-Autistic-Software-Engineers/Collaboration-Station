@@ -7,6 +7,20 @@ const targetEmail = roomId;
 let roomList = [];
 let roomDict = {};
 
+function buildRoomDbUrl(extraParams = {}) {
+    const url = new URL('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB');
+    url.searchParams.set('user', sessionStorage.getItem('email') || '');
+    url.searchParams.set('token', sessionStorage.getItem('token') || '');
+
+    Object.entries(extraParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+            url.searchParams.set(key, String(value));
+        }
+    });
+
+    return url.toString();
+}
+
 // Configure names/emails that should not be clickable in the user list
 // You can override by setting window.NON_TOGGLEABLE_USERS = ['Name', 'email@example.com'] before load()
 const NON_TOGGLEABLE_USERS = (window.NON_TOGGLEABLE_USERS || []);
@@ -30,7 +44,7 @@ async function load() {
 // Fetch all rooms from the API
 async function fetchRooms() {
     try {
-        const response = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
+        const response = await fetch(buildRoomDbUrl());
         const roomsData = await response.json();
         const rooms = roomsData.requests;
         for (let room of rooms) {
@@ -212,7 +226,7 @@ async function addProject() {
     }
 
     try {
-        const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?method=new', {
+        const response = await fetch(buildRoomDbUrl({ method: 'new' }), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -233,7 +247,7 @@ async function addProject() {
         roomDict[newRoomId] = { room_id: newRoomId, name: projectName, icon: "default", editors: [ sessionStorage.getItem("email") ] };
         roomList.push(newRoomId);
 
-        await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB', {
+        await fetch(buildRoomDbUrl(), {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json'
@@ -247,7 +261,6 @@ async function addProject() {
         // Update user's projects
         await updateUserProjects(newRoomId);
 
-        // Refresh the project display
         displayProjects();
         selectProject(newRoomId);
 
@@ -305,7 +318,7 @@ async function updateUserProjects(newRoomId) {
 
 async function openProject(projectId) {
     // modify editor permissions
-    await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB', {
+    await fetch(buildRoomDbUrl(), {
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
