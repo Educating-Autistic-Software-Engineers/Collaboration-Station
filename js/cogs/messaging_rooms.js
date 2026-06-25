@@ -157,7 +157,7 @@ window.messagingReady.then(() => {
     try {
       const projectId = urlParams.get("project");
       const response = await fetch(
-        `https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/RetrieveMessage?id=${projectId}`,
+        `https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/RetrieveMessage?id=${projectId}&breakout_id=${breakoutId}`,
         {
           method: "GET",
         },
@@ -571,6 +571,9 @@ window.messagingReady.then(() => {
       minute: "numeric",
       second: "numeric",
     });
+    console.log("HI MOM ");
+    isoDate = date.toISOString();
+    console.log(breakoutId);
     await fetch(
       "https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/addMessage",
       {
@@ -584,6 +587,8 @@ window.messagingReady.then(() => {
           Username: displayName,
           Message: message,
           Time: readableDate,
+          Date: isoDate,
+          breakout_id: breakoutId.toString(),
         }),
       },
     );
