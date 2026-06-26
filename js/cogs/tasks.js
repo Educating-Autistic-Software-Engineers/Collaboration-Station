@@ -541,7 +541,8 @@ class TasksManager {
   onRoomMembersUpdated(members) {
     // update internal state or re-render
     this.roomMembers = members;
-    this.render();
+    //No longer needed as task stay assigned. 
+   // this.render();
   }
 
   // Drag and Drop handlers
@@ -732,6 +733,8 @@ class TasksManager {
     this.render();
     this.scrollChatToBottom();
 
+    //** TODO
+    // Clean up Task Center */
     // Try to collect code chunks from the embedded VM and call the same task-chat analyzer
     try {
       const frame = document.getElementById("main-stream");
