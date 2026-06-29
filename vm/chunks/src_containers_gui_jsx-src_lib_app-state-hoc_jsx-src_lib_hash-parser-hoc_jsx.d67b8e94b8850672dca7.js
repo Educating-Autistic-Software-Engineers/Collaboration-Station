@@ -12577,7 +12577,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! scratch-storage */ "./node_modules/scratch-storage/dist/web/scratch-storage.js");
 /* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_36___default = /*#__PURE__*/__webpack_require__.n(scratch_storage__WEBPACK_IMPORTED_MODULE_36__);
 /* harmony import */ var _components_library_library_jsx__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ../components/library/library.jsx */ "./src/components/library/library.jsx");
-/* provided dependency */ var Buffer = __webpack_require__(/*! buffer */ "./node_modules/buffer/index.js")["Buffer"];
 const _excluded = ["url"],
   _excluded2 = ["anyModalVisible", "canUseCloud", "customProceduresVisible", "extensionLibraryVisible", "options", "stageSize", "vm", "isRtl", "isVisible", "onActivateColorPicker", "onOpenConnectionModal", "onOpenSoundRecorder", "updateToolboxState", "onActivateCustomProcedures", "onRequestCloseExtensionLibrary", "onRequestCloseCustomProcedures", "toolboxXML", "updateMetrics", "useCatBlocks", "workspaceMetrics"];
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
@@ -12664,7 +12663,7 @@ const s3Client = new (aws_sdk__WEBPACK_IMPORTED_MODULE_33___default().S3)();
 const nid = (0,nanoid__WEBPACK_IMPORTED_MODULE_38__.nanoid)();
 const ably = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablyInstance;
 const innerChannelName = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace && _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace.endsWith('_inner') ? _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace : "".concat(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace, "_inner");
-var channel = ably.channels.get(innerChannelName);
+var channel = ably.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace);
 let hasInited = false;
 let flag1 = false;
 let flag2 = false;
@@ -13241,6 +13240,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     var _this4 = this;
     return _asyncToGenerator(function* () {
       const data = JSON.parse(msg.data);
+      console.log(data);
       if (data.name == uname) {
         return;
       }
@@ -13291,7 +13291,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this5.startingLoad = true;
         _this5.stopEmission = true;
         const datas = {
-          key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
+          key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace,
           vid: _this5.vid,
           keyMarker: _this5.keyMarker,
           versionIdMarker: _this5.versionIdMarker
@@ -13345,20 +13345,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
                 hasSeenStage = true;
               }
               const costumes = target.costumes;
-              //make a copy of costumes
-              const costumes2 = [...costumes];
-              for (let costume of costumes2) {
-                // check if the costume object has the costume variable:
-                if (!costume.hasOwnProperty("md5ext")) {
-                  costume.md5ext = costume.assetId + "." + costume.dataFormat;
-                }
-
-                // check if costume.md5ext contains the word "undefined"
-                if (costume.md5ext.includes("undefined")) {
-                  // remove the costume from the array
-                  const idx = costumes.indexOf(costume);
-                  costumes.splice(idx, 1);
-                  console.log("removed", costume);
+              for (let costume of costumes) {
+                // Normalize md5ext for older/incomplete saves instead of deleting costumes.
+                if (!costume.hasOwnProperty("md5ext") || !costume.md5ext || costume.md5ext.includes("undefined")) {
+                  if (costume.assetId && costume.dataFormat) {
+                    costume.md5ext = "".concat(costume.assetId, ".").concat(costume.dataFormat);
+                  } else if (costume.md5) {
+                    costume.md5ext = costume.md5.includes('.') ? costume.md5 : "".concat(costume.md5, ".").concat(costume.dataFormat || 'svg');
+                  }
                 }
               }
             }
@@ -13402,12 +13396,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       console.log("SAVED!!!");
       yield fetch('https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/s3-storage', {
         method: 'POST',
-        body: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace + "~|@^|@|~" + s
+        body: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace + "~|@^|@|~" + s
       });
       _this6.props.vm.renderer.requestSnapshot( /*#__PURE__*/function () {
         var _ref2 = _asyncToGenerator(function* (dataURI) {
           dataURI = dataURI.replace(/^data:image\/\w+;base64,/, '');
-          const imagename = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace + ".png";
+          const imagename = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace + ".png";
           console.log("SAVEDTO", dataURI);
           console.log(imagename);
           const resp = yield fetch("https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/images?fileName=" + imagename + "&cd=attachment", {
@@ -14497,7 +14491,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.props.vm.updateBitmap = function (costumeIndex, bitmap, rotationCenterX, rotationCenterY, bitmapResolution) {
       let targetName = arguments.length > 5 && arguments[5] !== undefined ? arguments[5] : "";
       var target;
-      if (targetName == "") target = this.editingTarget;else target = this.runtime.getSpriteTargetByName(targetName);
+      if (targetName == "") {
+        target = this.editingTarget;
+      } else if (targetName == "Stage") {
+        target = this.runtime.getTargetForStage();
+      } else {
+        target = this.runtime.getSpriteTargetByName(targetName);
+      }
       const costume = target.getCostumes()[costumeIndex];
       if (!(costume && this.runtime && this.runtime.renderer)) return;
       if (costume && costume.broken) delete costume.broken;
@@ -14519,25 +14519,39 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       this.runtime.renderer.updateBitmapSkin(costume.skinId, canvas, bitmapResolution, [rotationCenterX / bitmapResolution, rotationCenterY / bitmapResolution]);
 
       // @todo there should be a better way to get from ImageData to a decodable storage format
-      canvas.toBlob(blob => {
-        const reader = new FileReader();
-        reader.addEventListener('loadend', () => {
-          const storage = this.runtime.storage;
-          costume.dataFormat = storage.DataFormat.PNG;
-          costume.bitmapResolution = bitmapResolution;
-          costume.size = [bitmapWidth, bitmapHeight];
-          costume.asset = storage.createAsset(storage.AssetType.ImageBitmap, costume.dataFormat, Buffer.from(reader.result), null,
-          // id
-          true // generate md5
-          );
-          costume.assetId = costume.asset.assetId;
-          costume.md5 = "".concat(costume.assetId, ".").concat(costume.dataFormat);
-          this.emitTargetsUpdate();
-        });
-        // Bitmaps with a zero width or height return null for their blob
-        if (blob) {
+      return new Promise(resolve => {
+        canvas.toBlob(blob => {
+          // Bitmaps with a zero width or height return null for their blob.
+          // Keep the existing asset metadata in this edge case.
+          if (!blob) {
+            this.emitTargetsUpdate();
+            resolve(costume.assetId);
+            return;
+          }
+          const reader = new FileReader();
+          reader.addEventListener('loadend', () => {
+            try {
+              const storage = this.runtime.storage;
+              costume.dataFormat = storage.DataFormat.PNG;
+              costume.bitmapResolution = bitmapResolution;
+              costume.size = [bitmapWidth, bitmapHeight];
+              costume.asset = storage.createAsset(storage.AssetType.ImageBitmap, costume.dataFormat, new Uint8Array(reader.result), null,
+              // id
+              true // generate md5
+              );
+              costume.assetId = costume.asset.assetId;
+              costume.md5 = "".concat(costume.assetId, ".").concat(costume.dataFormat);
+              costume.md5ext = costume.md5;
+              this.emitTargetsUpdate();
+              resolve(costume.assetId);
+            } catch (e) {
+              console.error('updateBitmap asset creation failed', e);
+              resolve(costume.assetId);
+            }
+          });
+          reader.addEventListener('error', () => resolve(costume.assetId));
           reader.readAsArrayBuffer(blob);
-        }
+        });
       });
     }.bind(this.props.vm);
     this.props.vm.updateSvg = function (costumeIndex, svg, rotationCenterX, rotationCenterY) {
@@ -14562,7 +14576,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       );
       costume.assetId = costume.asset.assetId;
       costume.md5 = "".concat(costume.assetId, ".").concat(costume.dataFormat);
+      costume.md5ext = costume.md5;
       this.emitTargetsUpdate();
+      return Promise.resolve(costume.assetId);
     }.bind(this.props.vm);
 
     // console.log(this.props.vm.runtime._primitives)
@@ -18260,7 +18276,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
 
 
-const channel = _utils_AblyHandlers__WEBPACK_IMPORTED_MODULE_6__.ablyInstance.channels.get(_utils_AblyHandlers__WEBPACK_IMPORTED_MODULE_6__.ablySpace);
+const ably = _utils_AblyHandlers__WEBPACK_IMPORTED_MODULE_6__.ablyInstance;
+const innerChannelName = _utils_AblyHandlers__WEBPACK_IMPORTED_MODULE_6__.ablySpace && _utils_AblyHandlers__WEBPACK_IMPORTED_MODULE_6__.ablySpace.endsWith('_inner') ? _utils_AblyHandlers__WEBPACK_IMPORTED_MODULE_6__.ablySpace : "".concat(_utils_AblyHandlers__WEBPACK_IMPORTED_MODULE_6__.ablySpace, "_inner");
+var channel = ably.channels.get(innerChannelName);
 class PaintEditorWrapper extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
   constructor(props) {
     super(props);
@@ -18291,16 +18309,25 @@ class PaintEditorWrapper extends react__WEBPACK_IMPORTED_MODULE_0__.Component {
     var _this = this;
     return _asyncToGenerator(function* () {
       const target = _this.props.vm.editingTarget;
-      if (isVector) {
-        _this.props.vm.updateSvg(_this.props.selectedCostumeIndex, image, rotationCenterX, rotationCenterY, target.sprite.name);
-      } else {
-        _this.props.vm.updateBitmap(_this.props.selectedCostumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */, target.sprite.name);
+      let assetId;
+      try {
+        if (isVector) {
+          assetId = yield _this.props.vm.updateSvg(_this.props.selectedCostumeIndex, image, rotationCenterX, rotationCenterY, target.sprite.name);
+        } else {
+          assetId = yield _this.props.vm.updateBitmap(_this.props.selectedCostumeIndex, image, rotationCenterX, rotationCenterY, 2 /* bitmapResolution */, target.sprite.name);
+        }
+      } catch (e) {
+        console.error('Costume update failed before upload', e);
       }
       if (!isVector) {
         const b64image = yield _this.imageDataToBase64(image);
         image = JSON.stringify(b64image);
       }
-      const assetId = target.sprite['costumes'][_this.props.selectedCostumeIndex].assetId;
+      assetId = assetId || target.sprite['costumes'][_this.props.selectedCostumeIndex].assetId;
+      if (!assetId) {
+        console.error('No assetId available for costume upload; skipping publish');
+        return;
+      }
       const ext = isVector ? 'svg' : 'png';
       console.log('pre', assetId);
       const msg = {
@@ -36637,6 +36664,7 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   ablyInstance: () => (/* binding */ ablyInstance),
 /* harmony export */   ablySpace: () => (/* binding */ ablySpace),
 /* harmony export */   cursorColor: () => (/* binding */ cursorColor),
+/* harmony export */   inSpace: () => (/* binding */ inSpace),
 /* harmony export */   name: () => (/* binding */ name)
 /* harmony export */ });
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
@@ -36665,7 +36693,8 @@ try {
     sessionStorage.setItem('isViewOnly', "F");
   }
 }
-const ablySpace = space;
+const inSpace = space;
+const ablySpace = space && space.endsWith('_inner') ? space : "".concat(space, "_inner");
 const name = urlParams.get('name').toString();
 const cursorColor = urlParams.get('color').toString();
 const ablyInstance = new ably__WEBPACK_IMPORTED_MODULE_1__.Realtime.Promise({
@@ -45101,4 +45130,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.01e7441ae54cee629d21.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.d67b8e94b8850672dca7.js.map

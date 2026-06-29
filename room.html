@@ -232,6 +232,25 @@
                 <button class="auto-assign-btn" onclick="autoAssignMembers()">Auto Assign</button>
             </div>
 
+            <div class="shared-vc-row">
+            <label class="shared-vc-label">
+                <input
+                type="checkbox"
+                id="shared-vc-toggle"
+                onchange="onSharedVcToggleChanged(this.checked)"
+                />
+                <span>Shared VC Room</span>
+            </label>
+            <span id="shared-vc-badge" style="display:none;" class="shared-vc-badge">
+                🎙️ Shared Chime
+            </span>
+            </div>
+            <p id="shared-vc-hint" style="display:none;" class="shared-vc-hint">
+            Each breakout room shares a Chime meeting (audio/video &amp; group chat)
+            but has its own Ably block workspace. TAs are kept in the main room on
+            auto-assign.
+            </p>
+
             <div class="main-content">
                 <div class="rooms-section">
                     <div class="rooms-grid" id="rooms-container">

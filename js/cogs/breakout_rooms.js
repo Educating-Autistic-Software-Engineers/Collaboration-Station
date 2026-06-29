@@ -2,6 +2,7 @@ let roomAssignments = {};
 let currentRoomCount = 3;
 let onlineSet = new Set();
 let roomViewOnlyFlags = {};
+let sharedVcMode = false;
 
 function buildRoomDbUrl(extraParams = {}) {
   const url = new URL("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
@@ -65,9 +66,7 @@ async function showBreakoutRoomsPopup() {
   }
   onlineSet = new Set(present || []);
 
-  // 3. Build POTENTIAL_MEMBERS from editors list, resolving names
   const findUser = (email) => {
-    // First check connectedUsers for the current user (might have display name)
     if (typeof connectedUsers !== "undefined") {
       for (const key of Object.keys(connectedUsers)) {
         const u = connectedUsers[key];
@@ -76,7 +75,6 @@ async function showBreakoutRoomsPopup() {
         }
       }
     }
-    // Check POTENTIAL_MEMBERS (loaded via /getAllItems)
     if (
       typeof POTENTIAL_MEMBERS !== "undefined" &&
       Array.isArray(POTENTIAL_MEMBERS)
@@ -114,7 +112,14 @@ async function showBreakoutRoomsPopup() {
   const batchResp = await fetch(
     `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts?room=${baseRoomId}&batch=${emails.join(",")}`,
   );
-  const data = await batchResp.json();
+  const batchJson = await batchResp.json();
+  const data = batchJson.assignments ?? batchJson;
+  sharedVcMode = Boolean(batchJson.shared_vc);
+  const sharedVcToggle = document.getElementById("shared-vc-toggle");
+  if (sharedVcToggle) {
+    sharedVcToggle.checked = sharedVcMode;
+    updateSharedVcUi();
+  }
   console.log(data);
 
   const roomCount = parseInt(document.getElementById("room-count").value) || 3;
@@ -154,6 +159,18 @@ async function showBreakoutRoomsPopup() {
 function hideBreakoutRoomsPopup() {
   const popup = document.getElementById("breakout-rooms-popup");
   popup.style.display = "none";
+}
+
+function updateSharedVcUi() {
+  const badge = document.getElementById("shared-vc-badge");
+  const hint = document.getElementById("shared-vc-hint");
+  if (badge) badge.style.display = sharedVcMode ? "inline-flex" : "none";
+  if (hint) hint.style.display = sharedVcMode ? "block" : "none";
+}
+
+function onSharedVcToggleChanged(checked) {
+  sharedVcMode = checked;
+  updateSharedVcUi();
 }
 
 function initializeBreakoutRooms(refreshAssignments = true) {
@@ -402,9 +419,23 @@ function updateUnassignedCount() {
 function autoAssignMembers() {
   roomAssignments = {};
 
-  const shuffledMembers = [...POTENTIAL_MEMBERS].sort(
-    () => Math.random() - 0.5,
-  );
+  // In shared VC mode, TAs stay in the main room (unassigned).
+  // A member is considered a TA if their record has role === "TA" or
+  // if the global POTENTIAL_MEMBERS entry carries that flag.
+  const isTa = (member) => {
+    if (member.role === "TA") return true;
+    if (typeof POTENTIAL_MEMBERS !== "undefined" && Array.isArray(POTENTIAL_MEMBERS)) {
+      const found = POTENTIAL_MEMBERS.find((m) => m.email === member.email);
+      if (found && found.role === "TA") return true;
+    }
+    return false;
+  };
+
+  const membersToAssign = sharedVcMode
+    ? POTENTIAL_MEMBERS.filter((m) => !isTa(m))
+    : [...POTENTIAL_MEMBERS];
+
+  const shuffledMembers = membersToAssign.sort(() => Math.random() - 0.5);
 
   shuffledMembers.forEach((member, index) => {
     const roomId = (index % currentRoomCount) + 1;
@@ -492,6 +523,19 @@ async function saveBreakoutRooms() {
   const assignedEmails = new Set();
   let hasSaveFailure = false;
 
+  try {
+    await fetch(buildRoomDbUrl(), {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        roomID: baseRoomId,
+        shared_vc: sharedVcMode,
+      }),
+    });
+  } catch (e) {
+    console.error("Failed to save shared_vc flag on base room", e);
+  }
+
   for (let roomnum = 1; roomnum <= currentRoomCount; roomnum++) {
     const response = await fetch(
       "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts",
@@ -504,6 +548,7 @@ async function saveBreakoutRooms() {
           room: baseRoomId,
           roomnum,
           view_only: Boolean(roomViewOnlyFlags[roomnum]),
+          shared_vc: sharedVcMode,
         }),
       },
     );
