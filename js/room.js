@@ -772,6 +772,7 @@ function initEmojiSelector() {
 // DOM Content Loaded event handler
 window.messagingReady.then(async () => {
   await load();
+  await refreshMembers();
 
   postWorkspaceLogEvent("custom:roomEntered", {
     page: "room.html",

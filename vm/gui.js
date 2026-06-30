@@ -513,8 +513,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./CursorSvg.jsx */ "./src/utils/CursorSvg.jsx");
 /* harmony import */ var _Cursors_module_css__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./Cursors.module.css */ "./src/utils/Cursors.module.css");
 /* harmony import */ var _Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var core_js_core_object__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! core-js/core/object */ "./node_modules/core-js/core/object.js");
-/* harmony import */ var core_js_core_object__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(core_js_core_object__WEBPACK_IMPORTED_MODULE_4__);
 function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
 function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
 function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -524,11 +522,9 @@ function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = 
 
 
 
-
 let thisName;
-const cursorWidth = 90; // width of your cursor SVG
-const cursorHeight = 60; // height of your cursor SVG
-
+const FALLBACK_WIDTH = 90;
+const FALLBACK_HEIGHT = 60;
 const channel = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.ablyInstance.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.ablySpace);
 sessionStorage.setItem('blocksRect', JSON.stringify({
   x: 0,
@@ -550,12 +546,27 @@ const YourCursor = _ref => {
     y: 0
   });
   const latestPosition = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(position);
+  const cursorRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)(null);
+  const [size, setSize] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({
+    width: 90,
+    height: 60
+  });
   let cachedPosition = {
     x: 0,
     y: 0
   };
   let emitIndex = 0;
   thisName = name;
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useLayoutEffect)(() => {
+    if (cursorRef.current) {
+      const rect = cursorRef.current.getBoundingClientRect();
+      setSize({
+        width: rect.width,
+        height: rect.height
+      });
+    }
+  }, [name]); // re-measure if the nametag text (name) changes width
+
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     const handleMouseMove = event => {
       const newPosition = {
@@ -572,15 +583,10 @@ const YourCursor = _ref => {
       }
       const tabIndex = sessionStorage.getItem("activeTabIndex");
       const blockRect = JSON.parse(sessionStorage.getItem('blocksRect'));
-      let isHovering = latestPosition.current.x < blockRect.right; // && latestPosition.y > blockRect.y
+      let isHovering = latestPosition.current.x < blockRect.right;
       if (Number(tabIndex) > 0.5) {
         isHovering = false;
       }
-
-      //console.log(tabIndex)
-
-      //console.log(blockRect, latestPosition.current.x, blockRect.right, isHovering)
-
       const dragPos = isHovering ? JSON.parse(sessionStorage.getItem("dragRelative")) : {
         x: 0,
         y: 0
@@ -591,11 +597,6 @@ const YourCursor = _ref => {
       };
       if (JSON.stringify(cachedPosition) === JSON.stringify(globalPosition)) return;
       cachedPosition = globalPosition;
-
-      //console.log(document.getElementById('totalsize').getBoundingClientRect());
-
-      // console.log("SENDING!!!", globalPosition)
-      // console.log(ablySpace, name)
       websocket.send(JSON.stringify({
         action: "cursorMessage",
         target: sessionStorage.getItem("editingTarget"),
@@ -613,26 +614,22 @@ const YourCursor = _ref => {
         rect: sessionStorage.getItem("blocksRect")
       }));
     }, 65);
-
-    // Cleanup the event listener and interval on component unmount
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       clearInterval(intervalId);
     };
   }, [self]);
-
-  // Get the viewport dimensions
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
-
-  // Clamp the positions
-  const clampedX = clampPosition(position.x, viewportWidth, cursorWidth);
-  const clampedY = clampPosition(position.y, viewportHeight, cursorHeight);
+  const clampedX = clampPosition(position.x, viewportWidth, size.width);
+  const clampedY = clampPosition(position.y, viewportHeight, size.height);
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
+    ref: cursorRef,
     className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursor),
     style: {
       top: "".concat(clampedY, "px"),
-      left: "".concat(clampedX, "px")
+      left: "".concat(clampedX, "px"),
+      maxWidth: "".concat(viewportWidth, "px")
     }
   }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
     cursorColor: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_1__.cursorColor
@@ -648,21 +645,27 @@ const MemberCursors = _ref2 => {
     websocket
   } = _ref2;
   const [cursors, setCursors] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({});
-  let highestEmitIndices = {};
+  // Persist across renders without re-triggering the effect (mirrors the
+  // original `let highestEmitIndices = {}` semantics, but keeps it stable
+  // across rerenders instead of resetting every render).
+  const highestEmitIndicesRef = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)({});
+  // DOM refs for each member's cursor element, keyed by clientId, so we can
+  // measure their real width/height (cursor + nametag) for clamping.
+  const elementRefs = (0,react__WEBPACK_IMPORTED_MODULE_0__.useRef)({});
+  // Measured sizes per clientId; updated after each render via effect.
+  const [sizes, setSizes] = (0,react__WEBPACK_IMPORTED_MODULE_0__.useState)({});
   (0,react__WEBPACK_IMPORTED_MODULE_0__.useEffect)(() => {
     if (!websocket) {
       console.warn('WebSocket is not defined');
       return;
     }
     const handleCursorMessage = message => {
-      // console.log(message)
       try {
         const {
           rect
         } = JSON.parse(message.data);
         JSON.parse(rect);
       } catch (e) {
-        // console.log(e, message.data)
         return;
       }
       const {
@@ -676,10 +679,8 @@ const MemberCursors = _ref2 => {
         ogWindow,
         rect
       } = JSON.parse(message.data);
-      if (emitIndex < highestEmitIndices[clientId]) return;
-      highestEmitIndices[clientId] = emitIndex;
-
-      // console.log(thisName, clientId)
+      if (emitIndex < highestEmitIndicesRef.current[clientId]) return;
+      highestEmitIndicesRef.current[clientId] = emitIndex;
       if (clientId === thisName) return;
       const ogRect = JSON.parse(rect);
       const blockRect = JSON.parse(sessionStorage.getItem('blocksRect'));
@@ -714,29 +715,67 @@ const MemberCursors = _ref2 => {
       }));
     };
     websocket.onmessage = handleCursorMessage;
-
-    // Cleanup the subscription on component unmount
     return () => {
       websocket.onmessage = null;
     };
   }, [websocket]);
-  const clampPosition = (position, max, cursorSize) => {
-    return Math.max(0, Math.min(position, max - cursorSize));
-  };
-  const cursorWidth = 20; // Define cursor width if needed
-  const cursorHeight = 20; // Define cursor height if needed
+  (0,react__WEBPACK_IMPORTED_MODULE_0__.useLayoutEffect)(() => {
+    const nextSizes = {};
+    let changed = false;
+    Object.keys(cursors).forEach(clientId => {
+      const el = elementRefs.current[clientId];
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        const width = rect.width || FALLBACK_WIDTH;
+        const height = rect.height || FALLBACK_HEIGHT;
+        nextSizes[clientId] = {
+          width,
+          height
+        };
+        const prev = sizes[clientId];
+        if (!prev || prev.width !== width || prev.height !== height) {
+          changed = true;
+        }
+      } else {
+        nextSizes[clientId] = sizes[clientId] || {
+          width: FALLBACK_WIDTH,
+          height: FALLBACK_HEIGHT
+        };
+      }
+    });
+    if (changed || Object.keys(nextSizes).length !== Object.keys(sizes).length) {
+      setSizes(nextSizes);
+    }
 
-  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, Object.values(cursors).map((member, index) => {
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-    const clampedX = clampPosition(member.relposition.x, viewportWidth, cursorWidth);
-    const clampedY = clampPosition(member.relposition.y, viewportHeight, cursorHeight);
+    // Drop refs for members who are no longer present.
+    Object.keys(elementRefs.current).forEach(clientId => {
+      if (!cursors[clientId]) {
+        delete elementRefs.current[clientId];
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cursors]);
+  const viewportWidth = window.innerWidth;
+  const viewportHeight = window.innerHeight;
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(react__WEBPACK_IMPORTED_MODULE_0__.Fragment, null, Object.entries(cursors).map(_ref3 => {
+    let [clientId, member] = _ref3;
+    const size = sizes[clientId] || {
+      width: FALLBACK_WIDTH,
+      height: FALLBACK_HEIGHT
+    };
+    const clampedX = clampPosition(member.relposition.x, viewportWidth, size.width);
+    const clampedY = clampPosition(member.relposition.y, viewportHeight, size.height);
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement("div", {
-      key: index,
+      key: clientId,
+      ref: el => {
+        elementRefs.current[clientId] = el;
+      },
       className: (_Cursors_module_css__WEBPACK_IMPORTED_MODULE_3___default().cursor),
       style: {
         top: "".concat(clampedY, "px"),
-        left: "".concat(clampedX, "px")
+        left: "".concat(clampedX, "px"),
+        maxWidth: "".concat(viewportWidth, "px"),
+        maxHeight: "".concat(viewportHeight, "px")
       }
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_0__.createElement(_CursorSvg_jsx__WEBPACK_IMPORTED_MODULE_2__["default"], {
       cursorColor: member.cursorColor
@@ -785,7 +824,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.id, ".Cursors-module_cursor_28g2_ {\r\n    position: absolute;\r\n    pointer-events: none;\r\n    z-index: 1000;\r\n    cursor: none;\r\n}\r\n\r\n.Cursors-module_cursorName_jhzeK {\r\n    padding: 0.5rem 1rem;\r\n    margin-left: 0.5rem;\r\n    border-radius: 9999px;\r\n    font-size: 0.875rem;\r\n    line-height: 1.25rem;\r\n    color: #fff;\r\n    white-space: nowrap;\r\n    pointer-events: none;\r\n}\r\n  ", ""]);
+exports.push([module.id, ".Cursors-module_cursor_28g2_ {\r\n    position: absolute;\r\n    pointer-events: none;\r\n    z-index: 1000;\r\n    cursor: none;\r\n}\r\n\r\n.Cursors-module_cursorName_jhzeK {\r\n    padding: 0.5rem 1rem;\r\n    margin-left: 0.5rem;\r\n    border-radius: 9999px;\r\n    font-size: 0.875rem;\r\n    line-height: 1.25rem;\r\n    color: #fff;\r\n    max-width: 200px;\r\n    white-space: nowrap;\r\n    pointer-events: none;\r\n    text-overflow: ellipsis;\r\n}\r\n  ", ""]);
 // Exports
 exports.locals = {
 	"cursor": "Cursors-module_cursor_28g2_",
@@ -926,7 +965,7 @@ if(false) {}
 },
 /******/ __webpack_require__ => { // webpackRuntimeModules
 /******/ var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-/******/ __webpack_require__.O(0, ["vendors-node_modules_microbit_microbit-universal-hex_dist_esm5_universal-hex_js-node_modules_-e1a150","vendors-node_modules_core-js_core_object_js-node_modules_core-js_fn_array_includes_js-node_mo-7eb68d","src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx"], () => (__webpack_exec__("./src/playground/index.jsx")));
+/******/ __webpack_require__.O(0, ["vendors-node_modules_microbit_microbit-universal-hex_dist_esm5_universal-hex_js-node_modules_-e1a150","vendors-node_modules_core-js_fn_array_includes_js-node_modules_intl_index_js-node_modules_abl-bc6f29","src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx"], () => (__webpack_exec__("./src/playground/index.jsx")));
 /******/ var __webpack_exports__ = __webpack_require__.O();
 /******/ return __webpack_exports__;
 /******/ }

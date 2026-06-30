@@ -651,6 +651,7 @@ window.messagingReady.then(() => {
                         </div>`;
 
     messagesWrapper.insertAdjacentHTML("beforeend", newMessage);
+    messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
 
     let lastMessage = document.querySelector(
       "#messages .message__wrapper:last-child",
@@ -702,6 +703,7 @@ window.messagingReady.then(() => {
                         </div>`;
 
     messagesWrapper.insertAdjacentHTML("beforeend", newMessage);
+    messagesWrapper.scrollTop = messagesWrapper.scrollHeight;
 
     let lastMessage = document.querySelector(
       "#messages .message__wrapper:last-child",

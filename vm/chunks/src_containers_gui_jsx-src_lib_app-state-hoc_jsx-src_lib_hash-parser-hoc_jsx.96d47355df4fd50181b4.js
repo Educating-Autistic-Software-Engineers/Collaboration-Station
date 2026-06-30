@@ -12994,6 +12994,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this2.vid = -1;
         hasInited = true;
         _this2.timer = null;
+        _this2.rootVersions = new Map();
 
         // this.varCallbackFunc = function(a,b,c) {console.log(a,b,c, "callback var trigged early")};
 
@@ -13063,6 +13064,40 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         yield channel.presence.enter();
       }
     })();
+  }
+  getRootBlockId(blockId) {
+    const block = this.workspace.getBlockById(blockId);
+    if (!block) return blockId;
+    const root = typeof block.getRootBlock === 'function' ? block.getRootBlock() : block;
+    return root && root.id ? root.id : blockId;
+  }
+  captureInverse(eve) {
+    // Only meaningful for events that mutate workspace state and support undo.
+    if (!eve || typeof eve.run !== 'function') return null;
+    return eve;
+  }
+  revertLocalRootGroup(rootId) {
+    const versionInfo = this.rootVersions.get(rootId);
+    if (!versionInfo || !versionInfo.inverseEvents || versionInfo.inverseEvents.length === 0) {
+      return;
+    }
+    console.log("CONFLICT: reverting local root group", rootId, versionInfo);
+    this.stopEmission = true;
+    try {
+      // Undo in reverse order, most-recent-first, mirroring undo-stack semantics.
+      for (let i = versionInfo.inverseEvents.length - 1; i >= 0; i--) {
+        const inv = versionInfo.inverseEvents[i];
+        try {
+          inv.collabFlag = true;
+          inv.run(false); // false = undo direction
+        } catch (e) {
+          console.error("failed to revert inverse event", inv, e);
+        }
+      }
+    } finally {
+      this.stopEmission = false;
+    }
+    this.rootVersions.delete(rootId);
   }
   handleParentMessage(event) {
     if (!event || !event.data) return;
@@ -13459,8 +13494,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       console.log("INFO INFO", eve);
       let parentID = -1;
       let childIDX = -1;
-
-      // handing field events since they don't have a consistent blockId
       if (eve.element == "field") {
         const parentBlock = _this7.workspace.getBlockById(eve.blockId).parentBlock_;
         if (!!parentBlock) {
@@ -13474,7 +13507,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
       if (_this7.stopEmission) {
         console.log("recieved own event;", _this7.pauseWorkspaceUpdate, _this7.lastBlockId, eve.blockId, _this7.lastBlockType, eve.type);
-        // debugger
         if (_this7.lastBlockId == eve.blockId && _this7.lastBlockType == eve.type) {
           _this7.stopEmission = false;
           if (_this7.lastTempId != "") {
@@ -13487,8 +13519,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       if (_this7.holdingBlock) {
         return;
       }
-      //console.log(eve.element, eve.recordUndo, eve.group, eve)
-
       console.log('loading', _this7.hasLoadedFully);
       if (_this7.hasLoadedFully) {
         _this7.logData({
@@ -13501,18 +13531,23 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           event: eve
         });
       }
-
-      // this is if an event happens while an event is being sent to the server;
-      // we queue the event to be sent after the current event is sent
-      // this is not correlated with the other this.queue system
+      const nowTs = Date.now();
+      if (eve.blockId && _this7.workspace.getBlockById(eve.blockId)) {
+        const rootId = _this7.getRootBlockId(eve.blockId);
+        const existing = _this7.rootVersions.get(rootId);
+        const inverse = _this7.captureInverse(eve);
+        _this7.rootVersions.set(rootId, {
+          timestamp: nowTs,
+          inverseEvents: existing && existing.inverseEvents ? [...existing.inverseEvents, inverse].filter(Boolean) : [inverse].filter(Boolean)
+        });
+      }
       let singleMessage = eve.toJson();
+      singleMessage.ts = nowTs;
       if (_this7.queueFurtherSends || _this7.queueWhileOnDifferentTarget) {
         console.log("backlogged", singleMessage);
         _this7.backlog.push(singleMessage);
         return;
       }
-
-      // we queue the create event because it has to immediately be moved after
       if (eve.type == "create" || eve.element == "click" || eve.type == 'move' && eve.oldParentId) {
         console.log(singleMessage, eve.type == "create" ? "queueing create" : "queueing other");
         _this7.queue.push(singleMessage);
@@ -13528,19 +13563,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       if (eve.type == "comment_create") {
         singleMessage.commentXY = eve.xy;
       }
-
-      //console.log(this.queue, this.queue.length, "sending");
       _this7.queue.push(singleMessage);
       console.log('pushing to queue', singleMessage, eve);
-      //console.log(this.queue, this.queue.length, "sending");
-
       console.log('sending array of length: ', _this7.queue.length);
       _this7.sendArray(_this7.queue, parentID, childIDX);
       _this7.queue.length = 0;
       console.log("sending backlog:", _this7.backlog);
       yield _this7.sendBacklog(parentID, childIDX);
-
-      //this.save.bind(this)();
     })();
   }
   sendArray(arr) {
@@ -13607,28 +13636,17 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       console.log("discarding");
       return;
     }
-
-    // console.log(this.workspace.id)
-
     this.randomIndex = data.rIDX;
     const targetName = data.target;
     const dir = data.dir;
     this.changeTarget(targetName);
-    for (let message of data.messages) {
-      // this is for text entries; for some reason their IDs get changed when saved.
-      // so, it sends the index of the parent node (a normal block) and the index of the child node to extract the text entry box
+    for (let msg of data.messages) {
       if (data.parentID != -1) {
-        message.blockId = this.workspace.getBlockById(data.parentID).childBlocks_[data.childIDX].id;
+        msg.blockId = this.workspace.getBlockById(data.parentID).childBlocks_[data.childIDX].id;
       }
-      this.parseEvent(message, targetName, dir);
+      this.parseEvent(msg, targetName, dir);
     }
     console.log("finished parsing");
-    console.log("ACKTUALLY");
-    // this.enableWorkspaceUpdate();
-    // this.props.vm.editingTarget = ogTarget
-    // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
-    // console.log("set to", this.props.vm.editingTarget.sprite.name)
-    // this.enableWorkspaceUpdate();
   }
   changeTarget(targetName) {
     let revertAutomatically = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
@@ -13692,8 +13710,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   parseEvent(event) {
     let targetName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
     let dir = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-    // console.log(this.ScratchBlocks.Events.Abstract.workspaceId)
-    // console.log(this.workspace.id)
     console.log('parsing!!', event);
     if (targetName == "") {
       targetName = this.props.vm.editingTarget.sprite.name;
@@ -13701,25 +13717,40 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     if (event.type == "comment_change") {
       event.newValue = event.newContents;
     }
-
-    // const ogTarget = this.props.vm.editingTarget;
-    // const tmpTarget = this.getTargetByName(targetName);
-
-    // this.props.vm.editingTarget = tmpTarget;
-    // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
-    // this.props.vm.setEditingTarget(tmpTarget.id);
-    // this.disableWorkspaceUpdate();
-
     if (this.workspace.getBlockById(event.blockId) == null && event.type != "create") {
       console.log(event, "discarded because block does not exist");
-      console.log(this.workspace);
-      // refresh page
-      // await channel.publish('preRefresh', "");
-      // await new Promise(r => setTimeout(r, 200));
-      // await this.load();
-      // this.revertToOriginalTarget();
       return;
     }
+
+    // ---- NEW: conflict check, root-block scoped -----------------------
+    // event.ts is the sender's local timestamp for this op (set in
+    // sendInformation above). If we have a local mutation on this same
+    // root group that's NEWER than the incoming event's timestamp, our
+    // local edit lost the race window (we sent ours, then this arrived).
+    // Per the agreed rule: incoming wins. Revert our local change first,
+    // drop our action (we simply don't re-send — there's nothing to
+    // re-send, it's already gone out or about to), then fall through to
+    // apply the incoming event normally.
+    if (event.blockId && typeof event.ts === 'number') {
+      const rootId = this.getRootBlockId(event.blockId);
+      const localVersion = this.rootVersions.get(rootId);
+      if (localVersion && localVersion.timestamp > event.ts) {
+        console.log("CONFLICT: local edit on root", rootId, "at", localVersion.timestamp, "is newer than incoming event at", event.ts, "— incoming wins, reverting local");
+        this.revertLocalRootGroup(rootId);
+        // continue below to apply the incoming event onto the now-reverted state
+      } else {
+        // No conflict, or incoming is newer/equal — incoming will be
+        // applied as the new authoritative state for this root below.
+        // Clear any stale local pending record so future incoming events
+        // for this root don't get spuriously compared against an old
+        // local op we've already lost the right to defend.
+        if (localVersion) {
+          this.rootVersions.delete(rootId);
+        }
+      }
+    }
+    // ---- END NEW
+
     if (event.type == "create") {
       this.holdingBlock = true;
     } else if (event.type == "move") {
@@ -13732,15 +13763,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
     try {
       console.log("is have broadcast info", !!event.broadcastInfo, event.broadcastInfo);
-
-      // check if event is a create block (procedure) event
       this.stopEmission = true;
       let isProcedureDefinition = eventInstance.type == "delete" && this.workspace.getBlockById(event.blockId).type == "procedures_definition";
       if (eventInstance.type == "create" && event.xml.indexOf("mutation proccode") != -1) {
         isProcedureDefinition = true;
       }
-
-      // if event is a broadcast event, we have to manually run the block once more for some reason
       if (!!event.broadcastInfo) {
         console.log("WHAHAHAH");
         const broadcastEvent = {
@@ -13757,31 +13784,27 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         newEvent.run(dir);
       }
       eventInstance.collabFlag = true;
-      eventInstance.run(dir); // handles block
+      eventInstance.run(dir);
       if (eventInstance.type == "ui") {
-        this.props.vm.editingTarget.blocks.blocklyListen(eventInstance); //runs the block
+        this.props.vm.editingTarget.blocks.blocklyListen(eventInstance);
       } else {
         this.lastBlockId = event.blockId;
         this.lastBlockType = event.type;
       }
-
-      // for create function events, we have to refresh workspace to show new functions
       if (isProcedureDefinition) {
         this.workspace.getToolbox().refreshSelection();
+      }
+      if (event.blockId && typeof event.ts === 'number') {
+        const rootId = this.getRootBlockId(event.blockId);
+        this.rootVersions.set(rootId, {
+          timestamp: event.ts,
+          inverseEvents: null // remote-sourced; we don't own an inverse for it
+        });
       }
     } catch (e) {
       console.error(e);
     }
     console.log("done");
-
-    // other non-ui events get reverted elsewhere
-    // if (eventInstance.type == "ui") {
-    //     this.revertToOriginalTarget()
-    // }
-
-    // this.props.vm.editingTarget = ogTarget;
-    // this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
-    // this.enableWorkspaceUpdate();
   }
   disableWorkspaceUpdate() {
     console.log("DISABLED!!");
@@ -45130,4 +45153,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.d67b8e94b8850672dca7.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.96d47355df4fd50181b4.js.map
