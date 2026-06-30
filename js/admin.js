@@ -1,5 +1,19 @@
 let rooms = [];
 
+function buildRoomDbUrl(extraParams = {}) {
+    const url = new URL('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB');
+    url.searchParams.set('user', sessionStorage.getItem('email') || '');
+    url.searchParams.set('token', sessionStorage.getItem('token') || '');
+
+    Object.entries(extraParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+            url.searchParams.set(key, String(value));
+        }
+    });
+
+    return url.toString();
+}
+
 console.log("HISDF")
 document.addEventListener('DOMContentLoaded', async () => {
     const getAllItemsUrl = new URL('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems');
@@ -10,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const res = await rest.json();
     let requests= res.requests;
 
-    const datresp = await fetch("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
+    const datresp = await fetch(buildRoomDbUrl());
     const roomsj = await datresp.json();
     rooms = roomsj.requests;
     const roomsd = JSON.parse(JSON.stringify(rooms));
@@ -152,7 +166,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveRoomsBtn.addEventListener('click', async () => {
 
         try {
-            const response = await fetch('https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB', {
+            const response = await fetch(buildRoomDbUrl(), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

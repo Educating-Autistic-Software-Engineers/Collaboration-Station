@@ -4,6 +4,20 @@ if (!uid) {
   sessionStorage.setItem("uid", uid);
 }
 
+function buildRoomDbUrl(extraParams = {}) {
+  const url = new URL("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
+  url.searchParams.set("user", sessionStorage.getItem("email") || "");
+  url.searchParams.set("token", sessionStorage.getItem("token") || "");
+
+  Object.entries(extraParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      url.searchParams.set(key, String(value));
+    }
+  });
+
+  return url.toString();
+}
+
 let token = null;
 let client;
 let meetingSession;
@@ -133,70 +147,57 @@ let joinRoomInit = async () => {
   sessionStorage.setItem("breakoutId", breakoutId || "0");
   console.log(sessionStorage.getItem("breakoutId"));
 
-  // wait for ably instance ablyInstance (already defined)
-  // to be ready before proceeding
   await window.messagingReady;
   await window.messagingConnected;
 
-  console.log(" AblyConnected Joining Room");
+  const chimeRoomId = window.chimeRoomId ?? roomId;
+  const isSharedVc = Boolean(window.sharedVcMode);
+  console.log(`joinRoomInit: chimeRoomId=${chimeRoomId}, sharedVc=${isSharedVc}`);
+
+  console.log("AblyConnected — Joining Room");
   try {
+    let chimePresenceChannel;
+    if (isSharedVc) {
+      // In shared_vc, use the base room channel — all users enter presence
+      // there via messaging_rooms.js regardless of breakout assignment.
+      chimePresenceChannel = ablyInstance.channels.get(`room:${chimeRoomId}`);
+    } else {
+      chimePresenceChannel = ablyChannel;
+    }
+
     let numMembers = 0;
-    const members = await ablyChannel.presence.get();
-    console.log(members);
-    for (let member in members) {
-      if (members[member].data !== sessionStorage.getItem("email")) {
+    const members = await chimePresenceChannel.presence.get();
+    console.log("Presence members:", members);
+    for (const member of members) {
+      if (member.data?.email !== sessionStorage.getItem("email")) {
         numMembers++;
       }
     }
-    console.log(numMembers + ": Number of members");
-    if (numMembers === 1) {
-      //Check for ExistingMeeting ID tied to X
-      /**
-       * TODO Check if there already exists a meeting
-       * in the main project room or a breakroom
-       *
-       */
-      try {
-      } catch (err) {
-        console.log("No existing meeting, creating new one...");
-      }
+    console.log(numMembers + ": other members in room");
 
+    if (numMembers === 0) {
+      // You are the first person in — create a new meeting.
       const createResponse = await fetch(
         "https://peagtcdu93.execute-api.us-east-2.amazonaws.com/Stage1/create-meeting",
-        {
-          method: "POST",
-          headers: {},
-        },
+        { method: "POST", headers: {} },
       );
       const createData = await createResponse.json();
       meetingId = createData.Meeting.MeetingId;
       console.log("CREATED MEETING", createData);
 
-      await fetch(
-        "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
-        {
-          method: "PUT",
-          headers: {
-            Accept: "*/*",
-          },
-          body: JSON.stringify({
-            room_id: roomId,
-            meetingID: meetingId,
-          }),
-        },
-      );
+      await fetch(buildRoomDbUrl(), {
+        method: "PUT",
+        headers: { Accept: "*/*" },
+        body: JSON.stringify({
+          room_id: chimeRoomId,
+          meetingID: meetingId,
+        }),
+      });
     } else {
-      //**
-      // Possibly add a DB call here to sync up project meetings.
-      //  */
+      // Others are already present — look up the existing meeting ID from DB.
       const response = await fetch(
-        `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB?roomId=${roomId}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
+        buildRoomDbUrl({ roomId: chimeRoomId }),
+        { method: "GET", headers: { "Content-Type": "application/json" } },
       );
       const data = await response.json();
       console.log("JOINED MEETING", data);
@@ -225,9 +226,6 @@ let joinRoomInit = async () => {
       const meetingInfo = { Meeting: joinData.Meeting };
       const attendeeInfo = { Attendee: joinData.Attendee };
 
-      //***
-      // Connecting to meeting overhall.
-      //  */
       // Configure meeting session
       const configuration = new ChimeSDK.MeetingSessionConfiguration(
         meetingInfo.Meeting,
@@ -267,7 +265,7 @@ let joinRoomInit = async () => {
         },
 
         metricsDidReceive: (clientMetricReport) => {
-          //console.log(  "Chime metrics:",clientMetricReport.getObservableMetrics(),);
+          //console.log("Chime metrics:", clientMetricReport.getObservableMetrics());
         },
 
         audioInputFailed: (e) => console.log("Audio input failed:", e),
@@ -298,7 +296,6 @@ let joinRoomInit = async () => {
             `Attendee ID: ${attendeeId}, Volume: ${volume}, Muted: ${muted}, Signal Strength: ${signalStrength}`,
           );
           if (volume > 0.5 && !muted) {
-            // Threshold for "speaking"
             handleActiveVolumeIndicator(attendeeId, volume);
           }
         },
@@ -539,13 +536,11 @@ let toggleMic = async (e) => {
 let toggleMuteMic = async (e) => {
   let button = e.currentTarget;
 
-  // if (localTracks[0].muted) {
   await localTracks[0].setMuted(false);
   document.getElementById("mic-btn").style.display = "block";
   document.getElementById("mute-mic-btn").style.display = "none";
   document.getElementById("mic-btn").classList.add("active");
   document.getElementById("mute-video-icon").style.display = "none";
-  // }
 };
 
 let toggleCamera = async (e) => {
@@ -561,12 +556,10 @@ let toggleCamera = async (e) => {
 let toggleMuteCamera = async (e) => {
   let button = e.currentTarget;
 
-  // if (localTracks[1].muted) {
   await localTracks[1].setMuted(false);
   document.getElementById("camera-btn").style.display = "block";
   document.getElementById("mute-camera-btn").style.display = "none";
   document.getElementById("camera-btn").classList.add("active");
-  // }
 };
 
 // Toggle screen sharing
@@ -663,7 +656,6 @@ let switchToCamera = async () => {
 let leaveStream = async (e) => {
   e.preventDefault();
 
-  // document.getElementById('join-btn').style.display = 'block';
   document.getElementsByClassName("stream__actions")[0].style.display = "none";
 
   if (meetingSession) {
@@ -683,16 +675,12 @@ window.messagingReady.then(() => {
   // Register event listeners
   document.getElementById("camera-btn").addEventListener("click", toggleCamera);
   document.getElementById("mic-btn").addEventListener("click", toggleMic);
-  // document.getElementById('join-btn').addEventListener('click', joinStream);
   document
     .getElementById("mute-mic-btn")
     .addEventListener("click", toggleMuteMic);
   document
     .getElementById("mute-camera-btn")
     .addEventListener("click", toggleMuteCamera);
-  // Uncomment if screen sharing button exists
-  // document.getElementById('screen-btn').addEventListener('click', toggleScreen);
-  // document.getElementById('leave-btn').addEventListener('click', leaveStream);
 
   // Initialize on page load
   joinRoomInit();

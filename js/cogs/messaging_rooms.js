@@ -58,6 +58,20 @@ async function initSetup() {
     }
   }
 
+
+  let sharedVc = false;
+  try {
+    const sharedVcResp = await fetch(
+      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts`
+      + `?room=${baseProjectId}&batch=${encodeURIComponent(sessionStorage.getItem('email') || '')}`,
+    );
+    if (sharedVcResp.ok) {
+      const sharedVcJson = await sharedVcResp.json();
+      sharedVc = Boolean(sharedVcJson.shared_vc);
+    }
+  } catch (err) {
+    console.error('initSetup shared_vc fetch failed', err);
+  }
   // If we have a breakout number, add it to room identifiers
   if (breakoutNum !== null) {
     roomName += ":" + breakoutNum;
@@ -66,6 +80,13 @@ async function initSetup() {
   } else {
     breakoutId = 0;
   }
+
+  // chimeRoomId: base room when shared_vc so everyone joins one Chime
+  // meeting; otherwise falls back to the (possibly breakout) roomId.
+  window.chimeRoomId = sharedVc ? baseProjectId : roomId;
+  window.sharedVcMode = sharedVc;
+  console.log(`shared_vc=${sharedVc}, chimeRoomId=${window.chimeRoomId}, vmRoomId=${roomId}`);
+
   ablyInstance = new Ably.Realtime({
     authUrl:
       "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/ablyToken?name=" +
