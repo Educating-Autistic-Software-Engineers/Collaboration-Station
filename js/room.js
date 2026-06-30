@@ -66,14 +66,6 @@ let speakerSpotlightTimer = null;
 let currentSpotlightSpeakerId = null;
 let isViewOnlyRoom = false;
 
-window.roomMembersData = {
-  registered: [],
-  present: [],
-  totalRegistered: 0,
-  presentCount: 0,
-  tasks: [],
-};
-
 window.getRoomMembersData = () => window.roomMembersData;
 
 function randomHexString(length) {
@@ -419,8 +411,14 @@ async function initAddMemberAutocomplete() {
   const getAllItemsUrl = new URL(
     "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/getAllItems",
   );
-  getAllItemsUrl.searchParams.set("email", sessionStorage.getItem("email") || "");
-  getAllItemsUrl.searchParams.set("token", sessionStorage.getItem("token") || "");
+  getAllItemsUrl.searchParams.set(
+    "email",
+    sessionStorage.getItem("email") || "",
+  );
+  getAllItemsUrl.searchParams.set(
+    "token",
+    sessionStorage.getItem("token") || "",
+  );
 
   const resp = await fetch(getAllItemsUrl.toString());
   const data = await resp.json();
@@ -491,6 +489,13 @@ async function refreshMembers() {
     membersWrapper.innerHTML = "";
 
     let registered = [];
+    console.log(roomId);
+    /**
+     * TODO
+     * On Lambda, the breakoutRoomID does not return registered users. So we either return everyone on the Project
+     * or have a system that updates the breakoutRoomAssignments
+     */
+    const [baseRoomId, breakoutId] = roomId.split(":");
     try {
       const resp = await fetch(buildRoomDbUrl({ roomId }));
       if (resp.ok) {
@@ -660,14 +665,16 @@ async function refreshMembers() {
       (registered && registered.length) || presentCount || 0;
     document.getElementById("members__count").innerText = totalRegistered;
     document.getElementById("connectedCount").innerText = presentCount;
-
-    window.roomMembersData = {
-      registered,
-      present,
-      totalRegistered,
-      presentCount,
-      tasks,
-    };
+    console.log("Updating Registered");
+    if (registered != 0) {
+      window.roomMembersData = {
+        registered,
+        present,
+        totalRegistered,
+        presentCount,
+        tasks,
+      };
+    }
 
     window.dispatchEvent(
       new CustomEvent("roomMembersUpdated", {

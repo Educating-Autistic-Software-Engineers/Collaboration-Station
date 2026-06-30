@@ -100,7 +100,6 @@ async function initSetup() {
     });
   });
 
- 
   ablyInstance.connection.on("failed", (err) => {
     console.error("Ably connection failed", err);
   });
@@ -173,6 +172,37 @@ window.messagingReady.then(() => {
       name: getMemberName(memberData),
     });
   };
+
+  // Load message history when room is first entered
+  const loadInitialMessages = async () => {
+    try {
+      const projectId = urlParams.get("project");
+      const response = await fetch(
+        `https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/RetrieveMessage?id=${projectId}&breakout_id=${breakoutId}`,
+        {
+          method: "GET",
+        },
+      );
+
+      if (response.ok) {
+        const messages = await response.json();
+        // Display messages in reverse order (oldest first)
+        messages.reverse().forEach((msg) => {
+          console.log(msg);
+          addArchiveMessageToDom(
+            msg.Username,
+            msg.Message,
+            msg.color,
+            msg.Time,
+          );
+        });
+      }
+    } catch (err) {
+      console.error("Failed to load initial messages", err);
+    }
+  };
+  loadInitialMessages();
+
   ablyChannel.presence.subscribe("enter", async (member) => {
     const presenceSet = await ablyChannel.presence.get();
     const users = presenceSet.map((member) => member.data);
@@ -562,6 +592,9 @@ window.messagingReady.then(() => {
       minute: "numeric",
       second: "numeric",
     });
+    console.log("HI MOM ");
+    isoDate = date.toISOString();
+    console.log(breakoutId);
     await fetch(
       "https://lo4iehk4j4.execute-api.us-east-2.amazonaws.com/messages/addMessage",
       {
@@ -575,6 +608,8 @@ window.messagingReady.then(() => {
           Username: displayName,
           Message: message,
           Time: readableDate,
+          Date: isoDate,
+          breakout_id: breakoutId.toString(),
         }),
       },
     );
@@ -610,6 +645,40 @@ window.messagingReady.then(() => {
                                     </div>
                                     <strong class="message__author" style="color: ${color || "#6366f1"}">${name}</strong>
                                     <span class="message__timestamp">${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                                </div>
+                                <div class="message__text">${message}</div>
+                            </div>
+                        </div>`;
+
+    messagesWrapper.insertAdjacentHTML("beforeend", newMessage);
+
+    let lastMessage = document.querySelector(
+      "#messages .message__wrapper:last-child",
+    );
+  };
+
+  let addArchiveMessageToDom = (name, message, color, time) => {
+    console.log(time);
+
+    const date = new Date(time.replace(" at ", " "));
+    const formatter = new Intl.DateTimeFormat("en-US", {
+      month: "long", // "June"
+      day: "numeric", // "22"
+      hour: "numeric", // "4"
+      minute: "2-digit", // "15"
+      hour12: true, // "PM"
+    });
+    let result = formatter.format(date);
+    let messagesWrapper = document.getElementById("messages");
+
+    let newMessage = `<div class="message__wrapper">
+                            <div class="message__body">
+                                <div class="message__header">
+                                    <div class="message__author-avatar" style="background: ${color || "#6366f1"}">
+                                        ${name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <strong class="message__author" style="color: ${color || "#6366f1"}">${name}</strong>
+                                    <span class="message__timestamp">${result}</span>
                                 </div>
                                 <div class="message__text">${message}</div>
                             </div>
