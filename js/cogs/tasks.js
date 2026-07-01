@@ -44,8 +44,8 @@ class TasksManager {
       !this.managementSelectedStudent &&
       Object.keys(connectedUsers).length == 1
     ) {
-      this.managementSelectedStudent = connectedUsers;
-      //console.log(this.managementSelectedStudent);
+      this.managementSelectedStudent = Object.keys(connectedUsers)[0];
+      console.log(this.managementSelectedStudent);
     } else if (
       !this.managementSelectedStudent &&
       Object.keys(connectedUsers).length > 1
@@ -72,7 +72,9 @@ class TasksManager {
 
     // Normalize incoming task shape to our internal model
     const rawTasks = data.tasks || (data.request && data.request.tasks) || [];
-    const normalized = (rawTasks || []).map((t) => {
+    const activeTasks = rawTasks.filter((task) => task?.archived !== true);
+
+    const normalized = (activeTasks || []).map((t) => {
       const usersAssigned = (t.users_assigned || t.usersAssigned || "")
         .toString()
         .split(",")
@@ -357,10 +359,11 @@ class TasksManager {
 
     return `
             <div class="help-message ${message.sender}">
-                ${message.sender === "teacher" ? '<div class="message-avatar">👩\u200d🏫</div>' : ""}
+                ${message.sender === "teacher" ? '<button type="button" class="message-avatar message-avatar-button" onclick="window.sendTeacherMessage(this.closest(\'.help-message\').querySelector(\'.message-text\').innerText)">👩\u200d🏫</button>' : ""}
                 <div class="message-bubble">
                     <div class="message-text">${this.formatMessageText(message.text)}</div>
                     <div class="message-time">${time}</div>
+
                 </div>
             </div>
         `;
@@ -541,8 +544,8 @@ class TasksManager {
   onRoomMembersUpdated(members) {
     // update internal state or re-render
     this.roomMembers = members;
-    //No longer needed as task stay assigned. 
-   // this.render();
+    //No longer needed as task stay assigned.
+    // this.render();
   }
 
   // Drag and Drop handlers
@@ -1220,6 +1223,29 @@ class TasksManager {
     }
   }
 
+  async sendTaskArchivedToApi(task) {
+    const taskId = task.id || task.task_id || task;
+    console.log("Woot : " + taskId);
+    if (!taskId) return;
+    try {
+      await fetch(
+        "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/tasks",
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            task_id: taskId,
+            archived: true,
+          }),
+        },
+      );
+    } catch (err) {
+      console.error("Failed to send task archived status", err);
+    } finally {
+      console.log("Archive success");
+    }
+  }
+
   async sendTaskCompletionToApi(task) {
     const taskId = task.id || task.task_id;
     if (!taskId) return;
@@ -1465,6 +1491,12 @@ class TasksManager {
       taskId,
       taskTitle: taskToDelete ? taskToDelete.title : null,
     });
+
+    //**
+    // TODO Add a PATCH  */
+    console.log("Before");
+    this.sendTaskArchivedToApi(taskId);
+    console.log("after");
 
     // Remove from all students
     Object.keys(this.studentTasks).forEach((email) => {
