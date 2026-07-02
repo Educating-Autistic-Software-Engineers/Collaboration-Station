@@ -380,7 +380,9 @@ class TasksManager {
     const selectedStudent =
       this.managementSelectedStudent ||
       (studentsList.length > 0 ? studentsList[0].email : null);
-
+    /**
+     * TODO TA and student accounts are again are not accessible in a breakout room
+     */
     const studentTasks = this.getStudentTasks(selectedStudent);
     return `
             <div id="task-management-popup" class="task-popup hidden" onclick="if (event.target === this) tasksManager.hideTaskManagementPopup()">
@@ -718,7 +720,6 @@ class TasksManager {
   }
 
   async selectTaskForHelp(task) {
-
     /**
      * TODO Clean up initial AI intro
      */
@@ -1015,11 +1016,10 @@ class TasksManager {
   }
 
   async sendChatMessage(userMessage) {
-
     //**
-    // TODO Clean up PromptContext to go to the 
-    // lambda : task-chatgpt 
-    // User chat also needs to be added to 
+    // TODO Clean up PromptContext to go to the
+    // lambda : task-chatgpt
+    // User chat also needs to be added to
     // */
     userMessage = userMessage.trim();
     if (userMessage === "" || !this.taskInHelpChat) return;
@@ -1516,9 +1516,8 @@ class TasksManager {
 
     //**
     // TODO Add a PATCH  */
-    
+
     this.sendTaskArchivedToApi(taskId);
-    
 
     // Remove from all students
     Object.keys(this.studentTasks).forEach((email) => {
