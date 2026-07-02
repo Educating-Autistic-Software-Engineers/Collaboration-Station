@@ -721,6 +721,8 @@ class TasksManager {
     this.taskInHelpChat = task;
     this.selectedTask = null;
 
+    console.log(this.taskInHelpChat);
+    /**TODO block analyzer */
     // Show a helpful analyzing placeholder while we query the analyzer
     this.chatMessages = [
       {
@@ -784,15 +786,18 @@ class TasksManager {
       const payload = {
         messageVersion: "1.0",
         agent: {
-          name: "TimeAssistantAgent",
-          id: "AGT1234567",
-          alias: "TSTALIASID",
+          name: "",
+          id: "",
+          alias: "",
           version: "DRAFT",
         },
-        actionGroup: "DateTimeActionGroup",
-        apiPath: "/current-time",
         httpMethod: "POST",
-        inputText: `What time is it right now? ` + body,
+        inputText: body,
+        dbcontext: {
+          roomAssigned: this.selectTask.roomAssigned,
+          taskID: this.selectTask.id,
+          username: sessionStorage.getItem("email"),
+        },
         sessionAttributes: {},
         promptSessionAttributes: {},
       };
@@ -1027,27 +1032,34 @@ class TasksManager {
 
     // Build context from the current task
     const task = this.taskInHelpChat;
+    console.log(task);
+    const taskId = task.id;
+    const roomAssigned = task.roomAssigned;
     const taskDescription = this.getTaskDescription(task);
+    console.log(taskId + " " + roomAssigned);
     const body =
-      `This is a Scratch coding environment for students learning to code. ` +
       `The student is working on a task titled "${task.title}" ` +
       `in the "${task.category}" category. ` +
       `The task description is: ${taskDescription} ` +
-      `Please give a helpful, encouraging answer appropriate for a student learning Scratch. ` +
       `The student asks: ${userMessage}`;
 
+    const agentConfig = {
+      name: "",
+      id: "",
+      alias: "",
+      version: "DRAFT",
+    };
+    const dbContext = {
+      roomAssigned: roomAssigned || "unknown_room_chat",
+      taskID: taskId || "unknown_task_chat",
+      username: sessionStorage.getItem("email"),
+    };
     const payload = {
       messageVersion: "1.0",
-      agent: {
-        name: "TimeAssistantAgent",
-        id: "AGT1234567",
-        alias: "TSTALIASID",
-        version: "DRAFT",
-      },
-      actionGroup: "DateTimeActionGroup",
-      apiPath: "/current-time",
+      agent: agentConfig,
       httpMethod: "POST",
-      inputText: `Current Prompt ` + body,
+      inputText: body,
+      dbcontext: dbContext,
       sessionAttributes: {},
       promptSessionAttributes: {},
     };
@@ -1755,7 +1767,7 @@ if (!membersData) {
 
 window.addEventListener("roomMembersUpdated", (event) => {
   const data = event.detail;
-  console.log("Members updated", data);
+
   if (
     window.tasksManager &&
     typeof window.tasksManager.onRoomMembersUpdated === "function"
