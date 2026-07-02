@@ -718,6 +718,10 @@ class TasksManager {
   }
 
   async selectTaskForHelp(task) {
+
+    /**
+     * TODO Clean up initial AI intro
+     */
     this.taskInHelpChat = task;
     this.selectedTask = null;
 
@@ -1011,6 +1015,12 @@ class TasksManager {
   }
 
   async sendChatMessage(userMessage) {
+
+    //**
+    // TODO Clean up PromptContext to go to the 
+    // lambda : task-chatgpt 
+    // User chat also needs to be added to 
+    // */
     userMessage = userMessage.trim();
     if (userMessage === "" || !this.taskInHelpChat) return;
 
@@ -1506,9 +1516,9 @@ class TasksManager {
 
     //**
     // TODO Add a PATCH  */
-    console.log("Before");
+    
     this.sendTaskArchivedToApi(taskId);
-    console.log("after");
+    
 
     // Remove from all students
     Object.keys(this.studentTasks).forEach((email) => {

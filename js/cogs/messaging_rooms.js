@@ -621,6 +621,10 @@ window.messagingReady.then(() => {
   };
 
   window.sendMessage = sendMessage;
+
+  //*
+  // TODO Send Teacher Message to update which AI response was shared to students at what time
+  //  */
   window.sendTeacherMessage = async (message) => sendMessage(message, true);
   ablyChannel.subscribe("chat", async (message) => {
     addMessageToDom(
