@@ -15,11 +15,30 @@ let userIdInDisplayFrame = null;
 let POTENTIAL_MEMBERS;
 
 function buildRoomDbUrl(extraParams = {}) {
-  const url = new URL("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
+  const url = new URL(
+    "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
+  );
   url.searchParams.set("user", sessionStorage.getItem("email") || "");
   url.searchParams.set("token", sessionStorage.getItem("token") || "");
 
-  Object.entries(extraParams).forEach(([key, value]) => {
+  // Normalize room-id aliases so all callers build the same room lookup URL.
+  const normalizedParams = { ...extraParams };
+  const normalizedRoomId =
+    normalizedParams.roomId ??
+    normalizedParams.roomID ??
+    normalizedParams.room_id ??
+    normalizedParams.baseRoomId ??
+    normalizedParams.baseRoomid;
+
+  if (normalizedRoomId !== undefined && normalizedRoomId !== null) {
+    normalizedParams.roomId = normalizedRoomId;
+    delete normalizedParams.roomID;
+    delete normalizedParams.room_id;
+    delete normalizedParams.baseRoomId;
+    delete normalizedParams.baseRoomid;
+  }
+
+  Object.entries(normalizedParams).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       url.searchParams.set(key, String(value));
     }
@@ -322,16 +341,15 @@ async function addMemberToProject() {
 
   // Add user to room
   await fetch(buildRoomDbUrl(), {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        roomID: roomId,
-        user: email,
-      }),
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
     },
-  );
+    body: JSON.stringify({
+      roomID: roomId,
+      user: email,
+    }),
+  });
 
   // Add room to user's projects
   await fetch(
@@ -497,23 +515,39 @@ async function refreshMembers() {
      */
     const [baseRoomId, breakoutId] = roomId.split(":");
     try {
+      console.log("base : " + baseRoomId);
+      console.log(roomId);
       const resp = await fetch(buildRoomDbUrl({ roomId }));
       if (resp.ok) {
         const data = await resp.json();
         console.log(data);
         if (data) {
           if (data.request) {
+            console.log(data.request);
             tasks = data.request.tasks || [];
             if (tasksLoadedResolve) {
               tasksLoadedResolve();
               tasksLoadedResolve = null;
             }
-            if (Array.isArray(data.request.editors))
+            console.log("Start of registering users");
+            if (Array.isArray(data.request.editors)) {
               registered = data.request.editors;
-            else if (Array.isArray(data.request.users))
+              console.warn("registered from editors");
+            } else if (Array.isArray(data.request.users)) {
               registered = data.request.users;
-          } else if (Array.isArray(data.editors)) {
-            registered = data.editors;
+              console.warn("registered from users");
+            } else if (Array.isArray(data.editors)) {
+              registered = data.editors;
+              console.warn("register from data.editors");
+            } else {
+              //console.warn("No Users Found");
+              const Bresp = await fetch(buildRoomDbUrl({ roomId: baseRoomId }));
+              const backupData = await Bresp.json();
+             
+
+              registered = backupData.request.editors;
+              
+            }
           }
         }
       }

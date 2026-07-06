@@ -5,11 +5,29 @@ if (!uid) {
 }
 
 function buildRoomDbUrl(extraParams = {}) {
-  const url = new URL("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
+  const url = new URL(
+    "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
+  );
   url.searchParams.set("user", sessionStorage.getItem("email") || "");
   url.searchParams.set("token", sessionStorage.getItem("token") || "");
 
-  Object.entries(extraParams).forEach(([key, value]) => {
+  const normalizedParams = { ...extraParams };
+  const normalizedRoomId =
+    normalizedParams.roomId ??
+    normalizedParams.roomID ??
+    normalizedParams.room_id ??
+    normalizedParams.baseRoomId ??
+    normalizedParams.baseRoomid;
+
+  if (normalizedRoomId !== undefined && normalizedRoomId !== null) {
+    normalizedParams.roomId = normalizedRoomId;
+    delete normalizedParams.roomID;
+    delete normalizedParams.room_id;
+    delete normalizedParams.baseRoomId;
+    delete normalizedParams.baseRoomid;
+  }
+
+  Object.entries(normalizedParams).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       url.searchParams.set(key, String(value));
     }
@@ -152,7 +170,9 @@ let joinRoomInit = async () => {
 
   const chimeRoomId = window.chimeRoomId ?? roomId;
   const isSharedVc = Boolean(window.sharedVcMode);
-  console.log(`joinRoomInit: chimeRoomId=${chimeRoomId}, sharedVc=${isSharedVc}`);
+  console.log(
+    `joinRoomInit: chimeRoomId=${chimeRoomId}, sharedVc=${isSharedVc}`,
+  );
 
   console.log("AblyConnected — Joining Room");
   try {
@@ -195,10 +215,10 @@ let joinRoomInit = async () => {
       });
     } else {
       // Others are already present — look up the existing meeting ID from DB.
-      const response = await fetch(
-        buildRoomDbUrl({ roomId: chimeRoomId }),
-        { method: "GET", headers: { "Content-Type": "application/json" } },
-      );
+      const response = await fetch(buildRoomDbUrl({ roomId: chimeRoomId }), {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
       const data = await response.json();
       console.log("JOINED MEETING", data);
       meetingId = data.request.meetingID;
