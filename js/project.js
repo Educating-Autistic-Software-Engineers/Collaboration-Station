@@ -215,12 +215,9 @@ function selectProject(projectId) {
             </div>
             <div style="display: flex; gap: 5px; margin-top: 10px;">
             <div class="project-meta">
+                
                 <div class="meta-item">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    Last edited: ${project.lastEdited || "Jan 1, 1970"}
+                    Project id: ${projectId}
                 </div>
                 <div class="meta-item">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -249,6 +246,29 @@ function shareProject(projectId) {
     .catch((err) => {
       console.error("Error copying link:", err);
     });
+}
+
+async function joinExistingProjectPopup() {
+  let project_id = prompt("Enter Project ID number");
+  if (project_id == null || project_id == "") {
+    return;
+  }
+  console.log(project_id);
+  try {
+    await joinExistingProject(project_id);
+    await fetchRooms();
+    await fetchUserProjects();
+    displayProjects();
+
+    if (roomDict[project_id]) {
+      selectProject(project_id);
+    }
+
+    alert("Joined project successfully.");
+  } catch (error) {
+    console.error("Join project failed:", error);
+    alert("Unable to join that project right now.");
+  }
 }
 
 // Add a new project
@@ -343,7 +363,7 @@ async function updateUserProjects(newRoomId) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: roomId,
+          //email: roomId, This shouldn't happen
           projects: newRoomId,
         }),
       },
@@ -393,6 +413,7 @@ function setupScroll(containerId, leftBtnId, rightBtnId) {
 }
 
 function createProjectElement(project) {
+  console.log(project);
   const projectCard = document.createElement("div");
   projectCard.className = "project-thumbnail";
   projectCard.onclick = () => selectProject(project.room_id);
@@ -691,3 +712,28 @@ function populateUsernames() {
 }
 
 load();
+
+async function joinExistingProject(project_id) {
+  try {
+    const response = await fetch(
+      "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register",
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: sessionStorage.getItem("email"),
+          projects: project_id,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error("Failed to update user projects");
+    }
+  } catch (error) {
+    console.error("Error:", error);
+    alert("An error occurred while updating user projects.");
+  }
+}
