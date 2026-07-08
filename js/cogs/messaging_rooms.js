@@ -625,7 +625,23 @@ window.messagingReady.then(() => {
   //*
   // TODO Send Teacher Message to update which AI response was shared to students at what time
   //  */
-  window.sendTeacherMessage = async (message) => sendMessage(message, true);
+  window.sendTeacherMessage = async (message) => {
+    sendMessage(message, true);
+    const payload = {
+      project_id: urlParams.get("project"),
+      message: message,
+      breakout_id: breakoutId.toString(),
+      user: sessionStorage.email,
+    };
+    const response = await fetch(
+      "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/task-chat/share",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
+  };
   ablyChannel.subscribe("chat", async (message) => {
     addMessageToDom(
       message.data.displayName,

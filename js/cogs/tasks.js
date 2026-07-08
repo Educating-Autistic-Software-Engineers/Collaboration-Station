@@ -778,15 +778,20 @@ class TasksManager {
           )
           .join("\n---\n");
         codeSummary = `Current workspace code chunks:\n${joined}`;
+        const body =
+          `You are helping a student with Scratch code.\n` +
+          `Task title: ${task.title}\n` +
+          `Task description: ${taskDescription}\n` +
+          (codeSummary ? `${codeSummary}\n` : "") +
+          `Please analyze the student's current blocks and provide 3 concrete, step-by-step suggestions the student can try next. Keep the response concise: use brief bullet points or at most 3 short sentences per suggestion. Do NOT produce long paragraphs.\n` +
+          `Do NOT label code sections as \"Chunk 4\". If you must reference a specific code region, describe it without numeric chunk labels (for example: \"the first block sequence that checks for input\"). If the response nonetheless includes an explicit \"Chunk N\" reference, the client will automatically pin a short note to that chunk in the workspace.`;
+      } else {
+        const body =
+          `You are helping a student with Scratch project.\n` +
+          `Task title: ${task.title}\n` +
+          `Task description: ${taskDescription}\n` +
+          `please provide assistance and starting steps to handle this task.`;
       }
-
-      const body =
-        `You are helping a student with Scratch code.\n` +
-        `Task title: ${task.title}\n` +
-        `Task description: ${taskDescription}\n` +
-        (codeSummary ? `${codeSummary}\n` : "") +
-        `Please analyze the student's current blocks and provide 3 concrete, step-by-step suggestions the student can try next. Keep the response concise: use brief bullet points or at most 3 short sentences per suggestion. Do NOT produce long paragraphs.\n` +
-        `Do NOT label code sections as \"Chunk 4\". If you must reference a specific code region, describe it without numeric chunk labels (for example: \"the first block sequence that checks for input\"). If the response nonetheless includes an explicit \"Chunk N\" reference, the client will automatically pin a short note to that chunk in the workspace.`;
 
       const payload = {
         messageVersion: "1.0",
@@ -1050,7 +1055,6 @@ class TasksManager {
     const body =
       `The student is working on a task titled "${task.title}" ` +
       `in the "${task.category}" category. ` +
-      `The task description is: ${taskDescription} ` +
       `The student asks: ${userMessage}`;
 
     const agentConfig = {
