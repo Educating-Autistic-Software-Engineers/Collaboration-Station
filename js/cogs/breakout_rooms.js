@@ -5,11 +5,29 @@ let roomViewOnlyFlags = {};
 let sharedVcMode = false;
 
 function buildRoomDbUrl(extraParams = {}) {
-  const url = new URL("https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB");
+  const url = new URL(
+    "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
+  );
   url.searchParams.set("user", sessionStorage.getItem("email") || "");
   url.searchParams.set("token", sessionStorage.getItem("token") || "");
 
-  Object.entries(extraParams).forEach(([key, value]) => {
+  const normalizedParams = { ...extraParams };
+  const normalizedRoomId =
+    normalizedParams.roomId ??
+    normalizedParams.roomID ??
+    normalizedParams.room_id ??
+    normalizedParams.baseRoomId ??
+    normalizedParams.baseRoomid;
+
+  if (normalizedRoomId !== undefined && normalizedRoomId !== null) {
+    normalizedParams.roomId = normalizedRoomId;
+    delete normalizedParams.roomID;
+    delete normalizedParams.room_id;
+    delete normalizedParams.baseRoomId;
+    delete normalizedParams.baseRoomid;
+  }
+
+  Object.entries(normalizedParams).forEach(([key, value]) => {
     if (value !== undefined && value !== null) {
       url.searchParams.set(key, String(value));
     }
@@ -26,9 +44,7 @@ async function showBreakoutRoomsPopup() {
   let editors = [];
   let baseRoomData = null;
   try {
-    const resp = await fetch(
-      buildRoomDbUrl({ roomId: baseRoomId }),
-    );
+    const resp = await fetch(buildRoomDbUrl({ roomId: baseRoomId }));
     if (resp.ok) {
       const data = await resp.json();
       baseRoomData = data && data.request ? data.request : data;
@@ -126,9 +142,7 @@ async function showBreakoutRoomsPopup() {
   const roomSettingResponses = await Promise.all(
     Array.from({ length: roomCount }, (_, index) => {
       const breakoutId = index + 1;
-      return fetch(
-        buildRoomDbUrl({ roomId: `${baseRoomId}:${breakoutId}` }),
-      )
+      return fetch(buildRoomDbUrl({ roomId: `${baseRoomId}:${breakoutId}` }))
         .then((resp) => (resp.ok ? resp.json() : null))
         .catch(() => null);
     }),
@@ -424,7 +438,10 @@ function autoAssignMembers() {
   // if the global POTENTIAL_MEMBERS entry carries that flag.
   const isTa = (member) => {
     if (member.role === "TA") return true;
-    if (typeof POTENTIAL_MEMBERS !== "undefined" && Array.isArray(POTENTIAL_MEMBERS)) {
+    if (
+      typeof POTENTIAL_MEMBERS !== "undefined" &&
+      Array.isArray(POTENTIAL_MEMBERS)
+    ) {
       const found = POTENTIAL_MEMBERS.find((m) => m.email === member.email);
       if (found && found.role === "TA") return true;
     }

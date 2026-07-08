@@ -44,8 +44,8 @@ class TasksManager {
       !this.managementSelectedStudent &&
       Object.keys(connectedUsers).length == 1
     ) {
-      this.managementSelectedStudent = connectedUsers;
-      //console.log(this.managementSelectedStudent);
+      this.managementSelectedStudent = Object.keys(connectedUsers)[0];
+      console.log(this.managementSelectedStudent);
     } else if (
       !this.managementSelectedStudent &&
       Object.keys(connectedUsers).length > 1
@@ -72,7 +72,9 @@ class TasksManager {
 
     // Normalize incoming task shape to our internal model
     const rawTasks = data.tasks || (data.request && data.request.tasks) || [];
-    const normalized = (rawTasks || []).map((t) => {
+    const activeTasks = rawTasks.filter((task) => task?.archived !== true);
+
+    const normalized = (activeTasks || []).map((t) => {
       const usersAssigned = (t.users_assigned || t.usersAssigned || "")
         .toString()
         .split(",")
@@ -357,10 +359,11 @@ class TasksManager {
 
     return `
             <div class="help-message ${message.sender}">
-                ${message.sender === "teacher" ? '<div class="message-avatar">👩\u200d🏫</div>' : ""}
+                ${message.sender === "teacher" ? '<button type="button" class="message-avatar message-avatar-button" onclick="window.sendTeacherMessage(this.closest(\'.help-message\').querySelector(\'.message-text\').innerText)">👩\u200d🏫</button>' : ""}
                 <div class="message-bubble">
                     <div class="message-text">${this.formatMessageText(message.text)}</div>
                     <div class="message-time">${time}</div>
+
                 </div>
             </div>
         `;
@@ -377,7 +380,9 @@ class TasksManager {
     const selectedStudent =
       this.managementSelectedStudent ||
       (studentsList.length > 0 ? studentsList[0].email : null);
-
+    /**
+     * TODO TA and student accounts are again are not accessible in a breakout room
+     */
     const studentTasks = this.getStudentTasks(selectedStudent);
     return `
             <div id="task-management-popup" class="task-popup hidden" onclick="if (event.target === this) tasksManager.hideTaskManagementPopup()">
@@ -541,8 +546,8 @@ class TasksManager {
   onRoomMembersUpdated(members) {
     // update internal state or re-render
     this.roomMembers = members;
-    //No longer needed as task stay assigned. 
-   // this.render();
+    //No longer needed as task stay assigned.
+    // this.render();
   }
 
   // Drag and Drop handlers
@@ -715,9 +720,14 @@ class TasksManager {
   }
 
   async selectTaskForHelp(task) {
+    /**
+     * TODO Clean up initial AI intro
+     */
     this.taskInHelpChat = task;
     this.selectedTask = null;
 
+    console.log(this.taskInHelpChat);
+    /**TODO block analyzer */
     // Show a helpful analyzing placeholder while we query the analyzer
     this.chatMessages = [
       {
@@ -768,28 +778,36 @@ class TasksManager {
           )
           .join("\n---\n");
         codeSummary = `Current workspace code chunks:\n${joined}`;
+        const body =
+          `You are helping a student with Scratch code.\n` +
+          `Task title: ${task.title}\n` +
+          `Task description: ${taskDescription}\n` +
+          (codeSummary ? `${codeSummary}\n` : "") +
+          `Please analyze the student's current blocks and provide 3 concrete, step-by-step suggestions the student can try next. Keep the response concise: use brief bullet points or at most 3 short sentences per suggestion. Do NOT produce long paragraphs.\n` +
+          `Do NOT label code sections as \"Chunk 4\". If you must reference a specific code region, describe it without numeric chunk labels (for example: \"the first block sequence that checks for input\"). If the response nonetheless includes an explicit \"Chunk N\" reference, the client will automatically pin a short note to that chunk in the workspace.`;
+      } else {
+        const body =
+          `You are helping a student with Scratch project.\n` +
+          `Task title: ${task.title}\n` +
+          `Task description: ${taskDescription}\n` +
+          `please provide assistance and starting steps to handle this task.`;
       }
-
-      const body =
-        `You are helping a student with Scratch code.\n` +
-        `Task title: ${task.title}\n` +
-        `Task description: ${taskDescription}\n` +
-        (codeSummary ? `${codeSummary}\n` : "") +
-        `Please analyze the student's current blocks and provide 3 concrete, step-by-step suggestions the student can try next. Keep the response concise: use brief bullet points or at most 3 short sentences per suggestion. Do NOT produce long paragraphs.\n` +
-        `Do NOT label code sections as \"Chunk 4\". If you must reference a specific code region, describe it without numeric chunk labels (for example: \"the first block sequence that checks for input\"). If the response nonetheless includes an explicit \"Chunk N\" reference, the client will automatically pin a short note to that chunk in the workspace.`;
 
       const payload = {
         messageVersion: "1.0",
         agent: {
-          name: "TimeAssistantAgent",
-          id: "AGT1234567",
-          alias: "TSTALIASID",
+          name: "",
+          id: "",
+          alias: "",
           version: "DRAFT",
         },
-        actionGroup: "DateTimeActionGroup",
-        apiPath: "/current-time",
         httpMethod: "POST",
-        inputText: `What time is it right now? ` + body,
+        inputText: body,
+        dbcontext: {
+          roomAssigned: this.selectTask.roomAssigned,
+          taskID: this.selectTask.id,
+          username: sessionStorage.getItem("email"),
+        },
         sessionAttributes: {},
         promptSessionAttributes: {},
       };
@@ -1003,6 +1021,11 @@ class TasksManager {
   }
 
   async sendChatMessage(userMessage) {
+    //**
+    // TODO Clean up PromptContext to go to the
+    // lambda : task-chatgpt
+    // User chat also needs to be added to
+    // */
     userMessage = userMessage.trim();
     if (userMessage === "" || !this.taskInHelpChat) return;
 
@@ -1024,27 +1047,33 @@ class TasksManager {
 
     // Build context from the current task
     const task = this.taskInHelpChat;
+    console.log(task);
+    const taskId = task.id;
+    const roomAssigned = task.roomAssigned;
     const taskDescription = this.getTaskDescription(task);
+    console.log(taskId + " " + roomAssigned);
     const body =
-      `This is a Scratch coding environment for students learning to code. ` +
       `The student is working on a task titled "${task.title}" ` +
       `in the "${task.category}" category. ` +
-      `The task description is: ${taskDescription} ` +
-      `Please give a helpful, encouraging answer appropriate for a student learning Scratch. ` +
       `The student asks: ${userMessage}`;
 
+    const agentConfig = {
+      name: "",
+      id: "",
+      alias: "",
+      version: "DRAFT",
+    };
+    const dbContext = {
+      roomAssigned: roomAssigned || "unknown_room_chat",
+      taskID: taskId || "unknown_task_chat",
+      username: sessionStorage.getItem("email"),
+    };
     const payload = {
       messageVersion: "1.0",
-      agent: {
-        name: "TimeAssistantAgent",
-        id: "AGT1234567",
-        alias: "TSTALIASID",
-        version: "DRAFT",
-      },
-      actionGroup: "DateTimeActionGroup",
-      apiPath: "/current-time",
+      agent: agentConfig,
       httpMethod: "POST",
-      inputText: `Current Prompt ` + body,
+      inputText: body,
+      dbcontext: dbContext,
       sessionAttributes: {},
       promptSessionAttributes: {},
     };
@@ -1217,6 +1246,29 @@ class TasksManager {
 
       // Persist completion status to API
       this.sendTaskCompletionToApi(task);
+    }
+  }
+
+  async sendTaskArchivedToApi(task) {
+    const taskId = task.id || task.task_id || task;
+    console.log("Woot : " + taskId);
+    if (!taskId) return;
+    try {
+      await fetch(
+        "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/tasks",
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            task_id: taskId,
+            archived: true,
+          }),
+        },
+      );
+    } catch (err) {
+      console.error("Failed to send task archived status", err);
+    } finally {
+      console.log("Archive success");
     }
   }
 
@@ -1465,6 +1517,11 @@ class TasksManager {
       taskId,
       taskTitle: taskToDelete ? taskToDelete.title : null,
     });
+
+    //**
+    // TODO Add a PATCH  */
+
+    this.sendTaskArchivedToApi(taskId);
 
     // Remove from all students
     Object.keys(this.studentTasks).forEach((email) => {
@@ -1723,7 +1780,7 @@ if (!membersData) {
 
 window.addEventListener("roomMembersUpdated", (event) => {
   const data = event.detail;
-  console.log("Members updated", data);
+
   if (
     window.tasksManager &&
     typeof window.tasksManager.onRoomMembersUpdated === "function"

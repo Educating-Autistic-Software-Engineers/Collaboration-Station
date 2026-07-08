@@ -58,19 +58,18 @@ async function initSetup() {
     }
   }
 
-
   let sharedVc = false;
   try {
     const sharedVcResp = await fetch(
-      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts`
-      + `?room=${baseProjectId}&batch=${encodeURIComponent(sessionStorage.getItem('email') || '')}`,
+      `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/rooms/breakouts` +
+        `?room=${baseProjectId}&batch=${encodeURIComponent(sessionStorage.getItem("email") || "")}`,
     );
     if (sharedVcResp.ok) {
       const sharedVcJson = await sharedVcResp.json();
       sharedVc = Boolean(sharedVcJson.shared_vc);
     }
   } catch (err) {
-    console.error('initSetup shared_vc fetch failed', err);
+    console.error("initSetup shared_vc fetch failed", err);
   }
   // If we have a breakout number, add it to room identifiers
   if (breakoutNum !== null) {
@@ -85,7 +84,9 @@ async function initSetup() {
   // meeting; otherwise falls back to the (possibly breakout) roomId.
   window.chimeRoomId = sharedVc ? baseProjectId : roomId;
   window.sharedVcMode = sharedVc;
-  console.log(`shared_vc=${sharedVc}, chimeRoomId=${window.chimeRoomId}, vmRoomId=${roomId}`);
+  console.log(
+    `shared_vc=${sharedVc}, chimeRoomId=${window.chimeRoomId}, vmRoomId=${roomId}`,
+  );
 
   ablyInstance = new Ably.Realtime({
     authUrl:
@@ -575,12 +576,11 @@ window.messagingReady.then(() => {
     }
   });
 
-  sendMessage = async (message) => {
+  sendMessage = async (message, AI = false) => {
     if (!canSendMessages) {
       return;
     }
-
-    const displayName = sessionStorage.getItem("display_name");
+    const displayName = AI ? "AI bot" : sessionStorage.getItem("display_name");
 
     let projectId = urlParams.get("project");
     const date = new Date();
@@ -592,7 +592,7 @@ window.messagingReady.then(() => {
       minute: "numeric",
       second: "numeric",
     });
-    console.log("HI MOM ");
+
     isoDate = date.toISOString();
     console.log(breakoutId);
     await fetch(
@@ -616,12 +616,32 @@ window.messagingReady.then(() => {
     ablyChannel.publish("chat", {
       displayName,
       message,
-      color: sessionStorage.getItem("randomColor"),
+      color: AI ? "#f59e0b" : sessionStorage.getItem("randomColor"),
     });
   };
 
   window.sendMessage = sendMessage;
 
+  //*
+  // TODO Send Teacher Message to update which AI response was shared to students at what time
+  //  */
+  window.sendTeacherMessage = async (message) => {
+    sendMessage(message, true);
+    const payload = {
+      project_id: urlParams.get("project"),
+      message: message,
+      breakout_id: breakoutId.toString(),
+      user: sessionStorage.email,
+    };
+    const response = await fetch(
+      "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/task-chat/share",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      },
+    );
+  };
   ablyChannel.subscribe("chat", async (message) => {
     addMessageToDom(
       message.data.displayName,
@@ -630,6 +650,14 @@ window.messagingReady.then(() => {
     );
   });
 
+  let scrollChatToBottom = () => {
+    requestAnimationFrame(() => {
+      const outer = document.getElementById("messages__container");
+      if (outer) outer.scrollTop = outer.scrollHeight;
+      const inner = document.querySelector("messages");
+      if (inner) inner.scrollTop = inner.scrollHeight;
+    });
+  };
   let addMessageToDom = (name, message, color) => {
     // messageCount+=1;
     // console.log(messageCount)
@@ -656,6 +684,7 @@ window.messagingReady.then(() => {
     let lastMessage = document.querySelector(
       "#messages .message__wrapper:last-child",
     );
+    scrollChatToBottom();
   };
 
   let addArchiveMessageToDom = (name, message, color, time) => {
