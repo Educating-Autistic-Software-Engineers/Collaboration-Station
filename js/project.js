@@ -363,7 +363,7 @@ async function updateUserProjects(newRoomId) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          //email: roomId, This shouldn't happen
+          email: roomId, //This shouldn't happen
           projects: newRoomId,
         }),
       },
