@@ -90,7 +90,10 @@
                 <section class="right_container" id="members__container">
 
                     <div id="members__header">
-                        <p>Participants</p>
+                        <div class="members-header-copy">
+                            <p>Participants</p>
+                            <span class="project-id-chip" id="project-id-chip">Project</span>
+                        </div>
                         <strong id="members__count">0</strong>
                     </div>
 
@@ -241,6 +244,10 @@
                 id="shared-vc-toggle"
                 onchange="onSharedVcToggleChanged(this.checked)"
                 />
+                <svg class="shared-vc-icon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M5 7a2 2 0 0 1 2-2h5a2 2 0 0 1 1.6.8L15.5 7H18a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2.5l-1.9 1.2A2 2 0 0 1 12 19H7a2 2 0 0 1-2-2V7Z" fill="currentColor" opacity="0.22"></path>
+                    <path d="M9 10.5a2.5 2.5 0 1 1 5 0a2.5 2.5 0 0 1-5 0Zm-1.5 5.5c.8-1.5 2.3-2.5 4-2.5s3.2 1 4 2.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+                </svg>
                 <span>Shared VC Room</span>
             </label>
             <span id="shared-vc-badge" style="display:none;" class="shared-vc-badge">

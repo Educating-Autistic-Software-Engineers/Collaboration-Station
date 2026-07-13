@@ -560,7 +560,10 @@ let toggleMuteMic = async (e) => {
   document.getElementById("mic-btn").style.display = "block";
   document.getElementById("mute-mic-btn").style.display = "none";
   document.getElementById("mic-btn").classList.add("active");
-  document.getElementById("mute-video-icon").style.display = "none";
+  const muteVideoIcon = document.getElementById("mute-video-icon");
+  if (muteVideoIcon) {
+    muteVideoIcon.style.display = "none";
+  }
 };
 
 let toggleCamera = async (e) => {

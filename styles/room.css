@@ -1009,6 +1009,16 @@ body {
   display: none;
 }
 
+#members__header .members-header-copy {
+  display: grid;
+  gap: 0.35rem;
+}
+
+#members__header strong {
+  line-height: 1;
+  align-self: center;
+}
+
 .members__actions {
   display: flex;
   flex-direction: column;
@@ -1022,7 +1032,19 @@ body {
   z-index: 20;
 }
 
-
+.project-id-chip {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(96, 165, 250, 0.2);
+  color: #bfdbfe;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
 
 .members-section-heading {
   font-size: 0.95rem;
@@ -1730,6 +1752,39 @@ body {
   width: 1rem;
   height: 1rem;
   accent-color: #22c55e;
+}
+
+.shared-vc-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.shared-vc-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.95rem;
+  border-radius: 12px;
+  background: rgba(15, 23, 42, 0.62);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.shared-vc-label input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #22c55e;
+}
+
+.shared-vc-icon {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: #93c5fd;
+  flex-shrink: 0;
 }
 
 .room-card.drag-over {

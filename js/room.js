@@ -14,6 +14,18 @@ window.tasksLoaded = new Promise((resolve) => {
 let userIdInDisplayFrame = null;
 let POTENTIAL_MEMBERS;
 
+function updateProjectIdDisplay() {
+  const projectIdChip = document.getElementById("project-id-chip");
+  if (!projectIdChip) {
+    return;
+  }
+
+  const baseProjectId = roomId ? String(roomId).split(":")[0] : "";
+  projectIdChip.textContent = baseProjectId
+    ? `Project ${baseProjectId}`
+    : "Project";
+}
+
 function buildRoomDbUrl(extraParams = {}) {
   const url = new URL(
     "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
@@ -295,6 +307,8 @@ if (roomId == null) {
 if (roomId == null) {
   window.location.href = "index.html";
 }
+
+updateProjectIdDisplay();
 
 async function load() {
   const response = await fetch(buildRoomDbUrl());

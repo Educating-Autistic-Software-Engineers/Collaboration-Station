@@ -530,6 +530,7 @@ window.messagingReady.then(() => {
     }
     alert("All participants have been muted.");
   }
+  window.muteAllParticipants = muteAllParticipants;
 
   async function muteParticipant(MemberId) {
     await channel.sendMessage({
