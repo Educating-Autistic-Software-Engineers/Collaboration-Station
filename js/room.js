@@ -14,16 +14,13 @@ window.tasksLoaded = new Promise((resolve) => {
 let userIdInDisplayFrame = null;
 let POTENTIAL_MEMBERS;
 
-function updateProjectIdDisplay() {
+function updateProjectIdDisplay(roomId) {
   const projectIdChip = document.getElementById("project-id-chip");
   if (!projectIdChip) {
     return;
   }
 
-  const baseProjectId = roomId ? String(roomId).split(":")[0] : "";
-  projectIdChip.textContent = baseProjectId
-    ? `Project ${baseProjectId}`
-    : "Project";
+  projectIdChip.textContent = `Project : Breakout -- ${roomId}`;
 }
 
 function buildRoomDbUrl(extraParams = {}) {
@@ -96,8 +93,6 @@ const slider = document.getElementById("slider");
 let speakerSpotlightTimer = null;
 let currentSpotlightSpeakerId = null;
 let isViewOnlyRoom = false;
-
-window.getRoomMembersData = () => window.roomMembersData;
 
 function randomHexString(length) {
   const chars = "abcdef0123456789";
@@ -307,8 +302,6 @@ if (roomId == null) {
 if (roomId == null) {
   window.location.href = "index.html";
 }
-
-updateProjectIdDisplay();
 
 async function load() {
   const response = await fetch(buildRoomDbUrl());
@@ -522,6 +515,9 @@ async function refreshMembers() {
 
     let registered = [];
     console.log(roomId);
+
+    console.warn("Updating ProjectId");
+    updateProjectIdDisplay(roomId);
     /**
      * TODO
      * On Lambda, the breakoutRoomID does not return registered users. So we either return everyone on the Project
@@ -532,17 +528,22 @@ async function refreshMembers() {
       console.log("base : " + baseRoomId);
       console.log(roomId);
       const resp = await fetch(buildRoomDbUrl({ roomId }));
+      const Bresp = await fetch(buildRoomDbUrl({ roomId: baseRoomId }));
+      if (Bresp.ok) {
+        let backupData = await Bresp.json();
+        console.log(backupData.request);
+        tasks = backupData.request.tasks || [];
+        if (tasksLoadedResolve) {
+          tasksLoadedResolve();
+          tasksLoadedResolve = null;
+        }
+        registered = backupData.request.editors;
+      }
       if (resp.ok) {
         const data = await resp.json();
         console.log(data);
         if (data) {
           if (data.request) {
-            console.log(data.request);
-            tasks = data.request.tasks || [];
-            if (tasksLoadedResolve) {
-              tasksLoadedResolve();
-              tasksLoadedResolve = null;
-            }
             console.log("Start of registering users");
             if (Array.isArray(data.request.editors)) {
               registered = data.request.editors;
@@ -551,16 +552,12 @@ async function refreshMembers() {
               registered = data.request.users;
               console.warn("registered from users");
             } else if (Array.isArray(data.editors)) {
-              registered = data.editors;
               console.warn("register from data.editors");
             } else {
               //console.warn("No Users Found");
-              const Bresp = await fetch(buildRoomDbUrl({ roomId: baseRoomId }));
-              const backupData = await Bresp.json();
-             
+              //const Bresp = await fetch(buildRoomDbUrl({ roomId: baseRoomId }));
 
-              registered = backupData.request.editors;
-              
+              console.warn("grabbed from baseEditor");
             }
           }
         }

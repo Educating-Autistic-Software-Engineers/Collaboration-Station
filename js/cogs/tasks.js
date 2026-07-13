@@ -40,6 +40,7 @@ class TasksManager {
     //console.log("Connected Users :: " + connectedUsers);
     //console.log(this.managementSelectedStudent);
     //These if statements are not occuring.
+    console.log(connectedUsers);
     if (
       !this.managementSelectedStudent &&
       Object.keys(connectedUsers).length == 1
@@ -52,6 +53,7 @@ class TasksManager {
     ) {
       this.managementSelectedStudent = Object.keys(connectedUsers)[0];
     }
+    console.warn(this.managementSelectedStudent);
     this.render();
   }
 
@@ -380,6 +382,7 @@ class TasksManager {
     const selectedStudent =
       this.managementSelectedStudent ||
       (studentsList.length > 0 ? studentsList[0].email : null);
+    tasksManager.selectStudent(selectedStudent);
     /**
      * TODO TA and student accounts are again are not accessible in a breakout room
      */
@@ -538,7 +541,7 @@ class TasksManager {
                 `
                     : ""
                 }
-                <button class="delete-room-task-btn" onclick="event.stopPropagation(); tasksManager.deleteRoomTask(event, this.closest('[data-task-id]').dataset.taskId)" title="Delete task">×</button>
+                <button class="delete-room-task-btn" onclick="event.stopPropagation(); tasksManager.deleteRoomTask(event, this.closest('[data-task-id]').dataset.taskId)" title="Archive task">×</button>
             </div>
         `;
   }
@@ -1205,6 +1208,7 @@ class TasksManager {
 
     // Find the task in the student's tasks
     const studentEmail = this.managementSelectedStudent;
+    console.log(studentEmail);
     const studentTasks = this.getStudentTasks(studentEmail);
 
     let task = null;
@@ -1321,7 +1325,11 @@ class TasksManager {
   }
 
   selectStudent(student) {
-    console.log("SelectedStudent :" + student);
+    if (student === null) {
+      console.warn("SelectedStudent is Null");
+      throw console.error("Erk");
+    }
+
     this.managementSelectedStudent = student;
     // Find the task-management-popup and its content to refresh just this part
     const popup = document.getElementById("task-management-popup");
@@ -1469,10 +1477,11 @@ class TasksManager {
   }
 
   async uploadNewTaskToApi(task) {
+    const baseRoomId = roomId.split(":")[0];
     const payload = {
       task_content: task.title,
       room_assigned:
-        typeof roomId !== "undefined" ? roomId : task.roomAssigned || null,
+        typeof roomId !== "undefined" ? baseRoomId : task.roomAssigned || null,
       users_assigned: Array.isArray(task.usersAssigned)
         ? task.usersAssigned.join(",")
         : "",
@@ -1500,7 +1509,7 @@ class TasksManager {
 
     if (
       !confirm(
-        "Delete this task from the room? It will be removed from all students.",
+        "Archive this task from the room? It will be removed from all students.",
       )
     ) {
       return;
