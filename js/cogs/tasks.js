@@ -431,9 +431,11 @@ class TasksManager {
                                 <input type="hidden" id="new-room-task-emoji" value="📝" />
                                 
                                 <select id="new-room-task-category" class="task-input">
-                                    <option value="art">Art</option>
-                                    <option value="coding">Coding</option>
+                                <option value="coding">Coding</option>    
+                                <option value="art">Art</option>
+                                    
                                     <option value="music">Music</option>
+                                    <option value="other">Other</option>
                                 </select>
                                 <button class="add-task-submit-btn" onclick="tasksManager.addNewRoomTask()">Add Task</button>
                             </div>
@@ -1621,9 +1623,7 @@ class TasksManager {
           },
         );
         if (response.status === 404) {
-          alert(
-            `Task ${taskId} was not saved to the Backend. Please reassign`,
-          );
+          alert(`Task ${taskId} was not saved to the Backend. Please reassign`);
           continue;
         }
 
