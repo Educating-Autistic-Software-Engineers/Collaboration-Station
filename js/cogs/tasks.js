@@ -1501,6 +1501,8 @@ class TasksManager {
       );
     } catch (err) {
       console.error("Failed to upload new task", err);
+    } finally {
+      console.log("Task Updated Successfully");
     }
   }
 
@@ -1605,7 +1607,7 @@ class TasksManager {
     // Send PATCH request for each task with its assigned users
     for (const [taskId, usersAssigned] of Object.entries(taskAssignments)) {
       try {
-        await fetch(
+        const response = await fetch(
           "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/tasks",
           {
             method: "PATCH",
@@ -1618,6 +1620,16 @@ class TasksManager {
             }),
           },
         );
+        if (response.status === 404) {
+          alert(
+            `Task ${taskId} was not saved to the Backend. Please reassign`,
+          );
+          continue;
+        }
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
         console.log(
           `Task ${taskId} updated with users: ${usersAssigned.join(", ")}`,
         );
