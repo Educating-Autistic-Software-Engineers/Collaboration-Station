@@ -361,7 +361,7 @@ class TasksManager {
 
     return `
             <div class="help-message ${message.sender}" data-task-id="${message.taskId || this.taskInHelpChat?.id || ""}">
-                ${message.sender === "teacher" ? '<button type="button" class="message-avatar message-avatar-button" onclick="window.sendTeacherMessage(this.closest(\'.help-message\').querySelector(\'.message-text\').innerText, this.closest(\'.help-message\').dataset.taskId)">👩\u200d🏫</button>' : ""}
+                ${message.sender === "teacher" ? "<button type=\"button\" class=\"message-avatar message-avatar-button\" onclick=\"window.sendTeacherMessage(this.closest('.help-message').querySelector('.message-text').innerText, this.closest('.help-message').dataset.taskId)\">👩\u200d🏫</button>" : ""}
                 <div class="message-bubble">
                     <div class="message-text">${this.formatMessageText(message.text)}</div>
                     <div class="message-time">${time}</div>
@@ -1357,6 +1357,7 @@ class TasksManager {
     }
   }
   getInnerHTML(studentTasks, selectedStudent) {
+    console.log(roomMembersData);
     const studentsList = Object.values(roomMembersData.registered).map(
       (user) => ({
         email: user,
