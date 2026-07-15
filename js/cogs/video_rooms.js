@@ -3,7 +3,7 @@ if (!uid) {
   uid = String(Math.floor(Math.random() * 10000));
   sessionStorage.setItem("uid", uid);
 }
-
+sessionStorage.setItem("ChimeRecord", false);
 function buildRoomDbUrl(extraParams = {}) {
   const url = new URL(
     "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
@@ -285,7 +285,12 @@ let joinRoomInit = async () => {
         },
 
         metricsDidReceive: (clientMetricReport) => {
-          //console.log("Chime metrics:", clientMetricReport.getObservableMetrics());
+          if (sessionStorage.getItem("ChimeRecord") == true) {
+            console.log(
+              "Chime metrics:",
+              clientMetricReport.getObservableMetrics(),
+            );
+          }
         },
 
         audioInputFailed: (e) => console.log("Audio input failed:", e),

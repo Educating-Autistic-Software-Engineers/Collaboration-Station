@@ -358,6 +358,8 @@ async function addMemberToProject() {
     }),
   });
 
+  //TODO Add base room ID
+  const [baseRoomId, breakoutId] = roomId.split(":");
   // Add room to user's projects
   await fetch(
     "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register",
@@ -367,7 +369,7 @@ async function addMemberToProject() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        projects: roomId,
+        projects: baseRoomId,
         email: email,
       }),
     },

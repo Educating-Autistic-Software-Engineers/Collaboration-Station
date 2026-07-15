@@ -626,18 +626,19 @@ window.messagingReady.then(() => {
   //*
   // TODO Send Teacher Message to update which AI response was shared to students at what time
   //  */
-  window.sendTeacherMessage = async (message) => {
+  window.sendTeacherMessage = async (message, taskId) => {
     sendMessage(message, true);
     const payload = {
       project_id: urlParams.get("project"),
       message: message,
       breakout_id: breakoutId.toString(),
-      user: sessionStorage.email,
+      user: sessionStorage.getItem("email"),
+      task_id: taskId || null,
     };
     const response = await fetch(
       "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/task-chat/share",
       {
-        method: "POST",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       },
