@@ -14337,6 +14337,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         if (costumeObject.dataFormat === 'svg') {
           fileContent = decodeSvg(costumeObject.asset.data);
           contentType = 'image/svg+xml';
+        } else if (costumeObject.dataFormat === 'jpg') {
+          fileContent = decodePng(costumeObject.asset.data);
+          contentType = 'image/jpeg';
         } else {
           fileContent = decodePng(costumeObject.asset.data);
           contentType = 'image/png';
@@ -22236,6 +22239,10 @@ class TargetPane extends react__WEBPACK_IMPORTED_MODULE_1__.Component {
         if (costume.dataFormat === 'svg') {
           fileContent = _this.decodeSvg(costume.asset.data);
           contentType = 'image/svg+xml';
+        } else if (costume.dataFormat === 'jpg') {
+          jsonCostume.bitmapResolution = 2;
+          fileContent = _this.decodePng(costume.asset.data);
+          contentType = 'image/jpeg';
         } else {
           jsonCostume.bitmapResolution = 2;
           fileContent = _this.decodePng(costume.asset.data);
@@ -26275,6 +26282,7 @@ const costumeUpload = function costumeUpload(fileData, fileType, storage, handle
         assetType = storage.AssetType.ImageVector;
         break;
       }
+    case 'image/jpg':
     case 'image/jpeg':
       {
         costumeFormat = storage.DataFormat.JPG;
@@ -26378,6 +26386,7 @@ const spriteUpload = function spriteUpload(fileData, fileType, spriteName, stora
     case 'image/svg+xml':
     case 'image/png':
     case 'image/bmp':
+    case 'image/jpg':
     case 'image/jpeg':
     case 'image/gif':
       {
@@ -45153,4 +45162,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.96d47355df4fd50181b4.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.5977b5660d1439570815.js.map

@@ -30,6 +30,55 @@ class TasksManager {
     });
   }
 
+  getCurrentRoomId() {
+    return typeof roomId !== "undefined" && roomId !== null
+      ? String(roomId)
+      : "";
+  }
+
+  getBaseRoomId() {
+    const currentRoomId = this.getCurrentRoomId();
+    return currentRoomId ? currentRoomId.split(":")[0] : "";
+  }
+
+  normalizeRoomId(roomValue) {
+    if (!roomValue) return null;
+    return String(roomValue).split(":")[0];
+  }
+
+  getRoomStudentEmails() {
+    const registered = roomMembersData && roomMembersData.registered;
+    if (!registered) return [];
+
+    if (Array.isArray(registered)) {
+      return registered.filter(Boolean).map((email) => String(email));
+    }
+
+    if (typeof registered === "object") {
+      return Object.values(registered)
+        .filter(Boolean)
+        .map((email) => String(email));
+    }
+
+    return [];
+  }
+
+  getActiveStudentEmail() {
+    const sessionEmail = sessionStorage.getItem("email");
+    if (sessionEmail) return sessionEmail;
+
+    if (this.managementSelectedStudent) return this.managementSelectedStudent;
+
+    const roomStudentEmails = this.getRoomStudentEmails();
+    if (roomStudentEmails.length > 0) return roomStudentEmails[0];
+
+    const connectedUserEmails = Object.values(connectedUsers || {})
+      .map((user) => user && user.email)
+      .filter(Boolean);
+
+    return connectedUserEmails.length > 0 ? connectedUserEmails[0] : null;
+  }
+
   async init() {
     await window.messagingReady;
     await window.tasksLoaded;
@@ -99,7 +148,9 @@ class TasksManager {
         category: t.category || "assigned",
         completed: Boolean(t.completed),
         usersAssigned,
-        roomAssigned: t.room_assigned || t.roomAssigned || null,
+        roomAssigned: this.normalizeRoomId(
+          t.room_assigned || t.roomAssigned || this.getCurrentRoomId(),
+        ),
         createdAt,
       };
     });
@@ -182,8 +233,7 @@ class TasksManager {
   }
 
   renderUserTasks() {
-    const currentUserEmail =
-      sessionStorage.getItem("email") || this.managementSelectedStudent;
+    const currentUserEmail = this.getActiveStudentEmail();
     const userTasks = this.getStudentTasks(currentUserEmail);
 
     const assignedCount = userTasks.assigned.filter((t) => t.completed).length;
@@ -372,17 +422,16 @@ class TasksManager {
   }
 
   renderManagementPopup() {
-    // Get connected users from the room
-    const studentsList = Object.values(roomMembersData.registered).map(
-      (user) => ({
-        email: user,
-        name: user,
-      }),
-    );
+    const studentsList = this.getRoomStudentEmails().map((user) => ({
+      email: user,
+      name: user,
+    }));
     const selectedStudent =
       this.managementSelectedStudent ||
       (studentsList.length > 0 ? studentsList[0].email : null);
-    tasksManager.selectStudent(selectedStudent);
+    if (!this.managementSelectedStudent && selectedStudent) {
+      this.managementSelectedStudent = selectedStudent;
+    }
     /**
      * TODO TA and student accounts are again are not accessible in a breakout room
      */
@@ -551,6 +600,12 @@ class TasksManager {
   onRoomMembersUpdated(members) {
     // update internal state or re-render
     this.roomMembers = members;
+    if (!this.managementSelectedStudent) {
+      const roomStudentEmails = this.getRoomStudentEmails();
+      if (roomStudentEmails.length > 0) {
+        this.managementSelectedStudent = roomStudentEmails[0];
+      }
+    }
     //No longer needed as task stay assigned.
     // this.render();
   }
@@ -1268,6 +1323,7 @@ class TasksManager {
           body: JSON.stringify({
             task_id: taskId,
             archived: true,
+            room_assigned: task.roomAssigned || this.getBaseRoomId() || null,
           }),
         },
       );
@@ -1290,6 +1346,7 @@ class TasksManager {
           body: JSON.stringify({
             task_id: taskId,
             completed: task.completed,
+            room_assigned: task.roomAssigned || this.getBaseRoomId() || null,
           }),
         },
       );
@@ -1453,7 +1510,7 @@ class TasksManager {
       category: category,
       completed: false,
       usersAssigned: [],
-      roomAssigned: typeof roomId !== "undefined" ? roomId : null,
+      roomAssigned: this.getBaseRoomId() || this.getCurrentRoomId() || null,
       createdAt: Date.now(),
     };
 
@@ -1483,7 +1540,7 @@ class TasksManager {
     const payload = {
       task_content: task.title,
       room_assigned:
-        typeof roomId !== "undefined" ? baseRoomId : task.roomAssigned || null,
+        this.getBaseRoomId() || task.roomAssigned || this.getCurrentRoomId() || null,
       users_assigned: Array.isArray(task.usersAssigned)
         ? task.usersAssigned.join(",")
         : "",
@@ -1775,6 +1832,8 @@ class TasksManager {
       Object.keys(connectedUsers).length > 0
     ) {
       this.managementSelectedStudent = Object.keys(connectedUsers)[0];
+    } else if (!this.managementSelectedStudent) {
+      this.managementSelectedStudent = this.getActiveStudentEmail();
     }
     document
       .getElementById("task-management-popup")

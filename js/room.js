@@ -527,6 +527,7 @@ async function refreshMembers() {
     try {
       console.log("base : " + baseRoomId);
       console.log(roomId);
+      const tasksResp = await fetch(buildRoomDbUrl({ roomId: baseRoomId }));
       const resp = await fetch(buildRoomDbUrl({ roomId }));
       const Bresp = await fetch(buildRoomDbUrl({ roomId: baseRoomId }));
       if (Bresp.ok) {
@@ -544,6 +545,7 @@ async function refreshMembers() {
         console.log(data);
         if (data) {
           if (data.request) {
+            console.log(data.request);
             console.log("Start of registering users");
             if (Array.isArray(data.request.editors)) {
               registered = data.request.editors;
@@ -561,6 +563,22 @@ async function refreshMembers() {
             }
           }
         }
+      }
+
+      if (tasksResp.ok) {
+        const tasksData = await tasksResp.json();
+        if (tasksData && tasksData.request) {
+          tasks = tasksData.request.tasks || [];
+        } else {
+          tasks = [];
+        }
+      } else {
+        tasks = [];
+      }
+
+      if (tasksLoadedResolve) {
+        tasksLoadedResolve();
+        tasksLoadedResolve = null;
       }
     } catch (e) {
       console.error("Failed to fetch room registered members", e);
