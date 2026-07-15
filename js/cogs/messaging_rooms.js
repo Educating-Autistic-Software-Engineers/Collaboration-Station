@@ -632,13 +632,13 @@ window.messagingReady.then(() => {
       project_id: urlParams.get("project"),
       message: message,
       breakout_id: breakoutId.toString(),
-      user: sessionStorage.email,
+      user: sessionStorage.getItem("email"),
       task_id: taskId || null,
     };
     const response = await fetch(
       "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/task-chat/share",
       {
-        method: "POST",
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       },
