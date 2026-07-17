@@ -737,7 +737,7 @@ class TasksManager {
     this.chatMessages = [
       {
         sender: "teacher",
-        text: `Hi! I'm going to analyze your current workspace and suggest concrete next steps for: **${task.title}**. One moment...`,
+        text: `Hi! I'm loading a chatbot to help with: **${task.title}**. One moment...`,
         time: new Date().toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
@@ -1099,6 +1099,11 @@ class TasksManager {
 
       const data = await response.json();
       const answer = data.response || JSON.stringify(data);
+
+      /**TODO add a line splitter here to make a list of responses easier to share */
+
+
+      
 
       this.chatMessages.push({
         sender: "teacher",
