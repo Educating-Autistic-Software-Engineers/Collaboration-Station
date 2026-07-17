@@ -12577,8 +12577,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! scratch-storage */ "./node_modules/scratch-storage/dist/web/scratch-storage.js");
 /* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_36___default = /*#__PURE__*/__webpack_require__.n(scratch_storage__WEBPACK_IMPORTED_MODULE_36__);
 /* harmony import */ var _components_library_library_jsx__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ../components/library/library.jsx */ "./src/components/library/library.jsx");
-const _excluded = ["url"],
-  _excluded2 = ["anyModalVisible", "canUseCloud", "customProceduresVisible", "extensionLibraryVisible", "options", "stageSize", "vm", "isRtl", "isVisible", "onActivateColorPicker", "onOpenConnectionModal", "onOpenSoundRecorder", "updateToolboxState", "onActivateCustomProcedures", "onRequestCloseExtensionLibrary", "onRequestCloseCustomProcedures", "toolboxXML", "updateMetrics", "useCatBlocks", "workspaceMetrics"];
+const _excluded = ["asset"],
+  _excluded2 = ["url"],
+  _excluded3 = ["anyModalVisible", "canUseCloud", "customProceduresVisible", "extensionLibraryVisible", "options", "stageSize", "vm", "isRtl", "isVisible", "onActivateColorPicker", "onOpenConnectionModal", "onOpenSoundRecorder", "updateToolboxState", "onActivateCustomProcedures", "onRequestCloseExtensionLibrary", "onRequestCloseCustomProcedures", "toolboxXML", "updateMetrics", "useCatBlocks", "workspaceMetrics"];
 function _extends() { _extends = Object.assign ? Object.assign.bind() : function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 function _objectWithoutProperties(source, excluded) { if (source == null) return {}; var target = _objectWithoutPropertiesLoose(source, excluded); var key, i; if (Object.getOwnPropertySymbols) { var sourceSymbolKeys = Object.getOwnPropertySymbols(source); for (i = 0; i < sourceSymbolKeys.length; i++) { key = sourceSymbolKeys[i]; if (excluded.indexOf(key) >= 0) continue; if (!Object.prototype.propertyIsEnumerable.call(source, key)) continue; target[key] = source[key]; } } return target; }
 function _objectWithoutPropertiesLoose(source, excluded) { if (source == null) return {}; var target = {}; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { if (excluded.indexOf(key) >= 0) continue; target[key] = source[key]; } } return target; }
@@ -13001,6 +13002,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this2.messageQueue = [];
         _this2.backlog = [];
         _this2.queue = [];
+        _this2.pendingQueueTimer = null;
         //this.blocks = [];
         _this2.idToAll = {};
         _this2.amountOfBlocks = 0;
@@ -13551,6 +13553,15 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       if (eve.type == "create" || eve.element == "click" || eve.type == 'move' && eve.oldParentId) {
         console.log(singleMessage, eve.type == "create" ? "queueing create" : "queueing other");
         _this7.queue.push(singleMessage);
+
+        // Don't let a create/click/reparent-move sit unsent forever waiting on
+        // a follow-up event that may never come — flush on its own shortly.
+        clearTimeout(_this7.pendingQueueTimer);
+        _this7.pendingQueueTimer = setTimeout(() => {
+          if (_this7.queue.length === 0) return;
+          _this7.sendArray(_this7.queue, parentID, childIDX);
+          _this7.queue.length = 0;
+        }, 80);
         return;
       }
       if (eve.type == "change" && eve.name == "BROADCAST_OPTION") {
@@ -13566,6 +13577,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       _this7.queue.push(singleMessage);
       console.log('pushing to queue', singleMessage, eve);
       console.log('sending array of length: ', _this7.queue.length);
+      clearTimeout(_this7.pendingQueueTimer);
       _this7.sendArray(_this7.queue, parentID, childIDX);
       _this7.queue.length = 0;
       console.log("sending backlog:", _this7.backlog);
@@ -13809,10 +13821,16 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   disableWorkspaceUpdate() {
     console.log("DISABLED!!");
     this.pauseWorkspaceUpdate = true;
+    if (this.workspace && this.workspace.svgBlockCanvas_) {
+      this.workspace.svgBlockCanvas_.style.visibility = 'hidden';
+    }
   }
   enableWorkspaceUpdate() {
     console.log("ENABLED!!");
     this.pauseWorkspaceUpdate = false;
+    if (this.workspace && this.workspace.svgBlockCanvas_) {
+      this.workspace.svgBlockCanvas_.style.visibility = 'visible';
+    }
     if (this.queueWorkspaceUpdate) {
       this.queueWorkspaceUpdate = false;
       this.props.vm.emitWorkspaceUpdate();
@@ -13840,6 +13858,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       }
       oldEWU();
     };
+    this.sendChangeListener = eve => {
+      this.sendInformation(eve);
+    };
+    this.workspace.addChangeListener(this.sendChangeListener);
     this.workspace.addChangeListener(this.props.vm.blockListener);
     this.workspace.addChangeListener(eve => {
       // console.log('forced',eve)
@@ -14316,12 +14338,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     };
     let ogAddCostume = this.props.vm.addCostume.bind(this.props.vm);
     this.props.vm.addCostume = function (md5, costumeObject, optTarget, optVersion) {
-      console.log("ADDING COSTUME", md5, costumeObject, optTarget, optVersion);
-      const as = costumeObject.asset;
-      console.log("ASSET", as);
       if (this.hasLoadedFully) {
         if (costumeObject.asset == undefined) {
           const spriteName = optTarget ? this.props.vm.runtime.getTargetById(optTarget).sprite.name : this.props.vm.editingTarget.sprite.name;
+          // no asset locally either -> nothing heavy to strip, safe as-is
           const msg = {
             md5: md5,
             costumeObject: costumeObject,
@@ -14332,14 +14352,10 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           channel.publish('addCostume', JSON.stringify(msg));
           return ogAddCostume(md5, costumeObject, optTarget, optVersion);
         }
-        var fileContent;
-        var contentType;
+        var fileContent, contentType;
         if (costumeObject.dataFormat === 'svg') {
           fileContent = decodeSvg(costumeObject.asset.data);
           contentType = 'image/svg+xml';
-        } else if (costumeObject.dataFormat === 'jpg') {
-          fileContent = decodePng(costumeObject.asset.data);
-          contentType = 'image/jpeg';
         } else {
           fileContent = decodePng(costumeObject.asset.data);
           contentType = 'image/png';
@@ -14354,14 +14370,19 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           },
           body: fileContent
         }).then(resp => {
-          console.log(resp);
-          console.log("data", costumeObject.asset.data);
-          // costumeObject.asset.data = []
-
           const spriteName = optTarget ? this.props.vm.runtime.getTargetById(optTarget).sprite.name : this.props.vm.editingTarget.sprite.name;
+
+          // Strip the raw pixel/svg data out of the broadcast payload.
+          // It's already durably stored via the upload above (by md5),
+          // so ogAddCostume on the receiving end can rehydrate it the
+          // same way it would for the "no local asset" branch above.
+          const {
+              asset
+            } = costumeObject,
+            costumeObjectMeta = _objectWithoutProperties(costumeObject, _excluded);
           const msg = {
             md5: md5,
-            costumeObject: costumeObject,
+            costumeObject: costumeObjectMeta,
             spriteName: spriteName,
             optVersion: optVersion,
             uid: nid
@@ -14377,19 +14398,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         if (d.uid == nid) {
           return;
         }
-
-        // const resp = await fetch("https://d3pl0tx5n82s71.cloudfront.net/"+d.md5)
-        // const extension = d.dataFormat
-        // if (extension == "svg") {
-        //     const svgString = await resp.text();
-        //     d.costumeObject.asset.data = svgString;
-        // } else {
-        //     const pngData = await resp.arrayBuffer();
-        //     d.costumeObject.asset.data = new Uint8Array(Buffer.from(pngData, 'base64'));
-        // }
-
         console.log("ADDING COSTUME", d);
         const targetId = _this11.getTargetByName(d.spriteName).id;
+
+        // d.costumeObject.asset is intentionally absent here — same code
+        // path as the "costumeObject.asset == undefined" case, which already
+        // works, and now resolves the image from the CDN/storage layer by md5
+        // instead of from an inline payload.
         ogAddCostume(d.md5, d.costumeObject, targetId, d.optVersion);
       });
       return function (_x20) {
@@ -14700,7 +14715,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       let {
           url
         } = _ref17,
-        options = _objectWithoutProperties(_ref17, _excluded);
+        options = _objectWithoutProperties(_ref17, _excluded2);
       // const md5 = extractNumberFromUrl(url)
       // console.log("MD5", md5)
       // if (md5 != "-1") {
@@ -14915,7 +14930,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
   }
   onWorkspaceUpdate(data) {
-    // When we change sprites, update the toolbox to have the new sprite's blocks
     const toolboxXML = this.getToolboxXML();
     if (toolboxXML) {
       this.props.updateToolboxState(toolboxXML);
@@ -14923,35 +14937,34 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     if (this.props.vm.editingTarget && !this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id]) {
       this.onWorkspaceMetricsChange();
     }
-    console.log("moved to ", this.props.vm.editingTarget.sprite.name, "is transistonary:", this.pauseWorkspaceUpdate);
     if (this.pauseWorkspaceUpdate) {
-      // this.queueWorkspaceUpdate = true;
-      // return;
+      // still paused for other things
     } else {
       sessionStorage.setItem('editingTarget', this.props.vm.editingTarget.sprite.name);
     }
-
-    // Remove and reattach the workspace listener (but allow flyout events)
     this.workspace.removeChangeListener(this.props.vm.blockListener);
+    this.workspace.removeChangeListener(this.sendChangeListener);
     const dom = this.ScratchBlocks.Xml.textToDom(data.xml);
+
+    // IMPORTANT: clear+load must always run as a pair, even during a
+    // temporary target swap (pauseWorkspaceUpdate === true), otherwise
+    // the overridden workspace.clear() below becomes a no-op and the
+    // newly-loaded XML gets stacked on top of the existing blocks,
+    // producing duplicate/corrupted blocks with colliding IDs.
+    const wasPaused = this.pauseWorkspaceUpdate;
+    this.pauseWorkspaceUpdate = false;
     try {
       this.ScratchBlocks.Xml.clearWorkspaceAndLoadFromXml(dom, this.workspace);
     } catch (error) {
-      // The workspace is likely incomplete. What did update should be
-      // functional.
-      //
-      // Instead of throwing the error, by logging it and continuing as
-      // normal lets the other workspace update processes complete in the
-      // gui and vm, which lets the vm run even if the workspace is
-      // incomplete. Throwing the error would keep things like setting the
-      // correct editing target from happening which can interfere with
-      // some blocks and processes in the vm.
       if (error.message) {
         error.message = "Workspace Update Error: ".concat(error.message);
       }
       _lib_log_js__WEBPACK_IMPORTED_MODULE_7__["default"].error(error);
+    } finally {
+      this.pauseWorkspaceUpdate = wasPaused;
     }
     this.workspace.addChangeListener(this.props.vm.blockListener);
+    this.workspace.addChangeListener(this.sendChangeListener);
     if (this.props.vm.editingTarget && this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id]) {
       const {
         scrollX,
@@ -14963,10 +14976,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       this.workspace.scale = scale;
       this.workspace.resize();
     }
-
-    // Clear the undo state of the workspace since this is a
-    // fresh workspace and we don't want any changes made to another sprites
-    // workspace to be 'undone' here.
     this.workspace.clearUndo();
   }
   handleMonitorsUpdate(monitors) {
@@ -15134,7 +15143,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         useCatBlocks,
         workspaceMetrics
       } = _this$props,
-      props = _objectWithoutProperties(_this$props, _excluded2);
+      props = _objectWithoutProperties(_this$props, _excluded3);
     console.log("PROPS", this.props);
     /* eslint-enable no-unused-vars */
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_4__.createElement(react__WEBPACK_IMPORTED_MODULE_4__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_4__.createElement(DroppableBlocks, _extends({
@@ -45162,4 +45171,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.5977b5660d1439570815.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.cfaf4227a5e36c24839f.js.map
