@@ -223,6 +223,7 @@ let joinRoomInit = async () => {
       console.log("JOINED MEETING", data);
       meetingId = data.request.meetingID;
     }
+    sessionStorage.setItem("meetingId", meetingId);
 
     // Call backend to join meeting
     try {
@@ -268,8 +269,8 @@ let joinRoomInit = async () => {
           handleVolumeIndicator(); // Update volume indicators
         },
 
-        audioVideoDidStart: () => {
-          console.log("Meeting started successfully");
+        audioVideoDidStart: (id = "defaultID") => {
+          console.log("Meeting started successfully id : " + id);
         },
 
         connectionDidBecomePoor: () => {

@@ -20,7 +20,11 @@ function updateProjectIdDisplay(roomId) {
     return;
   }
 
-  projectIdChip.textContent = `Project : Breakout -- ${roomId}`;
+  chimeId = sessionStorage.getItem("meetingId").split("-")[0];
+  projectIdChip.textContent = `Project : Breakout : ChimeId -- ${roomId} -- ${chimeId}`;
+  if (roomId.split(":").length == 2)
+    projectIdChip.textContent = `Project : Breakout : ChimeId -- ${roomId} -- ${chimeId}`;
+  else projectIdChip.textContent = `Project: ChimeId -- ${roomId}-- ${chimeId}`;
 }
 
 function buildRoomDbUrl(extraParams = {}) {

@@ -82,7 +82,7 @@ async function fetchUserProjects() {
       `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${targetEmail}&password=${password}`,
     );
     const data = await response.json();
-    roomList = data.projects.split(", ");
+    roomList = new Set(data.projects.split(", "));
   } catch (error) {
     console.error("Error fetching user projects:", error);
     roomList = [];
@@ -255,10 +255,13 @@ async function joinExistingProjectPopup() {
   }
   console.log(project_id);
   try {
-    await joinExistingProject(project_id);
-    await fetchRooms();
-    await fetchUserProjects();
-    displayProjects();
+    if (!roomList.has(project_id)) {
+      console.log("new Project");
+      await joinExistingProject(project_id);
+      await fetchRooms();
+      await fetchUserProjects();
+      displayProjects();
+    }
 
     if (roomDict[project_id]) {
       selectProject(project_id);
@@ -714,6 +717,8 @@ function populateUsernames() {
 load();
 
 async function joinExistingProject(project_id) {
+  console.log("WOHOO");
+
   try {
     const response = await fetch(
       "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register",
