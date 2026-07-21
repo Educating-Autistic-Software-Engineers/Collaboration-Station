@@ -12981,28 +12981,36 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this2.hasLoadedInitially = false;
         _this2.queueWorkspaceUpdate = false;
         _this2.pauseWorkspaceUpdate = false;
-        _this2.queueFurtherSends = false;
+        // stopEmission is a coarse "suppress all outgoing sync" flag used only
+        // around long-lived, self-contained local operations (full project load,
+        // reverting a losing local edit). It is always paired with try/finally at
+        // its call sites so it can never get stuck "on".
         _this2.stopEmission = false;
-        _this2.holdingBlock = false;
         _this2.errorLoading = false;
         _this2.keyMarker = null;
         _this2.versionIdMarker = null;
-        _this2.lastBlockId = "";
-        _this2.lastBlockType = "";
-        _this2.lastTempId = "";
         _this2.randomIndex = 0;
         _this2.cacheEventTime = 50; //ms
+        _this2.maxBatchWaitTime = 200; //ms -- hard ceiling so a batch can never wait forever
         _this2.vid = -1;
         hasInited = true;
-        _this2.timer = null;
         _this2.rootVersions = new Map();
 
         // this.varCallbackFunc = function(a,b,c) {console.log(a,b,c, "callback var trigged early")};
 
-        _this2.messageQueue = [];
-        _this2.backlog = [];
-        _this2.queue = [];
-        _this2.pendingQueueTimer = null;
+        // --- Outgoing event batching (replaces the old dual queue/messageQueue/backlog system) ---
+        _this2.outgoingBatch = [];
+        _this2.flushTimer = null;
+        _this2.maxWaitTimer = null;
+
+        // --- Loop-prevention for replayed (remote / reverted) events; see runSuppressed() ---
+        _this2.suppressedGroups = new Set();
+        _this2.suppressCounter = 0;
+
+        // --- Serializes target swaps so concurrent remote batches for
+        // different sprites can't interleave; see withTargetContext() ---
+        _this2.targetContextChain = Promise.resolve();
+
         //this.blocks = [];
         _this2.idToAll = {};
         _this2.amountOfBlocks = 0;
@@ -13078,14 +13086,75 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     if (!eve || typeof eve.run !== 'function') return null;
     return eve;
   }
+
+  // ------------------------------------------------------------------
+  // Loop prevention.
+  //
+  // Whenever we programmatically replay a Blockly event -- because it came
+  // from a peer (parseEvent), or because we're rolling back a local edit
+  // that lost a conflict (revertLocalRootGroup) -- Blockly's internals may
+  // re-fire equivalent change events on our own listeners. Those must not
+  // be re-broadcast as if they were new local edits.
+  //
+  // A plain boolean flag around the replay is NOT safe here, for two
+  // reasons:
+  //   1) scratch-blocks batches change-listener notifications with an
+  //      internal setTimeout(0), so the echo can arrive on a *later* tick
+  //      than the one where we flip the flag back off -- a synchronous
+  //      try/finally would clear it too early and the echo would slip
+  //      through and get re-sent (possible feedback loop).
+  //   2) if anything inside the replay throws, a flag that's only reset
+  //      "at the end" of the happy path can get stuck "on" forever,
+  //      silently killing all future outgoing sync for this client. This
+  //      is what "stops syncing entirely" after a null-reference error.
+  //
+  // Blockly stamps a `group` id onto every event *at creation time*
+  // (Events.Abstract reads Events.getGroup() in its constructor), and that
+  // stamp survives however long it takes the event to reach our listener.
+  // So instead of a flag, we tag a fresh unique group for each replay,
+  // remember it, and filter on it whenever our listener fires -- which
+  // works regardless of timing. The group is auto-forgotten after a few
+  // seconds, so a thrown error can never wedge us permanently.
+  runSuppressed(fn) {
+    const groupId = "sync-".concat(nid, "-").concat(++this.suppressCounter);
+    this.suppressedGroups.add(groupId);
+    setTimeout(() => this.suppressedGroups.delete(groupId), 4000);
+    const previousGroup = this.ScratchBlocks.Events.getGroup();
+    this.ScratchBlocks.Events.setGroup(groupId);
+    try {
+      fn();
+    } finally {
+      // Always restore, even if fn() threw -- never leaves replay mode "stuck on".
+      this.ScratchBlocks.Events.setGroup(previousGroup || false);
+    }
+  }
+  isSuppressedEcho(eve) {
+    return !!(eve && eve.group && this.suppressedGroups.has(eve.group));
+  }
+
+  // Field-change events can arrive with a blockId that hasn't propagated to
+  // this client yet (e.g. a field edited immediately after a block is
+  // dropped, before the create fully round-trips). As a fallback, senders
+  // also attach the field-block's parent id + position among its
+  // siblings, which is stable sooner than the block's own id. Only used
+  // when the direct id lookup fails.
+  resolveIncomingBlockId(event) {
+    if (!event || !event.blockId) return event && event.blockId;
+    if (this.workspace.getBlockById(event.blockId)) return event.blockId;
+    if (event.parentBlockId != null && event.childIndex != null) {
+      const parent = this.workspace.getBlockById(event.parentBlockId);
+      const child = parent && parent.childBlocks_ && parent.childBlocks_[event.childIndex];
+      if (child && child.id) return child.id;
+    }
+    return event.blockId;
+  }
   revertLocalRootGroup(rootId) {
     const versionInfo = this.rootVersions.get(rootId);
     if (!versionInfo || !versionInfo.inverseEvents || versionInfo.inverseEvents.length === 0) {
       return;
     }
     console.log("CONFLICT: reverting local root group", rootId, versionInfo);
-    this.stopEmission = true;
-    try {
+    this.runSuppressed(() => {
       // Undo in reverse order, most-recent-first, mirroring undo-stack semantics.
       for (let i = versionInfo.inverseEvents.length - 1; i >= 0; i--) {
         const inv = versionInfo.inverseEvents[i];
@@ -13096,9 +13165,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           console.error("failed to revert inverse event", inv, e);
         }
       }
-    } finally {
-      this.stopEmission = false;
-    }
+    });
     this.rootVersions.delete(rootId);
   }
   handleParentMessage(event) {
@@ -13397,9 +13464,6 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
             yield _this5.props.vm.loadProject(data2);
           }
         } else {}
-        if (sessionStorage.getItem('analMode') == "T") {
-          _this5.startingLoad = false;
-        }
 
         //this.props.vm.editingTarget.setCostume(1);
       } catch (error) {
@@ -13412,6 +13476,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Apple");
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Taco");
 
+      // Always reset, success or failure, so a later load() call (e.g. a
+      // subsequent goodForLoad/analMode replay) isn't permanently blocked.
+      _this5.startingLoad = false;
       _this5.stopEmission = false;
     })();
   }
@@ -13482,247 +13549,275 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }).then(resp => console.log('logged', resp));
   }
   sendInformation(eve) {
+    if (this.isViewOnly) {
+      return;
+    }
+
+    // Coarse suppression (full project load) or fine per-replay suppression
+    // (a remote event / conflict revert we just applied echoing back through
+    // our own change listener). See runSuppressed() for why this is safe
+    // against both async-deferred echoes and mid-replay exceptions.
+    if (this.stopEmission || this.isSuppressedEcho(eve)) {
+      return;
+    }
+    if (!(eve.element == "click" || eve.element == "stackclick" || eve.element == "field")) {
+      if (eve.group == "" || !eve.recordUndo) {
+        return;
+      }
+    }
+
+    // Field-change events can reference a blockId that hasn't finished
+    // propagating to other clients yet. Attach the field-block's parent +
+    // sibling index as a fallback the receiver can use if a direct
+    // blockId lookup fails (see resolveIncomingBlockId). Computed and
+    // attached per-message, so a batch containing several different
+    // field edits resolves each one correctly on the far end.
+    let parentBlockId = null;
+    let childIndex = null;
+    if (eve.element == "field") {
+      const fieldBlock = this.workspace.getBlockById(eve.blockId);
+      const parentBlock = fieldBlock && fieldBlock.parentBlock_;
+      if (parentBlock) {
+        parentBlockId = parentBlock.id;
+        childIndex = parentBlock.childBlocks_.indexOf(fieldBlock);
+      }
+    }
+    if (this.hasLoadedFully) {
+      this.logData({
+        moveId: this.getRandomHexString(16),
+        time: Date.now(),
+        user: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name,
+        room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
+        type: eve.type,
+        target: this.props.vm.editingTarget.sprite.name,
+        event: eve
+      });
+    }
+    const nowTs = Date.now();
+    if (eve.blockId && this.workspace.getBlockById(eve.blockId)) {
+      const rootId = this.getRootBlockId(eve.blockId);
+      const existing = this.rootVersions.get(rootId);
+      const inverse = this.captureInverse(eve);
+      this.rootVersions.set(rootId, {
+        timestamp: nowTs,
+        inverseEvents: existing && existing.inverseEvents ? [...existing.inverseEvents, inverse].filter(Boolean) : [inverse].filter(Boolean)
+      });
+    }
+    let singleMessage;
+    try {
+      singleMessage = eve.toJson();
+    } catch (e) {
+      // If an event can't even be serialized there's nothing safe to send;
+      // drop just this one event rather than let the exception propagate
+      // and potentially interrupt Blockly's own change-listener loop.
+      console.error("failed to serialize local event, dropping it", eve, e);
+      return;
+    }
+    singleMessage.ts = nowTs;
+    if (parentBlockId != null) {
+      singleMessage.parentBlockId = parentBlockId;
+      singleMessage.childIndex = childIndex;
+    }
+    if (eve.type == "change" && eve.name == "BROADCAST_OPTION") {
+      var _this$props$vm$runtim, _this$props$vm$runtim2;
+      singleMessage.broadcastInfo = {
+        broadcastName: (_this$props$vm$runtim = this.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this$props$vm$runtim === void 0 ? void 0 : _this$props$vm$runtim.name,
+        broadcastId: (_this$props$vm$runtim2 = this.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this$props$vm$runtim2 === void 0 ? void 0 : _this$props$vm$runtim2.id
+      };
+    }
+    if (eve.type == "comment_create") {
+      singleMessage.commentXY = eve.xy;
+    }
+    this.queueOutgoing(singleMessage);
+  }
+
+  // Adds a message to the outgoing batch and schedules it to be flushed.
+  // Two timers govern the flush:
+  //   - flushTimer: a short "quiet period" debounce (cacheEventTime) that
+  //     resets on every new message, so closely-spaced events (e.g. a
+  //     block "create" immediately followed by its "move" into place) go
+  //     out together in one publish.
+  //   - maxWaitTimer: a hard ceiling (maxBatchWaitTime) started when the
+  //     batch first becomes non-empty and never reset, guaranteeing a
+  //     batch is flushed promptly even under a steady trickle of events
+  //     that would otherwise keep re-arming the debounce forever.
+  queueOutgoing(singleMessage) {
+    this.outgoingBatch.push(singleMessage);
+    if (!this.maxWaitTimer) {
+      this.maxWaitTimer = setTimeout(() => this.flushOutgoing(), this.maxBatchWaitTime);
+    }
+    clearTimeout(this.flushTimer);
+    this.flushTimer = setTimeout(() => this.flushOutgoing(), this.cacheEventTime);
+  }
+
+  // Kept as a thin wrapper around queueOutgoing/flushOutgoing so any other
+  // caller expecting the old sendArray(arr, ...) signature keeps working.
+  sendArray(arr) {
+    for (const msg of arr) {
+      this.outgoingBatch.push(msg);
+    }
+    this.flushOutgoing();
+  }
+  flushOutgoing() {
     var _this7 = this;
     return _asyncToGenerator(function* () {
-      if (_this7.isViewOnly) {
-        console.log("view only mode; ignoring event");
+      clearTimeout(_this7.flushTimer);
+      clearTimeout(_this7.maxWaitTimer);
+      _this7.flushTimer = null;
+      _this7.maxWaitTimer = null;
+      if (_this7.outgoingBatch.length === 0) {
         return;
       }
-      if (!(eve.element == "click" || eve.element == "stackclick" || eve.element == "field")) {
-        if (eve.group == "" || !eve.recordUndo) {
-          return;
-        }
+      const messages = _this7.outgoingBatch;
+      _this7.outgoingBatch = [];
+      const message = {
+        uid: nid,
+        target: _this7.props.vm.editingTarget.sprite.name,
+        messages: messages,
+        rIDX: _this7.randomIndex,
+        dir: true
+      };
+      try {
+        yield channel.publish('event', JSON.stringify(message));
+      } catch (e) {
+        // Never silently drop edits because a publish failed (offline blip,
+        // Ably hiccup, etc). Put them back at the front of the batch and
+        // retry shortly -- this is the fix for "sometimes it just doesn't
+        // send": the old code left its debounce timer permanently non-null
+        // after a thrown error here, which silently stopped ALL future
+        // sends for the rest of the session.
+        console.error("failed to publish sync event, will retry", e);
+        _this7.outgoingBatch = messages.concat(_this7.outgoingBatch);
+        _this7.maxWaitTimer = setTimeout(() => _this7.flushOutgoing(), 1000);
       }
-      console.log("INFO INFO", eve);
-      let parentID = -1;
-      let childIDX = -1;
-      if (eve.element == "field") {
-        const parentBlock = _this7.workspace.getBlockById(eve.blockId).parentBlock_;
-        if (!!parentBlock) {
-          parentID = parentBlock.id;
-          for (let childBlock of parentBlock.childBlocks_) {
-            if (childBlock.id == eve.blockId) {
-              childIDX = parentBlock.childBlocks_.indexOf(childBlock);
-            }
-          }
-        }
-      }
-      if (_this7.stopEmission) {
-        console.log("recieved own event;", _this7.pauseWorkspaceUpdate, _this7.lastBlockId, eve.blockId, _this7.lastBlockType, eve.type);
-        if (_this7.lastBlockId == eve.blockId && _this7.lastBlockType == eve.type) {
-          _this7.stopEmission = false;
-          if (_this7.lastTempId != "") {
-            // this.revertToOriginalTarget();
-            // this.lastTempId = ""
-          }
-        }
-        return;
-      }
-      if (_this7.holdingBlock) {
-        return;
-      }
-      console.log('loading', _this7.hasLoadedFully);
-      if (_this7.hasLoadedFully) {
-        _this7.logData({
-          moveId: _this7.getRandomHexString(16),
-          time: Date.now(),
-          user: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name,
-          room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
-          type: eve.type,
-          target: _this7.props.vm.editingTarget.sprite.name,
-          event: eve
-        });
-      }
-      const nowTs = Date.now();
-      if (eve.blockId && _this7.workspace.getBlockById(eve.blockId)) {
-        const rootId = _this7.getRootBlockId(eve.blockId);
-        const existing = _this7.rootVersions.get(rootId);
-        const inverse = _this7.captureInverse(eve);
-        _this7.rootVersions.set(rootId, {
-          timestamp: nowTs,
-          inverseEvents: existing && existing.inverseEvents ? [...existing.inverseEvents, inverse].filter(Boolean) : [inverse].filter(Boolean)
-        });
-      }
-      let singleMessage = eve.toJson();
-      singleMessage.ts = nowTs;
-      if (_this7.queueFurtherSends || _this7.queueWhileOnDifferentTarget) {
-        console.log("backlogged", singleMessage);
-        _this7.backlog.push(singleMessage);
-        return;
-      }
-      if (eve.type == "create" || eve.element == "click" || eve.type == 'move' && eve.oldParentId) {
-        console.log(singleMessage, eve.type == "create" ? "queueing create" : "queueing other");
-        _this7.queue.push(singleMessage);
-
-        // Don't let a create/click/reparent-move sit unsent forever waiting on
-        // a follow-up event that may never come — flush on its own shortly.
-        clearTimeout(_this7.pendingQueueTimer);
-        _this7.pendingQueueTimer = setTimeout(() => {
-          if (_this7.queue.length === 0) return;
-          _this7.sendArray(_this7.queue, parentID, childIDX);
-          _this7.queue.length = 0;
-        }, 80);
-        return;
-      }
-      if (eve.type == "change" && eve.name == "BROADCAST_OPTION") {
-        var _this7$props$vm$runti, _this7$props$vm$runti2;
-        singleMessage.broadcastInfo = {
-          broadcastName: (_this7$props$vm$runti = _this7.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this7$props$vm$runti === void 0 ? void 0 : _this7$props$vm$runti.name,
-          broadcastId: (_this7$props$vm$runti2 = _this7.props.vm.runtime.getTargetForStage().variables[eve.newValue]) === null || _this7$props$vm$runti2 === void 0 ? void 0 : _this7$props$vm$runti2.id
-        };
-      }
-      if (eve.type == "comment_create") {
-        singleMessage.commentXY = eve.xy;
-      }
-      _this7.queue.push(singleMessage);
-      console.log('pushing to queue', singleMessage, eve);
-      console.log('sending array of length: ', _this7.queue.length);
-      clearTimeout(_this7.pendingQueueTimer);
-      _this7.sendArray(_this7.queue, parentID, childIDX);
-      _this7.queue.length = 0;
-      console.log("sending backlog:", _this7.backlog);
-      yield _this7.sendBacklog(parentID, childIDX);
     })();
-  }
-  sendArray(arr) {
-    var _this8 = this;
-    let parentID = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-    let childIDX = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : -1;
-    let dir = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : true;
-    return _asyncToGenerator(function* () {
-      // Add the new events to the queue
-      _this8.messageQueue.push(...arr);
-
-      // If a timer is already running, do nothing
-      if (_this8.timer) {
-        return;
-      }
-      _this8.timer = setTimeout( /*#__PURE__*/_asyncToGenerator(function* () {
-        // handing field events since they don't have a consistent blockId
-        if (parentID == -1) {
-          const eve = _this8.messageQueue[0];
-          if (eve.element == "field") {
-            const parentBlock = _this8.workspace.getBlockById(eve.blockId).parentBlock_;
-            if (!!parentBlock) {
-              parentID = parentBlock.id;
-              for (let childBlock of parentBlock.childBlocks_) {
-                if (childBlock.id == eve.blockId) {
-                  childIDX = parentBlock.childBlocks_.indexOf(childBlock);
-                }
-              }
-            }
-          }
-        }
-        const message = {
-          uid: nid,
-          target: _this8.props.vm.editingTarget.sprite.name,
-          messages: _this8.messageQueue,
-          parentID: parentID,
-          childIDX: childIDX,
-          rIDX: _this8.randomIndex,
-          dir: dir
-        };
-        console.log("sending array", message);
-        _this8.queueFurtherSends = true;
-        channel.publish('event', JSON.stringify(message));
-        _this8.queueFurtherSends = false;
-
-        // Clear the queue and timer
-        _this8.messageQueue = [];
-        _this8.timer = null;
-      }), _this8.cacheEventTime);
-    })();
-  }
-  enableEmission() {
-    if (this.stopEmission) {
-      // this.stopEmission = false;
-      // console.log("stopped emission")
-      //console.log('rico', lastTempId)
-      //this.props.vm.setEditingTarget(lastTempId);
-    }
   }
   recieveInformation(message) {
-    let data = JSON.parse(message.data);
-    console.log("data recieved", data);
+    let data;
+    try {
+      data = JSON.parse(message.data);
+    } catch (e) {
+      console.error("received malformed sync message, ignoring", e);
+      return;
+    }
     if (data.uid == nid) {
-      console.log("discarding");
       return;
     }
     this.randomIndex = data.rIDX;
     const targetName = data.target;
     const dir = data.dir;
-    this.changeTarget(targetName);
-    for (let msg of data.messages) {
-      if (data.parentID != -1) {
-        msg.blockId = this.workspace.getBlockById(data.parentID).childBlocks_[data.childIDX].id;
+
+    // Applies the whole batch inside withTargetContext, which guarantees
+    // we end up back on the local user's own target -- and that the
+    // edits actually land -- no matter what happens while applying. See
+    // withTargetContext for the two failure modes this replaces.
+    this.withTargetContext(targetName, () => {
+      for (const msg of data.messages) {
+        this.parseEvent(msg, targetName, dir);
       }
-      this.parseEvent(msg, targetName, dir);
-    }
-    console.log("finished parsing");
+    });
   }
-  changeTarget(targetName) {
-    let revertAutomatically = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-    if (targetName == this.props.vm.editingTarget.sprite.name) {
-      return;
-    }
-    var ogTarget;
-    if (this.lastTempId != "") {
-      // if another target is already being edited, we have to revert to the original target of that target
-      ogTarget = this.props.vm.runtime.getTargetById(this.lastTempId);
-    } else {
-      // we create the original target
-      ogTarget = this.props.vm.editingTarget;
-      this.lastTempId = ogTarget.id;
-    }
-    this.disableWorkspaceUpdate();
-    const tmpTarget = this.getTargetByName(targetName);
-    console.log(tmpTarget, "target");
-    this.props.vm.editingTarget = tmpTarget;
-    //this.disableWorkspaceUpdate()
 
-    // this.props.vm.emitTargetsUpdate(false)
-    this.props.vm.emitWorkspaceUpdate();
-    // this.props.vm.emitTargetsUpdate(false)
-    // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget);
-    this.props.vm.runtime._editingTarget = this.props.vm.editingTarget;
-    //console.log(">>" ,this.pauseWorkspaceUpdate)
-    // this.props.vm.setEditingTarget(tmpTarget.id);
-
-    if (revertAutomatically) {
-      setTimeout(() => {
-        if (!this.pauseWorkspaceUpdate) {
-          return;
+  // Temporarily points the workspace at `targetName` (a remote peer's
+  // sprite/stage), runs `applyFn`, then unconditionally restores the local
+  // user's own target -- serialized against any other pending swap, so two
+  // incoming batches for different sprites can never interleave.
+  //
+  // The old changeTarget()/revertToOriginalTarget() pair tracked "the
+  // target to go back to" (lastTempId) as shared mutable state and relied
+  // on a setTimeout(1) to trigger the revert later, decoupled from whether
+  // applying the incoming batch had actually finished. That meant:
+  //   - if two remote batches for different sprites arrived close
+  //     together, the second changeTarget() call would overwrite
+  //     lastTempId before the first's revert ran, and the user's own
+  //     target was never correctly restored -- i.e. they'd stay stuck
+  //     looking at a teammate's sprite.
+  // A naive fully-synchronous swap-apply-restore fixes that, but breaks
+  // something else: persisting the applied edits into tmpTarget's block
+  // model happens through vm.blockListener, which scratch-blocks notifies
+  // on a *deferred* tick (internally via setTimeout(0)). Restore back to
+  // the local target before that tick fires and the notification lands
+  // against the wrong (already-restored) target -- the edit is silently
+  // dropped. So we still yield briefly before restoring, but do it through
+  // a single chain (targetContextChain) instead of independent timers, so
+  // concurrent swaps queue up one-at-a-time rather than racing.
+  withTargetContext(targetName, applyFn) {
+    this.targetContextChain = this.targetContextChain.then(() => this.applyWithTargetContext(targetName, applyFn)).catch(e => console.error("error in target-context chain", e));
+    return this.targetContextChain;
+  }
+  applyWithTargetContext(targetName, applyFn) {
+    var _this8 = this;
+    return _asyncToGenerator(function* () {
+      if (!targetName || targetName == _this8.props.vm.editingTarget.sprite.name) {
+        try {
+          applyFn();
+        } catch (e) {
+          console.error("error applying remote events", e);
         }
-        this.revertToOriginalTarget();
-      }, 1);
-    }
-  }
-  revertToOriginalTarget() {
-    var _this9 = this;
-    setTimeout( /*#__PURE__*/_asyncToGenerator(function* () {
-      if (_this9.lastTempId == "") {
         return;
       }
-      const ogTarget = _this9.props.vm.runtime.getTargetById(_this9.lastTempId);
-      if (ogTarget.id === _this9.props.vm.editingTarget.id) {
-        _this9.stopEmission = false;
+      const originalTargetId = _this8.props.vm.editingTarget.id;
+      const tmpTarget = _this8.getTargetByName(targetName);
+      if (!tmpTarget) {
+        // Target doesn't exist locally yet (e.g. a sprite-creation message
+        // hasn't arrived/applied yet) -- drop this batch rather than crash.
+        console.warn("remote target not found, dropping batch for", targetName);
         return;
       }
-      _this9.lastTempId = "";
-      // this.queueWhileOnDifferentTarget = false;
-      // this.queueFurtherSends = true;
-      // await this.sendBacklog();
-      // this.queueFurtherSends = false;
-      _this9.enableWorkspaceUpdate();
-      _this9.props.vm.setEditingTarget(ogTarget.id);
-      _this9.stopEmission = false;
-      console.log("OG TARGET SET");
-    }), 1);
+      _this8.disableWorkspaceUpdate();
+      try {
+        _this8.props.vm.editingTarget = tmpTarget;
+        _this8.props.vm.emitWorkspaceUpdate();
+        _this8.props.vm.runtime._editingTarget = tmpTarget;
+        applyFn();
+
+        // Give scratch-blocks' deferred change-listener dispatch a chance
+        // to run (and thus vm.blockListener a chance to persist the edit
+        // into tmpTarget) while tmpTarget is still the active target.
+        yield new Promise(resolve => setTimeout(resolve, 4));
+      } catch (e) {
+        console.error("error applying remote events", e);
+      } finally {
+        // Restore the user's own target. Order matters here: reload the
+        // workspace content back to their own blocks *while still
+        // hidden*, and only reveal the canvas once that's done --
+        // revealing first (what enableWorkspaceUpdate() + setEditingTarget()
+        // in that order would do) shows one visible frame of the other
+        // person's blocks in between. Un-pause before reloading (rather
+        // than after) so this setEditingTarget's onWorkspaceUpdate call
+        // does the *full* restore -- toolbox, workspace metrics,
+        // sessionStorage -- since, unlike the quiet swap-in above, this
+        // is a real switch back to what the user should be seeing.
+        _this8.pauseWorkspaceUpdate = false;
+        _this8.props.vm.setEditingTarget(originalTargetId);
+
+        // The reload call above returning doesn't guarantee the browser
+        // has actually *painted* the reloaded blocks yet -- Blockly's
+        // SVG rendering isn't necessarily fully settled in the same JS
+        // tick as the DOM mutation. Revealing immediately after could
+        // still catch a half-rendered or stale frame, which is what the
+        // remaining flicker was. Waiting two animation frames is the
+        // standard way to guarantee we're past that paint before we
+        // show it, without needing to know Blockly's exact internals.
+        yield new Promise(resolve => {
+          requestAnimationFrame(() => requestAnimationFrame(resolve));
+        });
+        if (_this8.workspace && _this8.workspace.svgBlockCanvas_) {
+          _this8.workspace.svgBlockCanvas_.style.visibility = 'visible';
+        }
+        if (_this8.queueWorkspaceUpdate) {
+          _this8.queueWorkspaceUpdate = false;
+          _this8.props.vm.emitWorkspaceUpdate();
+        }
+      }
+    })();
   }
   parseEvent(event) {
     let targetName = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "";
     let dir = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-    console.log('parsing!!', event);
+    // Resolve a possibly-stale field-event blockId via the parent+index
+    // fallback before doing anything else with it.
+    event.blockId = this.resolveIncomingBlockId(event);
     if (targetName == "") {
       targetName = this.props.vm.editingTarget.sprite.name;
     }
@@ -13734,15 +13829,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       return;
     }
 
-    // ---- NEW: conflict check, root-block scoped -----------------------
-    // event.ts is the sender's local timestamp for this op (set in
-    // sendInformation above). If we have a local mutation on this same
-    // root group that's NEWER than the incoming event's timestamp, our
-    // local edit lost the race window (we sent ours, then this arrived).
-    // Per the agreed rule: incoming wins. Revert our local change first,
-    // drop our action (we simply don't re-send — there's nothing to
-    // re-send, it's already gone out or about to), then fall through to
-    // apply the incoming event normally.
+    // Conflict check, root-block scoped. event.ts is the sender's local
+    // timestamp for this op (set in sendInformation above). If we have a
+    // local mutation on this same root group that's NEWER than the
+    // incoming event's timestamp, our local edit lost the race window
+    // (we sent ours, then this arrived). Per the agreed rule: incoming
+    // wins. Revert our local change first, then fall through to apply
+    // the incoming event normally.
     if (event.blockId && typeof event.ts === 'number') {
       const rootId = this.getRootBlockId(event.blockId);
       const localVersion = this.rootVersions.get(rootId);
@@ -13750,73 +13843,125 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         console.log("CONFLICT: local edit on root", rootId, "at", localVersion.timestamp, "is newer than incoming event at", event.ts, "— incoming wins, reverting local");
         this.revertLocalRootGroup(rootId);
         // continue below to apply the incoming event onto the now-reverted state
-      } else {
-        // No conflict, or incoming is newer/equal — incoming will be
-        // applied as the new authoritative state for this root below.
-        // Clear any stale local pending record so future incoming events
-        // for this root don't get spuriously compared against an old
-        // local op we've already lost the right to defend.
-        if (localVersion) {
-          this.rootVersions.delete(rootId);
-        }
+      } else if (localVersion) {
+        // No conflict, incoming is newer/equal — incoming will be applied
+        // as the new authoritative state for this root below. Clear the
+        // stale local pending record so future incoming events for this
+        // root aren't spuriously compared against an op we've already
+        // lost the right to defend.
+        this.rootVersions.delete(rootId);
       }
     }
-    // ---- END NEW
-
-    if (event.type == "create") {
-      this.holdingBlock = true;
-    } else if (event.type == "move") {
-      this.holdingBlock = false;
-      this.workspace.getBlockById(event.blockId).getSvgRoot().style.transition = "transform 0.5s";
+    if (event.type == "move") {
+      const movedBlock = this.workspace.getBlockById(event.blockId);
+      const svgRoot = movedBlock && typeof movedBlock.getSvgRoot === 'function' ? movedBlock.getSvgRoot() : null;
+      if (svgRoot) {
+        svgRoot.style.transition = "transform 0.5s";
+      }
     }
-    const eventInstance = this.ScratchBlocks.Events.fromJson(event, this.workspace);
+    let eventInstance;
+    try {
+      eventInstance = this.ScratchBlocks.Events.fromJson(event, this.workspace);
+    } catch (e) {
+      console.error("failed to deserialize remote event, dropping it", event, e);
+      return;
+    }
     if (event.type == "comment_create") {
       eventInstance.xy = event.commentXY;
     }
-    try {
-      console.log("is have broadcast info", !!event.broadcastInfo, event.broadcastInfo);
-      this.stopEmission = true;
-      let isProcedureDefinition = eventInstance.type == "delete" && this.workspace.getBlockById(event.blockId).type == "procedures_definition";
-      if (eventInstance.type == "create" && event.xml.indexOf("mutation proccode") != -1) {
-        isProcedureDefinition = true;
+
+    // Deleting a block with blocks nested/attached inside it (inputs,
+    // C-block statements, or blocks stacked below) is transmitted as a
+    // single delete event for the top block -- scratch-blocks disables
+    // events for the recursive child disposal and only fires one event
+    // for the whole subtree (the same pattern this file's own
+    // domToBlock override uses for creation: build the whole subtree
+    // with events off, fire one BlockCreate at the end). Normally
+    // block.dispose() cascades through those same connections on the
+    // receiving end too, so this is just a safety net -- but capture
+    // the full subtree now, before anything is torn down, so we can
+    // verify afterward that all of it is actually gone.
+    let descendantIdsToVerify = null;
+    if (event.type == "delete") {
+      const blockToDelete = this.workspace.getBlockById(event.blockId);
+      if (blockToDelete && typeof blockToDelete.getDescendants === 'function') {
+        try {
+          descendantIdsToVerify = blockToDelete.getDescendants(false).map(b => b.id);
+        } catch (e) {
+          descendantIdsToVerify = null;
+        }
       }
-      if (!!event.broadcastInfo) {
-        console.log("WHAHAHAH");
-        const broadcastEvent = {
-          isCloud: false,
-          isLocal: false,
-          type: "var_create",
-          varId: event.broadcastInfo.broadcastId,
-          varName: event.broadcastInfo.broadcastName,
-          varType: "broadcast_msg"
-        };
-        this.props.vm.blockListener(broadcastEvent);
-        const newEvent = this.ScratchBlocks.Events.fromJson(broadcastEvent, this.workspace);
-        newEvent.collabFlag = true;
-        newEvent.run(dir);
-      }
-      eventInstance.collabFlag = true;
-      eventInstance.run(dir);
-      if (eventInstance.type == "ui") {
-        this.props.vm.editingTarget.blocks.blocklyListen(eventInstance);
-      } else {
-        this.lastBlockId = event.blockId;
-        this.lastBlockType = event.type;
-      }
-      if (isProcedureDefinition) {
-        this.workspace.getToolbox().refreshSelection();
-      }
-      if (event.blockId && typeof event.ts === 'number') {
-        const rootId = this.getRootBlockId(event.blockId);
-        this.rootVersions.set(rootId, {
-          timestamp: event.ts,
-          inverseEvents: null // remote-sourced; we don't own an inverse for it
-        });
-      }
-    } catch (e) {
-      console.error(e);
     }
-    console.log("done");
+
+    // Everything that actually mutates the workspace runs inside
+    // runSuppressed(), which guarantees (via try/finally on the Blockly
+    // event group) that our own change listener won't re-broadcast this
+    // as a new local edit -- and, critically, can never get stuck
+    // suppressing *future* real edits even if something below throws
+    // (e.g. a stale/missing block reference). This directly fixes the
+    // "stops syncing entirely after an error" failure mode.
+    this.runSuppressed(() => {
+      // A try/catch scoped to just this one event means a single bad or
+      // stale event (e.g. referencing a block that's already gone)
+      // can't abort the rest of the batch -- the caller's loop over
+      // data.messages keeps going, so one problem event degrades to a
+      // logged warning instead of desyncing everything after it.
+      try {
+        const existingBlock = this.workspace.getBlockById(event.blockId);
+        let isProcedureDefinition = eventInstance.type == "delete" && existingBlock && existingBlock.type == "procedures_definition";
+        if (eventInstance.type == "create" && event.xml && event.xml.indexOf("mutation proccode") != -1) {
+          isProcedureDefinition = true;
+        }
+        if (event.broadcastInfo) {
+          const broadcastEvent = {
+            isCloud: false,
+            isLocal: false,
+            type: "var_create",
+            varId: event.broadcastInfo.broadcastId,
+            varName: event.broadcastInfo.broadcastName,
+            varType: "broadcast_msg"
+          };
+          this.props.vm.blockListener(broadcastEvent);
+          const newEvent = this.ScratchBlocks.Events.fromJson(broadcastEvent, this.workspace);
+          newEvent.run(dir);
+        }
+        eventInstance.run(dir);
+        if (eventInstance.type == "ui") {
+          this.props.vm.editingTarget.blocks.blocklyListen(eventInstance);
+        }
+
+        // Safety net: if any block from the deleted subtree is
+        // somehow still around (getBlockById still finds it), finish
+        // the job explicitly rather than leaving orphaned blocks
+        // floating on this client only.
+        if (descendantIdsToVerify) {
+          for (const leftoverId of descendantIdsToVerify) {
+            if (leftoverId === event.blockId) continue; // handled by eventInstance.run above
+            const leftover = this.workspace.getBlockById(leftoverId);
+            if (leftover) {
+              console.log("cascading delete: cleaning up orphaned nested block", leftoverId);
+              try {
+                leftover.dispose(false);
+              } catch (e) {
+                console.error("failed to dispose orphaned nested block", leftoverId, e);
+              }
+            }
+          }
+        }
+        if (isProcedureDefinition && this.workspace.getToolbox()) {
+          this.workspace.getToolbox().refreshSelection();
+        }
+        if (event.blockId && typeof event.ts === 'number') {
+          const rootId = this.getRootBlockId(event.blockId);
+          this.rootVersions.set(rootId, {
+            timestamp: event.ts,
+            inverseEvents: null // remote-sourced; we don't own an inverse for it
+          });
+        }
+      } catch (e) {
+        console.error("error applying remote event -- skipping it, sync continues", event, e);
+      }
+    });
   }
   disableWorkspaceUpdate() {
     console.log("DISABLED!!");
@@ -13836,20 +13981,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       this.props.vm.emitWorkspaceUpdate();
     }
   }
-  sendBacklog() {
-    var _this10 = this;
-    let parentID = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : -1;
-    let childIDX = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : -1;
-    return _asyncToGenerator(function* () {
-      while (_this10.backlog.length > 0) {
-        const tmp = _this10.backlog;
-        _this10.backlog = [];
-        yield _this10.sendArray(tmp, parentID, childIDX);
-      }
-    })();
-  }
   attachVM() {
-    var _this11 = this;
+    var _this9 = this;
     let oldEWU = this.props.vm.emitWorkspaceUpdate.bind(this.props.vm);
     this.props.vm.emitWorkspaceUpdate = function () {
       if (this.pauseWorkspaceUpdate) {
@@ -13932,20 +14065,20 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       return ogAddSprite(input);
     };
     channel.subscribe('newSprite', /*#__PURE__*/function () {
-      var _ref5 = _asyncToGenerator(function* (message) {
+      var _ref3 = _asyncToGenerator(function* (message) {
         const data = JSON.parse(message.data);
         if (data.uid == nid) {
           return;
         }
         const input = data.input;
-        const ogName = _this11.props.vm.editingTarget.sprite.name;
+        const ogName = _this9.props.vm.editingTarget.sprite.name;
         yield ogAddSprite(input);
-        _this11.props.vm.setEditingTarget(_this11.getTargetByName(ogName).id);
+        _this9.props.vm.setEditingTarget(_this9.getTargetByName(ogName).id);
         // this.props.vm.editingTarget = this.getTargetByName(ogName);
         // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget); 
       });
       return function (_x3) {
-        return _ref5.apply(this, arguments);
+        return _ref3.apply(this, arguments);
       };
     }());
     let ogDeleteSprite = this.props.vm.deleteSprite.bind(this.props.vm);
@@ -13968,7 +14101,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogAddBackdrop = this.props.vm.addBackdrop.bind(this.props.vm);
     this.props.vm.addBackdrop = /*#__PURE__*/function () {
-      var _ref6 = _asyncToGenerator(function* (md5, vmBackdrop) {
+      var _ref4 = _asyncToGenerator(function* (md5, vmBackdrop) {
         const msg = {
           m5: md5,
           vmb: vmBackdrop
@@ -13976,7 +14109,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         channel.publish('newBackdrop', JSON.stringify(msg));
       });
       return function (_x4, _x5) {
-        return _ref6.apply(this, arguments);
+        return _ref4.apply(this, arguments);
       };
     }();
     channel.subscribe('newBackdrop', message => {
@@ -13985,14 +14118,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogRenameSprite = this.props.vm.renameSprite.bind(this.props.vm);
     this.props.vm.renameSprite = /*#__PURE__*/function () {
-      var _ref7 = _asyncToGenerator(function* (id, name) {
-        const spriteName = _this11.props.vm.runtime.getTargetById(id).sprite.name;
+      var _ref5 = _asyncToGenerator(function* (id, name) {
+        const spriteName = _this9.props.vm.runtime.getTargetById(id).sprite.name;
         if (name == "Stage") {
           name = "Stage1";
         }
-        while ( true && _this11.hasLoadedFully) {
+        while ( true && _this9.hasLoadedFully) {
           let isDuplicate = false;
-          for (let target of _this11.props.vm.runtime.targets) {
+          for (let target of _this9.props.vm.runtime.targets) {
             if (target.sprite.name == name && target.sprite.name != spriteName) {
               name = incrementStringNumber(name);
               isDuplicate = true;
@@ -14004,8 +14137,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
             break;
           }
         }
-        _this11.logData({
-          moveId: _this11.getRandomHexString(16),
+        _this9.logData({
+          moveId: _this9.getRandomHexString(16),
           time: Date.now(),
           user: uname,
           room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
@@ -14020,7 +14153,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         channel.publish('renameSprite', JSON.stringify(msg));
       });
       return function (_x6, _x7) {
-        return _ref7.apply(this, arguments);
+        return _ref5.apply(this, arguments);
       };
     }();
     channel.subscribe('renameSprite', message => {
@@ -14029,12 +14162,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogDuplicateSprite = this.props.vm.duplicateSprite.bind(this.props.vm);
     this.props.vm.duplicateSprite = /*#__PURE__*/function () {
-      var _ref8 = _asyncToGenerator(function* (id) {
-        const name = _this11.props.vm.runtime.getTargetById(id).sprite.name;
+      var _ref6 = _asyncToGenerator(function* (id) {
+        const name = _this9.props.vm.runtime.getTargetById(id).sprite.name;
         return channel.publish('duplicateSprite', JSON.stringify(name));
       });
       return function (_x8) {
-        return _ref8.apply(this, arguments);
+        return _ref6.apply(this, arguments);
       };
     }();
     channel.subscribe('duplicateSprite', message => {
@@ -14151,18 +14284,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }.bind(this.props.vm);
     //let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
     this.props.vm.deleteSound = /*#__PURE__*/function () {
-      var _ref9 = _asyncToGenerator(function* (soundIndex) {
-        const name = _this11.props.vm.editingTarget.sprite.name;
+      var _ref7 = _asyncToGenerator(function* (soundIndex) {
+        const name = _this9.props.vm.editingTarget.sprite.name;
         const msg = {
           soundIndex: soundIndex,
           name: name,
           uid: nid
         };
         yield channel.publish('deleteSound', JSON.stringify(msg));
-        return deleteSound(soundIndex, _this11.props.vm.editingTarget);
+        return deleteSound(soundIndex, _this9.props.vm.editingTarget);
       });
       return function (_x9) {
-        return _ref9.apply(this, arguments);
+        return _ref7.apply(this, arguments);
       };
     }();
     channel.subscribe('deleteSound', message => {
@@ -14175,18 +14308,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       deleteSound(soundIndex, target);
     });
     this.props.vm.shareBlocksToTarget = /*#__PURE__*/function () {
-      var _ref10 = _asyncToGenerator(function* (blocks, target, optID) {});
+      var _ref8 = _asyncToGenerator(function* (blocks, target, optID) {});
       return function (_x10, _x11, _x12) {
-        return _ref10.apply(this, arguments);
+        return _ref8.apply(this, arguments);
       };
     }();
     let ogAddSound = this.props.vm.addSound.bind(this.props.vm);
     this.props.vm.addSound = /*#__PURE__*/function () {
-      var _ref11 = _asyncToGenerator(function (sound) {
+      var _ref9 = _asyncToGenerator(function (sound) {
         let idx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "AMONGUSLMAO";
         return function* () {
           console.log("SOUND", sound);
-          const name = idx == "AMONGUSLMAO" ? _this11.props.vm.editingTarget.sprite.name : _this11.props.vm.runtime.getTargetById(idx).sprite.name;
+          const name = idx == "AMONGUSLMAO" ? _this9.props.vm.editingTarget.sprite.name : _this9.props.vm.runtime.getTargetById(idx).sprite.name;
           const msg = {
             sound: sound,
             spriteName: name
@@ -14195,7 +14328,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         }();
       });
       return function (_x13) {
-        return _ref11.apply(this, arguments);
+        return _ref9.apply(this, arguments);
       };
     }();
     channel.subscribe('addSound', message => {
@@ -14204,16 +14337,16 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     });
     let ogRenameSound = this.props.vm.renameSound.bind(this.props.vm);
     this.props.vm.renameSound = /*#__PURE__*/function () {
-      var _ref12 = _asyncToGenerator(function* (soundIndex, newName) {
+      var _ref10 = _asyncToGenerator(function* (soundIndex, newName) {
         const msg = {
           soundIndex: soundIndex,
           newName: newName,
-          spriteName: _this11.props.vm.editingTarget.sprite.name
+          spriteName: _this9.props.vm.editingTarget.sprite.name
         };
         channel.publish('renameSound', JSON.stringify(msg));
       });
       return function (_x14, _x15) {
-        return _ref12.apply(this, arguments);
+        return _ref10.apply(this, arguments);
       };
     }();
     channel.subscribe('renameSound', message => {
@@ -14235,18 +14368,18 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       return null;
     }.bind(this.props.vm);
     this.props.vm.deleteCostume = /*#__PURE__*/function () {
-      var _ref13 = _asyncToGenerator(function* (costumeIndex) {
-        const spriteName = _this11.props.vm.editingTarget.sprite.name;
+      var _ref11 = _asyncToGenerator(function* (costumeIndex) {
+        const spriteName = _this9.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           spriteName: spriteName,
           uid: nid
         };
         channel.publish('deleteCostume', JSON.stringify(msg));
-        return deleteCostume(costumeIndex, _this11.props.vm.editingTarget);
+        return deleteCostume(costumeIndex, _this9.props.vm.editingTarget);
       });
       return function (_x16) {
-        return _ref13.apply(this, arguments);
+        return _ref11.apply(this, arguments);
       };
     }();
     channel.subscribe('deleteCostume', message => {
@@ -14280,12 +14413,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
     let ogDupeCostume = this.props.vm.duplicateCostume.bind(this.props.vm);
     this.props.vm.duplicateCostume = /*#__PURE__*/function () {
-      var _ref14 = _asyncToGenerator(function* (costumeIndex) {
+      var _ref12 = _asyncToGenerator(function* (costumeIndex) {
         const ret = yield channel.publish('duplicateCostume', JSON.stringify(costumeIndex));
         return ret;
       });
       return function (_x17) {
-        return _ref14.apply(this, arguments);
+        return _ref12.apply(this, arguments);
       };
     }();
     channel.subscribe('duplicateCostume', message => {
@@ -14294,8 +14427,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
     //let ogRenameCostume = this.props.vm.renameCostume.bind(this.props.vm);
     this.props.vm.renameCostume = /*#__PURE__*/function () {
-      var _ref15 = _asyncToGenerator(function* (costumeIndex, newName) {
-        const spriteName = _this11.props.vm.editingTarget.sprite.name;
+      var _ref13 = _asyncToGenerator(function* (costumeIndex, newName) {
+        const spriteName = _this9.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           newName: newName,
@@ -14304,7 +14437,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         channel.publish('renameCostume', JSON.stringify(msg));
       });
       return function (_x18, _x19) {
-        return _ref15.apply(this, arguments);
+        return _ref13.apply(this, arguments);
       };
     }();
     channel.subscribe('renameCostume', message => {
@@ -14393,13 +14526,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       return ogAddCostume(md5, costumeObject, optTarget, optVersion);
     }.bind(this);
     channel.subscribe('addCostume', /*#__PURE__*/function () {
-      var _ref16 = _asyncToGenerator(function* (message) {
+      var _ref14 = _asyncToGenerator(function* (message) {
         const d = JSON.parse(message.data);
         if (d.uid == nid) {
           return;
         }
         console.log("ADDING COSTUME", d);
-        const targetId = _this11.getTargetByName(d.spriteName).id;
+        const targetId = _this9.getTargetByName(d.spriteName).id;
 
         // d.costumeObject.asset is intentionally absent here — same code
         // path as the "costumeObject.asset == undefined" case, which already
@@ -14408,7 +14541,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         ogAddCostume(d.md5, d.costumeObject, targetId, d.optVersion);
       });
       return function (_x20) {
-        return _ref16.apply(this, arguments);
+        return _ref14.apply(this, arguments);
       };
     }());
 
@@ -14711,11 +14844,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       return number;
     }
     const ogGet = this.props.vm.runtime.storage.webHelper.assetTool.get.bind(this.props.vm.runtime.storage.webHelper.assetTool);
-    this.props.vm.runtime.storage.webHelper.assetTool.get = function (_ref17) {
+    this.props.vm.runtime.storage.webHelper.assetTool.get = function (_ref15) {
       let {
           url
-        } = _ref17,
-        options = _objectWithoutProperties(_ref17, _excluded2);
+        } = _ref15,
+        options = _objectWithoutProperties(_ref15, _excluded2);
       // const md5 = extractNumberFromUrl(url)
       // console.log("MD5", md5)
       // if (md5 != "-1") {
@@ -14818,7 +14951,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     return name == "Stage" ? this.props.vm.runtime.getTargetForStage() : this.props.vm.runtime.getSpriteTargetByName(name);
   }
   newUserJoined(msg) {
-    var _this12 = this;
+    var _this10 = this;
     return _asyncToGenerator(function* () {
       if (JSON.parse(msg.data).uid == nid) {
         return;
@@ -14838,7 +14971,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       if (!syncOwner || syncOwner.clientId !== _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name) {
         return;
       }
-      yield _this12.save();
+      yield _this10.save();
       console.log("JOINED!!");
       yield channel.publish('goodForLoad', JSON.stringify({
         uid: nid
@@ -14930,16 +15063,26 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
   }
   onWorkspaceUpdate(data) {
-    const toolboxXML = this.getToolboxXML();
-    if (toolboxXML) {
-      this.props.updateToolboxState(toolboxXML);
-    }
-    if (this.props.vm.editingTarget && !this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id]) {
-      this.onWorkspaceMetricsChange();
-    }
-    if (this.pauseWorkspaceUpdate) {
-      // still paused for other things
-    } else {
+    // While pauseWorkspaceUpdate is set, this call is a private "peek" at
+    // another target's blocks during a remote-sync target swap (see
+    // withTargetContext), not a real UI-visible target switch. The
+    // toolbox/metrics dispatches below push state into Redux and can
+    // trigger a synchronous React re-render (Redux dispatches outside a
+    // React event handler aren't batched) -- only meaningful, and only
+    // safe, once we're actually showing the user's own target again.
+    // Letting these fire mid-peek was harmless when the peek window was
+    // ~1ms; widening it (needed elsewhere so a deferred blockListener
+    // notification has time to land) made a stray mid-swap re-render
+    // likely enough to race the swap-back and leave the workspace
+    // scrolled away from its blocks, looking empty.
+    if (!this.pauseWorkspaceUpdate) {
+      const toolboxXML = this.getToolboxXML();
+      if (toolboxXML) {
+        this.props.updateToolboxState(toolboxXML);
+      }
+      if (this.props.vm.editingTarget && !this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id]) {
+        this.onWorkspaceMetricsChange();
+      }
       sessionStorage.setItem('editingTarget', this.props.vm.editingTarget.sprite.name);
     }
     this.workspace.removeChangeListener(this.props.vm.blockListener);
@@ -14965,7 +15108,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
     this.workspace.addChangeListener(this.props.vm.blockListener);
     this.workspace.addChangeListener(this.sendChangeListener);
-    if (this.props.vm.editingTarget && this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id]) {
+    if (!this.pauseWorkspaceUpdate && this.props.vm.editingTarget && this.props.workspaceMetrics.targets[this.props.vm.editingTarget.id]) {
       const {
         scrollX,
         scrollY,
@@ -45171,4 +45314,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.cfaf4227a5e36c24839f.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.20b6323bc73474f9de34.js.map

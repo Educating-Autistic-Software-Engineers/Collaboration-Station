@@ -8,11 +8,8 @@
 </head>
 <body>
     <section class="login-section" id="login">
-        <div class="stars"></div>
-        <div class="earth-container">
-            <img src="./images/earth.png" alt="Earth" class="earth">
-        </div>
-        
+        <canvas id="starfield-canvas" class="star-canvas"></canvas>
+
         <header>
             <a href="#" id="logo">
                 <img src="./images/logo.png" alt="Logo">
@@ -74,39 +71,16 @@
                             <div class="signal-value">Ship and share finished creations with your crew and community.</div>
                         </div>
                     </div>
-                    <svg class="signal-graphic" viewBox="0 0 320 128" aria-hidden="true">
-                        <defs>
-                            <linearGradient id="desk-grad" x1="0" y1="0" x2="1" y2="1">
-                                <stop offset="0%" stop-color="#0ea5e9" stop-opacity="0.35" />
-                                <stop offset="100%" stop-color="#0f766e" stop-opacity="0.28" />
-                            </linearGradient>
-                            <linearGradient id="screen-grad" x1="0" y1="0" x2="1" y2="1">
-                                <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.95" />
-                                <stop offset="100%" stop-color="#5eead4" stop-opacity="0.9" />
-                            </linearGradient>
-                        </defs>
-
-                        <ellipse cx="168" cy="118" rx="108" ry="8" fill="#020817" opacity="0.55" />
-
-                        <rect x="70" y="96" width="188" height="14" rx="7" fill="url(#desk-grad)" stroke="#7dd3fc" stroke-opacity="0.22" />
-
-                        <rect x="178" y="40" width="76" height="46" rx="7" fill="#0f172a" stroke="#7dd3fc" stroke-opacity="0.55" stroke-width="2" />
-                        <rect x="184" y="46" width="64" height="32" rx="4" fill="url(#screen-grad)" opacity="0.95" />
-                        <rect x="206" y="86" width="20" height="6" rx="3" fill="#0ea5e9" opacity="0.85" />
-
-                        <circle cx="126" cy="52" r="13" fill="#f8fafc" />
-                        <path d="M111 97c5-15 14-21 25-21s20 6 25 21" fill="#0ea5e9" opacity="0.88" />
-                        <path d="M121 84l19 12" stroke="#f8fafc" stroke-width="5" stroke-linecap="round" opacity="0.9" />
-                        <path d="M140 96l18 6" stroke="#f8fafc" stroke-width="5" stroke-linecap="round" opacity="0.9" />
-
-                        <rect x="151" y="89" width="20" height="6" rx="3" fill="#0f766e" opacity="0.9" />
-                    </svg>
+                    <!-- old desk/monitor SVG removed on purpose: the starfield + planets carry the space motif now -->
                 </div>
             </div>
         </div>
     </section>
 
-    <script src="js/starfield.js"></script>
+    <script type="module">
+        import { initStarfield } from './js/starfield-lite.js';
+        initStarfield(document.getElementById('starfield-canvas'));
+    </script>
     <script src="js/old_homepage.js"></script>
 </body>
 </html>
