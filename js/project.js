@@ -7,6 +7,16 @@ const targetEmail = roomId;
 let roomList = [];
 let roomDict = {};
 
+function parseProjectList(projects) {
+  if (typeof projects !== "string") {
+    return [];
+  }
+
+  return [...new Set(projects.split(",").map((projectId) => projectId.trim()))].filter(
+    (projectId) => projectId !== "",
+  );
+}
+
 function buildRoomDbUrl(extraParams = {}) {
   const url = new URL(
     "https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/roomDB",
@@ -82,7 +92,7 @@ async function fetchUserProjects() {
       `https://p497lzzlxf.execute-api.us-east-2.amazonaws.com/v1/register?email=${targetEmail}&password=${password}`,
     );
     const data = await response.json();
-    roomList = new Set(data.projects.split(", "));
+    roomList = parseProjectList(data.projects);
   } catch (error) {
     console.error("Error fetching user projects:", error);
     roomList = [];
@@ -255,7 +265,7 @@ async function joinExistingProjectPopup() {
   }
   console.log(project_id);
   try {
-    if (!roomList.has(project_id)) {
+    if (!roomList.includes(project_id)) {
       console.log("new Project");
       await joinExistingProject(project_id);
       await fetchRooms();
