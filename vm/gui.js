@@ -113,10 +113,10 @@ const CursorOverlay = () => {
   const cursorUpdate = async (spaces) => {
       const space2 = await spaces.get("test");
       await space2.enter({ name: "Ryon" })
-        space2.subscribe('update', (spaceState) => {
+       space2.subscribe('update', (spaceState) => {
           console.log("hi");
       });
-        space2.cursors.subscribe("update", async (cursor) => {
+       space2.cursors.subscribe("update", async (cursor) => {
           console.log("HI");
           const members = await space2.members.getAll();
           const member = members.find((member) => member.connectionId === cursorUpdate.connectionId);
@@ -824,7 +824,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.id, ".Cursors-module_cursor_28g2_ {\r\n    position: absolute;\r\n    pointer-events: none;\r\n    z-index: 1000;\r\n    cursor: none;\r\n}\r\n\r\n.Cursors-module_cursorName_jhzeK {\r\n    padding: 0.5rem 1rem;\r\n    margin-left: 0.5rem;\r\n    border-radius: 9999px;\r\n    font-size: 0.875rem;\r\n    line-height: 1.25rem;\r\n    color: #fff;\r\n    max-width: 200px;\r\n    white-space: nowrap;\r\n    pointer-events: none;\r\n    text-overflow: ellipsis;\r\n}\r\n  ", ""]);
+exports.push([module.id, ".Cursors-module_cursor_28g2_ {\n    position: absolute;\n    pointer-events: none;\n    z-index: 1000;\n    cursor: none;\n}\n\n.Cursors-module_cursorName_jhzeK {\n    padding: 0.5rem 1rem;\n    margin-left: 0.5rem;\n    border-radius: 9999px;\n    font-size: 0.875rem;\n    line-height: 1.25rem;\n    color: #fff;\n    max-width: 200px;\n    white-space: nowrap;\n    pointer-events: none;\n    text-overflow: ellipsis;\n}\n  ", ""]);
 // Exports
 exports.locals = {
 	"cursor": "Cursors-module_cursor_28g2_",
@@ -845,7 +845,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.id, ".LiveCursors-module_liveCursorsContainer_2L9H8 {\r\n    width: 100%;\r\n    cursor: none;\r\n    display:flex;\r\n    justify-content: center;\r\n    align-items: center;\r\n    position: relative;\r\n    background-color: #ffffff;\r\n    height: 100%;\r\n  }\r\n  ", ""]);
+exports.push([module.id, ".LiveCursors-module_liveCursorsContainer_2L9H8 {\n    width: 100%;\n    cursor: none;\n    display:flex;\n    justify-content: center;\n    align-items: center;\n    position: relative;\n    background-color: #ffffff;\n    height: 100%;\n  }\n  ", ""]);
 // Exports
 exports.locals = {
 	"liveCursorsContainer": "LiveCursors-module_liveCursorsContainer_2L9H8"
