@@ -864,6 +864,9 @@ window.messagingReady.then(async () => {
 
   if (!isViewOnlyRoom) {
     iFrame.src = `vm/index.html?${viewType}=${String(roomId)}&name=${sessionStorage.getItem("display_name")}&color=${sessionStorage.getItem("randomColor")}`;
+    if (sessionStorage.getItem("role") === "TA") {
+      iFrame.src += "&versionOffset=0";
+    }
   } else {
     iFrame.src = "about:blank";
   }
