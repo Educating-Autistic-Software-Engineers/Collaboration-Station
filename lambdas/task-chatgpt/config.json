@@ -1,0 +1,39 @@
+{
+  "FunctionName": "task-chatgpt",
+  "FunctionArn": "arn:aws:lambda:us-east-2:459830023690:function:task-chatgpt",
+  "Runtime": "python3.14",
+  "Role": "arn:aws:iam::459830023690:role/service-role/task-chatgpt-role-p1rclyfv",
+  "Handler": "lambda_function.lambda_handler",
+  "CodeSize": 2788,
+  "Description": "",
+  "Timeout": 30,
+  "MemorySize": 128,
+  "TracingConfig": {
+    "Mode": "PassThrough"
+  },
+  "PackageType": "Zip",
+  "Architectures": [
+    "x86_64"
+  ],
+  "EphemeralStorage": {
+    "Size": 512
+  },
+  "SnapStart": {
+    "ApplyOn": "None",
+    "OptimizationStatus": "Off"
+  },
+  "RuntimeVersionConfig": {
+    "RuntimeVersionArn": "arn:aws:lambda:us-east-2::runtime:eeb8a9516d399508120f0ea5616b892b0aa6f2f2e9c66961b3734b3ec62d8871"
+  },
+  "LoggingConfig": {
+    "LogFormat": "Text",
+    "LogGroup": "/aws/lambda/task-chatgpt"
+  },
+  "EnvironmentVariableNames": [
+    "AGENT_ID",
+    "ALIAS_ID",
+    "DYNAMODB_TABLE_NAME",
+    "REGION",
+    "chatgpt_key"
+  ]
+}

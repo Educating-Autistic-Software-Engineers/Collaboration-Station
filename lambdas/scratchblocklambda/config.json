@@ -1,0 +1,33 @@
+{
+  "FunctionName": "scratchblocklambda",
+  "FunctionArn": "arn:aws:lambda:us-east-2:459830023690:function:scratchblocklambda",
+  "Runtime": "nodejs16.x",
+  "Role": "arn:aws:iam::459830023690:role/service-role/scratchblocklambda-role-kai31at2",
+  "Handler": "index.handler",
+  "CodeSize": 2611,
+  "Description": "",
+  "Timeout": 3,
+  "MemorySize": 128,
+  "TracingConfig": {
+    "Mode": "PassThrough"
+  },
+  "PackageType": "Zip",
+  "Architectures": [
+    "x86_64"
+  ],
+  "EphemeralStorage": {
+    "Size": 512
+  },
+  "SnapStart": {
+    "ApplyOn": "None",
+    "OptimizationStatus": "Off"
+  },
+  "RuntimeVersionConfig": {
+    "RuntimeVersionArn": "arn:aws:lambda:us-east-2::runtime:8c67d75e7d97893ad6251f553d45b7064bdcecb5a99ea93abd0e18f8cb741d80"
+  },
+  "LoggingConfig": {
+    "LogFormat": "Text",
+    "LogGroup": "/aws/lambda/scratchblocklambda"
+  },
+  "EnvironmentVariableNames": []
+}

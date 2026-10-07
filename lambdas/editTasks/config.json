@@ -1,0 +1,33 @@
+{
+  "FunctionName": "editTasks",
+  "FunctionArn": "arn:aws:lambda:us-east-2:459830023690:function:editTasks",
+  "Runtime": "python3.14",
+  "Role": "arn:aws:iam::459830023690:role/service-role/editTasks-role-30j67jeo",
+  "Handler": "lambda_function.lambda_handler",
+  "CodeSize": 1685,
+  "Description": "",
+  "Timeout": 3,
+  "MemorySize": 128,
+  "TracingConfig": {
+    "Mode": "PassThrough"
+  },
+  "PackageType": "Zip",
+  "Architectures": [
+    "x86_64"
+  ],
+  "EphemeralStorage": {
+    "Size": 512
+  },
+  "SnapStart": {
+    "ApplyOn": "None",
+    "OptimizationStatus": "Off"
+  },
+  "RuntimeVersionConfig": {
+    "RuntimeVersionArn": "arn:aws:lambda:us-east-2::runtime:eeb8a9516d399508120f0ea5616b892b0aa6f2f2e9c66961b3734b3ec62d8871"
+  },
+  "LoggingConfig": {
+    "LogFormat": "Text",
+    "LogGroup": "/aws/lambda/editTasks"
+  },
+  "EnvironmentVariableNames": []
+}

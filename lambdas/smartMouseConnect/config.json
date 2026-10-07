@@ -1,0 +1,33 @@
+{
+  "FunctionName": "smartMouseConnect",
+  "FunctionArn": "arn:aws:lambda:us-east-2:459830023690:function:smartMouseConnect",
+  "Runtime": "nodejs16.x",
+  "Role": "arn:aws:iam::459830023690:role/service-role/smartMouseConnect-role-4nzbncv5",
+  "Handler": "index.handler",
+  "CodeSize": 479,
+  "Description": "",
+  "Timeout": 3,
+  "MemorySize": 128,
+  "TracingConfig": {
+    "Mode": "PassThrough"
+  },
+  "PackageType": "Zip",
+  "Architectures": [
+    "x86_64"
+  ],
+  "EphemeralStorage": {
+    "Size": 512
+  },
+  "SnapStart": {
+    "ApplyOn": "None",
+    "OptimizationStatus": "Off"
+  },
+  "RuntimeVersionConfig": {
+    "RuntimeVersionArn": "arn:aws:lambda:us-east-2::runtime:d4f764dd0339f12918eb42133f5e8d05e5119312805251992f72966ad1691406"
+  },
+  "LoggingConfig": {
+    "LogFormat": "Text",
+    "LogGroup": "/aws/lambda/smartMouseConnect"
+  },
+  "EnvironmentVariableNames": []
+}

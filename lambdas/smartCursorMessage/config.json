@@ -1,0 +1,33 @@
+{
+  "FunctionName": "smartCursorMessage",
+  "FunctionArn": "arn:aws:lambda:us-east-2:459830023690:function:smartCursorMessage",
+  "Runtime": "nodejs16.x",
+  "Role": "arn:aws:iam::459830023690:role/service-role/smartCursorMessage-role-boc1n54p",
+  "Handler": "index.handler",
+  "CodeSize": 651,
+  "Description": "",
+  "Timeout": 3,
+  "MemorySize": 128,
+  "TracingConfig": {
+    "Mode": "PassThrough"
+  },
+  "PackageType": "Zip",
+  "Architectures": [
+    "x86_64"
+  ],
+  "EphemeralStorage": {
+    "Size": 512
+  },
+  "SnapStart": {
+    "ApplyOn": "None",
+    "OptimizationStatus": "Off"
+  },
+  "RuntimeVersionConfig": {
+    "RuntimeVersionArn": "arn:aws:lambda:us-east-2::runtime:8c67d75e7d97893ad6251f553d45b7064bdcecb5a99ea93abd0e18f8cb741d80"
+  },
+  "LoggingConfig": {
+    "LogFormat": "Text",
+    "LogGroup": "/aws/lambda/smartCursorMessage"
+  },
+  "EnvironmentVariableNames": []
+}

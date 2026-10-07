@@ -6,3 +6,6 @@ js/agora_cloud_recording.js
 CS.zip
 .vscode
 aws
+*.zip
+
+lambdas/**/node_modules/

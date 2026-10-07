@@ -1,0 +1,35 @@
+{
+  "FunctionName": "share_llm_response",
+  "FunctionArn": "arn:aws:lambda:us-east-2:459830023690:function:share_llm_response",
+  "Runtime": "python3.12",
+  "Role": "arn:aws:iam::459830023690:role/service-role/share_llm_response-role-c4byy71f",
+  "Handler": "lambda_function.lambda_handler",
+  "CodeSize": 1490,
+  "Description": "An Amazon DynamoDB trigger that logs the updates made to a table.",
+  "Timeout": 3,
+  "MemorySize": 128,
+  "TracingConfig": {
+    "Mode": "PassThrough"
+  },
+  "PackageType": "Zip",
+  "Architectures": [
+    "x86_64"
+  ],
+  "EphemeralStorage": {
+    "Size": 512
+  },
+  "SnapStart": {
+    "ApplyOn": "None",
+    "OptimizationStatus": "Off"
+  },
+  "RuntimeVersionConfig": {
+    "RuntimeVersionArn": "arn:aws:lambda:us-east-2::runtime:c1ab740f3656a72d7917665a940f8634df245489445f5a660de5a634d06c5433"
+  },
+  "LoggingConfig": {
+    "LogFormat": "Text",
+    "LogGroup": "/aws/lambda/share_llm_response"
+  },
+  "EnvironmentVariableNames": [
+    "DYNAMODB_TABLE_NAME"
+  ]
+}
