@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Collaboration Station!!</title>
-    <link rel='stylesheet' type='text/css' media='screen' href='styles/lobby.css'>
+    <link rel='stylesheet' type='text/css' media='screen' href='styles/home.css'>
 </head>
 <body>
-    <section class="login-section" id="login">
+    <section class="login-section space-bg" id="login">
         <canvas id="starfield-canvas" class="star-canvas"></canvas>
 
         <header>
@@ -71,7 +71,7 @@
                             <div class="signal-value">Ship and share finished creations with your crew and community.</div>
                         </div>
                     </div>
-                    <!-- old desk/monitor SVG removed on purpose: the starfield + planets carry the space motif now -->
+                    <!-- space motif comes from the starfield + horizon glow in styles/home.css -->
                 </div>
             </div>
         </div>
@@ -79,7 +79,13 @@
 
     <script type="module">
         import { initStarfield } from './js/starfield-lite.js';
-        initStarfield(document.getElementById('starfield-canvas'));
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        initStarfield(document.getElementById('starfield-canvas'), {
+            density: 3200,
+            color: [215, 222, 255],
+            twinkleAmp: reduceMotion ? 0 : 0.12,
+            planets: [],
+        });
     </script>
     <script src="js/old_homepage.js"></script>
 </body>

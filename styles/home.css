@@ -1,0 +1,234 @@
+@import url('theme.css');
+
+/* Login / landing page. Tokens and the space backdrop live in theme.css. */
+
+.login-section { min-height: 100vh; }
+
+/* ---------- Header ---------- */
+
+header {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 28px 56px;
+}
+
+#logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text);
+}
+
+#logo img {
+  height: 32px;
+  width: 32px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+#logo span {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: -0.01em;
+}
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 56px 120px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 72px;
+  align-items: center;
+  min-height: calc(100vh - 96px);
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 20px;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-raised);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-size: clamp(38px, 5vw, 56px);
+  line-height: 1.05;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 18px;
+  background: linear-gradient(180deg, #ffffff 30%, #b9c1d6 100%);
+  -webkit-background-clip: text;
+          background-clip: text;
+  color: transparent;
+}
+
+.hero-copy {
+  font-size: 17px;
+  line-height: 1.6;
+  color: var(--text-muted);
+  max-width: 420px;
+  margin: 0 0 36px;
+}
+
+/* ---------- Login card ---------- */
+
+.login-card {
+  max-width: 400px;
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 24px 48px rgba(0, 0, 0, 0.35);
+}
+
+.form-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 20px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.form-field label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.form-field input {
+  padding: 12px 14px;
+  font: 15px var(--font-body);
+  color: var(--text);
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.form-field input::placeholder { color: var(--text-subtle); }
+
+.form-field input:hover { border-color: var(--border-strong); }
+
+.form-field input:focus {
+  border-color: rgba(var(--accent-rgb), 0.7);
+  box-shadow: 0 0 0 3px rgba(var(--accent-rgb), 0.18);
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  font: 600 15px var(--font-body);
+  color: var(--accent-ink);
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.submit-btn:hover { background: var(--accent-hover); }
+
+/* ---------- Info panel ---------- */
+
+.signal-panel {
+  padding: 36px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.signal-meta {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+.signal-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+
+.signal-copy {
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-muted);
+  margin: 0 0 28px;
+}
+
+.signal-grid {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+}
+
+.signal-item {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.signal-item:last-child { border-bottom: none; padding-bottom: 0; }
+
+.signal-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.signal-value {
+  font-size: 13.5px;
+  line-height: 1.55;
+  color: var(--text-muted);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 900px) {
+  header { padding: 20px 24px; }
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 24px 24px 120px;
+    min-height: 0;
+  }
+  .login-card { max-width: none; }
+}
+
+@media (max-width: 520px) {
+  .signal-panel { padding: 24px; }
+  .signal-item { grid-template-columns: 1fr; gap: 4px; }
+}

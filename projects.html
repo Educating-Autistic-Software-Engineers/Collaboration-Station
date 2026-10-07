@@ -7,7 +7,7 @@
     <link rel='stylesheet' type='text/css' media='screen' href='styles/projects.css'>
 </head>
 <body>
-    <div class="stars"></div>
+    <div class="backdrop" id="backdrop"><div class="stars-layer"><canvas id="starfield-canvas" class="star-canvas"></canvas></div></div>
     <header>
         <a href="https://www.edase.org" target="_blank" id="logo">
             <img src="./images/logo.png" alt="Site Logo">
@@ -23,9 +23,9 @@
                 </svg>
                 New Project
             </button> 
-            <button class="new-project-btn" onclick="joinExistingProjectPopup()">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 4V16M4 10H16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <button class="new-project-btn new-project-btn--secondary" onclick="joinExistingProjectPopup()">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
                 </svg>
                 Join Existing
             </button>
@@ -68,7 +68,30 @@
         </div>
     </div>
 
-    <script src="js/starfield.js"></script>
+    <script type="module">
+        import { initStarfield } from './js/starfield-lite.js';
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        initStarfield(document.getElementById('starfield-canvas'), {
+            density: 3200,
+            color: [215, 222, 255],
+            twinkleAmp: reduceMotion ? 0 : 0.12,
+            planets: [],
+        });
+
+        // Subtle scroll parallax on the background layers (see styles/projects.css).
+        if (!reduceMotion) {
+            const backdrop = document.getElementById('backdrop');
+            let queued = false;
+            const update = () => {
+                queued = false;
+                backdrop.style.setProperty('--scroll', Math.min(Math.max(window.scrollY, 0), 1200));
+            };
+            window.addEventListener('scroll', () => {
+                if (!queued) { queued = true; requestAnimationFrame(update); }
+            }, { passive: true });
+            update();
+        }
+    </script>
     <script src="js/project.js"></script>
 </body>
 </html>

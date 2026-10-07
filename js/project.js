@@ -198,8 +198,14 @@ function selectProject(projectId) {
     // });
   }
 
+  document.querySelectorAll(".project-thumbnail").forEach((card) => {
+    card.classList.toggle("is-selected", card.dataset.roomId === projectId);
+  });
+
   selectedProjectContent.innerHTML = `
-        <img src="https://d3pl0tx5n82s71.cloudfront.net/${projectId}.png" alt="${project.name}" onerror="this.src='https://thumbs.dreamstime.com/b/transparent-seamless-pattern-background-checkered-simulation-alpha-channel-png-wallpaper-empty-gird-grid-vector-illustration-308566526.jpg';">
+        <div class="selected-thumb">
+            <img src="https://d3pl0tx5n82s71.cloudfront.net/${projectId}.png" alt="${project.name}" onerror="this.remove();">
+        </div>
         <div class="project-info">
             
             <h3>${project.name}</h3>
@@ -223,7 +229,6 @@ function selectProject(projectId) {
             <div class="collaborators">
                 ${collaboratorHTML}
             </div>
-            <div style="display: flex; gap: 5px; margin-top: 10px;">
             <div class="project-meta">
                 
                 <div class="meta-item">
@@ -429,7 +434,16 @@ function createProjectElement(project) {
   console.log(project);
   const projectCard = document.createElement("div");
   projectCard.className = "project-thumbnail";
+  projectCard.dataset.roomId = project.room_id;
+  projectCard.tabIndex = 0;
+  projectCard.setAttribute("role", "button");
   projectCard.onclick = () => selectProject(project.room_id);
+  projectCard.onkeydown = (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      selectProject(project.room_id);
+    }
+  };
 
   const titleElement = document.createElement("div");
   titleElement.className = "project-title";

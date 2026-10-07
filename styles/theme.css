@@ -1,0 +1,109 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap');
+
+/* Shared design tokens + space backdrop. One neutral scale, one accent. */
+:root {
+  --bg: #070a12;
+  --surface: rgba(16, 20, 32, 0.62);
+  --surface-raised: rgba(255, 255, 255, 0.035);
+  --surface-hover: rgba(255, 255, 255, 0.06);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+
+  --text: #e8ebf2;
+  --text-muted: #9aa3b5;
+  --text-subtle: #6b7488;
+
+  --accent: #8b9cff;
+  --accent-hover: #a3b1ff;
+  --accent-ink: #0b0f1a;
+  --accent-rgb: 139, 156, 255;
+
+  --success: #6ee7b7;
+  --success-rgb: 110, 231, 183;
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--accent-hover); }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Space backdrop ----------
+   Put .space-bg on a container (or use .backdrop as a fixed full-page layer).
+   Layers: accent glow, fading dot grid (::before), planet horizon (::after). */
+
+.space-bg,
+.backdrop {
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 60% 50% at 15% 20%, rgba(var(--accent-rgb), 0.10), transparent 70%),
+    radial-gradient(ellipse 50% 40% at 90% 10%, rgba(120, 90, 220, 0.08), transparent 70%),
+    var(--bg);
+}
+
+.space-bg { position: relative; }
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.space-bg::before,
+.backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 20%, transparent 75%);
+          mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 20%, transparent 75%);
+  pointer-events: none;
+}
+
+.space-bg::after,
+.backdrop::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: calc(100% - var(--horizon, 16vh));
+  width: 180vw;
+  height: 180vw;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  z-index: -1;
+  background: radial-gradient(circle at 50% 0%, #0f1424 0%, var(--bg) 40%);
+  box-shadow:
+    0 -1px 0 rgba(var(--accent-rgb), 0.45),
+    0 -24px 80px rgba(var(--accent-rgb), 0.18),
+    0 -80px 200px rgba(var(--accent-rgb), 0.08);
+  pointer-events: none;
+}
+
+.star-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
