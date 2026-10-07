@@ -6269,9 +6269,11 @@ AboutButton.propTypes = {
 class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
   constructor(props) {
     super(props);
-    lodash_bindall__WEBPACK_IMPORTED_MODULE_4___default()(this, ['handleClickNew', 'handleClickRemix', 'handleClickSave', 'handleClickSaveAsCopy', 'handleClickSeeCommunity', 'handleClickShare', 'handleSetMode', 'handleKeyPress', 'handleRestoreOption', 'getSaveToComputerHandler', 'restoreOptionMessage', 'handleClickOlderVersion', 'handleClickNewerVersion']);
+    lodash_bindall__WEBPACK_IMPORTED_MODULE_4___default()(this, ['handleClickNew', 'handleClickRemix', 'handleClickSave', 'handleClickSaveAsCopy', 'handleClickSeeCommunity', 'handleClickShare', 'handleSetMode', 'handleKeyPress', 'handleRestoreOption', 'getSaveToComputerHandler', 'restoreOptionMessage', 'handleClickOlderVersion', 'handleClickNewerVersion', 'handleChangeVersionTime', 'handleSubmitVersionTime']);
     this.state = {
-      versionOffset: (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.getVersionOffset)()
+      versionOffset: (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.getVersionOffset)(),
+      loadedVersionTime: (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.getLoadedVersionTime)(),
+      versionTimeInput: ''
     };
   }
   componentDidMount() {
@@ -6281,6 +6283,9 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
     this.unsubscribeVersionOffset = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.subscribeVersionOffset)(versionOffset => this.setState({
       versionOffset
     }));
+    this.unsubscribeLoadedVersionTime = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.subscribeLoadedVersionTime)(loadedVersionTime => this.setState({
+      loadedVersionTime
+    }));
   }
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyPress);
@@ -6288,12 +6293,28 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       this.unsubscribeVersionOffset();
       this.unsubscribeVersionOffset = null;
     }
+    if (this.unsubscribeLoadedVersionTime) {
+      this.unsubscribeLoadedVersionTime();
+      this.unsubscribeLoadedVersionTime = null;
+    }
   }
   handleClickOlderVersion() {
     (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.setVersionOffset)((0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.getVersionOffset)() + 1);
   }
   handleClickNewerVersion() {
     (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.setVersionOffset)((0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.getVersionOffset)() - 1);
+  }
+  handleChangeVersionTime(event) {
+    this.setState({
+      versionTimeInput: event.target.value
+    });
+  }
+  handleSubmitVersionTime(event) {
+    event.preventDefault();
+    // datetime-local values carry no zone, so Date parses them as local time.
+    const date = new Date(this.state.versionTimeInput);
+    if (isNaN(date.getTime())) return;
+    (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.setVersionAsOf)(date);
   }
   handleClickNew() {
     // if the project is dirty, and user owns the project, we will autosave.
@@ -6631,14 +6652,31 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       title: "Go one version back",
       onClick: this.handleClickOlderVersion
     }, '◀'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionOffsetLabel)
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionOffsetLabel),
+      title: this.state.loadedVersionTime ? "Saved ".concat(new Date(this.state.loadedVersionTime).toLocaleString()) : null
     }, this.state.versionOffset === 0 ? 'Current' : "".concat(this.state.versionOffset, " back")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("button", {
       "aria-label": "Go one version forward",
       className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionOffsetButton),
       disabled: this.state.versionOffset === 0,
       title: "Go one version forward",
       onClick: this.handleClickNewerVersion
-    }, '▶')),  false ? /*#__PURE__*/0 :  false ? /*#__PURE__*/0 : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
+    }, '▶'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("form", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionTimeForm),
+      onSubmit: this.handleSubmitVersionTime
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("input", {
+      "aria-label": "Load the version saved at this time",
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionTimeInput),
+      max: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
+      title: "Load the version saved at this time",
+      type: "datetime-local",
+      value: this.state.versionTimeInput,
+      onChange: this.handleChangeVersionTime
+    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("button", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionOffsetButton),
+      disabled: !this.state.versionTimeInput,
+      title: "Go to this time",
+      type: "submit"
+    }, 'Go'))),  false ? /*#__PURE__*/0 :  false ? /*#__PURE__*/0 : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
       className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem))
     },  false ? 0 :  false ? /*#__PURE__*/0 : [],  false ? 0 : []), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
       className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().communityButtonWrapper))
@@ -13462,22 +13500,30 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
    * identical-size versions so a stretch of no-op autosaves counts as one step. It
    * clamps to the oldest save and reports the offset it actually reached.
    *
+   * Given `asOf` (an ISO timestamp) instead, it loads the version that was current
+   * at that time and reports that version's offset.
+   *
    * @param {number} offset - 0 for the current save, 1 for one save back, etc.
+   * @param {?string} asOf - a point in time to load; takes precedence over offset.
    * @returns {object} {payload, offset}, where offset is the version actually
    *     reached and payload is null only when the room has never been saved.
    */
-  fetchProjectVersion(offset) {
+  fetchProjectVersion(offset, asOf) {
     var _this5 = this;
     return _asyncToGenerator(function* () {
+      const request = asOf ? {
+        key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace,
+        asOf: asOf
+      } : {
+        key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace,
+        versionOffset: offset
+      };
       const response = yield fetch(S3_STORAGE_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace,
-          versionOffset: offset
-        })
+        body: JSON.stringify(request)
       });
       const payload = yield _this5.readVersionResponse(response);
       if (!payload) {
@@ -13503,19 +13549,23 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         _this6.startingLoad = true;
         _this6.stopEmission = true;
         const requestedOffset = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.getVersionOffset)();
+        const asOf = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.takePendingAsOf)();
         console.log("TOLOAD", {
           key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace,
-          versionOffset: requestedOffset
+          versionOffset: requestedOffset,
+          asOf: asOf
         });
         const {
           payload,
           offset: loadedOffset
-        } = yield _this6.fetchProjectVersion(requestedOffset);
+        } = yield _this6.fetchProjectVersion(requestedOffset, asOf);
         if (loadedOffset !== requestedOffset) {
-          // Asked for more history than exists - pin the UI to what we actually
-          // loaded. This re-enters load(), which no-ops on startingLoad.
+          // Asked for more history than exists, or resolved a time to an offset -
+          // pin the UI to what we actually loaded. This re-enters load(), which
+          // no-ops on startingLoad.
           (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.setVersionOffset)(loadedOffset);
         }
+        (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.setLoadedVersionTime)(payload && payload.lastModified);
         if (!payload) {
           console.log("starting new project...");
         } else {
@@ -37059,10 +37109,15 @@ const secrets = {};
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   getLoadedVersionTime: () => (/* binding */ getLoadedVersionTime),
 /* harmony export */   getVersionOffset: () => (/* binding */ getVersionOffset),
 /* harmony export */   initialVersionOffset: () => (/* binding */ initialVersionOffset),
+/* harmony export */   setLoadedVersionTime: () => (/* binding */ setLoadedVersionTime),
+/* harmony export */   setVersionAsOf: () => (/* binding */ setVersionAsOf),
 /* harmony export */   setVersionOffset: () => (/* binding */ setVersionOffset),
+/* harmony export */   subscribeLoadedVersionTime: () => (/* binding */ subscribeLoadedVersionTime),
 /* harmony export */   subscribeVersionOffset: () => (/* binding */ subscribeVersionOffset),
+/* harmony export */   takePendingAsOf: () => (/* binding */ takePendingAsOf),
 /* harmony export */   versionOffsetEnabled: () => (/* binding */ versionOffsetEnabled)
 /* harmony export */ });
 const rawVersionOffset = new URLSearchParams(window.location.search).get('versionOffset');
@@ -37107,6 +37162,46 @@ const setVersionOffset = offset => {
 const subscribeVersionOffset = listener => {
   listeners.add(listener);
   return () => listeners.delete(listener);
+};
+
+// A point in time the next load should resolve, instead of an offset. The lambda
+// answers with the offset that time corresponds to, and Blocks pins the arrows to it.
+let pendingAsOf = null;
+
+/**
+ * Load the version that was current at a given time.
+ * @param {Date} date - the moment to load.
+ */
+const setVersionAsOf = date => {
+  pendingAsOf = date.toISOString();
+  listeners.forEach(listener => listener(currentVersionOffset));
+};
+
+/** @returns {?string} the pending ISO timestamp, cleared so it's used only once. */
+const takePendingAsOf = () => {
+  const asOf = pendingAsOf;
+  pendingAsOf = null;
+  return asOf;
+};
+
+// When the loaded version was saved, for the menu bar to display.
+let loadedVersionTime = null;
+const loadedTimeListeners = new Set();
+const getLoadedVersionTime = () => loadedVersionTime;
+
+/** @param {?string} time - LastModified of the version just loaded. */
+const setLoadedVersionTime = time => {
+  loadedVersionTime = time || null;
+  loadedTimeListeners.forEach(listener => listener(loadedVersionTime));
+};
+
+/**
+ * @param {function} listener - called with the loaded version's save time.
+ * @returns {function} unsubscribe.
+ */
+const subscribeLoadedVersionTime = listener => {
+  loadedTimeListeners.add(listener);
+  return () => loadedTimeListeners.delete(listener);
 };
 
 /***/ }),
@@ -38400,7 +38495,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.id, "/* #E5F0FF */ /* #E9F1FC */ /* #D9E3F2 */ /* 90% transparent version of motion-primary */ /* #FFFFFF */ /* 25% transparent version of ui-white */ /* 25% transparent version of ui-white */ /* 25% transparent version of ui-white */ /* 15% transparent version of black */ /* #575E75 */ /* #4C97FF */ /* #3373CC */ /* #855CD6 */ /* 35% transparent version of looks-tertiary */ /* 15% transparent version of looks-tertiary */ /* #714EB6 */ /* #FF661A */ /* #E64D00 */ /* #CF63CF */ /* #BD42BD */ /* #FFAB19 */ /* #FF8C1A */ /* #0FBD8C */ /* #0FBD8C */ /* #0B8E69 */ /* #FF8C1A */ /* #FFB366 */ /* #FF8C1A */ /* #0FBD8C */ /* #0B8E69 */ /* 35% transparent version of extensions-primary */ /* opaque version of extensions-transparent, on white bg */ /* lighter than motion-primary */ /* make sure to keep these in sync with other constants,\ne.g. STAGE_DIMENSION_DEFAULTS in lib/screen-utils.js */ /* layout contants from `layout-constants.js` */ /*\n    Contains constants for the z-index values of elements that are part of the global stack context.\n    In other words, z-index values that are \"inside\" a component are not added here.\n    This prevents conflicts between identical z-index values in different components.\n*/ /* Toolbox z-index: 40; set in scratch-blocks */ /* tooltips should go over add buttons if they overlap */ /* monitors go over add buttons */ /* \"ask\" block text input goes above monitors */ /* menu-bar should go over monitors, alerts and tutorials */ /* Block drag z-index: 1000; default 50 is overriden in blocks.css */ /* so it is draggable into other panes */ /* in most interfaces, the context menu is always on top */ .menu-bar_menu-bar_JcuHF {\n    display: flex;\n    flex-direction: row;\n    justify-content: space-between;\n    flex-wrap: nowrap;\n\n    /*\n        For most things, we shouldn't explicitly set height, and let the\n        content push the element to whatever fits. Using a fixed height\n        instead, will help us subtract the value we assign from the body,\n        adding up to a perfect 100%. This means we don't need to set\n        overflow: hidden, which makes it hard to debug. border-box\n        simplifies by all of this by removing padding from the equation.\n    */\n    box-sizing: border-box;\n    height: 3rem;\n\n    /*\n        @todo: This adds ~20px in Chrome, when scrolling to the right,\n        but fixes [FFx + Safari] [resize window down + scroll to the right] bug.\n        width: 100%;\n    */\n    font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n    font-size: 0.75rem;\n    font-weight: bold;\n    background-color: hsla(260, 60%, 60%, 1);\n    color: hsla(0, 100%, 100%, 1);\n} .menu-bar_main-menu_3wjWH {\n    display: flex;\n    flex-direction: row;\n    justify-content: flex-start;\n    flex-wrap: nowrap;\n    align-items: center;\n    flex-grow: 1;\n} .menu-bar_inactive_2rk8q {\n    opacity: 0;\n} .menu-bar_scratch-logo_2uReV {\n    height:  1.6rem;\n    vertical-align: middle;\n} .menu-bar_scratch-logo_2uReV.menu-bar_clickable_1g3uo {\n    cursor: pointer;\n} .menu-bar_menu-bar-item_oLDa- {\n    display: flex;\n    padding: 0 0.25rem;\n    text-decoration: none;\n    color: hsla(0, 100%, 100%, 1);\n    -webkit-user-select: none;\n       -moz-user-select: none;\n        -ms-user-select: none;\n            user-select: none;\n    align-self: center;\n    position: relative;\n    align-items: center;\n    white-space: nowrap;\n    height: 3rem;\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_hoverable_c6WFB {\n    cursor: pointer;\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_active_2Lfqh,\n.menu-bar_menu-bar-item_oLDa-.menu-bar_hoverable_c6WFB:hover {\n    background-color: hsla(0, 0%, 0%, 0.15);\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_growable_1sHWN {\n    max-width: 12rem;\n    flex: 1;\n} .menu-bar_title-field-growable_3qr4G {\n    flex-grow: 1;\n    width: 2rem;\n} /* Version history stepper, only rendered when the versionOffset query arg is present */ .menu-bar_version-offset_2beWc {\n    gap: 0.25rem;\n    margin: 0 0.5rem;\n} .menu-bar_version-offset-button_Ipa8u {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 1.5rem;\n    height: 1.5rem;\n    padding: 0;\n    border: none;\n    border-radius: 0.25rem;\n    background-color: hsla(0, 0%, 0%, 0.15);\n    color: hsla(0, 100%, 100%, 1);\n    font-size: 0.75rem;\n    line-height: 1;\n    cursor: pointer;\n} .menu-bar_version-offset-button_Ipa8u:hover:not(:disabled) {\n    background-color: hsla(0, 100%, 100%, 0.25);\n} .menu-bar_version-offset-button_Ipa8u:disabled {\n    opacity: 0.4;\n    cursor: default;\n} .menu-bar_version-offset-label_3CrGN {\n    min-width: 4rem;\n    text-align: center;\n    font-size: 0.75rem;\n} .menu-bar_file-group_1_CHX {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_file-group_1_CHX .menu-bar_menu-bar-item_oLDa- {\n    margin: 0 .25rem;\n    padding: 0 0.75rem;\n} .menu-bar_menu-bar-menu_239MD {\n    margin-top: 3rem;\n    z-index: 491;\n} .menu-bar_feedback-link_1BnAR {\n    color: hsla(260, 60%, 60%, 1);\n    text-decoration: none;\n} .menu-bar_feedback-button_2rEcj {\n    background-color: hsla(0, 100%, 100%, 1);\n    height: 34px;\n} .menu-bar_divider_2VFCm {\n    margin: 0 .5rem;\n    height: 34px;\n} .menu-bar_author-info_22Nub {\n    margin-left: .25rem;\n    margin-right: .6875rem;\n} .menu-bar_menu-bar-button_3IDN0 {\n    height: 2rem;\n} .menu-bar_remix-button_2LQQc {\n    background-color: hsla(163, 85%, 40%, 1)\n} .menu-bar_remix-button-icon_2E93U {\n    height: 1.25rem;\n} .menu-bar_coming-soon_3yU1L >:not(.menu-bar_coming-soon-tooltip_20GhI) {\n    opacity: 0.5;\n} .menu-bar_account-info-group_MeJZP {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_account-info-group_MeJZP .menu-bar_menu-bar-item_oLDa- {\n    margin: 0 .25rem;\n    padding: 0 0.75rem;\n} .menu-bar_mystuff-icon_3DtcD {\n    margin: 0 .25rem;\n    height: 1rem;\n} .menu-bar_help-icon_3Xtrt {\n    margin: 0 .25rem 0 0;\n} [dir=\"rtl\"] .menu-bar_help-icon_3Xtrt {\n    margin: 0 0 0 .25rem;\n} .menu-bar_account-nav-menu_3uu9p, .menu-bar_mystuff-button_16jPf {\n    padding: 0 .25rem;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_profile-icon_2bJkI {\n    margin: 0 .25rem;\n    width: 2rem;\n    border-radius: calc(0.5rem / 2);\n} .menu-bar_dropdown-caret-icon_FkdUe {\n    width: 0.5rem;\n    height: 0.5rem;\n} [dir=\"ltr\"] .menu-bar_dropdown-caret-icon_FkdUe {\n    margin-left: .5rem;\n} [dir=\"rtl\"] .menu-bar_dropdown-caret-icon_FkdUe {\n    margin-right: .5rem;\n} .menu-bar_disabled_3x5sy {\n    opacity: 0.5;\n} .menu-bar_mystuff_3RiSb > a {\n  background-repeat: no-repeat;\n  background-position: center center;\n  background-size: 45%;\n  padding-right: 10px;\n  padding-left: 10px;\n  width: 30px;\n  overflow: hidden;\n  text-indent: 50px;\n  white-space: nowrap;\n} .menu-bar_mystuff_3RiSb > a:hover {\n  background-size: 50%;\n} .menu-bar_mystuff_3RiSb > a {\n  background-image: url(\"/images/mystuff.png\");\n} .menu-bar_about-icon_dZI7K {\n    height: 1.25rem;\n    margin: 0.5rem;\n    vertical-align: middle;\n} .menu-bar_collapsible-label_o2tym {\n    margin: 0 .5rem 0 .25rem;\n} [dir=\"rtl\"] .menu-bar_collapsible-label_o2tym {\n    margin: 0 0.25rem 0 0.5rem;\n} @media only screen and (max-width: 1024px) {\n    .menu-bar_tutorials-label_2tFBo, .menu-bar_collapsible-label_o2tym {\n        display: none;\n    }\n\n    .menu-bar_help-icon_3Xtrt {\n        margin-right: 0;\n    }\n}\n", ""]);
+exports.push([module.id, "/* #E5F0FF */ /* #E9F1FC */ /* #D9E3F2 */ /* 90% transparent version of motion-primary */ /* #FFFFFF */ /* 25% transparent version of ui-white */ /* 25% transparent version of ui-white */ /* 25% transparent version of ui-white */ /* 15% transparent version of black */ /* #575E75 */ /* #4C97FF */ /* #3373CC */ /* #855CD6 */ /* 35% transparent version of looks-tertiary */ /* 15% transparent version of looks-tertiary */ /* #714EB6 */ /* #FF661A */ /* #E64D00 */ /* #CF63CF */ /* #BD42BD */ /* #FFAB19 */ /* #FF8C1A */ /* #0FBD8C */ /* #0FBD8C */ /* #0B8E69 */ /* #FF8C1A */ /* #FFB366 */ /* #FF8C1A */ /* #0FBD8C */ /* #0B8E69 */ /* 35% transparent version of extensions-primary */ /* opaque version of extensions-transparent, on white bg */ /* lighter than motion-primary */ /* make sure to keep these in sync with other constants,\ne.g. STAGE_DIMENSION_DEFAULTS in lib/screen-utils.js */ /* layout contants from `layout-constants.js` */ /*\n    Contains constants for the z-index values of elements that are part of the global stack context.\n    In other words, z-index values that are \"inside\" a component are not added here.\n    This prevents conflicts between identical z-index values in different components.\n*/ /* Toolbox z-index: 40; set in scratch-blocks */ /* tooltips should go over add buttons if they overlap */ /* monitors go over add buttons */ /* \"ask\" block text input goes above monitors */ /* menu-bar should go over monitors, alerts and tutorials */ /* Block drag z-index: 1000; default 50 is overriden in blocks.css */ /* so it is draggable into other panes */ /* in most interfaces, the context menu is always on top */ .menu-bar_menu-bar_JcuHF {\n    display: flex;\n    flex-direction: row;\n    justify-content: space-between;\n    flex-wrap: nowrap;\n\n    /*\n        For most things, we shouldn't explicitly set height, and let the\n        content push the element to whatever fits. Using a fixed height\n        instead, will help us subtract the value we assign from the body,\n        adding up to a perfect 100%. This means we don't need to set\n        overflow: hidden, which makes it hard to debug. border-box\n        simplifies by all of this by removing padding from the equation.\n    */\n    box-sizing: border-box;\n    height: 3rem;\n\n    /*\n        @todo: This adds ~20px in Chrome, when scrolling to the right,\n        but fixes [FFx + Safari] [resize window down + scroll to the right] bug.\n        width: 100%;\n    */\n    font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n    font-size: 0.75rem;\n    font-weight: bold;\n    background-color: hsla(260, 60%, 60%, 1);\n    color: hsla(0, 100%, 100%, 1);\n} .menu-bar_main-menu_3wjWH {\n    display: flex;\n    flex-direction: row;\n    justify-content: flex-start;\n    flex-wrap: nowrap;\n    align-items: center;\n    flex-grow: 1;\n} .menu-bar_inactive_2rk8q {\n    opacity: 0;\n} .menu-bar_scratch-logo_2uReV {\n    height:  1.6rem;\n    vertical-align: middle;\n} .menu-bar_scratch-logo_2uReV.menu-bar_clickable_1g3uo {\n    cursor: pointer;\n} .menu-bar_menu-bar-item_oLDa- {\n    display: flex;\n    padding: 0 0.25rem;\n    text-decoration: none;\n    color: hsla(0, 100%, 100%, 1);\n    -webkit-user-select: none;\n       -moz-user-select: none;\n        -ms-user-select: none;\n            user-select: none;\n    align-self: center;\n    position: relative;\n    align-items: center;\n    white-space: nowrap;\n    height: 3rem;\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_hoverable_c6WFB {\n    cursor: pointer;\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_active_2Lfqh,\n.menu-bar_menu-bar-item_oLDa-.menu-bar_hoverable_c6WFB:hover {\n    background-color: hsla(0, 0%, 0%, 0.15);\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_growable_1sHWN {\n    max-width: 12rem;\n    flex: 1;\n} .menu-bar_title-field-growable_3qr4G {\n    flex-grow: 1;\n    width: 2rem;\n} /* Version history stepper, only rendered when the versionOffset query arg is present */ .menu-bar_version-offset_2beWc {\n    gap: 0.25rem;\n    margin: 0 0.5rem;\n} .menu-bar_version-offset-button_Ipa8u {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 1.5rem;\n    height: 1.5rem;\n    padding: 0;\n    border: none;\n    border-radius: 0.25rem;\n    background-color: hsla(0, 0%, 0%, 0.15);\n    color: hsla(0, 100%, 100%, 1);\n    font-size: 0.75rem;\n    line-height: 1;\n    cursor: pointer;\n} .menu-bar_version-offset-button_Ipa8u:hover:not(:disabled) {\n    background-color: hsla(0, 100%, 100%, 0.25);\n} .menu-bar_version-offset-button_Ipa8u:disabled {\n    opacity: 0.4;\n    cursor: default;\n} .menu-bar_version-offset-label_3CrGN {\n    min-width: 4rem;\n    text-align: center;\n    font-size: 0.75rem;\n} .menu-bar_version-time-form_2bMpm {\n    display: flex;\n    align-items: center;\n    gap: 0.25rem;\n    margin-left: 0.25rem;\n} .menu-bar_version-time-input_11JZe {\n    height: 1.5rem;\n    padding: 0 0.25rem;\n    border: none;\n    border-radius: 0.25rem;\n    background-color: hsla(0, 0%, 0%, 0.15);\n    color: hsla(0, 100%, 100%, 1);\n    font-size: 0.75rem;\n    color-scheme: dark;\n} .menu-bar_version-time-form_2bMpm .menu-bar_version-offset-button_Ipa8u {\n    width: auto;\n    padding: 0 0.4rem;\n} .menu-bar_file-group_1_CHX {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_file-group_1_CHX .menu-bar_menu-bar-item_oLDa- {\n    margin: 0 .25rem;\n    padding: 0 0.75rem;\n} .menu-bar_menu-bar-menu_239MD {\n    margin-top: 3rem;\n    z-index: 491;\n} .menu-bar_feedback-link_1BnAR {\n    color: hsla(260, 60%, 60%, 1);\n    text-decoration: none;\n} .menu-bar_feedback-button_2rEcj {\n    background-color: hsla(0, 100%, 100%, 1);\n    height: 34px;\n} .menu-bar_divider_2VFCm {\n    margin: 0 .5rem;\n    height: 34px;\n} .menu-bar_author-info_22Nub {\n    margin-left: .25rem;\n    margin-right: .6875rem;\n} .menu-bar_menu-bar-button_3IDN0 {\n    height: 2rem;\n} .menu-bar_remix-button_2LQQc {\n    background-color: hsla(163, 85%, 40%, 1)\n} .menu-bar_remix-button-icon_2E93U {\n    height: 1.25rem;\n} .menu-bar_coming-soon_3yU1L >:not(.menu-bar_coming-soon-tooltip_20GhI) {\n    opacity: 0.5;\n} .menu-bar_account-info-group_MeJZP {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_account-info-group_MeJZP .menu-bar_menu-bar-item_oLDa- {\n    margin: 0 .25rem;\n    padding: 0 0.75rem;\n} .menu-bar_mystuff-icon_3DtcD {\n    margin: 0 .25rem;\n    height: 1rem;\n} .menu-bar_help-icon_3Xtrt {\n    margin: 0 .25rem 0 0;\n} [dir=\"rtl\"] .menu-bar_help-icon_3Xtrt {\n    margin: 0 0 0 .25rem;\n} .menu-bar_account-nav-menu_3uu9p, .menu-bar_mystuff-button_16jPf {\n    padding: 0 .25rem;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_profile-icon_2bJkI {\n    margin: 0 .25rem;\n    width: 2rem;\n    border-radius: calc(0.5rem / 2);\n} .menu-bar_dropdown-caret-icon_FkdUe {\n    width: 0.5rem;\n    height: 0.5rem;\n} [dir=\"ltr\"] .menu-bar_dropdown-caret-icon_FkdUe {\n    margin-left: .5rem;\n} [dir=\"rtl\"] .menu-bar_dropdown-caret-icon_FkdUe {\n    margin-right: .5rem;\n} .menu-bar_disabled_3x5sy {\n    opacity: 0.5;\n} .menu-bar_mystuff_3RiSb > a {\n  background-repeat: no-repeat;\n  background-position: center center;\n  background-size: 45%;\n  padding-right: 10px;\n  padding-left: 10px;\n  width: 30px;\n  overflow: hidden;\n  text-indent: 50px;\n  white-space: nowrap;\n} .menu-bar_mystuff_3RiSb > a:hover {\n  background-size: 50%;\n} .menu-bar_mystuff_3RiSb > a {\n  background-image: url(\"/images/mystuff.png\");\n} .menu-bar_about-icon_dZI7K {\n    height: 1.25rem;\n    margin: 0.5rem;\n    vertical-align: middle;\n} .menu-bar_collapsible-label_o2tym {\n    margin: 0 .5rem 0 .25rem;\n} [dir=\"rtl\"] .menu-bar_collapsible-label_o2tym {\n    margin: 0 0.25rem 0 0.5rem;\n} @media only screen and (max-width: 1024px) {\n    .menu-bar_tutorials-label_2tFBo, .menu-bar_collapsible-label_o2tym {\n        display: none;\n    }\n\n    .menu-bar_help-icon_3Xtrt {\n        margin-right: 0;\n    }\n}\n", ""]);
 // Exports
 exports.locals = {
 	"menu-bar": "menu-bar_menu-bar_JcuHF",
@@ -38424,6 +38519,10 @@ exports.locals = {
 	"versionOffsetButton": "menu-bar_version-offset-button_Ipa8u",
 	"version-offset-label": "menu-bar_version-offset-label_3CrGN",
 	"versionOffsetLabel": "menu-bar_version-offset-label_3CrGN",
+	"version-time-form": "menu-bar_version-time-form_2bMpm",
+	"versionTimeForm": "menu-bar_version-time-form_2bMpm",
+	"version-time-input": "menu-bar_version-time-input_11JZe",
+	"versionTimeInput": "menu-bar_version-time-input_11JZe",
 	"file-group": "menu-bar_file-group_1_CHX",
 	"fileGroup": "menu-bar_file-group_1_CHX",
 	"menu-bar-menu": "menu-bar_menu-bar-menu_239MD",
@@ -45501,4 +45600,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.6958ef0c2517bb8953dc.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.23161fae84cda7843831.js.map
