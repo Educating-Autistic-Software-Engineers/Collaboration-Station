@@ -6104,8 +6104,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var react_redux__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! react-redux */ "./node_modules/react-redux/es/index.js");
 /* harmony import */ var redux__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! redux */ "./node_modules/redux/es/index.js");
 /* harmony import */ var react_intl__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! react-intl */ "./node_modules/react-intl/lib/index.es.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_49__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_49___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_49__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_50__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_50___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_50__);
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! lodash.bindall */ "./node_modules/lodash.bindall/index.js");
 /* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(lodash_bindall__WEBPACK_IMPORTED_MODULE_4__);
 /* harmony import */ var bowser__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! bowser */ "./node_modules/bowser/src/bowser.js");
@@ -6139,22 +6139,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _reducers_menus__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../../reducers/menus */ "./src/reducers/menus.js");
 /* harmony import */ var _lib_collect_metadata__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../../lib/collect-metadata */ "./src/lib/collect-metadata.js");
 /* harmony import */ var _utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../../utils/versionOffset.js */ "./src/utils/versionOffset.js");
-/* harmony import */ var _menu_bar_css__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./menu-bar.css */ "./src/components/menu-bar/menu-bar.css");
-/* harmony import */ var _menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default = /*#__PURE__*/__webpack_require__.n(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34__);
-/* harmony import */ var _lib_assets_icon_tutorials_svg__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ../../lib/assets/icon--tutorials.svg */ "./src/lib/assets/icon--tutorials.svg");
-/* harmony import */ var _icon_mystuff_png__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ./icon--mystuff.png */ "./src/components/menu-bar/icon--mystuff.png");
-/* harmony import */ var _icon_profile_png__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./icon--profile.png */ "./src/components/menu-bar/icon--profile.png");
-/* harmony import */ var _icon_remix_svg__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./icon--remix.svg */ "./src/components/menu-bar/icon--remix.svg");
-/* harmony import */ var _dropdown_caret_svg__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./dropdown-caret.svg */ "./src/components/menu-bar/dropdown-caret.svg");
-/* harmony import */ var _icon_about_svg__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./icon--about.svg */ "./src/components/menu-bar/icon--about.svg");
-/* harmony import */ var _icon_file_svg__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./icon--file.svg */ "./src/components/menu-bar/icon--file.svg");
-/* harmony import */ var _icon_edit_svg__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./icon--edit.svg */ "./src/components/menu-bar/icon--edit.svg");
-/* harmony import */ var _scratch_logo_svg__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./scratch-logo.svg */ "./src/components/menu-bar/scratch-logo.svg");
-/* harmony import */ var _nineties_logo_svg__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./nineties_logo.svg */ "./src/components/menu-bar/nineties_logo.svg");
-/* harmony import */ var _cat_logo_svg__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./cat_logo.svg */ "./src/components/menu-bar/cat_logo.svg");
-/* harmony import */ var _prehistoric_logo_svg__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ./prehistoric-logo.svg */ "./src/components/menu-bar/prehistoric-logo.svg");
-/* harmony import */ var _oldtimey_logo_svg__WEBPACK_IMPORTED_MODULE_47__ = __webpack_require__(/*! ./oldtimey-logo.svg */ "./src/components/menu-bar/oldtimey-logo.svg");
-/* harmony import */ var _lib_shared_messages__WEBPACK_IMPORTED_MODULE_48__ = __webpack_require__(/*! ../../lib/shared-messages */ "./src/lib/shared-messages.js");
+/* harmony import */ var _version_history_jsx__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ./version-history.jsx */ "./src/components/menu-bar/version-history.jsx");
+/* harmony import */ var _menu_bar_css__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ./menu-bar.css */ "./src/components/menu-bar/menu-bar.css");
+/* harmony import */ var _menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default = /*#__PURE__*/__webpack_require__.n(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35__);
+/* harmony import */ var _lib_assets_icon_tutorials_svg__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! ../../lib/assets/icon--tutorials.svg */ "./src/lib/assets/icon--tutorials.svg");
+/* harmony import */ var _icon_mystuff_png__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ./icon--mystuff.png */ "./src/components/menu-bar/icon--mystuff.png");
+/* harmony import */ var _icon_profile_png__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ./icon--profile.png */ "./src/components/menu-bar/icon--profile.png");
+/* harmony import */ var _icon_remix_svg__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! ./icon--remix.svg */ "./src/components/menu-bar/icon--remix.svg");
+/* harmony import */ var _dropdown_caret_svg__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ./dropdown-caret.svg */ "./src/components/menu-bar/dropdown-caret.svg");
+/* harmony import */ var _icon_about_svg__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! ./icon--about.svg */ "./src/components/menu-bar/icon--about.svg");
+/* harmony import */ var _icon_file_svg__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! ./icon--file.svg */ "./src/components/menu-bar/icon--file.svg");
+/* harmony import */ var _icon_edit_svg__WEBPACK_IMPORTED_MODULE_43__ = __webpack_require__(/*! ./icon--edit.svg */ "./src/components/menu-bar/icon--edit.svg");
+/* harmony import */ var _scratch_logo_svg__WEBPACK_IMPORTED_MODULE_44__ = __webpack_require__(/*! ./scratch-logo.svg */ "./src/components/menu-bar/scratch-logo.svg");
+/* harmony import */ var _nineties_logo_svg__WEBPACK_IMPORTED_MODULE_45__ = __webpack_require__(/*! ./nineties_logo.svg */ "./src/components/menu-bar/nineties_logo.svg");
+/* harmony import */ var _cat_logo_svg__WEBPACK_IMPORTED_MODULE_46__ = __webpack_require__(/*! ./cat_logo.svg */ "./src/components/menu-bar/cat_logo.svg");
+/* harmony import */ var _prehistoric_logo_svg__WEBPACK_IMPORTED_MODULE_47__ = __webpack_require__(/*! ./prehistoric-logo.svg */ "./src/components/menu-bar/prehistoric-logo.svg");
+/* harmony import */ var _oldtimey_logo_svg__WEBPACK_IMPORTED_MODULE_48__ = __webpack_require__(/*! ./oldtimey-logo.svg */ "./src/components/menu-bar/oldtimey-logo.svg");
+/* harmony import */ var _lib_shared_messages__WEBPACK_IMPORTED_MODULE_49__ = __webpack_require__(/*! ../../lib/shared-messages */ "./src/lib/shared-messages.js");
+
 
 
 
@@ -6223,18 +6225,18 @@ const MenuBarItemTooltip = _ref => {
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, children);
   }
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_coming_soon_coming_soon_jsx__WEBPACK_IMPORTED_MODULE_12__.ComingSoonTooltip, {
-    className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().comingSoon), className),
+    className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().comingSoon), className),
     place: place,
-    tooltipClassName: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().comingSoonTooltip),
+    tooltipClassName: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().comingSoonTooltip),
     tooltipId: id
   }, children);
 };
 MenuBarItemTooltip.propTypes = {
-  children: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().node),
-  className: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
-  enable: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  id: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
-  place: prop_types__WEBPACK_IMPORTED_MODULE_49___default().oneOf(['top', 'bottom', 'left', 'right'])
+  children: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().node),
+  className: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
+  enable: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  id: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
+  place: prop_types__WEBPACK_IMPORTED_MODULE_50___default().oneOf(['top', 'bottom', 'left', 'right'])
 };
 const MenuItemTooltip = _ref2 => {
   let {
@@ -6244,77 +6246,38 @@ const MenuItemTooltip = _ref2 => {
     className
   } = _ref2;
   return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_coming_soon_coming_soon_jsx__WEBPACK_IMPORTED_MODULE_12__.ComingSoonTooltip, {
-    className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().comingSoon), className),
+    className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().comingSoon), className),
     isRtl: isRtl,
     place: isRtl ? 'left' : 'right',
-    tooltipClassName: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().comingSoonTooltip),
+    tooltipClassName: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().comingSoonTooltip),
     tooltipId: id
   }, children);
 };
 MenuItemTooltip.propTypes = {
-  children: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().node),
-  className: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
-  id: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
-  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool)
+  children: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().node),
+  className: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
+  id: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
+  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool)
 };
 const AboutButton = props => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_button_button_jsx__WEBPACK_IMPORTED_MODULE_9__["default"], {
-  className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable)),
-  iconClassName: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().aboutIcon),
-  iconSrc: _icon_about_svg__WEBPACK_IMPORTED_MODULE_40__,
+  className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable)),
+  iconClassName: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().aboutIcon),
+  iconSrc: _icon_about_svg__WEBPACK_IMPORTED_MODULE_41__,
   onClick: props.onClick
 });
 AboutButton.propTypes = {
-  onClick: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func).isRequired
+  onClick: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func).isRequired
 };
 class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
   constructor(props) {
     super(props);
-    lodash_bindall__WEBPACK_IMPORTED_MODULE_4___default()(this, ['handleClickNew', 'handleClickRemix', 'handleClickSave', 'handleClickSaveAsCopy', 'handleClickSeeCommunity', 'handleClickShare', 'handleSetMode', 'handleKeyPress', 'handleRestoreOption', 'getSaveToComputerHandler', 'restoreOptionMessage', 'handleClickOlderVersion', 'handleClickNewerVersion', 'handleChangeVersionTime', 'handleSubmitVersionTime']);
-    this.state = {
-      versionOffset: (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.getVersionOffset)(),
-      loadedVersionTime: (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.getLoadedVersionTime)(),
-      versionTimeInput: ''
-    };
+    lodash_bindall__WEBPACK_IMPORTED_MODULE_4___default()(this, ['handleClickNew', 'handleClickRemix', 'handleClickSave', 'handleClickSaveAsCopy', 'handleClickSeeCommunity', 'handleClickShare', 'handleSetMode', 'handleKeyPress', 'handleRestoreOption', 'getSaveToComputerHandler', 'restoreOptionMessage']);
   }
   componentDidMount() {
     document.addEventListener('keydown', this.handleKeyPress);
-    // Blocks can clamp the offset when the history runs out, so mirror the shared
-    // value rather than tracking our own copy of it.
-    this.unsubscribeVersionOffset = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.subscribeVersionOffset)(versionOffset => this.setState({
-      versionOffset
-    }));
-    this.unsubscribeLoadedVersionTime = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.subscribeLoadedVersionTime)(loadedVersionTime => this.setState({
-      loadedVersionTime
-    }));
   }
   componentWillUnmount() {
     document.removeEventListener('keydown', this.handleKeyPress);
-    if (this.unsubscribeVersionOffset) {
-      this.unsubscribeVersionOffset();
-      this.unsubscribeVersionOffset = null;
-    }
-    if (this.unsubscribeLoadedVersionTime) {
-      this.unsubscribeLoadedVersionTime();
-      this.unsubscribeLoadedVersionTime = null;
-    }
-  }
-  handleClickOlderVersion() {
-    (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.setVersionOffset)((0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.getVersionOffset)() + 1);
-  }
-  handleClickNewerVersion() {
-    (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.setVersionOffset)((0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.getVersionOffset)() - 1);
-  }
-  handleChangeVersionTime(event) {
-    this.setState({
-      versionTimeInput: event.target.value
-    });
-  }
-  handleSubmitVersionTime(event) {
-    event.preventDefault();
-    // datetime-local values carry no zone, so Date parses them as local time.
-    const date = new Date(this.state.versionTimeInput);
-    if (isNaN(date.getTime())) return;
-    (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.setVersionAsOf)(date);
   }
   handleClickNew() {
     // if the project is dirty, and user owns the project, we will autosave.
@@ -6322,7 +6285,7 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
     // downloading or logging in first.
     // Note that if user is logged in and editing someone else's project,
     // they'll lose their work.
-    const readyToReplaceProject = this.props.confirmReadyToReplaceProject(this.props.intl.formatMessage(_lib_shared_messages__WEBPACK_IMPORTED_MODULE_48__["default"].replaceProjectWarning));
+    const readyToReplaceProject = this.props.confirmReadyToReplaceProject(this.props.intl.formatMessage(_lib_shared_messages__WEBPACK_IMPORTED_MODULE_49__["default"].replaceProjectWarning));
     this.props.onRequestCloseFile();
     if (readyToReplaceProject) {
       this.props.onClickNew(this.props.canSave && this.props.canCreateNew);
@@ -6380,13 +6343,13 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
 
       // Change logo for modes
       if (mode === '1990') {
-        document.getElementById('logo_img').src = _nineties_logo_svg__WEBPACK_IMPORTED_MODULE_44__;
+        document.getElementById('logo_img').src = _nineties_logo_svg__WEBPACK_IMPORTED_MODULE_45__;
       } else if (mode === '2020') {
-        document.getElementById('logo_img').src = _cat_logo_svg__WEBPACK_IMPORTED_MODULE_45__;
+        document.getElementById('logo_img').src = _cat_logo_svg__WEBPACK_IMPORTED_MODULE_46__;
       } else if (mode === '1920') {
-        document.getElementById('logo_img').src = _oldtimey_logo_svg__WEBPACK_IMPORTED_MODULE_47__;
+        document.getElementById('logo_img').src = _oldtimey_logo_svg__WEBPACK_IMPORTED_MODULE_48__;
       } else if (mode === '220022BC') {
-        document.getElementById('logo_img').src = _prehistoric_logo_svg__WEBPACK_IMPORTED_MODULE_46__;
+        document.getElementById('logo_img').src = _prehistoric_logo_svg__WEBPACK_IMPORTED_MODULE_47__;
       } else {
         document.getElementById('logo_img').src = this.props.logo;
       }
@@ -6458,15 +6421,15 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
     // each item must have a 'title' FormattedMessage and a 'handleClick' function
     // generate a menu with items for each object in the array
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable), {
-        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().active)]: this.props.aboutMenuOpen
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable), {
+        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().active)]: this.props.aboutMenuOpen
       }),
       onMouseUp: this.props.onRequestOpenAbout
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().aboutIcon),
-      src: _icon_about_svg__WEBPACK_IMPORTED_MODULE_40__
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().aboutIcon),
+      src: _icon_about_svg__WEBPACK_IMPORTED_MODULE_41__
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_menu_bar_menu_jsx__WEBPACK_IMPORTED_MODULE_16__["default"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarMenu)),
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarMenu)),
       open: this.props.aboutMenuOpen,
       place: this.props.isRtl ? 'right' : 'left',
       onRequestClose: this.props.onRequestCloseAbout
@@ -6500,26 +6463,26 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       id: "gui.menuBar.new"
     });
     const remixButton = /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_button_button_jsx__WEBPACK_IMPORTED_MODULE_9__["default"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarButton), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().remixButton)),
-      iconClassName: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().remixButtonIcon),
-      iconSrc: _icon_remix_svg__WEBPACK_IMPORTED_MODULE_38__,
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarButton), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().remixButton)),
+      iconClassName: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().remixButtonIcon),
+      iconSrc: _icon_remix_svg__WEBPACK_IMPORTED_MODULE_39__,
       onClick: this.handleClickRemix
     }, remixMessage);
     // Show the About button only if we have a handler for it (like in the desktop app)
     const aboutButton = this.buildAboutMenu(this.props.onClickAbout);
     return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_box_box_jsx__WEBPACK_IMPORTED_MODULE_8__["default"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()(this.props.className, (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBar))
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()(this.props.className, (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBar))
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().mainMenu)
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().mainMenu)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().fileGroup)
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().fileGroup)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem))
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem))
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
       id: "logo_img",
       alt: "Scratch",
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().scratchLogo), {
-        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().clickable)]: typeof this.props.onClickLogo !== 'undefined'
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().scratchLogo), {
+        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().clickable)]: typeof this.props.onClickLogo !== 'undefined'
       }),
       draggable: false,
       src: __webpack_require__(/*! ./logo.svg */ "./src/components/menu-bar/logo.svg"),
@@ -6532,21 +6495,21 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       onRequestOpen: this.props.onClickSettings,
       settingsMenuOpen: this.props.settingsMenuOpen
     }), this.props.canManageFiles && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable), {
-        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().active)]: this.props.fileMenuOpen
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable), {
+        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().active)]: this.props.fileMenuOpen
       }),
       onMouseUp: this.props.onClickFile
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      src: _icon_file_svg__WEBPACK_IMPORTED_MODULE_41__
+      src: _icon_file_svg__WEBPACK_IMPORTED_MODULE_42__
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().collapsibleLabel)
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().collapsibleLabel)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_3__.FormattedMessage, {
       defaultMessage: "File",
       id: "gui.menuBar.file"
     })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      src: _dropdown_caret_svg__WEBPACK_IMPORTED_MODULE_39__
+      src: _dropdown_caret_svg__WEBPACK_IMPORTED_MODULE_40__
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_menu_bar_menu_jsx__WEBPACK_IMPORTED_MODULE_16__["default"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarMenu)),
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarMenu)),
       open: this.props.fileMenuOpen,
       place: this.props.isRtl ? 'left' : 'right',
       onRequestClose: this.props.onRequestCloseFile
@@ -6561,7 +6524,7 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       onClick: this.handleClickRemix
     }, remixMessage)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_menu_menu_jsx__WEBPACK_IMPORTED_MODULE_17__.MenuSection, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_menu_menu_jsx__WEBPACK_IMPORTED_MODULE_17__.MenuItem, {
       onClick: this.props.onStartSelectingFileUpload
-    }, this.props.intl.formatMessage(_lib_shared_messages__WEBPACK_IMPORTED_MODULE_48__["default"].loadFromComputerTitle)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_containers_sb3_downloader_jsx__WEBPACK_IMPORTED_MODULE_22__["default"], null, (className, downloadProjectCallback) => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_menu_menu_jsx__WEBPACK_IMPORTED_MODULE_17__.MenuItem, {
+    }, this.props.intl.formatMessage(_lib_shared_messages__WEBPACK_IMPORTED_MODULE_49__["default"].loadFromComputerTitle)), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_containers_sb3_downloader_jsx__WEBPACK_IMPORTED_MODULE_22__["default"], null, (className, downloadProjectCallback) => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_menu_menu_jsx__WEBPACK_IMPORTED_MODULE_17__.MenuItem, {
       className: className,
       onClick: this.getSaveToComputerHandler(downloadProjectCallback)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_3__.FormattedMessage, {
@@ -6569,21 +6532,21 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       // eslint-disable-line max-len
       id: "gui.menuBar.downloadToComputer"
     })))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable), {
-        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().active)]: this.props.editMenuOpen
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable), {
+        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().active)]: this.props.editMenuOpen
       }),
       onMouseUp: this.props.onClickEdit
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      src: _icon_edit_svg__WEBPACK_IMPORTED_MODULE_42__
+      src: _icon_edit_svg__WEBPACK_IMPORTED_MODULE_43__
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().collapsibleLabel)
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().collapsibleLabel)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_3__.FormattedMessage, {
       defaultMessage: "Edit",
       id: "gui.menuBar.edit"
     })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      src: _dropdown_caret_svg__WEBPACK_IMPORTED_MODULE_39__
+      src: _dropdown_caret_svg__WEBPACK_IMPORTED_MODULE_40__
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_menu_bar_menu_jsx__WEBPACK_IMPORTED_MODULE_16__["default"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarMenu)),
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarMenu)),
       open: this.props.editMenuOpen,
       place: this.props.isRtl ? 'left' : 'right',
       onRequestClose: this.props.onRequestCloseEdit
@@ -6594,7 +6557,7 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       } = _ref3;
       return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_menu_menu_jsx__WEBPACK_IMPORTED_MODULE_17__.MenuItem, {
         className: classnames__WEBPACK_IMPORTED_MODULE_0___default()({
-          [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().disabled)]: !restorable
+          [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().disabled)]: !restorable
         }),
         onClick: this.handleRestoreOption(handleRestore)
       }, this.restoreOptionMessage(deletedItem));
@@ -6612,17 +6575,17 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
         id: "gui.menuBar.turboModeOn"
       }));
     })))), this.props.isTotallyNormal && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable), {
-        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().active)]: this.props.modeMenuOpen
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable), {
+        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().active)]: this.props.modeMenuOpen
       }),
       onMouseUp: this.props.onClickMode
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().editMenu))
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().editMenu))
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_3__.FormattedMessage, {
       defaultMessage: "Mode",
       id: "gui.menuBar.modeMenu"
     })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_menu_bar_menu_jsx__WEBPACK_IMPORTED_MODULE_16__["default"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarMenu)),
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarMenu)),
       open: this.props.modeMenuOpen,
       place: this.props.isRtl ? 'left' : 'right',
       onRequestClose: this.props.onRequestCloseMode
@@ -6630,7 +6593,7 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       onClick: this.handleSetMode('NOW')
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", {
       className: classnames__WEBPACK_IMPORTED_MODULE_0___default()({
-        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().inactive)]: !this.props.modeNow
+        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().inactive)]: !this.props.modeNow
       })
     }, '✓'), ' ', /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_3__.FormattedMessage, {
       defaultMessage: "Normal mode",
@@ -6639,81 +6602,49 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
       onClick: this.handleSetMode('2020')
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", {
       className: classnames__WEBPACK_IMPORTED_MODULE_0___default()({
-        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().inactive)]: !this.props.mode2020
+        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().inactive)]: !this.props.mode2020
       })
     }, '✓'), ' ', /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_3__.FormattedMessage, {
       defaultMessage: "Caturday mode",
       id: "gui.menuBar.caturdayMode"
-    })))))), _utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.versionOffsetEnabled && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionOffset))
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("button", {
-      "aria-label": "Go one version back",
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionOffsetButton),
-      title: "Go one version back",
-      onClick: this.handleClickOlderVersion
-    }, '◀'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionOffsetLabel),
-      title: this.state.loadedVersionTime ? "Saved ".concat(new Date(this.state.loadedVersionTime).toLocaleString()) : null
-    }, this.state.versionOffset === 0 ? 'Current' : "".concat(this.state.versionOffset, " back")), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("button", {
-      "aria-label": "Go one version forward",
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionOffsetButton),
-      disabled: this.state.versionOffset === 0,
-      title: "Go one version forward",
-      onClick: this.handleClickNewerVersion
-    }, '▶'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("form", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionTimeForm),
-      onSubmit: this.handleSubmitVersionTime
-    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("input", {
-      "aria-label": "Load the version saved at this time",
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionTimeInput),
-      max: new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16),
-      title: "Load the version saved at this time",
-      type: "datetime-local",
-      value: this.state.versionTimeInput,
-      onChange: this.handleChangeVersionTime
-    }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("button", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().versionOffsetButton),
-      disabled: !this.state.versionTimeInput,
-      title: "Go to this time",
-      type: "submit"
-    }, 'Go'))),  false ? /*#__PURE__*/0 :  false ? /*#__PURE__*/0 : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem))
+    })))))), _utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_33__.versionOffsetEnabled && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_version_history_jsx__WEBPACK_IMPORTED_MODULE_34__["default"], null),  false ? /*#__PURE__*/0 :  false ? /*#__PURE__*/0 : null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem))
     },  false ? 0 :  false ? /*#__PURE__*/0 : [],  false ? 0 : []), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().communityButtonWrapper))
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().communityButtonWrapper))
     },  false ? 0 :  false ? /*#__PURE__*/0 : []), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_divider_divider_jsx__WEBPACK_IMPORTED_MODULE_13__["default"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().divider))
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().divider))
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().fileGroup)
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().fileGroup)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
       "aria-label": this.props.intl.formatMessage(ariaMessages.tutorials),
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable)),
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable)),
       onClick: this.props.onOpenTipLibrary
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().helpIcon),
-      src: _lib_assets_icon_tutorials_svg__WEBPACK_IMPORTED_MODULE_35__
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().helpIcon),
+      src: _lib_assets_icon_tutorials_svg__WEBPACK_IMPORTED_MODULE_36__
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().tutorialsLabel)
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().tutorialsLabel)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_3__.FormattedMessage, ariaMessages.tutorials))))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().accountInfoGroup)
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().accountInfoGroup)
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem)
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem)
     }, this.props.canSave && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_save_status_jsx__WEBPACK_IMPORTED_MODULE_14__["default"], null)), this.props.sessionExists ? this.props.username ?
     /*#__PURE__*/
     // ************ user is logged in ************
     react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("a", {
       href: "/mystuff/"
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().mystuffButton))
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().mystuffButton))
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().mystuffIcon),
-      src: _icon_mystuff_png__WEBPACK_IMPORTED_MODULE_36__
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().mystuffIcon),
+      src: _icon_mystuff_png__WEBPACK_IMPORTED_MODULE_37__
     }))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_containers_account_nav_jsx__WEBPACK_IMPORTED_MODULE_20__["default"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable), {
-        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().active)]: this.props.accountMenuOpen
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable), {
+        [(_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().active)]: this.props.accountMenuOpen
       }),
       isOpen: this.props.accountMenuOpen,
       isRtl: this.props.isRtl,
-      menuBarMenuClassName: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarMenu)),
+      menuBarMenuClassName: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarMenu)),
       onClick: this.props.onClickAccount,
       onClose: this.props.onRequestCloseAccount,
       onLogOut: this.props.onLogOut
@@ -6722,21 +6653,21 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
     // ********* user not logged in, but a session exists
     // ********* so they can choose to log in
     react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable)),
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable)),
       key: "join",
       onMouseUp: this.props.onOpenRegistration
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_3__.FormattedMessage, {
       defaultMessage: "Join Scratch",
       id: "gui.menuBar.joinScratch"
     })), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable)),
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable)),
       key: "login",
       onMouseUp: this.props.onClickLogin
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react_intl__WEBPACK_IMPORTED_MODULE_3__.FormattedMessage, {
       defaultMessage: "Sign in",
       id: "gui.menuBar.signIn"
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(_login_dropdown_jsx__WEBPACK_IMPORTED_MODULE_21__["default"], {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarMenu)),
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarMenu)),
       isOpen: this.props.loginMenuOpen,
       isRtl: this.props.isRtl,
       renderLogin: this.props.renderLogin,
@@ -6747,104 +6678,104 @@ class MenuBar extends react__WEBPACK_IMPORTED_MODULE_6__.Component {
     react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, this.props.showComingSoon ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, sessionStorage.getItem('viewMode') == "T" ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", null) : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(react__WEBPACK_IMPORTED_MODULE_6__.Fragment, null, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(MenuBarItemTooltip, {
       id: "mystuff"
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().mystuffButton))
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().mystuffButton))
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", null, sessionStorage.getItem('analMode') == "T" ? "Back" : ''))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement(MenuBarItemTooltip, {
       id: "account-nav",
       place: this.props.isRtl ? 'right' : 'left'
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("div", {
-      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().hoverable), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().accountNavMenu))
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().hoverable), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().accountNavMenu))
     }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("img", {
-      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_34___default().profileIcon),
-      src: _icon_profile_png__WEBPACK_IMPORTED_MODULE_37__
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_35___default().profileIcon),
+      src: _icon_profile_png__WEBPACK_IMPORTED_MODULE_38__
     }), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_6__.createElement("span", null, sessionStorage.getItem('analMode') == "T" ? "Next!" : 'Save!'))))) : [])), aboutButton);
   }
 }
 MenuBar.propTypes = {
-  aboutMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  accountMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  authorId: prop_types__WEBPACK_IMPORTED_MODULE_49___default().oneOfType([(prop_types__WEBPACK_IMPORTED_MODULE_49___default().string), (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool)]),
-  authorThumbnailUrl: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
-  authorUsername: prop_types__WEBPACK_IMPORTED_MODULE_49___default().oneOfType([(prop_types__WEBPACK_IMPORTED_MODULE_49___default().string), (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool)]),
-  autoUpdateProject: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  canChangeLanguage: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  canChangeTheme: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  canCreateCopy: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  canCreateNew: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  canEditTitle: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  canManageFiles: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  canRemix: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  canSave: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  canShare: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  className: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
-  confirmReadyToReplaceProject: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  currentLocale: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string).isRequired,
-  editMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  enableCommunity: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  fileMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
+  aboutMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  accountMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  authorId: prop_types__WEBPACK_IMPORTED_MODULE_50___default().oneOfType([(prop_types__WEBPACK_IMPORTED_MODULE_50___default().string), (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool)]),
+  authorThumbnailUrl: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
+  authorUsername: prop_types__WEBPACK_IMPORTED_MODULE_50___default().oneOfType([(prop_types__WEBPACK_IMPORTED_MODULE_50___default().string), (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool)]),
+  autoUpdateProject: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  canChangeLanguage: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  canChangeTheme: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  canCreateCopy: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  canCreateNew: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  canEditTitle: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  canManageFiles: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  canRemix: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  canSave: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  canShare: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  className: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
+  confirmReadyToReplaceProject: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  currentLocale: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string).isRequired,
+  editMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  enableCommunity: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  fileMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
   intl: react_intl__WEBPACK_IMPORTED_MODULE_3__.intlShape,
-  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  isShared: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  isShowingProject: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  isTotallyNormal: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  isUpdating: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  locale: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string).isRequired,
-  loginMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  logo: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
-  mode1920: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  mode1990: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  mode2020: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  mode220022BC: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  modeMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  modeNow: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  onClickAbout: prop_types__WEBPACK_IMPORTED_MODULE_49___default().oneOfType([(prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
+  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  isShared: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  isShowingProject: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  isTotallyNormal: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  isUpdating: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  locale: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string).isRequired,
+  loginMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  logo: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
+  mode1920: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  mode1990: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  mode2020: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  mode220022BC: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  modeMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  modeNow: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  onClickAbout: prop_types__WEBPACK_IMPORTED_MODULE_50___default().oneOfType([(prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
   // button mode: call this callback when the About button is clicked
-  prop_types__WEBPACK_IMPORTED_MODULE_49___default().arrayOf(
+  prop_types__WEBPACK_IMPORTED_MODULE_50___default().arrayOf(
   // menu mode: list of items in the About menu
-  prop_types__WEBPACK_IMPORTED_MODULE_49___default().shape({
-    title: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
+  prop_types__WEBPACK_IMPORTED_MODULE_50___default().shape({
+    title: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
     // text for the menu item
-    onClick: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func) // call this callback when the menu item is clicked
+    onClick: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func) // call this callback when the menu item is clicked
   }))]),
-  onClickAccount: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickEdit: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickFile: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickLogin: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickLogo: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickMode: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickNew: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickRemix: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickSave: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickSaveAsCopy: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onClickSettings: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onLogOut: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onOpenRegistration: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onOpenTipLibrary: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onProjectTelemetryEvent: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onRequestCloseAbout: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onRequestCloseAccount: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onRequestCloseEdit: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onRequestCloseFile: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onRequestCloseLogin: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onRequestCloseMode: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onRequestCloseSettings: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onRequestOpenAbout: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onSeeCommunity: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onSetTimeTravelMode: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onShare: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onStartSelectingFileUpload: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  onToggleLoginOpen: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  projectTitle: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
-  renderLogin: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  sessionExists: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  settingsMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  shouldSaveBeforeTransition: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().func),
-  showComingSoon: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  username: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().string),
-  userOwnsProject: (prop_types__WEBPACK_IMPORTED_MODULE_49___default().bool),
-  vm: prop_types__WEBPACK_IMPORTED_MODULE_49___default().instanceOf((scratch_vm__WEBPACK_IMPORTED_MODULE_7___default())).isRequired
+  onClickAccount: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickEdit: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickFile: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickLogin: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickLogo: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickMode: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickNew: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickRemix: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickSave: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickSaveAsCopy: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onClickSettings: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onLogOut: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onOpenRegistration: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onOpenTipLibrary: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onProjectTelemetryEvent: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onRequestCloseAbout: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onRequestCloseAccount: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onRequestCloseEdit: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onRequestCloseFile: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onRequestCloseLogin: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onRequestCloseMode: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onRequestCloseSettings: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onRequestOpenAbout: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onSeeCommunity: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onSetTimeTravelMode: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onShare: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onStartSelectingFileUpload: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  onToggleLoginOpen: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  projectTitle: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
+  renderLogin: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  sessionExists: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  settingsMenuOpen: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  shouldSaveBeforeTransition: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().func),
+  showComingSoon: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  username: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().string),
+  userOwnsProject: (prop_types__WEBPACK_IMPORTED_MODULE_50___default().bool),
+  vm: prop_types__WEBPACK_IMPORTED_MODULE_50___default().instanceOf((scratch_vm__WEBPACK_IMPORTED_MODULE_7___default())).isRequired
 };
 MenuBar.defaultProps = {
-  logo: _scratch_logo_svg__WEBPACK_IMPORTED_MODULE_43__,
+  logo: _scratch_logo_svg__WEBPACK_IMPORTED_MODULE_44__,
   onShare: () => {}
 };
 const mapStateToProps = (state, ownProps) => {
@@ -7345,6 +7276,372 @@ UserAvatar.propTypes = {
   imageUrl: (prop_types__WEBPACK_IMPORTED_MODULE_3___default().string)
 };
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (UserAvatar);
+
+/***/ }),
+
+/***/ "./src/components/menu-bar/version-history.jsx":
+/*!*****************************************************!*\
+  !*** ./src/components/menu-bar/version-history.jsx ***!
+  \*****************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "default": () => (__WEBPACK_DEFAULT_EXPORT__)
+/* harmony export */ });
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! classnames */ "./node_modules/classnames/index.js");
+/* harmony import */ var classnames__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(classnames__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! lodash.bindall */ "./node_modules/lodash.bindall/index.js");
+/* harmony import */ var lodash_bindall__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(lodash_bindall__WEBPACK_IMPORTED_MODULE_1__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var react__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
+/* harmony import */ var _utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../../utils/versionOffset.js */ "./src/utils/versionOffset.js");
+/* harmony import */ var _utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../utils/versionHistory.js */ "./src/utils/versionHistory.js");
+/* harmony import */ var _utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../utils/versionDiff.js */ "./src/utils/versionDiff.js");
+/* harmony import */ var _menu_bar_css__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./menu-bar.css */ "./src/components/menu-bar/menu-bar.css");
+/* harmony import */ var _menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(_menu_bar_css__WEBPACK_IMPORTED_MODULE_6__);
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+
+
+
+
+
+
+
+
+// A load straight out of the cache finishes about this fast, so the notice waits
+// this long before showing to avoid flashing on every step.
+const BUFFERING_NOTICE_DELAY_MS = 200;
+const formatTime = time => new Date(time).toLocaleString([], {
+  month: 'short',
+  day: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit'
+});
+
+// <input type="datetime-local"> takes local time as YYYY-MM-DDTHH:mm.
+const toDateTimeLocal = date => {
+  const pad = n => String(n).padStart(2, '0');
+  return "".concat(date.getFullYear(), "-").concat(pad(date.getMonth() + 1), "-").concat(pad(date.getDate())) + "T".concat(pad(date.getHours()), ":").concat(pad(date.getMinutes()));
+};
+const describeOffset = offset => offset === 0 ? 'the current version' : "".concat(offset, " back");
+
+// "Oct 12, 2:14 PM by Ryon", or null when the lambda didn't report a time.
+const describeSave = version => {
+  if (!version || !version.lastModified) {
+    return null;
+  }
+  return formatTime(version.lastModified) + (version.author ? " by ".concat(version.author) : '');
+};
+const stepTitle = (label, payload) => {
+  const save = describeSave(payload);
+  return save ? "".concat(label, " (saved ").concat(save, ")") : label;
+};
+const countChanges = counts => counts.added + counts.changed + counts.moved + counts.removed;
+
+// One target's (or the totals') counts as coloured "+2 ~1 ↔1 −3" chips.
+const ChangeCounts = _ref => {
+  let {
+    added,
+    changed,
+    moved,
+    removed
+  } = _ref;
+  return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("span", {
+    className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffCounts)
+  }, added > 0 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("span", {
+    className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffAdded)
+  }, "+".concat(added, " added")), changed > 0 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("span", {
+    className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffChanged)
+  }, "~".concat(changed, " changed")), moved > 0 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("span", {
+    className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffMoved)
+  }, "\u2194".concat(moved, " moved")), removed > 0 && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("span", {
+    className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffRemoved)
+  }, "\u2212".concat(removed, " removed")));
+};
+ChangeCounts.propTypes = {
+  added: (prop_types__WEBPACK_IMPORTED_MODULE_7___default().number).isRequired,
+  changed: (prop_types__WEBPACK_IMPORTED_MODULE_7___default().number).isRequired,
+  moved: (prop_types__WEBPACK_IMPORTED_MODULE_7___default().number).isRequired,
+  removed: (prop_types__WEBPACK_IMPORTED_MODULE_7___default().number).isRequired
+};
+const describeBuffering = buffering => {
+  if (buffering.stage === 'searching') {
+    return "Finding the version from ".concat(formatTime(buffering.at), "\u2026");
+  }
+  if (buffering.stage === 'fetching') {
+    return "Buffering ".concat(describeOffset(buffering.offset), "\u2026");
+  }
+  return "Loading ".concat(describeOffset(buffering.offset), "\u2026");
+};
+
+/**
+ * Version history controls for the menu bar: step one save back or forward, jump to
+ * a date, and see when and by whom the version on screen was saved.
+ */
+class VersionHistory extends react__WEBPACK_IMPORTED_MODULE_2__.Component {
+  constructor(props) {
+    super(props);
+    lodash_bindall__WEBPACK_IMPORTED_MODULE_1___default()(this, ['handleClickOlder', 'handleClickNewer', 'handleTogglePicker', 'handlePickerChange', 'handlePickerSubmit', 'handleClickLatest', 'handleDocumentMouseDown', 'handleHistoryChange', 'handleDiffChange', 'handleToggleDiff', 'handleToggleHighlight', 'handleClickDiffTarget', 'setContainerRef']);
+    this.state = {
+      versionOffset: (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_3__.getVersionOffset)(),
+      currentVersion: (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.getCurrentVersion)(),
+      buffering: (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.getBuffering)(),
+      loadError: (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.getLoadError)(),
+      showBufferingNotice: false,
+      pickerOpen: false,
+      pickerValue: '',
+      pickerError: null,
+      diff: (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_5__.getVersionDiff)(),
+      highlightEnabled: (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_5__.isDiffHighlightEnabled)(),
+      diffOpen: false
+    };
+    this.noticeTimeout = null;
+  }
+  componentDidMount() {
+    // Blocks can clamp the offset when the history runs out, so mirror the shared
+    // value rather than tracking our own copy of it.
+    this.unsubscribeOffset = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_3__.subscribeVersionOffset)(versionOffset => this.setState({
+      versionOffset
+    }));
+    this.unsubscribeHistory = (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.subscribeVersionHistory)(this.handleHistoryChange);
+    this.unsubscribeDiff = (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_5__.subscribeVersionDiff)(this.handleDiffChange);
+    document.addEventListener('mousedown', this.handleDocumentMouseDown);
+  }
+  componentWillUnmount() {
+    this.unsubscribeOffset();
+    this.unsubscribeHistory();
+    this.unsubscribeDiff();
+    document.removeEventListener('mousedown', this.handleDocumentMouseDown);
+    clearTimeout(this.noticeTimeout);
+  }
+  handleHistoryChange() {
+    const buffering = (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.getBuffering)();
+    this.setState({
+      currentVersion: (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.getCurrentVersion)(),
+      buffering,
+      loadError: (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.getLoadError)()
+    });
+    if (!buffering) {
+      clearTimeout(this.noticeTimeout);
+      this.noticeTimeout = null;
+      this.setState({
+        showBufferingNotice: false
+      });
+    } else if (!this.noticeTimeout && !this.state.showBufferingNotice) {
+      this.noticeTimeout = setTimeout(() => {
+        this.noticeTimeout = null;
+        if ((0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.getBuffering)()) {
+          this.setState({
+            showBufferingNotice: true
+          });
+        }
+      }, BUFFERING_NOTICE_DELAY_MS);
+    }
+  }
+  handleDiffChange() {
+    const diff = (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_5__.getVersionDiff)();
+    this.setState({
+      diff,
+      highlightEnabled: (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_5__.isDiffHighlightEnabled)(),
+      diffOpen: this.state.diffOpen && Boolean(diff)
+    });
+  }
+  handleToggleDiff() {
+    this.setState({
+      diffOpen: !this.state.diffOpen,
+      pickerOpen: false
+    });
+  }
+  handleToggleHighlight(e) {
+    (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_5__.setDiffHighlightEnabled)(e.target.checked);
+  }
+  handleClickDiffTarget(e) {
+    (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_5__.showDiffTarget)(e.currentTarget.dataset.target);
+  }
+  handleClickOlder() {
+    (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_3__.setVersionOffset)((0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_3__.getVersionOffset)() + 1);
+  }
+  handleClickNewer() {
+    (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_3__.setVersionOffset)((0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_3__.getVersionOffset)() - 1);
+  }
+  handleTogglePicker() {
+    if (this.state.pickerOpen) {
+      this.setState({
+        pickerOpen: false
+      });
+      return;
+    }
+    this.setState({
+      diffOpen: false
+    });
+    const version = this.state.currentVersion;
+    const start = version && version.lastModified ? new Date(version.lastModified) : new Date();
+    this.setState({
+      pickerOpen: true,
+      pickerValue: toDateTimeLocal(start),
+      pickerError: null
+    });
+  }
+  handlePickerChange(e) {
+    this.setState({
+      pickerValue: e.target.value,
+      pickerError: null
+    });
+  }
+  handlePickerSubmit(e) {
+    var _this = this;
+    return _asyncToGenerator(function* () {
+      e.preventDefault();
+      const at = new Date(_this.state.pickerValue).getTime();
+      if (!Number.isFinite(at)) {
+        _this.setState({
+          pickerError: 'Pick a date and time.'
+        });
+        return;
+      }
+      _this.setState({
+        pickerOpen: false
+      });
+      try {
+        yield (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.jumpToDate)(at);
+      } catch (error) {
+        _this.setState({
+          pickerOpen: true,
+          pickerError: error.message
+        });
+      }
+    })();
+  }
+  handleClickLatest() {
+    this.setState({
+      pickerOpen: false
+    });
+    (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_3__.setVersionOffset)(0);
+  }
+  handleDocumentMouseDown(e) {
+    if ((this.state.pickerOpen || this.state.diffOpen) && this.container && !this.container.contains(e.target)) {
+      this.setState({
+        pickerOpen: false,
+        diffOpen: false
+      });
+    }
+  }
+  setContainerRef(element) {
+    this.container = element;
+  }
+  render() {
+    const {
+      versionOffset,
+      currentVersion,
+      buffering,
+      loadError
+    } = this.state;
+    const showBuffering = this.state.showBufferingNotice && buffering;
+    const oldestOffset = (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.getOldestOffset)();
+    const onScreen = currentVersion && currentVersion.offset === versionOffset ? currentVersion : null;
+    const save = describeSave(onScreen);
+    // Only once it describes the version actually on screen.
+    const diff = onScreen && this.state.diff && this.state.diff.versionId === onScreen.versionId ? this.state.diff : null;
+    return /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().menuBarItem), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionOffset)),
+      ref: this.setContainerRef
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+      "aria-label": "Go one version back",
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionOffsetButton),
+      disabled: oldestOffset !== null && versionOffset >= oldestOffset,
+      title: stepTitle('Go one version back', (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.peekVersion)(versionOffset + 1)),
+      onClick: this.handleClickOlder
+    }, '◀'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionOffsetLabel),
+      title: onScreen && onScreen.lastModified ? new Date(onScreen.lastModified).toLocaleString() : null
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("span", null, versionOffset === 0 ? 'Current' : "".concat(versionOffset, " back")), (save || buffering) && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("span", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionOffsetMeta)
+    }, save || 'Loading…')), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+      "aria-label": "Go one version forward",
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionOffsetButton),
+      disabled: versionOffset === 0,
+      title: versionOffset === 0 ? 'Go one version forward' : stepTitle('Go one version forward', (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_4__.peekVersion)(versionOffset - 1)),
+      onClick: this.handleClickNewer
+    }, '▶'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+      "aria-expanded": this.state.pickerOpen,
+      "aria-label": "Jump to a date",
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionOffsetButton),
+      title: "Jump to a date",
+      onClick: this.handleTogglePicker
+    }, '📅'), diff && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+      "aria-expanded": this.state.diffOpen,
+      "aria-label": "What changed in this save",
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionOffsetButton), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffButton)),
+      title: "What changed in this save",
+      onClick: this.handleToggleDiff
+    }, "\u0394 ".concat(countChanges(diff.totals))), diff && this.state.diffOpen && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionPicker)
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionPickerLabel)
+    }, 'Changes in this save, compared with the one before'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("label", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffToggle)
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("input", {
+      checked: this.state.highlightEnabled,
+      type: "checkbox",
+      onChange: this.handleToggleHighlight
+    }), 'Outline changed blocks'), diff.targets.length === 0 ? /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", null, 'No blocks changed (costumes, sounds or variables may have).') : /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("ul", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffList)
+    }, diff.targets.map(target => /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("li", {
+      key: target.key
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffTarget),
+      "data-target": target.key,
+      disabled: target.deleted,
+      title: target.deleted ? 'This sprite was deleted in this save' : "Show ".concat(target.name),
+      type: "button",
+      onClick: this.handleClickDiffTarget
+    }, target.deleted ? "".concat(target.name, " (deleted)") : target.name), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement(ChangeCounts, {
+      added: target.added.length,
+      changed: target.changed.length,
+      moved: target.moved.length,
+      removed: target.removed
+    })))), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionDiffNote)
+    }, 'Removed blocks aren\'t in this version, so they\'re counted, not outlined.')), this.state.pickerOpen && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("form", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionPicker),
+      onSubmit: this.handlePickerSubmit
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("label", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionPickerLabel)
+    }, 'Show the project as it was at', /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("input", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionPickerInput),
+      max: toDateTimeLocal(new Date()),
+      type: "datetime-local",
+      value: this.state.pickerValue,
+      onChange: this.handlePickerChange
+    })), this.state.pickerError && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionPickerError)
+    }, this.state.pickerError), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionPickerActions)
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionPickerSecondary),
+      type: "button",
+      onClick: this.handleClickLatest
+    }, 'Back to current'), /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("button", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().versionPickerPrimary),
+      type: "submit"
+    }, 'Go'))), showBuffering && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+      "aria-live": "polite",
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().bufferingNotice),
+      role: "status"
+    }, /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("span", {
+      className: (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().bufferingSpinner)
+    }), describeBuffering(buffering)), loadError && !showBuffering && /*#__PURE__*/react__WEBPACK_IMPORTED_MODULE_2__.createElement("div", {
+      className: classnames__WEBPACK_IMPORTED_MODULE_0___default()((_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().bufferingNotice), (_menu_bar_css__WEBPACK_IMPORTED_MODULE_6___default().bufferingNoticeError)),
+      role: "alert"
+    }, loadError));
+  }
+}
+/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (VersionHistory);
 
 /***/ }),
 
@@ -12607,8 +12904,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var lodash_defaultsdeep__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! lodash.defaultsdeep */ "./node_modules/lodash.defaultsdeep/index.js");
 /* harmony import */ var lodash_defaultsdeep__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(lodash_defaultsdeep__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var _lib_make_toolbox_xml__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ../lib/make-toolbox-xml */ "./src/lib/make-toolbox-xml.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
-/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_40___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_40__);
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_42__ = __webpack_require__(/*! prop-types */ "./node_modules/prop-types/index.js");
+/* harmony import */ var prop_types__WEBPACK_IMPORTED_MODULE_42___default = /*#__PURE__*/__webpack_require__.n(prop_types__WEBPACK_IMPORTED_MODULE_42__);
 /* harmony import */ var react__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! react */ "./node_modules/react/index.js");
 /* harmony import */ var _lib_blocks__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../lib/blocks */ "./src/lib/blocks.js");
 /* harmony import */ var scratch_vm__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! scratch-vm */ "./node_modules/scratch-vm/src/index.js");
@@ -12639,18 +12936,20 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var ably__WEBPACK_IMPORTED_MODULE_29___default = /*#__PURE__*/__webpack_require__.n(ably__WEBPACK_IMPORTED_MODULE_29__);
 /* harmony import */ var ably_react__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ably/react */ "./node_modules/ably/react/cjs/index.js");
 /* harmony import */ var ably_react__WEBPACK_IMPORTED_MODULE_30___default = /*#__PURE__*/__webpack_require__.n(ably_react__WEBPACK_IMPORTED_MODULE_30__);
-/* harmony import */ var nanoid__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
+/* harmony import */ var nanoid__WEBPACK_IMPORTED_MODULE_41__ = __webpack_require__(/*! nanoid */ "./node_modules/nanoid/index.browser.js");
 /* harmony import */ var _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__ = __webpack_require__(/*! ../utils/AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
 /* harmony import */ var _utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__ = __webpack_require__(/*! ../utils/versionOffset.js */ "./src/utils/versionOffset.js");
-/* harmony import */ var _utils_S3DataFetcher_jsx__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../utils/S3DataFetcher.jsx */ "./src/utils/S3DataFetcher.jsx");
-/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! aws-sdk */ "./node_modules/aws-sdk/lib/browser.js");
-/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_34___default = /*#__PURE__*/__webpack_require__.n(aws_sdk__WEBPACK_IMPORTED_MODULE_34__);
-/* harmony import */ var _reducers_editor_tab__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ../reducers/editor-tab */ "./src/reducers/editor-tab.js");
-/* harmony import */ var bowser__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! bowser */ "./node_modules/bowser/src/bowser.js");
-/* harmony import */ var bowser__WEBPACK_IMPORTED_MODULE_36___default = /*#__PURE__*/__webpack_require__.n(bowser__WEBPACK_IMPORTED_MODULE_36__);
-/* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! scratch-storage */ "./node_modules/scratch-storage/dist/web/scratch-storage.js");
-/* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_37___default = /*#__PURE__*/__webpack_require__.n(scratch_storage__WEBPACK_IMPORTED_MODULE_37__);
-/* harmony import */ var _components_library_library_jsx__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! ../components/library/library.jsx */ "./src/components/library/library.jsx");
+/* harmony import */ var _utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__ = __webpack_require__(/*! ../utils/versionHistory.js */ "./src/utils/versionHistory.js");
+/* harmony import */ var _utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__ = __webpack_require__(/*! ../utils/versionDiff.js */ "./src/utils/versionDiff.js");
+/* harmony import */ var _utils_S3DataFetcher_jsx__WEBPACK_IMPORTED_MODULE_35__ = __webpack_require__(/*! ../utils/S3DataFetcher.jsx */ "./src/utils/S3DataFetcher.jsx");
+/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_36__ = __webpack_require__(/*! aws-sdk */ "./node_modules/aws-sdk/lib/browser.js");
+/* harmony import */ var aws_sdk__WEBPACK_IMPORTED_MODULE_36___default = /*#__PURE__*/__webpack_require__.n(aws_sdk__WEBPACK_IMPORTED_MODULE_36__);
+/* harmony import */ var _reducers_editor_tab__WEBPACK_IMPORTED_MODULE_37__ = __webpack_require__(/*! ../reducers/editor-tab */ "./src/reducers/editor-tab.js");
+/* harmony import */ var bowser__WEBPACK_IMPORTED_MODULE_38__ = __webpack_require__(/*! bowser */ "./node_modules/bowser/src/bowser.js");
+/* harmony import */ var bowser__WEBPACK_IMPORTED_MODULE_38___default = /*#__PURE__*/__webpack_require__.n(bowser__WEBPACK_IMPORTED_MODULE_38__);
+/* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_39__ = __webpack_require__(/*! scratch-storage */ "./node_modules/scratch-storage/dist/web/scratch-storage.js");
+/* harmony import */ var scratch_storage__WEBPACK_IMPORTED_MODULE_39___default = /*#__PURE__*/__webpack_require__.n(scratch_storage__WEBPACK_IMPORTED_MODULE_39__);
+/* harmony import */ var _components_library_library_jsx__WEBPACK_IMPORTED_MODULE_40__ = __webpack_require__(/*! ../components/library/library.jsx */ "./src/components/library/library.jsx");
 const _excluded = ["asset"],
   _excluded2 = ["url"],
   _excluded3 = ["anyModalVisible", "canUseCloud", "customProceduresVisible", "extensionLibraryVisible", "options", "stageSize", "vm", "isRtl", "isVisible", "onActivateColorPicker", "onOpenConnectionModal", "onOpenSoundRecorder", "updateToolboxState", "onActivateCustomProcedures", "onRequestCloseExtensionLibrary", "onRequestCloseCustomProcedures", "toolboxXML", "updateMetrics", "useCatBlocks", "workspaceMetrics"];
@@ -12664,6 +12963,8 @@ function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" 
 function _toPrimitive(t, r) { if ("object" != typeof t || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != typeof i) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+
 
 
 
@@ -12735,15 +13036,14 @@ const { connectionError, channelError } = useChannel({ channelName: 'blocks' }, 
 //const fs = require('fs');
 
 const uname = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name;
-const s3Client = new (aws_sdk__WEBPACK_IMPORTED_MODULE_34___default().S3)();
-const nid = (0,nanoid__WEBPACK_IMPORTED_MODULE_39__.nanoid)();
+const s3Client = new (aws_sdk__WEBPACK_IMPORTED_MODULE_36___default().S3)();
+const nid = (0,nanoid__WEBPACK_IMPORTED_MODULE_41__.nanoid)();
 const ably = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablyInstance;
 const innerChannelName = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace && _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace.endsWith('_inner') ? _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace : "".concat(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace, "_inner");
 var channel = ably.channels.get(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace);
 let hasInited = false;
 let flag1 = false;
 let flag2 = false;
-const S3_STORAGE_URL = "https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/s3-storage";
 let stopEmission = false;
 class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   constructor(props) {
@@ -12771,7 +13071,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //     ogWorkspaceDragger(workspace);
     // }.bind(this.ScratchBlocks)
 
-    lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['attachVM', 'detachVM', 'getToolboxXML', 'handleParentMessage', 'handleRemoteHighlightMessage', 'resolveBlockIdForHighlight', 'handleCategorySelected', 'handleConnectionModalStart', 'handleDrop', 'handleStatusButtonUpdate', 'handleOpenSoundRecorder', 'handlePromptStart', 'handlePromptCallback', 'handlePromptClose', 'handleCustomProceduresClose', 'onScriptGlowOn', 'onScriptGlowOff', 'onBlockGlowOn', 'onBlockGlowOff', 'handleMonitorsUpdate', 'handleExtensionAdded', 'handleBlocksInfoUpdate', 'onTargetsUpdate', 'onVisualReport', 'onWorkspaceUpdate', 'onWorkspaceMetricsChange', 'highlightBlockById', 'setBlocks', 'setLocale']);
+    lodash_bindall__WEBPACK_IMPORTED_MODULE_0___default()(this, ['attachVM', 'detachVM', 'getToolboxXML', 'handleParentMessage', 'handleRemoteHighlightMessage', 'resolveBlockIdForHighlight', 'handleCategorySelected', 'handleConnectionModalStart', 'handleDrop', 'handleStatusButtonUpdate', 'handleOpenSoundRecorder', 'handlePromptStart', 'handlePromptCallback', 'handlePromptClose', 'handleCustomProceduresClose', 'onScriptGlowOn', 'onScriptGlowOff', 'onBlockGlowOn', 'onBlockGlowOff', 'handleMonitorsUpdate', 'handleExtensionAdded', 'handleBlocksInfoUpdate', 'onTargetsUpdate', 'onVisualReport', 'onWorkspaceUpdate', 'onWorkspaceMetricsChange', 'highlightBlockById', 'applyVersionDiffHighlights', 'showDiffTarget', 'setBlocks', 'setLocale']);
     this.ScratchBlocks.prompt = this.handlePromptStart;
     this.ScratchBlocks.statusButtonCallback = this.handleConnectionModalStart;
     this.ScratchBlocks.recordSoundCallback = this.handleOpenSoundRecorder;
@@ -12874,7 +13174,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     };
 
     // The menu bar's version arrows change the offset; reload the project at it.
-    this.unsubscribeVersionOffset = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.subscribeVersionOffset)(() => this.load());
+    // A rebase only renumbers the version already on screen, so nothing to load.
+    this.unsubscribeVersionOffset = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.subscribeVersionOffset)((offset, change) => {
+      if (!(change && change.rebase)) {
+        this.load();
+      }
+    });
+    this.unsubscribeVersionDiff = (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__.subscribeVersionDiff)(this.applyVersionDiffHighlights);
+    (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__.setShowTargetHandler)(this.showDiffTarget);
   }
   shouldComponentUpdate(nextProps, nextState) {
     return this.state.prompt !== nextState.prompt || this.props.isVisible !== nextProps.isVisible || this._renderedToolboxXML !== nextProps.toolboxXML || this.props.extensionLibraryVisible !== nextProps.extensionLibraryVisible || this.props.customProceduresVisible !== nextProps.customProceduresVisible || this.props.locale !== nextProps.locale || this.props.anyModalVisible !== nextProps.anyModalVisible || this.props.stageSize !== nextProps.stageSize;
@@ -12933,6 +13240,11 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       this.unsubscribeVersionOffset();
       this.unsubscribeVersionOffset = null;
     }
+    if (this.unsubscribeVersionDiff) {
+      this.unsubscribeVersionDiff();
+      this.unsubscribeVersionDiff = null;
+    }
+    (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__.setShowTargetHandler)(null);
     delete window.highlightScratchBlock;
   }
   requestToolboxUpdate() {
@@ -13113,6 +13425,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         yield channel.subscribe('categorySelected', _this2.parseCategorySelected);
         yield channel.subscribe('goodForLoad', /*#__PURE__*/function () {
           var _ref = _asyncToGenerator(function* (msg) {
+            // Sent right after the sync owner saved, which shifted every history offset.
+            (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.invalidateVersionCache)();
             const uid = JSON.parse(msg.data).uid;
             if (uid == nid) {
               return;
@@ -13468,112 +13782,50 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       // console.log(res2)
     })();
   }
-
-  /**
-   * Read one s3-storage response into a version payload. A brand-new room (a 404
-   * "No versions found" body) and an unreadable object (the lambda substitutes the
-   * literal string 'EMT') both come back as null.
-   * @param {Response} response - the fetch response to read.
-   * @returns {?object} the version payload, or null if there is no version there.
-   */
-  readVersionResponse(response) {
-    return _asyncToGenerator(function* () {
-      const text = yield response.text();
-      let payload;
-      try {
-        payload = JSON.parse(text);
-      } catch (e) {
-        throw new Error("Unexpected response from s3-storage: " + text);
-      }
-      if (!payload || !payload.versionData || payload.versionData === 'EMT') {
-        return null;
-      }
-      return payload;
-    })();
-  }
-
-  /**
-   * Resolve a single version of the project out of the bucket.
-   *
-   * The lambda walks its own history: `versionOffset` counts distinct saves back
-   * from the current one (0 = current, 1 = one save back, ...), skipping runs of
-   * identical-size versions so a stretch of no-op autosaves counts as one step. It
-   * clamps to the oldest save and reports the offset it actually reached.
-   *
-   * Given `asOf` (an ISO timestamp) instead, it loads the version that was current
-   * at that time and reports that version's offset.
-   *
-   * @param {number} offset - 0 for the current save, 1 for one save back, etc.
-   * @param {?string} asOf - a point in time to load; takes precedence over offset.
-   * @returns {object} {payload, offset}, where offset is the version actually
-   *     reached and payload is null only when the room has never been saved.
-   */
-  fetchProjectVersion(offset, asOf) {
+  load() {
     var _this5 = this;
     return _asyncToGenerator(function* () {
-      const request = asOf ? {
-        key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace,
-        asOf: asOf
-      } : {
-        key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace,
-        versionOffset: offset
-      };
-      const response = yield fetch(S3_STORAGE_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(request)
-      });
-      const payload = yield _this5.readVersionResponse(response);
-      if (!payload) {
-        return {
-          payload: null,
-          offset: 0
-        };
-      }
-      const reached = typeof payload.versionOffset === 'number' ? payload.versionOffset : offset;
-      return {
-        payload: payload,
-        offset: reached
-      };
-    })();
-  }
-  load() {
-    var _this6 = this;
-    return _asyncToGenerator(function* () {
-      if (_this6.startingLoad) {
+      if (_this5.startingLoad) {
         return;
       }
+      let loadedOffset = null;
+      let loadedProject = null;
       try {
-        _this6.startingLoad = true;
-        _this6.stopEmission = true;
+        _this5.startingLoad = true;
+        _this5.stopEmission = true;
+        // The outlines belong to the version being replaced.
+        (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__.clearVersionDiff)();
         const requestedOffset = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.getVersionOffset)();
-        const asOf = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.takePendingAsOf)();
         console.log("TOLOAD", {
           key: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace,
-          versionOffset: requestedOffset,
-          asOf: asOf
+          versionOffset: requestedOffset
         });
+        (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.setBuffering)({
+          stage: (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.isVersionReady)(requestedOffset) ? 'loading' : 'fetching',
+          offset: requestedOffset
+        });
+        const loaded = yield (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.getVersion)(requestedOffset);
         const {
-          payload,
+          payload
+        } = loaded;
+        loadedOffset = loaded.offset;
+        (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.setBuffering)({
+          stage: 'loading',
           offset: loadedOffset
-        } = yield _this6.fetchProjectVersion(requestedOffset, asOf);
+        });
         if (loadedOffset !== requestedOffset) {
-          // Asked for more history than exists, or resolved a time to an offset -
-          // pin the UI to what we actually loaded. This re-enters load(), which
-          // no-ops on startingLoad.
+          // Asked for more history than exists - pin the UI to what we actually
+          // loaded. This re-enters load(), which no-ops on startingLoad.
           (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.setVersionOffset)(loadedOffset);
         }
-        (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.setLoadedVersionTime)(payload && payload.lastModified);
         if (!payload) {
           console.log("starting new project...");
         } else {
           const jsonParsed = payload;
           console.log("JSPARESE");
-          _this6.keyMarker = jsonParsed.keyMarker;
-          _this6.versionIdMarker = jsonParsed.versionIdMarker;
-          _this6.loadedVersionId = jsonParsed.versionId;
+          _this5.keyMarker = jsonParsed.keyMarker;
+          _this5.versionIdMarker = jsonParsed.versionIdMarker;
+          _this5.loadedVersionId = jsonParsed.versionId;
           let data = JSON.parse(jsonParsed.versionData);
           // vm.toJSON() returns a string, so the save payload is double-encoded.
           // The lambda peels one layer, but a version written during the window
@@ -13584,6 +13836,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           if (!data || !Array.isArray(data.targets)) {
             throw new Error('Stored project has no targets array: ' + JSON.stringify(jsonParsed.versionData).slice(0, 200));
           }
+          loadedProject = data;
           console.log(data);
           const targets = data.targets;
           let hasSeenStage = false;
@@ -13611,15 +13864,34 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
             }
           }
           const data2 = JSON.stringify(data);
-          yield _this6.props.vm.loadProject(data2);
+          yield _this5.props.vm.loadProject(data2);
+        }
+        (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.setCurrentVersion)({
+          payload,
+          offset: loadedOffset
+        });
+        if (_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.versionOffsetEnabled) {
+          (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.prefetchAround)(loadedOffset);
+          if (payload && loadedProject) {
+            (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__.updateVersionDiff)(loadedOffset, payload.versionId, loadedProject);
+          }
         }
 
         //this.props.vm.editingTarget.setCostume(1);
       } catch (error) {
-        console.log(error);
-        alert("Error loading project: " + JSON.stringify(error));
         console.error('Error fetching data from S3:', error);
-        _this6.errorLoading = true;
+        const onScreen = (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.getCurrentVersion)();
+        if (loadedOffset === null && onScreen) {
+          // Only the fetch of a history step failed, so the previous version is
+          // still intact on screen: point the offset back at it and report the
+          // failure in the menu bar rather than blocking with an alert.
+          const failedOffset = (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.getVersionOffset)();
+          (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.setVersionOffset)(onScreen.offset);
+          (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.setLoadError)("Couldn't load ".concat(failedOffset === 0 ? 'the current version' : "".concat(failedOffset, " back"), ": ").concat(error.message));
+        } else {
+          alert("Error loading project: " + (error && error.message ? error.message : JSON.stringify(error)));
+          _this5.errorLoading = true;
+        }
       }
 
       // this.props.vm.editingTarget = this.props.vm.runtime.getSpriteTargetByName("Apple");
@@ -13627,17 +13899,24 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
 
       // Always reset, success or failure, so a later load() call (e.g. a
       // subsequent goodForLoad/analMode replay) isn't permanently blocked.
-      _this6.startingLoad = false;
-      _this6.stopEmission = false;
+      _this5.startingLoad = false;
+      _this5.stopEmission = false;
+      (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.setBuffering)(null);
+
+      // The offset moved again while this load was in flight (load() no-ops while
+      // one is running), so catch up to it rather than leave the wrong version up.
+      if (loadedOffset !== null && (0,_utils_versionOffset_js__WEBPACK_IMPORTED_MODULE_32__.getVersionOffset)() !== loadedOffset) {
+        yield _this5.load();
+      }
     })();
   }
   ret() {
     return 3;
   }
   save() {
-    var _this7 = this;
+    var _this6 = this;
     return _asyncToGenerator(function* () {
-      if (_this7.isViewOnly) {
+      if (_this6.isViewOnly) {
         console.log("view only mode; ignoring save");
         return;
       }
@@ -13648,17 +13927,19 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         console.log("viewing an older version; ignoring save");
         return;
       }
-      if (!_this7.hasLoadedFully) {
+      if (!_this6.hasLoadedFully) {
         console.log("not loaded fully; trying to save. Ignoring.");
         return;
       }
-      const s = JSON.stringify(_this7.props.vm.toJSON());
+      const s = JSON.stringify(_this6.props.vm.toJSON());
       console.log("SAVED!!!");
-      yield fetch(S3_STORAGE_URL, {
+      yield fetch("".concat(_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.S3_STORAGE_URL, "?author=").concat(encodeURIComponent(_utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name)), {
         method: 'POST',
         body: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace + "~|@^|@|~" + s
       });
-      _this7.props.vm.renderer.requestSnapshot( /*#__PURE__*/function () {
+      // A new save shifts every history offset by one.
+      (0,_utils_versionHistory_js__WEBPACK_IMPORTED_MODULE_33__.invalidateVersionCache)();
+      _this6.props.vm.renderer.requestSnapshot( /*#__PURE__*/function () {
         var _ref2 = _asyncToGenerator(function* (dataURI) {
           dataURI = dataURI.replace(/^data:image\/\w+;base64,/, '');
           const imagename = _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.inSpace + ".png";
@@ -13821,22 +14102,22 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     this.flushOutgoing();
   }
   flushOutgoing() {
-    var _this8 = this;
+    var _this7 = this;
     return _asyncToGenerator(function* () {
-      clearTimeout(_this8.flushTimer);
-      clearTimeout(_this8.maxWaitTimer);
-      _this8.flushTimer = null;
-      _this8.maxWaitTimer = null;
-      if (_this8.outgoingBatch.length === 0) {
+      clearTimeout(_this7.flushTimer);
+      clearTimeout(_this7.maxWaitTimer);
+      _this7.flushTimer = null;
+      _this7.maxWaitTimer = null;
+      if (_this7.outgoingBatch.length === 0) {
         return;
       }
-      const messages = _this8.outgoingBatch;
-      _this8.outgoingBatch = [];
+      const messages = _this7.outgoingBatch;
+      _this7.outgoingBatch = [];
       const message = {
         uid: nid,
-        target: _this8.props.vm.editingTarget.sprite.name,
+        target: _this7.props.vm.editingTarget.sprite.name,
         messages: messages,
-        rIDX: _this8.randomIndex,
+        rIDX: _this7.randomIndex,
         dir: true
       };
       try {
@@ -13849,8 +14130,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         // after a thrown error here, which silently stopped ALL future
         // sends for the rest of the session.
         console.error("failed to publish sync event, will retry", e);
-        _this8.outgoingBatch = messages.concat(_this8.outgoingBatch);
-        _this8.maxWaitTimer = setTimeout(() => _this8.flushOutgoing(), 1000);
+        _this7.outgoingBatch = messages.concat(_this7.outgoingBatch);
+        _this7.maxWaitTimer = setTimeout(() => _this7.flushOutgoing(), 1000);
       }
     })();
   }
@@ -13908,9 +14189,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     return this.targetContextChain;
   }
   applyWithTargetContext(targetName, applyFn) {
-    var _this9 = this;
+    var _this8 = this;
     return _asyncToGenerator(function* () {
-      if (!targetName || targetName == _this9.props.vm.editingTarget.sprite.name) {
+      if (!targetName || targetName == _this8.props.vm.editingTarget.sprite.name) {
         try {
           applyFn();
         } catch (e) {
@@ -13918,19 +14199,19 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         }
         return;
       }
-      const originalTargetId = _this9.props.vm.editingTarget.id;
-      const tmpTarget = _this9.getTargetByName(targetName);
+      const originalTargetId = _this8.props.vm.editingTarget.id;
+      const tmpTarget = _this8.getTargetByName(targetName);
       if (!tmpTarget) {
         // Target doesn't exist locally yet (e.g. a sprite-creation message
         // hasn't arrived/applied yet) -- drop this batch rather than crash.
         console.warn("remote target not found, dropping batch for", targetName);
         return;
       }
-      _this9.disableWorkspaceUpdate();
+      _this8.disableWorkspaceUpdate();
       try {
-        _this9.props.vm.editingTarget = tmpTarget;
-        _this9.props.vm.emitWorkspaceUpdate();
-        _this9.props.vm.runtime._editingTarget = tmpTarget;
+        _this8.props.vm.editingTarget = tmpTarget;
+        _this8.props.vm.emitWorkspaceUpdate();
+        _this8.props.vm.runtime._editingTarget = tmpTarget;
         applyFn();
 
         // Give scratch-blocks' deferred change-listener dispatch a chance
@@ -13950,8 +14231,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         // does the *full* restore -- toolbox, workspace metrics,
         // sessionStorage -- since, unlike the quiet swap-in above, this
         // is a real switch back to what the user should be seeing.
-        _this9.pauseWorkspaceUpdate = false;
-        _this9.props.vm.setEditingTarget(originalTargetId);
+        _this8.pauseWorkspaceUpdate = false;
+        _this8.props.vm.setEditingTarget(originalTargetId);
 
         // The reload call above returning doesn't guarantee the browser
         // has actually *painted* the reloaded blocks yet -- Blockly's
@@ -13964,12 +14245,12 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         yield new Promise(resolve => {
           requestAnimationFrame(() => requestAnimationFrame(resolve));
         });
-        if (_this9.workspace && _this9.workspace.svgBlockCanvas_) {
-          _this9.workspace.svgBlockCanvas_.style.visibility = 'visible';
+        if (_this8.workspace && _this8.workspace.svgBlockCanvas_) {
+          _this8.workspace.svgBlockCanvas_.style.visibility = 'visible';
         }
-        if (_this9.queueWorkspaceUpdate) {
-          _this9.queueWorkspaceUpdate = false;
-          _this9.props.vm.emitWorkspaceUpdate();
+        if (_this8.queueWorkspaceUpdate) {
+          _this8.queueWorkspaceUpdate = false;
+          _this8.props.vm.emitWorkspaceUpdate();
         }
       }
     })();
@@ -14144,7 +14425,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }
   }
   attachVM() {
-    var _this10 = this;
+    var _this9 = this;
     let oldEWU = this.props.vm.emitWorkspaceUpdate.bind(this.props.vm);
     this.props.vm.emitWorkspaceUpdate = function () {
       if (this.pauseWorkspaceUpdate) {
@@ -14233,9 +14514,9 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           return;
         }
         const input = data.input;
-        const ogName = _this10.props.vm.editingTarget.sprite.name;
+        const ogName = _this9.props.vm.editingTarget.sprite.name;
         yield ogAddSprite(input);
-        _this10.props.vm.setEditingTarget(_this10.getTargetByName(ogName).id);
+        _this9.props.vm.setEditingTarget(_this9.getTargetByName(ogName).id);
         // this.props.vm.editingTarget = this.getTargetByName(ogName);
         // this.props.vm.runtime.setEditingTarget(this.props.vm.editingTarget); 
       });
@@ -14281,13 +14562,13 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogRenameSprite = this.props.vm.renameSprite.bind(this.props.vm);
     this.props.vm.renameSprite = /*#__PURE__*/function () {
       var _ref5 = _asyncToGenerator(function* (id, name) {
-        const spriteName = _this10.props.vm.runtime.getTargetById(id).sprite.name;
+        const spriteName = _this9.props.vm.runtime.getTargetById(id).sprite.name;
         if (name == "Stage") {
           name = "Stage1";
         }
-        while ( true && _this10.hasLoadedFully) {
+        while ( true && _this9.hasLoadedFully) {
           let isDuplicate = false;
-          for (let target of _this10.props.vm.runtime.targets) {
+          for (let target of _this9.props.vm.runtime.targets) {
             if (target.sprite.name == name && target.sprite.name != spriteName) {
               name = incrementStringNumber(name);
               isDuplicate = true;
@@ -14299,8 +14580,8 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
             break;
           }
         }
-        _this10.logData({
-          moveId: _this10.getRandomHexString(16),
+        _this9.logData({
+          moveId: _this9.getRandomHexString(16),
           time: Date.now(),
           user: uname,
           room: _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.ablySpace,
@@ -14325,7 +14606,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     let ogDuplicateSprite = this.props.vm.duplicateSprite.bind(this.props.vm);
     this.props.vm.duplicateSprite = /*#__PURE__*/function () {
       var _ref6 = _asyncToGenerator(function* (id) {
-        const name = _this10.props.vm.runtime.getTargetById(id).sprite.name;
+        const name = _this9.props.vm.runtime.getTargetById(id).sprite.name;
         return channel.publish('duplicateSprite', JSON.stringify(name));
       });
       return function (_x8) {
@@ -14447,14 +14728,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //let ogDeleteSound = this.props.vm.deleteSound.bind(this.props.vm);
     this.props.vm.deleteSound = /*#__PURE__*/function () {
       var _ref7 = _asyncToGenerator(function* (soundIndex) {
-        const name = _this10.props.vm.editingTarget.sprite.name;
+        const name = _this9.props.vm.editingTarget.sprite.name;
         const msg = {
           soundIndex: soundIndex,
           name: name,
           uid: nid
         };
         yield channel.publish('deleteSound', JSON.stringify(msg));
-        return deleteSound(soundIndex, _this10.props.vm.editingTarget);
+        return deleteSound(soundIndex, _this9.props.vm.editingTarget);
       });
       return function (_x9) {
         return _ref7.apply(this, arguments);
@@ -14481,7 +14762,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         let idx = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "AMONGUSLMAO";
         return function* () {
           console.log("SOUND", sound);
-          const name = idx == "AMONGUSLMAO" ? _this10.props.vm.editingTarget.sprite.name : _this10.props.vm.runtime.getTargetById(idx).sprite.name;
+          const name = idx == "AMONGUSLMAO" ? _this9.props.vm.editingTarget.sprite.name : _this9.props.vm.runtime.getTargetById(idx).sprite.name;
           const msg = {
             sound: sound,
             spriteName: name
@@ -14503,7 +14784,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
         const msg = {
           soundIndex: soundIndex,
           newName: newName,
-          spriteName: _this10.props.vm.editingTarget.sprite.name
+          spriteName: _this9.props.vm.editingTarget.sprite.name
         };
         channel.publish('renameSound', JSON.stringify(msg));
       });
@@ -14531,14 +14812,14 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     }.bind(this.props.vm);
     this.props.vm.deleteCostume = /*#__PURE__*/function () {
       var _ref11 = _asyncToGenerator(function* (costumeIndex) {
-        const spriteName = _this10.props.vm.editingTarget.sprite.name;
+        const spriteName = _this9.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           spriteName: spriteName,
           uid: nid
         };
         channel.publish('deleteCostume', JSON.stringify(msg));
-        return deleteCostume(costumeIndex, _this10.props.vm.editingTarget);
+        return deleteCostume(costumeIndex, _this9.props.vm.editingTarget);
       });
       return function (_x16) {
         return _ref11.apply(this, arguments);
@@ -14590,7 +14871,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     //let ogRenameCostume = this.props.vm.renameCostume.bind(this.props.vm);
     this.props.vm.renameCostume = /*#__PURE__*/function () {
       var _ref13 = _asyncToGenerator(function* (costumeIndex, newName) {
-        const spriteName = _this10.props.vm.editingTarget.sprite.name;
+        const spriteName = _this9.props.vm.editingTarget.sprite.name;
         const msg = {
           costumeIndex: costumeIndex,
           newName: newName,
@@ -14694,7 +14975,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
           return;
         }
         console.log("ADDING COSTUME", d);
-        const targetId = _this10.getTargetByName(d.spriteName).id;
+        const targetId = _this9.getTargetByName(d.spriteName).id;
 
         // d.costumeObject.asset is intentionally absent here — same code
         // path as the "costumeObject.asset == undefined" case, which already
@@ -15113,7 +15394,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
     return name == "Stage" ? this.props.vm.runtime.getTargetForStage() : this.props.vm.runtime.getSpriteTargetByName(name);
   }
   newUserJoined(msg) {
-    var _this11 = this;
+    var _this10 = this;
     return _asyncToGenerator(function* () {
       if (JSON.parse(msg.data).uid == nid) {
         return;
@@ -15133,7 +15414,7 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       if (!syncOwner || syncOwner.clientId !== _utils_AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_31__.name) {
         return;
       }
-      yield _this11.save();
+      yield _this10.save();
       console.log("JOINED!!");
       yield channel.publish('goodForLoad', JSON.stringify({
         uid: nid
@@ -15282,6 +15563,49 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
       this.workspace.resize();
     }
     this.workspace.clearUndo();
+    if (!this.pauseWorkspaceUpdate) {
+      // The workspace was rebuilt from XML, so any outlines went with it.
+      this.applyVersionDiffHighlights();
+    }
+  }
+  /**
+   * Outline the blocks of the target being edited that the version on screen added,
+   * changed or moved, compared with the save before it (see versionDiff.js).
+   */
+  applyVersionDiffHighlights() {
+    (this.diffHighlightedPaths || []).forEach(path => {
+      path.classList.remove('version-diff-added', 'version-diff-changed', 'version-diff-moved');
+    });
+    this.diffHighlightedPaths = [];
+    const diff = (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__.getVersionDiff)();
+    const editingTarget = this.props.vm && this.props.vm.editingTarget;
+    if (!this.workspace || !diff || !(0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__.isDiffHighlightEnabled)() || !editingTarget) {
+      return;
+    }
+    const targetDiff = diff.targets.find(target => target.key === (0,_utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__.targetDiffKey)(editingTarget));
+    if (!targetDiff) {
+      return;
+    }
+    const outline = (ids, className) => ids.forEach(id => {
+      const block = this.workspace.getBlockById(id);
+      // Just this block's own outline: its whole SVG group would take in every
+      // block nested inside it too.
+      const path = block && block.svgPath_;
+      if (path) {
+        path.classList.add(className);
+        this.diffHighlightedPaths.push(path);
+      }
+    });
+    outline(targetDiff.added, 'version-diff-added');
+    outline(targetDiff.changed, 'version-diff-changed');
+    outline(targetDiff.moved, 'version-diff-moved');
+  }
+  /** @param {string} key - the diff key of the target to switch the editor to. */
+  showDiffTarget(key) {
+    const target = key === _utils_versionDiff_js__WEBPACK_IMPORTED_MODULE_34__.STAGE_KEY ? this.props.vm.runtime.getTargetForStage() : this.props.vm.runtime.getSpriteTargetByName(key);
+    if (target) {
+      this.props.vm.setEditingTarget(target.id);
+    }
   }
   handleMonitorsUpdate(monitors) {
     // Update the checkboxes of the relevant monitors.
@@ -15474,39 +15798,39 @@ class Blocks extends react__WEBPACK_IMPORTED_MODULE_4__.Component {
   }
 }
 Blocks.propTypes = {
-  anyModalVisible: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-  canUseCloud: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-  customProceduresVisible: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-  extensionLibraryVisible: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-  isVisible: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-  locale: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().string).isRequired,
-  messages: prop_types__WEBPACK_IMPORTED_MODULE_40___default().objectOf((prop_types__WEBPACK_IMPORTED_MODULE_40___default().string)),
-  onActivateColorPicker: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().func),
-  onActivateCustomProcedures: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().func),
-  onOpenConnectionModal: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().func),
-  onOpenSoundRecorder: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().func),
-  onRequestCloseCustomProcedures: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().func),
-  onRequestCloseExtensionLibrary: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().func),
-  options: prop_types__WEBPACK_IMPORTED_MODULE_40___default().shape({
-    media: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().string),
-    zoom: prop_types__WEBPACK_IMPORTED_MODULE_40___default().shape({
-      controls: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-      wheel: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-      startScale: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().number)
+  anyModalVisible: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+  canUseCloud: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+  customProceduresVisible: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+  extensionLibraryVisible: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+  isRtl: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+  isVisible: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+  locale: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().string).isRequired,
+  messages: prop_types__WEBPACK_IMPORTED_MODULE_42___default().objectOf((prop_types__WEBPACK_IMPORTED_MODULE_42___default().string)),
+  onActivateColorPicker: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().func),
+  onActivateCustomProcedures: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().func),
+  onOpenConnectionModal: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().func),
+  onOpenSoundRecorder: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().func),
+  onRequestCloseCustomProcedures: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().func),
+  onRequestCloseExtensionLibrary: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().func),
+  options: prop_types__WEBPACK_IMPORTED_MODULE_42___default().shape({
+    media: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().string),
+    zoom: prop_types__WEBPACK_IMPORTED_MODULE_42___default().shape({
+      controls: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+      wheel: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+      startScale: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().number)
     }),
-    comments: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-    collapse: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool)
+    comments: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+    collapse: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool)
   }),
-  stageSize: prop_types__WEBPACK_IMPORTED_MODULE_40___default().oneOf(Object.keys(_lib_layout_constants__WEBPACK_IMPORTED_MODULE_15__.STAGE_DISPLAY_SIZES)).isRequired,
-  theme: prop_types__WEBPACK_IMPORTED_MODULE_40___default().oneOf(Object.keys(_lib_themes__WEBPACK_IMPORTED_MODULE_19__.themeMap)),
-  toolboxXML: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().string),
-  updateMetrics: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().func),
-  updateToolboxState: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().func),
-  useCatBlocks: (prop_types__WEBPACK_IMPORTED_MODULE_40___default().bool),
-  vm: prop_types__WEBPACK_IMPORTED_MODULE_40___default().instanceOf((scratch_vm__WEBPACK_IMPORTED_MODULE_6___default())).isRequired,
-  workspaceMetrics: prop_types__WEBPACK_IMPORTED_MODULE_40___default().shape({
-    targets: prop_types__WEBPACK_IMPORTED_MODULE_40___default().objectOf((prop_types__WEBPACK_IMPORTED_MODULE_40___default().object))
+  stageSize: prop_types__WEBPACK_IMPORTED_MODULE_42___default().oneOf(Object.keys(_lib_layout_constants__WEBPACK_IMPORTED_MODULE_15__.STAGE_DISPLAY_SIZES)).isRequired,
+  theme: prop_types__WEBPACK_IMPORTED_MODULE_42___default().oneOf(Object.keys(_lib_themes__WEBPACK_IMPORTED_MODULE_19__.themeMap)),
+  toolboxXML: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().string),
+  updateMetrics: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().func),
+  updateToolboxState: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().func),
+  useCatBlocks: (prop_types__WEBPACK_IMPORTED_MODULE_42___default().bool),
+  vm: prop_types__WEBPACK_IMPORTED_MODULE_42___default().instanceOf((scratch_vm__WEBPACK_IMPORTED_MODULE_6___default())).isRequired,
+  workspaceMetrics: prop_types__WEBPACK_IMPORTED_MODULE_42___default().shape({
+    targets: prop_types__WEBPACK_IMPORTED_MODULE_42___default().objectOf((prop_types__WEBPACK_IMPORTED_MODULE_42___default().object))
   })
 };
 Blocks.defaultOptions = {
@@ -15548,7 +15872,7 @@ const mapDispatchToProps = dispatch => ({
     dispatch((0,_reducers_modals__WEBPACK_IMPORTED_MODULE_24__.openConnectionModal)());
   },
   onOpenSoundRecorder: () => {
-    dispatch((0,_reducers_editor_tab__WEBPACK_IMPORTED_MODULE_35__.activateTab)(_reducers_editor_tab__WEBPACK_IMPORTED_MODULE_35__.SOUNDS_TAB_INDEX));
+    dispatch((0,_reducers_editor_tab__WEBPACK_IMPORTED_MODULE_37__.activateTab)(_reducers_editor_tab__WEBPACK_IMPORTED_MODULE_37__.SOUNDS_TAB_INDEX));
     dispatch((0,_reducers_modals__WEBPACK_IMPORTED_MODULE_24__.openSoundRecorder)());
   },
   onRequestCloseExtensionLibrary: () => {
@@ -37100,6 +37424,950 @@ const secrets = {};
 
 /***/ }),
 
+/***/ "./src/utils/versionDiff.js":
+/*!**********************************!*\
+  !*** ./src/utils/versionDiff.js ***!
+  \**********************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   STAGE_KEY: () => (/* binding */ STAGE_KEY),
+/* harmony export */   clearVersionDiff: () => (/* binding */ clearVersionDiff),
+/* harmony export */   computeProjectDiff: () => (/* binding */ computeProjectDiff),
+/* harmony export */   getVersionDiff: () => (/* binding */ getVersionDiff),
+/* harmony export */   isDiffHighlightEnabled: () => (/* binding */ isDiffHighlightEnabled),
+/* harmony export */   parseProjectJson: () => (/* binding */ parseProjectJson),
+/* harmony export */   setDiffHighlightEnabled: () => (/* binding */ setDiffHighlightEnabled),
+/* harmony export */   setShowTargetHandler: () => (/* binding */ setShowTargetHandler),
+/* harmony export */   showDiffTarget: () => (/* binding */ showDiffTarget),
+/* harmony export */   subscribeVersionDiff: () => (/* binding */ subscribeVersionDiff),
+/* harmony export */   targetDiffKey: () => (/* binding */ targetDiffKey),
+/* harmony export */   updateVersionDiff: () => (/* binding */ updateVersionDiff)
+/* harmony export */ });
+/* harmony import */ var _versionHistory_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./versionHistory.js */ "./src/utils/versionHistory.js");
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+// What changed in the version on screen, compared with the save before it, for the
+// menu bar to summarise and blocks.jsx to outline on the workspace.
+//
+// Scratch keeps block ids stable across saves, so a diff is a comparison of each
+// target's block map by id.
+
+const HIGHLIGHT_STORAGE_KEY = 'versionDiffHighlight';
+let diff = null;
+let highlightEnabled = true;
+try {
+  highlightEnabled = window.localStorage.getItem(HIGHLIGHT_STORAGE_KEY) !== 'off';
+} catch (e) {
+  // Storage blocked; keep the default.
+}
+let showTargetHandler = null;
+let requestToken = 0;
+const listeners = new Set();
+const notify = () => listeners.forEach(listener => listener());
+
+/**
+ * @param {function} listener - called when the diff or the highlight toggle changes.
+ * @returns {function} unsubscribe.
+ */
+const subscribeVersionDiff = listener => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
+
+/**
+ * @returns {?object} {versionId, targets: [{key, name, isStage, added, changed,
+ *     moved, removed, deleted}], totals: {added, changed, moved, removed}}, where
+ *     added/changed/moved are block ids and removed is a count.
+ */
+const getVersionDiff = () => diff;
+const isDiffHighlightEnabled = () => highlightEnabled;
+const setDiffHighlightEnabled = enabled => {
+  highlightEnabled = Boolean(enabled);
+  try {
+    window.localStorage.setItem(HIGHLIGHT_STORAGE_KEY, highlightEnabled ? 'on' : 'off');
+  } catch (e) {
+    // Storage blocked; the toggle just won't be remembered.
+  }
+  notify();
+};
+
+/** @param {?function} handler - switches the editor to a target, given its diff key. */
+const setShowTargetHandler = handler => {
+  showTargetHandler = handler;
+};
+
+/** @param {string} key - a target's diff key: its sprite name, or '__stage__'. */
+const showDiffTarget = key => {
+  if (showTargetHandler) {
+    showTargetHandler(key);
+  }
+};
+const STAGE_KEY = '__stage__';
+const targetDiffKey = target => target.isStage ? STAGE_KEY : target.name || target.sprite.name;
+
+/**
+ * Parse stored project JSON. Saves written while the lambda didn't peel the client's
+ * double encoding come back as a string after the first parse.
+ * @param {string} text - the stored project.
+ * @returns {object} the project.
+ */
+const parseProjectJson = text => {
+  let data = JSON.parse(text);
+  if (typeof data === 'string') {
+    data = JSON.parse(data);
+  }
+  return data;
+};
+const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
+
+// Top-level variable and list reporters serialise as bare arrays,
+// [type, name, id, x, y]; everything else is an object.
+const isPrimitive = block => Array.isArray(block);
+const countsAsBlock = block => isPrimitive(block) || !block.shadow;
+
+/**
+ * Compare one target's blocks.
+ * @param {object} blocks - block id -> block, in the newer version.
+ * @param {object} oldBlocks - the same, in the older version.
+ * @returns {object} {added, changed, moved, removed}.
+ */
+const diffBlocks = (blocks, oldBlocks) => {
+  const added = new Set();
+  const changed = new Set();
+  const moved = new Set();
+
+  // Shadows (dropdown menus, say) aren't drawn as blocks of their own, so a change
+  // inside one is shown on the nearest real block holding it.
+  const visibleId = id => {
+    let current = id;
+    let block = blocks[current];
+    while (block && !isPrimitive(block) && block.shadow && block.parent) {
+      current = block.parent;
+      block = blocks[current];
+    }
+    return block && countsAsBlock(block) ? current : null;
+  };
+  const mark = (set, id) => {
+    const shown = visibleId(id);
+    if (shown) {
+      set.add(shown);
+    }
+  };
+  Object.keys(blocks).forEach(id => {
+    const block = blocks[id];
+    const old = oldBlocks[id];
+    if (!old) {
+      // A new shadow under an existing block is an edit to that block.
+      mark(isPrimitive(block) || !block.shadow ? added : changed, id);
+      return;
+    }
+    if (isPrimitive(block) || isPrimitive(old)) {
+      // Name and id; x and y are just where it sits.
+      if (!isPrimitive(block) || !isPrimitive(old) || !same(block.slice(0, 3), old.slice(0, 3))) {
+        mark(changed, id);
+      }
+      return;
+    }
+    if (block.opcode !== old.opcode || !same(block.fields, old.fields) || !same(block.inputs, old.inputs) || !same(block.mutation, old.mutation)) {
+      mark(changed, id);
+      return;
+    }
+    // Reattached somewhere else. Skipped when the change of parent is only because
+    // a block was inserted above it or deleted from above it: then the parent on
+    // one side or the other won't exist in both versions.
+    const exists = parentId => !parentId || parentId in blocks && parentId in oldBlocks;
+    if (block.parent !== old.parent && exists(block.parent) && exists(old.parent)) {
+      mark(moved, id);
+    }
+  });
+  added.forEach(id => {
+    changed.delete(id);
+    moved.delete(id);
+  });
+  changed.forEach(id => moved.delete(id));
+  const removed = Object.keys(oldBlocks).filter(id => !(id in blocks) && countsAsBlock(oldBlocks[id])).length;
+  return {
+    added: [...added],
+    changed: [...changed],
+    moved: [...moved],
+    removed
+  };
+};
+
+/**
+ * @param {object} newer - a parsed project.
+ * @param {object} older - the parsed project it is compared with.
+ * @returns {object} targets and totals, as getVersionDiff describes.
+ */
+const computeProjectDiff = (newer, older) => {
+  const olderTargets = new Map((older.targets || []).map(target => [targetDiffKey(target), target]));
+  const targets = [];
+  (newer.targets || []).forEach(target => {
+    const key = targetDiffKey(target);
+    const before = olderTargets.get(key);
+    olderTargets.delete(key);
+    targets.push(Object.assign({
+      key,
+      name: target.isStage ? 'Stage' : target.name,
+      isStage: Boolean(target.isStage),
+      deleted: false
+    }, diffBlocks(target.blocks || {}, before && before.blocks || {})));
+  });
+  // Sprites deleted since: their blocks are all gone.
+  olderTargets.forEach((target, key) => {
+    targets.push(Object.assign({
+      key,
+      name: target.name,
+      isStage: false,
+      deleted: true
+    }, diffBlocks({}, target.blocks || {})));
+  });
+  const totals = {
+    added: 0,
+    changed: 0,
+    moved: 0,
+    removed: 0
+  };
+  targets.forEach(target => {
+    totals.added += target.added.length;
+    totals.changed += target.changed.length;
+    totals.moved += target.moved.length;
+    totals.removed += target.removed;
+  });
+  return {
+    targets: targets.filter(target => target.added.length || target.changed.length || target.moved.length || target.removed),
+    totals
+  };
+};
+
+/** Forget the diff, e.g. while a different version is loading. */
+const clearVersionDiff = () => {
+  requestToken++;
+  if (diff) {
+    diff = null;
+    notify();
+  }
+};
+
+/**
+ * Work out what the version just loaded changed, compared with the save before it.
+ * The older save is normally already prefetched, so this rarely waits on a download.
+ * @param {number} offset - the offset of the version on screen.
+ * @param {string} versionId - its version id.
+ * @param {object} project - its parsed project.
+ */
+const updateVersionDiff = /*#__PURE__*/function () {
+  var _ref = _asyncToGenerator(function* (offset, versionId, project) {
+    const token = ++requestToken;
+    diff = null;
+    notify();
+    try {
+      const older = yield (0,_versionHistory_js__WEBPACK_IMPORTED_MODULE_0__.getVersion)(offset + 1);
+      // Clamped to the same version: this is the oldest save, so nothing to compare.
+      if (token !== requestToken || !older.payload || older.offset === offset || older.payload.versionId === versionId) {
+        return;
+      }
+      const result = computeProjectDiff(project, parseProjectJson(older.payload.versionData));
+      if (token !== requestToken) {
+        return;
+      }
+      diff = Object.assign({
+        versionId,
+        againstVersionId: older.payload.versionId
+      }, result);
+      notify();
+    } catch (error) {
+      console.warn('Comparing with the previous version failed', error);
+    }
+  });
+  return function updateVersionDiff(_x, _x2, _x3) {
+    return _ref.apply(this, arguments);
+  };
+}();
+
+/***/ }),
+
+/***/ "./src/utils/versionHistory.js":
+/*!*************************************!*\
+  !*** ./src/utils/versionHistory.js ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   S3_STORAGE_URL: () => (/* binding */ S3_STORAGE_URL),
+/* harmony export */   getBuffering: () => (/* binding */ getBuffering),
+/* harmony export */   getCurrentVersion: () => (/* binding */ getCurrentVersion),
+/* harmony export */   getLoadError: () => (/* binding */ getLoadError),
+/* harmony export */   getOldestOffset: () => (/* binding */ getOldestOffset),
+/* harmony export */   getVersion: () => (/* binding */ getVersion),
+/* harmony export */   invalidateVersionCache: () => (/* binding */ invalidateVersionCache),
+/* harmony export */   isVersionReady: () => (/* binding */ isVersionReady),
+/* harmony export */   jumpToDate: () => (/* binding */ jumpToDate),
+/* harmony export */   peekVersion: () => (/* binding */ peekVersion),
+/* harmony export */   prefetchAround: () => (/* binding */ prefetchAround),
+/* harmony export */   setBuffering: () => (/* binding */ setBuffering),
+/* harmony export */   setCurrentVersion: () => (/* binding */ setCurrentVersion),
+/* harmony export */   setLoadError: () => (/* binding */ setLoadError),
+/* harmony export */   subscribeVersionHistory: () => (/* binding */ subscribeVersionHistory)
+/* harmony export */ });
+/* harmony import */ var _AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./AblyHandlers.jsx */ "./src/utils/AblyHandlers.jsx");
+/* harmony import */ var _versionOffset_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./versionOffset.js */ "./src/utils/versionOffset.js");
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+// Fetching, caching and bookkeeping for browsing the room's save history.
+//
+// The lambda hands out the history as an index of bare metadata (version id, save
+// time, size), a page at a time, plus short-lived links to download individual
+// versions straight from S3. Offsets (0 = current save, 1 = one save back, ...) and
+// dates are resolved here against that index, so a step through history costs no
+// walk on the lambda, and downloads are cached by version id, which never goes stale
+// however many saves land in the meantime. The menu bar reads the loaded version's
+// metadata and the buffering state from here; blocks.jsx does the actual loading.
+
+
+const S3_STORAGE_URL = 'https://0dhyl8bktg.execute-api.us-east-2.amazonaws.com/scratchBlock/s3-storage';
+
+/** How many saves either side of the one on screen to keep warm. */
+const PREFETCH_DEPTH = 2;
+// The first page is small so the first load isn't held up listing deep history;
+// older pages are fetched at S3's maximum, only once something needs them.
+const FIRST_PAGE_SIZE = 100;
+const OLDER_PAGE_SIZE = 1000;
+// Our own saves and the sync owner's goodForLoad mark the head dirty, but a save we
+// never heard about could still have shifted the offsets; past this age the head is
+// re-listed before an offset is resolved against it.
+const HEAD_TTL_MS = 60 * 1000;
+// Downloaded project JSON kept in memory, in characters. Past this the least
+// recently used versions are dropped (the one on screen is always kept).
+const MAX_CACHED_CHARS = 20 * 1000 * 1000;
+// The lambda's links last 15 minutes; renew a little before that.
+const LINK_TTL_MS = 12 * 60 * 1000;
+// The lambda resolves at most this many versions per call.
+const MAX_RESOLVE = 10;
+// API Gateway turns a Lambda timeout or crash into a 502, often a one-off (say a cold
+// start), so requests get one more try after this pause.
+const RETRY_DELAY_MS = 500;
+// How long a failed history step stays reported in the menu bar.
+const LOAD_ERROR_MS = 6000;
+
+// Every version listed so far, newest first: {versionId, lastModified (ms), size}.
+let versions = [];
+// The states those versions form, newest first; see rebuildStates.
+let states = [];
+// Whether the history has been listed at all yet.
+let listed = false;
+// Where the next (older) page of the listing starts; null once the whole history
+// has been listed.
+let nextCursor = null;
+let listedAt = 0;
+let headDirty = false;
+// Set when the deployed lambda predates `list`/`resolve`; see requestLegacy.
+let legacy = false;
+let legacyOldest = null;
+const authors = new Map(); // versionId -> who saved it, or null
+const links = new Map(); // versionId -> {url, expiresAt}
+const pendingLinks = new Map(); // versionId -> in-flight resolve call
+const contents = new Map(); // versionId -> {promise, text}, least recently used first
+let cachedChars = 0;
+let currentVersion = null;
+let buffering = null;
+let loadError = null;
+let loadErrorTimeout = null;
+const listeners = new Set();
+const notify = () => listeners.forEach(listener => listener());
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+/**
+ * @param {function} listener - called whenever the loaded version, the buffering
+ *     state or the index changes.
+ * @returns {function} unsubscribe.
+ */
+const subscribeVersionHistory = listener => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
+
+/** @returns {?object} {offset, versionId, lastModified, author} of the version on screen. */
+const getCurrentVersion = () => currentVersion;
+
+/** @returns {?object} {stage: 'searching'|'fetching'|'loading', offset?, at?} while busy. */
+const getBuffering = () => buffering;
+
+/** @returns {?number} the offset of the oldest save, once the history has run out. */
+const getOldestOffset = () => {
+  if (legacy) {
+    return legacyOldest;
+  }
+  return nextCursor === null && states.length ? states.length - 1 : null;
+};
+
+/** @returns {?string} why the last history step failed, while it is still shown. */
+const getLoadError = () => loadError;
+const setLoadError = message => {
+  clearTimeout(loadErrorTimeout);
+  loadError = message;
+  if (message) {
+    loadErrorTimeout = setTimeout(() => setLoadError(null), LOAD_ERROR_MS);
+  }
+  notify();
+};
+const setBuffering = state => {
+  buffering = state;
+  notify();
+};
+const setCurrentVersion = _ref => {
+  let {
+    payload,
+    offset
+  } = _ref;
+  currentVersion = {
+    offset: offset,
+    versionId: payload ? payload.versionId : null,
+    lastModified: payload && payload.lastModified || null,
+    author: payload && payload.author || null
+  };
+  notify();
+};
+
+/**
+ * A save moved the head, shifting every offset by one. Downloads stay valid (they're
+ * keyed by version id); the index is re-listed from the top before its next use.
+ */
+const invalidateVersionCache = () => {
+  headDirty = true;
+  notify();
+};
+
+/**
+ * POST to the s3-storage lambda. A 404 (a room with no saves) parses like a success.
+ * @param {object} body - merged over {key}.
+ * @returns {Promise<object>} the parsed response.
+ */
+const postStorage = /*#__PURE__*/function () {
+  var _ref2 = _asyncToGenerator(function* (body) {
+    for (let attempt = 1;; attempt++) {
+      try {
+        const response = yield fetch(S3_STORAGE_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(Object.assign({
+            key: _AblyHandlers_jsx__WEBPACK_IMPORTED_MODULE_0__.inSpace
+          }, body))
+        });
+        const text = yield response.text();
+        if (!response.ok && response.status !== 404) {
+          const error = new Error("s3-storage returned ".concat(response.status, ": ").concat(text.slice(0, 200)));
+          error.retryable = response.status >= 500;
+          throw error;
+        }
+        try {
+          return JSON.parse(text);
+        } catch (e) {
+          throw new Error("Unexpected response from s3-storage: ".concat(text.slice(0, 200)));
+        }
+      } catch (error) {
+        // fetch() itself rejects with a TypeError when the network drops.
+        if (attempt >= 2 || !(error.retryable || error instanceof TypeError)) {
+          throw error;
+        }
+        yield delay(RETRY_DELAY_MS);
+      }
+    }
+  });
+  return function postStorage(_x) {
+    return _ref2.apply(this, arguments);
+  };
+}();
+
+/**
+ * Before the lambda had `list`/`resolve`, it answered with the version itself, found
+ * by offset or by date. Used only while that lambda is still the one deployed.
+ * @param {object} body - {versionOffset} or {at}.
+ * @returns {Promise<object>} {payload, offset}; payload is null for a room never saved.
+ */
+const requestLegacy = /*#__PURE__*/function () {
+  var _ref3 = _asyncToGenerator(function* (body) {
+    const payload = yield postStorage(body);
+    // The lambda substitutes the literal string 'EMT' for an unreadable object.
+    if (!payload || !payload.versionData || payload.versionData === 'EMT') {
+      return {
+        payload: null,
+        offset: 0
+      };
+    }
+    const offset = typeof payload.versionOffset === 'number' ? payload.versionOffset : body.versionOffset || 0;
+    if (payload.isOldest) {
+      legacyOldest = offset;
+    }
+    return {
+      payload,
+      offset
+    };
+  });
+  return function requestLegacy(_x2) {
+    return _ref3.apply(this, arguments);
+  };
+}();
+const absorbResolved = resolved => {
+  Object.keys(resolved || {}).forEach(versionId => {
+    const entry = resolved[versionId];
+    if (entry && entry.url) {
+      links.set(versionId, {
+        url: entry.url,
+        expiresAt: Date.now() + LINK_TTL_MS
+      });
+      authors.set(versionId, entry.author || null);
+    }
+  });
+};
+
+/**
+ * Group the listed versions into states: a run of consecutive saves of identical
+ * size counts as one (older histories hold long runs of no-op autosaves), stood for
+ * by its newest member. This is the grouping the lambda's own offsets use.
+ * firstModified, the run's oldest save, is when that state began.
+ */
+const rebuildStates = () => {
+  states = [];
+  let state = null;
+  versions.forEach(version => {
+    if (state && version.size === state.size) {
+      state.firstModified = version.lastModified;
+      return;
+    }
+    state = {
+      versionId: version.versionId,
+      lastModified: version.lastModified,
+      firstModified: version.lastModified,
+      size: version.size
+    };
+    states.push(state);
+  });
+};
+
+/**
+ * @param {?object} cursor - the previous page's nextCursor, or null for the newest.
+ * @param {number} limit - how many versions to list.
+ * @param {number} resolveHeads - how many of the newest states to resolve as well.
+ * @returns {Promise<?object>} the page, or null when the lambda turned out not to
+ *     support listing (legacy is set).
+ */
+const listPage = /*#__PURE__*/function () {
+  var _ref4 = _asyncToGenerator(function* (cursor, limit, resolveHeads) {
+    const page = yield postStorage({
+      action: 'list',
+      cursor,
+      limit,
+      resolveHeads
+    });
+    if (!page || !Array.isArray(page.versions)) {
+      // An older lambda ignores `action` and answers with a version instead.
+      legacy = true;
+      return null;
+    }
+    absorbResolved(page.resolved);
+    return page;
+  });
+  return function listPage(_x3, _x4, _x5) {
+    return _ref4.apply(this, arguments);
+  };
+}();
+
+// New saves push everything back an offset. Leave whatever is on screen there, just
+// renumbered, rather than have the same offset quietly mean a different save.
+const rebaseOnScreen = () => {
+  if (!currentVersion || !currentVersion.versionId || currentVersion.offset === 0) {
+    return;
+  }
+  const offset = states.findIndex(state => state.versionId === currentVersion.versionId);
+  if (offset <= 0 || offset === currentVersion.offset) {
+    return;
+  }
+  // Only if nothing has moved the offset off it since (a load may be in flight).
+  const follow = (0,_versionOffset_js__WEBPACK_IMPORTED_MODULE_1__.getVersionOffset)() === currentVersion.offset;
+  currentVersion = Object.assign({}, currentVersion, {
+    offset
+  });
+  if (follow) {
+    (0,_versionOffset_js__WEBPACK_IMPORTED_MODULE_1__.rebaseVersionOffset)(offset);
+  }
+};
+
+// Index updates go through withIndex one at a time, so each page is spliced into
+// the index exactly as it stood when the page was asked for.
+const applyHeadPage = page => {
+  const known = versions.length ? page.versions.findIndex(v => v.versionId === versions[0].versionId) : -1;
+  if (known === -1) {
+    // The first listing, or more new saves than one page holds: start over.
+    versions = page.versions;
+    nextCursor = page.nextCursor;
+  } else {
+    versions = page.versions.slice(0, known).concat(versions);
+  }
+  listed = true;
+  listedAt = Date.now();
+  headDirty = false;
+  rebuildStates();
+  rebaseOnScreen();
+  notify();
+};
+const applyOlderPage = page => {
+  versions = versions.concat(page.versions);
+  nextCursor = page.nextCursor;
+  rebuildStates();
+  notify();
+};
+const refreshHead = /*#__PURE__*/function () {
+  var _ref5 = _asyncToGenerator(function* () {
+    // On the first listing, also resolve the states the first load and its
+    // prefetches will want, which saves a round trip each.
+    const page = yield listPage(null, FIRST_PAGE_SIZE, listed ? 0 : PREFETCH_DEPTH + 1);
+    if (page) {
+      applyHeadPage(page);
+    }
+  });
+  return function refreshHead() {
+    return _ref5.apply(this, arguments);
+  };
+}();
+const fetchOlderPage = /*#__PURE__*/function () {
+  var _ref6 = _asyncToGenerator(function* () {
+    const page = yield listPage(nextCursor, OLDER_PAGE_SIZE, 0);
+    if (page) {
+      applyOlderPage(page);
+    }
+  });
+  return function fetchOlderPage() {
+    return _ref6.apply(this, arguments);
+  };
+}();
+const refreshIfStale = /*#__PURE__*/function () {
+  var _ref7 = _asyncToGenerator(function* () {
+    if (!listed || headDirty || Date.now() - listedAt >= HEAD_TTL_MS) {
+      yield refreshHead();
+    }
+  });
+  return function refreshIfStale() {
+    return _ref7.apply(this, arguments);
+  };
+}();
+const canPageBack = () => !legacy && Boolean(nextCursor);
+
+// Index updates run one at a time: a head refresh landing mid-way through paging
+// back would otherwise splice pages around a cursor that no longer lines up.
+let indexQueue = Promise.resolve();
+const withIndex = task => {
+  const run = indexQueue.then(task);
+  indexQueue = run.catch(() => {});
+  return run;
+};
+
+/**
+ * List until `count` states are known, or the history runs out.
+ * @param {number} count - how many states are needed.
+ */
+const loadStates = /*#__PURE__*/function () {
+  var _ref8 = _asyncToGenerator(function* (count) {
+    yield refreshIfStale();
+    while (canPageBack() && states.length < count) {
+      yield fetchOlderPage();
+    }
+  });
+  return function loadStates(_x6) {
+    return _ref8.apply(this, arguments);
+  };
+}();
+
+/**
+ * List back until a save at or before `at` is known, or the history runs out.
+ * @param {number} at - epoch ms.
+ */
+const loadUntil = /*#__PURE__*/function () {
+  var _ref9 = _asyncToGenerator(function* (at) {
+    yield refreshIfStale();
+    while (canPageBack() && versions.length && versions[versions.length - 1].lastModified > at) {
+      yield fetchOlderPage();
+    }
+  });
+  return function loadUntil(_x7) {
+    return _ref9.apply(this, arguments);
+  };
+}();
+
+/**
+ * Get download links for versions, batching whatever isn't already held into as
+ * few lambda calls as possible.
+ * @param {string[]} versionIds - the versions to resolve.
+ */
+const resolveLinks = /*#__PURE__*/function () {
+  var _ref10 = _asyncToGenerator(function* (versionIds) {
+    const now = Date.now();
+    const missing = versionIds.filter(versionId => {
+      const link = links.get(versionId);
+      return !(link && link.expiresAt > now) && !pendingLinks.has(versionId);
+    });
+    for (let i = 0; i < missing.length; i += MAX_RESOLVE) {
+      const batch = missing.slice(i, i + MAX_RESOLVE);
+      const request = postStorage({
+        action: 'resolve',
+        versionIds: batch
+      }).then(payload => absorbResolved(payload && payload.resolved));
+      const settle = () => batch.forEach(versionId => pendingLinks.delete(versionId));
+      request.then(settle, settle);
+      batch.forEach(versionId => pendingLinks.set(versionId, request));
+    }
+    yield Promise.all(versionIds.map(versionId => pendingLinks.get(versionId)).filter(Boolean));
+  });
+  return function resolveLinks(_x8) {
+    return _ref10.apply(this, arguments);
+  };
+}();
+
+/**
+ * @param {string} versionId - the version to download.
+ * @returns {Promise<string>} its project JSON, fetched from S3 directly.
+ */
+const download = /*#__PURE__*/function () {
+  var _ref11 = _asyncToGenerator(function* (versionId) {
+    for (let attempt = 1;; attempt++) {
+      yield resolveLinks([versionId]);
+      const link = links.get(versionId);
+      if (!link) {
+        throw new Error("Version ".concat(versionId, " could not be found in storage."));
+      }
+      let response;
+      try {
+        response = yield fetch(link.url);
+      } catch (error) {
+        if (attempt >= 2) {
+          throw error;
+        }
+        yield delay(RETRY_DELAY_MS);
+        continue;
+      }
+      if (response.ok) {
+        return response.text();
+      }
+      // A 403 means the link expired or was refused; a fresh one may well work.
+      links.delete(versionId);
+      if (attempt >= 2 || !(response.status === 403 || response.status >= 500)) {
+        throw new Error("Downloading version ".concat(versionId, " failed: S3 returned ").concat(response.status));
+      }
+      yield delay(RETRY_DELAY_MS);
+    }
+  });
+  return function download(_x9) {
+    return _ref11.apply(this, arguments);
+  };
+}();
+const evictContents = () => {
+  for (const [versionId, entry] of contents) {
+    if (cachedChars <= MAX_CACHED_CHARS) {
+      return;
+    }
+    if (!entry.text || currentVersion && currentVersion.versionId === versionId) {
+      continue;
+    }
+    contents.delete(versionId);
+    cachedChars -= entry.text.length;
+  }
+};
+
+/**
+ * A version's project JSON, from the cache when possible. Concurrent calls for the
+ * same version (say a prefetch and then the user stepping onto it) share a download.
+ * @param {string} versionId - the version to get.
+ * @returns {Promise<string>} its project JSON.
+ */
+const getContent = versionId => {
+  let entry = contents.get(versionId);
+  if (entry) {
+    // Re-insert to mark it most recently used.
+    contents.delete(versionId);
+    contents.set(versionId, entry);
+    return entry.promise;
+  }
+  entry = {
+    promise: null,
+    text: null
+  };
+  const created = entry;
+  entry.promise = download(versionId).then(text => {
+    if (contents.get(versionId) === created) {
+      created.text = text;
+      cachedChars += text.length;
+      evictContents();
+      notify();
+    }
+    return text;
+  }, error => {
+    if (contents.get(versionId) === created) {
+      contents.delete(versionId);
+    }
+    throw error;
+  });
+  contents.set(versionId, entry);
+  return entry.promise;
+};
+const describeState = state => ({
+  versionId: state.versionId,
+  lastModified: new Date(state.lastModified).toISOString(),
+  author: authors.has(state.versionId) ? authors.get(state.versionId) : null
+});
+
+/**
+ * Resolve a version of the project.
+ * @param {number} requestedOffset - 0 for the current save, 1 for one save back, etc.
+ * @returns {Promise<object>} {payload, offset}: offset is the version actually reached
+ *     (smaller than asked when the history runs out), and payload, with versionId,
+ *     lastModified, author and versionData, is null only for a room never saved.
+ */
+const getVersion = /*#__PURE__*/function () {
+  var _ref12 = _asyncToGenerator(function* (requestedOffset) {
+    if (!legacy) {
+      yield withIndex(() => loadStates(requestedOffset + 1));
+    }
+    if (legacy) {
+      return requestLegacy({
+        versionOffset: requestedOffset
+      });
+    }
+    if (!states.length) {
+      return {
+        payload: null,
+        offset: 0
+      };
+    }
+    const offset = Math.min(requestedOffset, states.length - 1);
+    const state = states[offset];
+    const versionData = yield getContent(state.versionId);
+    return {
+      payload: Object.assign(describeState(state), {
+        versionData
+      }),
+      offset
+    };
+  });
+  return function getVersion(_x10) {
+    return _ref12.apply(this, arguments);
+  };
+}();
+const stateAt = offset => offset >= 0 && offset < states.length ? states[offset] : null;
+
+/**
+ * @param {number} offset - the version to check.
+ * @returns {boolean} whether getVersion(offset) would resolve without a download.
+ */
+const isVersionReady = offset => {
+  const state = !legacy && stateAt(offset);
+  const entry = state && contents.get(state.versionId);
+  return Boolean(entry && entry.text);
+};
+
+/**
+ * @param {number} offset - the version to look up.
+ * @returns {?object} {versionId, lastModified, author} from the index, for showing
+ *     what a step leads to; author is null until that version has been resolved.
+ */
+const peekVersion = offset => {
+  const state = !legacy && stateAt(offset);
+  return state ? describeState(state) : null;
+};
+
+/**
+ * Warm the cache with the saves either side of a version.
+ * @param {number} offset - the version on screen.
+ */
+const prefetchAround = offset => {
+  if (legacy) {
+    return;
+  }
+  withIndex(() => loadStates(offset + PREFETCH_DEPTH + 1)).then(() => {
+    const versionIds = [];
+    for (let distance = 1; distance <= PREFETCH_DEPTH; distance++) {
+      [offset + distance, offset - distance].forEach(neighbour => {
+        const state = stateAt(neighbour);
+        if (state && !contents.has(state.versionId)) {
+          versionIds.push(state.versionId);
+        }
+      });
+    }
+    // One resolve call for the lot; the downloads then run in parallel.
+    return resolveLinks(versionIds).then(() => {
+      versionIds.forEach(versionId => {
+        getContent(versionId).catch(error => {
+          console.warn("Prefetching version ".concat(versionId, " failed"), error);
+        });
+      });
+    });
+  }).catch(error => {
+    console.warn("Prefetching around version ".concat(offset, " back failed"), error);
+  });
+};
+
+/**
+ * Move to whatever version was current at a moment in time.
+ * @param {number} at - epoch ms.
+ * @returns {Promise<object>} {offset} of the version found.
+ */
+const jumpToDate = /*#__PURE__*/function () {
+  var _ref13 = _asyncToGenerator(function* (at) {
+    setBuffering({
+      stage: 'searching',
+      at
+    });
+    let offset;
+    try {
+      if (!legacy) {
+        yield withIndex(() => loadUntil(at));
+      }
+      if (legacy) {
+        const result = yield requestLegacy({
+          at
+        });
+        if (!result.payload) {
+          throw new Error('This room has no saved versions yet.');
+        }
+        if (!(result.payload.apiVersion >= 2)) {
+          // An older lambda ignores `at` and just returns the current save.
+          throw new Error('Jumping to a date needs the updated s3-storage lambda deployed.');
+        }
+        offset = result.offset;
+      } else {
+        if (!states.length) {
+          throw new Error('This room has no saved versions yet.');
+        }
+        // The newest state begun by then; a date before the first save lands on
+        // the oldest.
+        offset = states.findIndex(state => state.firstModified <= at);
+        if (offset === -1) {
+          offset = states.length - 1;
+        }
+      }
+    } finally {
+      // Cleared before moving the offset: that synchronously starts the load, which
+      // sets its own buffering state.
+      setBuffering(null);
+    }
+    (0,_versionOffset_js__WEBPACK_IMPORTED_MODULE_1__.setVersionOffset)(offset);
+    return {
+      offset
+    };
+  });
+  return function jumpToDate(_x11) {
+    return _ref13.apply(this, arguments);
+  };
+}();
+
+/***/ }),
+
 /***/ "./src/utils/versionOffset.js":
 /*!************************************!*\
   !*** ./src/utils/versionOffset.js ***!
@@ -37109,15 +38377,11 @@ const secrets = {};
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
-/* harmony export */   getLoadedVersionTime: () => (/* binding */ getLoadedVersionTime),
 /* harmony export */   getVersionOffset: () => (/* binding */ getVersionOffset),
 /* harmony export */   initialVersionOffset: () => (/* binding */ initialVersionOffset),
-/* harmony export */   setLoadedVersionTime: () => (/* binding */ setLoadedVersionTime),
-/* harmony export */   setVersionAsOf: () => (/* binding */ setVersionAsOf),
+/* harmony export */   rebaseVersionOffset: () => (/* binding */ rebaseVersionOffset),
 /* harmony export */   setVersionOffset: () => (/* binding */ setVersionOffset),
-/* harmony export */   subscribeLoadedVersionTime: () => (/* binding */ subscribeLoadedVersionTime),
 /* harmony export */   subscribeVersionOffset: () => (/* binding */ subscribeVersionOffset),
-/* harmony export */   takePendingAsOf: () => (/* binding */ takePendingAsOf),
 /* harmony export */   versionOffsetEnabled: () => (/* binding */ versionOffsetEnabled)
 /* harmony export */ });
 const rawVersionOffset = new URLSearchParams(window.location.search).get('versionOffset');
@@ -37133,6 +38397,14 @@ let currentVersionOffset = initialVersionOffset;
 const listeners = new Set();
 const getVersionOffset = () => currentVersionOffset;
 
+// Keep the URL in sync so a refresh, or a link copied out of the address bar,
+// lands on the same version rather than snapping back to the current one.
+const syncUrl = offset => {
+  const url = new URL(window.location.href);
+  url.searchParams.set('versionOffset', String(offset));
+  window.history.replaceState(null, '', url);
+};
+
 /**
  * Move to a different version. Listeners (the menu bar label, and the Blocks
  * container, which reloads the project) are notified only when the value changes.
@@ -37145,63 +38417,38 @@ const setVersionOffset = offset => {
     return currentVersionOffset;
   }
   currentVersionOffset = next;
-
-  // Keep the URL in sync so a refresh, or a link copied out of the address bar,
-  // lands on the same version rather than snapping back to the current one.
-  const url = new URL(window.location.href);
-  url.searchParams.set('versionOffset', String(next));
-  window.history.replaceState(null, '', url);
-  listeners.forEach(listener => listener(next));
+  syncUrl(next);
+  listeners.forEach(listener => listener(next, {
+    rebase: false
+  }));
   return next;
 };
 
 /**
- * @param {function} listener - called with the new offset whenever it changes.
+ * Renumber the version on screen without moving off it: a new save pushes every
+ * existing version one further back. Listeners get {rebase: true}, so Blocks keeps
+ * what it has loaded rather than reloading.
+ * @param {number} offset - the version's offset now.
+ */
+const rebaseVersionOffset = offset => {
+  const next = clamp(offset);
+  if (next === currentVersionOffset) {
+    return;
+  }
+  currentVersionOffset = next;
+  syncUrl(next);
+  listeners.forEach(listener => listener(next, {
+    rebase: true
+  }));
+};
+
+/**
+ * @param {function} listener - called with (offset, {rebase}) whenever it changes.
  * @returns {function} unsubscribe.
  */
 const subscribeVersionOffset = listener => {
   listeners.add(listener);
   return () => listeners.delete(listener);
-};
-
-// A point in time the next load should resolve, instead of an offset. The lambda
-// answers with the offset that time corresponds to, and Blocks pins the arrows to it.
-let pendingAsOf = null;
-
-/**
- * Load the version that was current at a given time.
- * @param {Date} date - the moment to load.
- */
-const setVersionAsOf = date => {
-  pendingAsOf = date.toISOString();
-  listeners.forEach(listener => listener(currentVersionOffset));
-};
-
-/** @returns {?string} the pending ISO timestamp, cleared so it's used only once. */
-const takePendingAsOf = () => {
-  const asOf = pendingAsOf;
-  pendingAsOf = null;
-  return asOf;
-};
-
-// When the loaded version was saved, for the menu bar to display.
-let loadedVersionTime = null;
-const loadedTimeListeners = new Set();
-const getLoadedVersionTime = () => loadedVersionTime;
-
-/** @param {?string} time - LastModified of the version just loaded. */
-const setLoadedVersionTime = time => {
-  loadedVersionTime = time || null;
-  loadedTimeListeners.forEach(listener => listener(loadedVersionTime));
-};
-
-/**
- * @param {function} listener - called with the loaded version's save time.
- * @returns {function} unsubscribe.
- */
-const subscribeLoadedVersionTime = listener => {
-  loadedTimeListeners.add(listener);
-  return () => loadedTimeListeners.delete(listener);
 };
 
 /***/ }),
@@ -37484,7 +38731,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.id, "/* make sure to keep these in sync with other constants,\ne.g. STAGE_DIMENSION_DEFAULTS in lib/screen-utils.js */\n\n/* layout contants from `layout-constants.js` */\n\n/* #E5F0FF */\n\n/* #E9F1FC */\n\n/* #D9E3F2 */\n\n/* 90% transparent version of motion-primary */\n\n/* #FFFFFF */\n\n/* 25% transparent version of ui-white */\n\n/* 25% transparent version of ui-white */\n\n/* 25% transparent version of ui-white */\n\n/* 15% transparent version of black */\n\n/* #575E75 */\n\n/* #4C97FF */\n\n/* #3373CC */\n\n/* #855CD6 */\n\n/* 35% transparent version of looks-tertiary */\n\n/* 15% transparent version of looks-tertiary */\n\n/* #714EB6 */\n\n/* #FF661A */\n\n/* #E64D00 */\n\n/* #CF63CF */\n\n/* #BD42BD */\n\n/* #FFAB19 */\n\n/* #FF8C1A */\n\n/* #0FBD8C */\n\n/* #0FBD8C */\n\n/* #0B8E69 */\n\n/* #FF8C1A */\n\n/* #FFB366 */\n\n/* #FF8C1A */\n\n/* #0FBD8C */\n\n/* #0B8E69 */\n\n/* 35% transparent version of extensions-primary */\n\n/* opaque version of extensions-transparent, on white bg */\n\n/* lighter than motion-primary */\n\n/*\n    Contains constants for the z-index values of elements that are part of the global stack context.\n    In other words, z-index values that are \"inside\" a component are not added here.\n    This prevents conflicts between identical z-index values in different components.\n*/\n\n/* Toolbox z-index: 40; set in scratch-blocks */\n\n/* tooltips should go over add buttons if they overlap */\n\n/* monitors go over add buttons */\n\n/* \"ask\" block text input goes above monitors */\n\n/* menu-bar should go over monitors, alerts and tutorials */\n\n/* Block drag z-index: 1000; default 50 is overriden in blocks.css */\n\n/* so it is draggable into other panes */\n\n/* in most interfaces, the context menu is always on top */\n\n.blocks_blocks_C530M {\n    height: 100%;\n}\n\n.blocks_drag-over_2btTP:after {\n    content: '';\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    opacity: 0.75;\n    background-color: hsla(215, 100%, 77%, 1);\n    transition: all 0.25s ease;\n}\n\n.blocks_blocks_C530M .injectionDiv{\n    position: absolute;\n    top: 0;\n    right: 0;\n    bottom: 0;\n    left: 0;\n    border: 1px solid hsla(0, 0%, 0%, 0.15);\n    border-top-right-radius: 0.5rem;\n    border-bottom-right-radius: 0.5rem;\n}\n\n[dir=\"rtl\"] .blocks_blocks_C530M .injectionDiv {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    border-top-left-radius: 0.5rem;\n    border-bottom-left-radius: 0.5rem;\n}\n\n.blocks_blocks_C530M .blocklyMainBackground {\n    stroke: none;\n}\n\n.blocks_blocks_C530M .blocklyToolboxDiv {\n    border-right: 1px solid hsla(0, 0%, 0%, 0.15);\n    border-bottom: 1px solid hsla(0, 0%, 0%, 0.15);\n    box-sizing: content-box;\n    height: calc(100% - 3.25rem) !important;\n\n    /*\n        For now, the layout cannot support scrollbars in the category menu.\n        The line below works for Edge, the `::-webkit-scrollbar` line\n        below that is for webkit browsers. It isn't possible to do the\n        same for Firefox, so a different solution may be needed for them.\n    */\n    -ms-overflow-style: none;\n}\n\n[dir=\"rtl\"] .blocks_blocks_C530M .blocklyToolboxDiv {\n    border-right: none;\n    border-left: 1px solid hsla(0, 0%, 0%, 0.15);\n}\n\n.blocks_blocks_C530M .blocklyToolboxDiv::-webkit-scrollbar {\n    display: none;\n}\n\n.blocks_blocks_C530M .blocklyFlyout {\n    border-right: 1px solid hsla(0, 0%, 0%, 0.15);\n    box-sizing: content-box;\n}\n\n[dir=\"rtl\"] .blocks_blocks_C530M .blocklyFlyout {\n    border-right: none;\n    border-left: 1px solid hsla(0, 0%, 0%, 0.15);\n}\n\n.blocks_blocks_C530M .blocklyBlockDragSurface {\n    /*\n        Fix an issue where the drag surface was preventing hover events for sharing blocks.\n        This does not prevent user interaction on the blocks themselves.\n    */\n    pointer-events: none;\n    z-index: 1000; /* make blocks match gui drag layer */\n}\n\n/*\n    Shrink category font to fit \"My Blocks\" for now.\n    Probably will need different solutions for language support later, so\n    make the change here instead of in scratch-blocks.\n*/\n\n.blocks_blocks_C530M .scratchCategoryMenuItemLabel {\n    font-size: 0.65rem;\n}\n\n.blocks_blocks_C530M .blocklyMinimalBody {\n    min-width: auto;\n    min-height: auto;\n}\n", ""]);
+exports.push([module.id, "/* make sure to keep these in sync with other constants,\ne.g. STAGE_DIMENSION_DEFAULTS in lib/screen-utils.js */\n\n/* layout contants from `layout-constants.js` */\n\n/* #E5F0FF */\n\n/* #E9F1FC */\n\n/* #D9E3F2 */\n\n/* 90% transparent version of motion-primary */\n\n/* #FFFFFF */\n\n/* 25% transparent version of ui-white */\n\n/* 25% transparent version of ui-white */\n\n/* 25% transparent version of ui-white */\n\n/* 15% transparent version of black */\n\n/* #575E75 */\n\n/* #4C97FF */\n\n/* #3373CC */\n\n/* #855CD6 */\n\n/* 35% transparent version of looks-tertiary */\n\n/* 15% transparent version of looks-tertiary */\n\n/* #714EB6 */\n\n/* #FF661A */\n\n/* #E64D00 */\n\n/* #CF63CF */\n\n/* #BD42BD */\n\n/* #FFAB19 */\n\n/* #FF8C1A */\n\n/* #0FBD8C */\n\n/* #0FBD8C */\n\n/* #0B8E69 */\n\n/* #FF8C1A */\n\n/* #FFB366 */\n\n/* #FF8C1A */\n\n/* #0FBD8C */\n\n/* #0B8E69 */\n\n/* 35% transparent version of extensions-primary */\n\n/* opaque version of extensions-transparent, on white bg */\n\n/* lighter than motion-primary */\n\n/*\n    Contains constants for the z-index values of elements that are part of the global stack context.\n    In other words, z-index values that are \"inside\" a component are not added here.\n    This prevents conflicts between identical z-index values in different components.\n*/\n\n/* Toolbox z-index: 40; set in scratch-blocks */\n\n/* tooltips should go over add buttons if they overlap */\n\n/* monitors go over add buttons */\n\n/* \"ask\" block text input goes above monitors */\n\n/* menu-bar should go over monitors, alerts and tutorials */\n\n/* Block drag z-index: 1000; default 50 is overriden in blocks.css */\n\n/* so it is draggable into other panes */\n\n/* in most interfaces, the context menu is always on top */\n\n.blocks_blocks_C530M {\n    height: 100%;\n}\n\n.blocks_drag-over_2btTP:after {\n    content: '';\n    position: absolute;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    opacity: 0.75;\n    background-color: hsla(215, 100%, 77%, 1);\n    transition: all 0.25s ease;\n}\n\n.blocks_blocks_C530M .injectionDiv{\n    position: absolute;\n    top: 0;\n    right: 0;\n    bottom: 0;\n    left: 0;\n    border: 1px solid hsla(0, 0%, 0%, 0.15);\n    border-top-right-radius: 0.5rem;\n    border-bottom-right-radius: 0.5rem;\n}\n\n[dir=\"rtl\"] .blocks_blocks_C530M .injectionDiv {\n    border-top-right-radius: 0;\n    border-bottom-right-radius: 0;\n    border-top-left-radius: 0.5rem;\n    border-bottom-left-radius: 0.5rem;\n}\n\n.blocks_blocks_C530M .blocklyMainBackground {\n    stroke: none;\n}\n\n.blocks_blocks_C530M .blocklyToolboxDiv {\n    border-right: 1px solid hsla(0, 0%, 0%, 0.15);\n    border-bottom: 1px solid hsla(0, 0%, 0%, 0.15);\n    box-sizing: content-box;\n    height: calc(100% - 3.25rem) !important;\n\n    /*\n        For now, the layout cannot support scrollbars in the category menu.\n        The line below works for Edge, the `::-webkit-scrollbar` line\n        below that is for webkit browsers. It isn't possible to do the\n        same for Firefox, so a different solution may be needed for them.\n    */\n    -ms-overflow-style: none;\n}\n\n[dir=\"rtl\"] .blocks_blocks_C530M .blocklyToolboxDiv {\n    border-right: none;\n    border-left: 1px solid hsla(0, 0%, 0%, 0.15);\n}\n\n.blocks_blocks_C530M .blocklyToolboxDiv::-webkit-scrollbar {\n    display: none;\n}\n\n.blocks_blocks_C530M .blocklyFlyout {\n    border-right: 1px solid hsla(0, 0%, 0%, 0.15);\n    box-sizing: content-box;\n}\n\n[dir=\"rtl\"] .blocks_blocks_C530M .blocklyFlyout {\n    border-right: none;\n    border-left: 1px solid hsla(0, 0%, 0%, 0.15);\n}\n\n.blocks_blocks_C530M .blocklyBlockDragSurface {\n    /*\n        Fix an issue where the drag surface was preventing hover events for sharing blocks.\n        This does not prevent user interaction on the blocks themselves.\n    */\n    pointer-events: none;\n    z-index: 1000; /* make blocks match gui drag layer */\n}\n\n/*\n    Shrink category font to fit \"My Blocks\" for now.\n    Probably will need different solutions for language support later, so\n    make the change here instead of in scratch-blocks.\n*/\n\n.blocks_blocks_C530M .scratchCategoryMenuItemLabel {\n    font-size: 0.65rem;\n}\n\n.blocks_blocks_C530M .blocklyMinimalBody {\n    min-width: auto;\n    min-height: auto;\n}\n\n/*\n    Version history: blocks the version on screen added, changed or moved compared\n    with the save before it. Applied to a block's own outline path by blocks.jsx, so\n    they're global; the stroke overrides the block's stroke attribute.\n*/\n\n.version-diff-added,\n.version-diff-changed,\n.version-diff-moved {\n    stroke-width: 3px !important;\n}\n\n.version-diff-added {\n    stroke: #00a86b !important;\n    filter: drop-shadow(0 0 3px #00a86b);\n}\n\n.version-diff-changed {\n    stroke: #ff8c1a !important;\n    filter: drop-shadow(0 0 3px #ff8c1a);\n}\n\n.version-diff-moved {\n    stroke: #8e44ff !important;\n    stroke-dasharray: 6 4;\n}\n", ""]);
 // Exports
 exports.locals = {
 	"blocks": "blocks_blocks_C530M",
@@ -38495,7 +39742,7 @@ module.exports = exports;
 var ___CSS_LOADER_API_IMPORT___ = __webpack_require__(/*! ../../../node_modules/css-loader/dist/runtime/api.js */ "./node_modules/css-loader/dist/runtime/api.js");
 exports = ___CSS_LOADER_API_IMPORT___(false);
 // Module
-exports.push([module.id, "/* #E5F0FF */ /* #E9F1FC */ /* #D9E3F2 */ /* 90% transparent version of motion-primary */ /* #FFFFFF */ /* 25% transparent version of ui-white */ /* 25% transparent version of ui-white */ /* 25% transparent version of ui-white */ /* 15% transparent version of black */ /* #575E75 */ /* #4C97FF */ /* #3373CC */ /* #855CD6 */ /* 35% transparent version of looks-tertiary */ /* 15% transparent version of looks-tertiary */ /* #714EB6 */ /* #FF661A */ /* #E64D00 */ /* #CF63CF */ /* #BD42BD */ /* #FFAB19 */ /* #FF8C1A */ /* #0FBD8C */ /* #0FBD8C */ /* #0B8E69 */ /* #FF8C1A */ /* #FFB366 */ /* #FF8C1A */ /* #0FBD8C */ /* #0B8E69 */ /* 35% transparent version of extensions-primary */ /* opaque version of extensions-transparent, on white bg */ /* lighter than motion-primary */ /* make sure to keep these in sync with other constants,\ne.g. STAGE_DIMENSION_DEFAULTS in lib/screen-utils.js */ /* layout contants from `layout-constants.js` */ /*\n    Contains constants for the z-index values of elements that are part of the global stack context.\n    In other words, z-index values that are \"inside\" a component are not added here.\n    This prevents conflicts between identical z-index values in different components.\n*/ /* Toolbox z-index: 40; set in scratch-blocks */ /* tooltips should go over add buttons if they overlap */ /* monitors go over add buttons */ /* \"ask\" block text input goes above monitors */ /* menu-bar should go over monitors, alerts and tutorials */ /* Block drag z-index: 1000; default 50 is overriden in blocks.css */ /* so it is draggable into other panes */ /* in most interfaces, the context menu is always on top */ .menu-bar_menu-bar_JcuHF {\n    display: flex;\n    flex-direction: row;\n    justify-content: space-between;\n    flex-wrap: nowrap;\n\n    /*\n        For most things, we shouldn't explicitly set height, and let the\n        content push the element to whatever fits. Using a fixed height\n        instead, will help us subtract the value we assign from the body,\n        adding up to a perfect 100%. This means we don't need to set\n        overflow: hidden, which makes it hard to debug. border-box\n        simplifies by all of this by removing padding from the equation.\n    */\n    box-sizing: border-box;\n    height: 3rem;\n\n    /*\n        @todo: This adds ~20px in Chrome, when scrolling to the right,\n        but fixes [FFx + Safari] [resize window down + scroll to the right] bug.\n        width: 100%;\n    */\n    font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n    font-size: 0.75rem;\n    font-weight: bold;\n    background-color: hsla(260, 60%, 60%, 1);\n    color: hsla(0, 100%, 100%, 1);\n} .menu-bar_main-menu_3wjWH {\n    display: flex;\n    flex-direction: row;\n    justify-content: flex-start;\n    flex-wrap: nowrap;\n    align-items: center;\n    flex-grow: 1;\n} .menu-bar_inactive_2rk8q {\n    opacity: 0;\n} .menu-bar_scratch-logo_2uReV {\n    height:  1.6rem;\n    vertical-align: middle;\n} .menu-bar_scratch-logo_2uReV.menu-bar_clickable_1g3uo {\n    cursor: pointer;\n} .menu-bar_menu-bar-item_oLDa- {\n    display: flex;\n    padding: 0 0.25rem;\n    text-decoration: none;\n    color: hsla(0, 100%, 100%, 1);\n    -webkit-user-select: none;\n       -moz-user-select: none;\n        -ms-user-select: none;\n            user-select: none;\n    align-self: center;\n    position: relative;\n    align-items: center;\n    white-space: nowrap;\n    height: 3rem;\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_hoverable_c6WFB {\n    cursor: pointer;\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_active_2Lfqh,\n.menu-bar_menu-bar-item_oLDa-.menu-bar_hoverable_c6WFB:hover {\n    background-color: hsla(0, 0%, 0%, 0.15);\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_growable_1sHWN {\n    max-width: 12rem;\n    flex: 1;\n} .menu-bar_title-field-growable_3qr4G {\n    flex-grow: 1;\n    width: 2rem;\n} /* Version history stepper, only rendered when the versionOffset query arg is present */ .menu-bar_version-offset_2beWc {\n    gap: 0.25rem;\n    margin: 0 0.5rem;\n} .menu-bar_version-offset-button_Ipa8u {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 1.5rem;\n    height: 1.5rem;\n    padding: 0;\n    border: none;\n    border-radius: 0.25rem;\n    background-color: hsla(0, 0%, 0%, 0.15);\n    color: hsla(0, 100%, 100%, 1);\n    font-size: 0.75rem;\n    line-height: 1;\n    cursor: pointer;\n} .menu-bar_version-offset-button_Ipa8u:hover:not(:disabled) {\n    background-color: hsla(0, 100%, 100%, 0.25);\n} .menu-bar_version-offset-button_Ipa8u:disabled {\n    opacity: 0.4;\n    cursor: default;\n} .menu-bar_version-offset-label_3CrGN {\n    min-width: 4rem;\n    text-align: center;\n    font-size: 0.75rem;\n} .menu-bar_version-time-form_2bMpm {\n    display: flex;\n    align-items: center;\n    gap: 0.25rem;\n    margin-left: 0.25rem;\n} .menu-bar_version-time-input_11JZe {\n    height: 1.5rem;\n    padding: 0 0.25rem;\n    border: none;\n    border-radius: 0.25rem;\n    background-color: hsla(0, 0%, 0%, 0.15);\n    color: hsla(0, 100%, 100%, 1);\n    font-size: 0.75rem;\n    color-scheme: dark;\n} .menu-bar_version-time-form_2bMpm .menu-bar_version-offset-button_Ipa8u {\n    width: auto;\n    padding: 0 0.4rem;\n} .menu-bar_file-group_1_CHX {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_file-group_1_CHX .menu-bar_menu-bar-item_oLDa- {\n    margin: 0 .25rem;\n    padding: 0 0.75rem;\n} .menu-bar_menu-bar-menu_239MD {\n    margin-top: 3rem;\n    z-index: 491;\n} .menu-bar_feedback-link_1BnAR {\n    color: hsla(260, 60%, 60%, 1);\n    text-decoration: none;\n} .menu-bar_feedback-button_2rEcj {\n    background-color: hsla(0, 100%, 100%, 1);\n    height: 34px;\n} .menu-bar_divider_2VFCm {\n    margin: 0 .5rem;\n    height: 34px;\n} .menu-bar_author-info_22Nub {\n    margin-left: .25rem;\n    margin-right: .6875rem;\n} .menu-bar_menu-bar-button_3IDN0 {\n    height: 2rem;\n} .menu-bar_remix-button_2LQQc {\n    background-color: hsla(163, 85%, 40%, 1)\n} .menu-bar_remix-button-icon_2E93U {\n    height: 1.25rem;\n} .menu-bar_coming-soon_3yU1L >:not(.menu-bar_coming-soon-tooltip_20GhI) {\n    opacity: 0.5;\n} .menu-bar_account-info-group_MeJZP {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_account-info-group_MeJZP .menu-bar_menu-bar-item_oLDa- {\n    margin: 0 .25rem;\n    padding: 0 0.75rem;\n} .menu-bar_mystuff-icon_3DtcD {\n    margin: 0 .25rem;\n    height: 1rem;\n} .menu-bar_help-icon_3Xtrt {\n    margin: 0 .25rem 0 0;\n} [dir=\"rtl\"] .menu-bar_help-icon_3Xtrt {\n    margin: 0 0 0 .25rem;\n} .menu-bar_account-nav-menu_3uu9p, .menu-bar_mystuff-button_16jPf {\n    padding: 0 .25rem;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_profile-icon_2bJkI {\n    margin: 0 .25rem;\n    width: 2rem;\n    border-radius: calc(0.5rem / 2);\n} .menu-bar_dropdown-caret-icon_FkdUe {\n    width: 0.5rem;\n    height: 0.5rem;\n} [dir=\"ltr\"] .menu-bar_dropdown-caret-icon_FkdUe {\n    margin-left: .5rem;\n} [dir=\"rtl\"] .menu-bar_dropdown-caret-icon_FkdUe {\n    margin-right: .5rem;\n} .menu-bar_disabled_3x5sy {\n    opacity: 0.5;\n} .menu-bar_mystuff_3RiSb > a {\n  background-repeat: no-repeat;\n  background-position: center center;\n  background-size: 45%;\n  padding-right: 10px;\n  padding-left: 10px;\n  width: 30px;\n  overflow: hidden;\n  text-indent: 50px;\n  white-space: nowrap;\n} .menu-bar_mystuff_3RiSb > a:hover {\n  background-size: 50%;\n} .menu-bar_mystuff_3RiSb > a {\n  background-image: url(\"/images/mystuff.png\");\n} .menu-bar_about-icon_dZI7K {\n    height: 1.25rem;\n    margin: 0.5rem;\n    vertical-align: middle;\n} .menu-bar_collapsible-label_o2tym {\n    margin: 0 .5rem 0 .25rem;\n} [dir=\"rtl\"] .menu-bar_collapsible-label_o2tym {\n    margin: 0 0.25rem 0 0.5rem;\n} @media only screen and (max-width: 1024px) {\n    .menu-bar_tutorials-label_2tFBo, .menu-bar_collapsible-label_o2tym {\n        display: none;\n    }\n\n    .menu-bar_help-icon_3Xtrt {\n        margin-right: 0;\n    }\n}\n", ""]);
+exports.push([module.id, "/* #E5F0FF */ /* #E9F1FC */ /* #D9E3F2 */ /* 90% transparent version of motion-primary */ /* #FFFFFF */ /* 25% transparent version of ui-white */ /* 25% transparent version of ui-white */ /* 25% transparent version of ui-white */ /* 15% transparent version of black */ /* #575E75 */ /* #4C97FF */ /* #3373CC */ /* #855CD6 */ /* 35% transparent version of looks-tertiary */ /* 15% transparent version of looks-tertiary */ /* #714EB6 */ /* #FF661A */ /* #E64D00 */ /* #CF63CF */ /* #BD42BD */ /* #FFAB19 */ /* #FF8C1A */ /* #0FBD8C */ /* #0FBD8C */ /* #0B8E69 */ /* #FF8C1A */ /* #FFB366 */ /* #FF8C1A */ /* #0FBD8C */ /* #0B8E69 */ /* 35% transparent version of extensions-primary */ /* opaque version of extensions-transparent, on white bg */ /* lighter than motion-primary */ /* make sure to keep these in sync with other constants,\ne.g. STAGE_DIMENSION_DEFAULTS in lib/screen-utils.js */ /* layout contants from `layout-constants.js` */ /*\n    Contains constants for the z-index values of elements that are part of the global stack context.\n    In other words, z-index values that are \"inside\" a component are not added here.\n    This prevents conflicts between identical z-index values in different components.\n*/ /* Toolbox z-index: 40; set in scratch-blocks */ /* tooltips should go over add buttons if they overlap */ /* monitors go over add buttons */ /* \"ask\" block text input goes above monitors */ /* menu-bar should go over monitors, alerts and tutorials */ /* Block drag z-index: 1000; default 50 is overriden in blocks.css */ /* so it is draggable into other panes */ /* in most interfaces, the context menu is always on top */ .menu-bar_menu-bar_JcuHF {\n    display: flex;\n    flex-direction: row;\n    justify-content: space-between;\n    flex-wrap: nowrap;\n\n    /*\n        For most things, we shouldn't explicitly set height, and let the\n        content push the element to whatever fits. Using a fixed height\n        instead, will help us subtract the value we assign from the body,\n        adding up to a perfect 100%. This means we don't need to set\n        overflow: hidden, which makes it hard to debug. border-box\n        simplifies by all of this by removing padding from the equation.\n    */\n    box-sizing: border-box;\n    height: 3rem;\n\n    /*\n        @todo: This adds ~20px in Chrome, when scrolling to the right,\n        but fixes [FFx + Safari] [resize window down + scroll to the right] bug.\n        width: 100%;\n    */\n    font-family: \"Helvetica Neue\", Helvetica, Arial, sans-serif;\n    font-size: 0.75rem;\n    font-weight: bold;\n    background-color: hsla(260, 60%, 60%, 1);\n    color: hsla(0, 100%, 100%, 1);\n} .menu-bar_main-menu_3wjWH {\n    display: flex;\n    flex-direction: row;\n    justify-content: flex-start;\n    flex-wrap: nowrap;\n    align-items: center;\n    flex-grow: 1;\n} .menu-bar_inactive_2rk8q {\n    opacity: 0;\n} .menu-bar_scratch-logo_2uReV {\n    height:  1.6rem;\n    vertical-align: middle;\n} .menu-bar_scratch-logo_2uReV.menu-bar_clickable_1g3uo {\n    cursor: pointer;\n} .menu-bar_menu-bar-item_oLDa- {\n    display: flex;\n    padding: 0 0.25rem;\n    text-decoration: none;\n    color: hsla(0, 100%, 100%, 1);\n    -webkit-user-select: none;\n       -moz-user-select: none;\n        -ms-user-select: none;\n            user-select: none;\n    align-self: center;\n    position: relative;\n    align-items: center;\n    white-space: nowrap;\n    height: 3rem;\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_hoverable_c6WFB {\n    cursor: pointer;\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_active_2Lfqh,\n.menu-bar_menu-bar-item_oLDa-.menu-bar_hoverable_c6WFB:hover {\n    background-color: hsla(0, 0%, 0%, 0.15);\n} .menu-bar_menu-bar-item_oLDa-.menu-bar_growable_1sHWN {\n    max-width: 12rem;\n    flex: 1;\n} .menu-bar_title-field-growable_3qr4G {\n    flex-grow: 1;\n    width: 2rem;\n} /* Version history stepper, only rendered when the versionOffset query arg is present */ .menu-bar_version-offset_2beWc {\n    gap: 0.25rem;\n    margin: 0 0.5rem;\n} .menu-bar_version-offset-button_Ipa8u {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    width: 1.5rem;\n    height: 1.5rem;\n    padding: 0;\n    border: none;\n    border-radius: 0.25rem;\n    background-color: hsla(0, 0%, 0%, 0.15);\n    color: hsla(0, 100%, 100%, 1);\n    font-size: 0.75rem;\n    line-height: 1;\n    cursor: pointer;\n} .menu-bar_version-offset-button_Ipa8u:hover:not(:disabled) {\n    background-color: hsla(0, 100%, 100%, 0.25);\n} .menu-bar_version-offset-button_Ipa8u:disabled {\n    opacity: 0.4;\n    cursor: default;\n} .menu-bar_version-offset-label_3CrGN {\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    min-width: 4rem;\n    text-align: center;\n    font-size: 0.75rem;\n    line-height: 1.2;\n} /* When and by whom the version on screen was saved */ .menu-bar_version-offset-meta_1IY5l {\n    font-size: 0.625rem;\n    opacity: 0.85;\n} .menu-bar_version-picker_3e9hm {\n    position: absolute;\n    top: 100%;\n    left: 0;\n    z-index: 491;\n    display: flex;\n    flex-direction: column;\n    gap: 0.5rem;\n    min-width: 15rem;\n    padding: 0.75rem;\n    border-radius: 0 0 0.5rem 0.5rem;\n    background-color: hsla(0, 100%, 100%, 1);\n    color: hsla(225, 15%, 40%, 1);\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);\n    font-size: 0.75rem;\n    white-space: normal;\n    -webkit-user-select: text;\n       -moz-user-select: text;\n        -ms-user-select: text;\n            user-select: text;\n} .menu-bar_version-picker-label_1PMPk {\n    display: flex;\n    flex-direction: column;\n    gap: 0.25rem;\n    font-weight: bold;\n} .menu-bar_version-picker-input_1vNHA {\n    padding: 0.25rem 0.375rem;\n    border: 1px solid hsla(0, 0%, 0%, 0.15);\n    border-radius: 0.25rem;\n    color: hsla(225, 15%, 40%, 1);\n    font: inherit;\n    font-weight: normal;\n} .menu-bar_version-picker-error_3SRNL {\n    color: hsla(30, 100%, 55%, 1);\n} .menu-bar_version-picker-actions_3_kGE {\n    display: flex;\n    justify-content: flex-end;\n    gap: 0.5rem;\n} .menu-bar_version-picker-primary_gDRNi,\n.menu-bar_version-picker-secondary_1H7SI {\n    padding: 0.25rem 0.75rem;\n    border-radius: 0.25rem;\n    font: inherit;\n    cursor: pointer;\n} .menu-bar_version-picker-primary_gDRNi {\n    border: none;\n    background-color: hsla(260, 60%, 60%, 1);\n    color: hsla(0, 100%, 100%, 1);\n    font-weight: bold;\n} .menu-bar_version-picker-secondary_1H7SI {\n    border: 1px solid hsla(0, 0%, 0%, 0.15);\n    background-color: transparent;\n    color: hsla(225, 15%, 40%, 1);\n} /* Shown while a version is downloading or loading into the editor */ .menu-bar_version-diff-button__kCps {\n    width: auto;\n    padding: 0 0.4rem;\n    white-space: nowrap;\n} .menu-bar_version-diff-toggle_1FANy {\n    display: flex;\n    align-items: center;\n    gap: 0.35rem;\n    cursor: pointer;\n} .menu-bar_version-diff-list_3sWGq {\n    display: flex;\n    flex-direction: column;\n    gap: 0.35rem;\n    max-height: 14rem;\n    margin: 0;\n    padding: 0;\n    overflow-y: auto;\n    list-style: none;\n} .menu-bar_version-diff-list_3sWGq li {\n    display: flex;\n    flex-wrap: wrap;\n    align-items: baseline;\n    gap: 0.25rem 0.5rem;\n} .menu-bar_version-diff-target_1aU1N {\n    padding: 0;\n    border: none;\n    background: none;\n    color: hsla(215, 100%, 65%, 1);\n    font: inherit;\n    font-weight: bold;\n    cursor: pointer;\n} .menu-bar_version-diff-target_1aU1N:disabled {\n    color: hsla(225, 15%, 40%, 1);\n    cursor: default;\n} .menu-bar_version-diff-counts_3aubn {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 0.4rem;\n} /* Text colours match the block outlines in blocks.css, darkened to read on white. */ .menu-bar_version-diff-added_1DrQ2 {\n    color: #00875a;\n} .menu-bar_version-diff-changed_X-LXF {\n    color: #c45f00;\n} .menu-bar_version-diff-moved_Mt_1Q {\n    color: #7a2ff0;\n} .menu-bar_version-diff-removed_1y2aQ {\n    color: #c62828;\n} .menu-bar_version-diff-note_1JWlz {\n    opacity: 0.7;\n} .menu-bar_buffering-notice_2zOKF {\n    position: fixed;\n    top: calc(3rem + 0.5rem);\n    left: 50%;\n    transform: translateX(-50%);\n    z-index: 491;\n    display: flex;\n    align-items: center;\n    gap: 0.5rem;\n    padding: 0.5rem 1rem;\n    border-radius: 1rem;\n    background-color: hsla(225, 15%, 40%, 1);\n    color: hsla(0, 100%, 100%, 1);\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);\n    font-size: 0.75rem;\n    pointer-events: none;\n} .menu-bar_buffering-notice-error_28k-j {\n    background-color: hsla(30, 100%, 55%, 1);\n} .menu-bar_buffering-spinner_3HffL {\n    width: 0.75rem;\n    height: 0.75rem;\n    border: 2px solid hsla(0, 100%, 100%, 0.25);\n    border-top-color: hsla(0, 100%, 100%, 1);\n    border-radius: 50%;\n    animation: menu-bar_buffering-spin_1KyXU 0.8s linear infinite;\n} @keyframes menu-bar_buffering-spin_1KyXU {\n    to {\n        transform: rotate(360deg);\n    }\n} .menu-bar_file-group_1_CHX {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_file-group_1_CHX .menu-bar_menu-bar-item_oLDa- {\n    margin: 0 .25rem;\n    padding: 0 0.75rem;\n} .menu-bar_menu-bar-menu_239MD {\n    margin-top: 3rem;\n    z-index: 491;\n} .menu-bar_feedback-link_1BnAR {\n    color: hsla(260, 60%, 60%, 1);\n    text-decoration: none;\n} .menu-bar_feedback-button_2rEcj {\n    background-color: hsla(0, 100%, 100%, 1);\n    height: 34px;\n} .menu-bar_divider_2VFCm {\n    margin: 0 .5rem;\n    height: 34px;\n} .menu-bar_author-info_22Nub {\n    margin-left: .25rem;\n    margin-right: .6875rem;\n} .menu-bar_menu-bar-button_3IDN0 {\n    height: 2rem;\n} .menu-bar_remix-button_2LQQc {\n    background-color: hsla(163, 85%, 40%, 1)\n} .menu-bar_remix-button-icon_2E93U {\n    height: 1.25rem;\n} .menu-bar_coming-soon_3yU1L >:not(.menu-bar_coming-soon-tooltip_20GhI) {\n    opacity: 0.5;\n} .menu-bar_account-info-group_MeJZP {\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_account-info-group_MeJZP .menu-bar_menu-bar-item_oLDa- {\n    margin: 0 .25rem;\n    padding: 0 0.75rem;\n} .menu-bar_mystuff-icon_3DtcD {\n    margin: 0 .25rem;\n    height: 1rem;\n} .menu-bar_help-icon_3Xtrt {\n    margin: 0 .25rem 0 0;\n} [dir=\"rtl\"] .menu-bar_help-icon_3Xtrt {\n    margin: 0 0 0 .25rem;\n} .menu-bar_account-nav-menu_3uu9p, .menu-bar_mystuff-button_16jPf {\n    padding: 0 .25rem;\n    display: flex;\n    flex-direction: row;\n    align-items: center;\n} .menu-bar_profile-icon_2bJkI {\n    margin: 0 .25rem;\n    width: 2rem;\n    border-radius: calc(0.5rem / 2);\n} .menu-bar_dropdown-caret-icon_FkdUe {\n    width: 0.5rem;\n    height: 0.5rem;\n} [dir=\"ltr\"] .menu-bar_dropdown-caret-icon_FkdUe {\n    margin-left: .5rem;\n} [dir=\"rtl\"] .menu-bar_dropdown-caret-icon_FkdUe {\n    margin-right: .5rem;\n} .menu-bar_disabled_3x5sy {\n    opacity: 0.5;\n} .menu-bar_mystuff_3RiSb > a {\n  background-repeat: no-repeat;\n  background-position: center center;\n  background-size: 45%;\n  padding-right: 10px;\n  padding-left: 10px;\n  width: 30px;\n  overflow: hidden;\n  text-indent: 50px;\n  white-space: nowrap;\n} .menu-bar_mystuff_3RiSb > a:hover {\n  background-size: 50%;\n} .menu-bar_mystuff_3RiSb > a {\n  background-image: url(\"/images/mystuff.png\");\n} .menu-bar_about-icon_dZI7K {\n    height: 1.25rem;\n    margin: 0.5rem;\n    vertical-align: middle;\n} .menu-bar_collapsible-label_o2tym {\n    margin: 0 .5rem 0 .25rem;\n} [dir=\"rtl\"] .menu-bar_collapsible-label_o2tym {\n    margin: 0 0.25rem 0 0.5rem;\n} @media only screen and (max-width: 1024px) {\n    .menu-bar_tutorials-label_2tFBo, .menu-bar_collapsible-label_o2tym {\n        display: none;\n    }\n\n    .menu-bar_help-icon_3Xtrt {\n        margin-right: 0;\n    }\n}\n", ""]);
 // Exports
 exports.locals = {
 	"menu-bar": "menu-bar_menu-bar_JcuHF",
@@ -38519,10 +39766,50 @@ exports.locals = {
 	"versionOffsetButton": "menu-bar_version-offset-button_Ipa8u",
 	"version-offset-label": "menu-bar_version-offset-label_3CrGN",
 	"versionOffsetLabel": "menu-bar_version-offset-label_3CrGN",
-	"version-time-form": "menu-bar_version-time-form_2bMpm",
-	"versionTimeForm": "menu-bar_version-time-form_2bMpm",
-	"version-time-input": "menu-bar_version-time-input_11JZe",
-	"versionTimeInput": "menu-bar_version-time-input_11JZe",
+	"version-offset-meta": "menu-bar_version-offset-meta_1IY5l",
+	"versionOffsetMeta": "menu-bar_version-offset-meta_1IY5l",
+	"version-picker": "menu-bar_version-picker_3e9hm",
+	"versionPicker": "menu-bar_version-picker_3e9hm",
+	"version-picker-label": "menu-bar_version-picker-label_1PMPk",
+	"versionPickerLabel": "menu-bar_version-picker-label_1PMPk",
+	"version-picker-input": "menu-bar_version-picker-input_1vNHA",
+	"versionPickerInput": "menu-bar_version-picker-input_1vNHA",
+	"version-picker-error": "menu-bar_version-picker-error_3SRNL",
+	"versionPickerError": "menu-bar_version-picker-error_3SRNL",
+	"version-picker-actions": "menu-bar_version-picker-actions_3_kGE",
+	"versionPickerActions": "menu-bar_version-picker-actions_3_kGE",
+	"version-picker-primary": "menu-bar_version-picker-primary_gDRNi",
+	"versionPickerPrimary": "menu-bar_version-picker-primary_gDRNi",
+	"version-picker-secondary": "menu-bar_version-picker-secondary_1H7SI",
+	"versionPickerSecondary": "menu-bar_version-picker-secondary_1H7SI",
+	"version-diff-button": "menu-bar_version-diff-button__kCps",
+	"versionDiffButton": "menu-bar_version-diff-button__kCps",
+	"version-diff-toggle": "menu-bar_version-diff-toggle_1FANy",
+	"versionDiffToggle": "menu-bar_version-diff-toggle_1FANy",
+	"version-diff-list": "menu-bar_version-diff-list_3sWGq",
+	"versionDiffList": "menu-bar_version-diff-list_3sWGq",
+	"version-diff-target": "menu-bar_version-diff-target_1aU1N",
+	"versionDiffTarget": "menu-bar_version-diff-target_1aU1N",
+	"version-diff-counts": "menu-bar_version-diff-counts_3aubn",
+	"versionDiffCounts": "menu-bar_version-diff-counts_3aubn",
+	"version-diff-added": "menu-bar_version-diff-added_1DrQ2",
+	"versionDiffAdded": "menu-bar_version-diff-added_1DrQ2",
+	"version-diff-changed": "menu-bar_version-diff-changed_X-LXF",
+	"versionDiffChanged": "menu-bar_version-diff-changed_X-LXF",
+	"version-diff-moved": "menu-bar_version-diff-moved_Mt_1Q",
+	"versionDiffMoved": "menu-bar_version-diff-moved_Mt_1Q",
+	"version-diff-removed": "menu-bar_version-diff-removed_1y2aQ",
+	"versionDiffRemoved": "menu-bar_version-diff-removed_1y2aQ",
+	"version-diff-note": "menu-bar_version-diff-note_1JWlz",
+	"versionDiffNote": "menu-bar_version-diff-note_1JWlz",
+	"buffering-notice": "menu-bar_buffering-notice_2zOKF",
+	"bufferingNotice": "menu-bar_buffering-notice_2zOKF",
+	"buffering-notice-error": "menu-bar_buffering-notice-error_28k-j",
+	"bufferingNoticeError": "menu-bar_buffering-notice-error_28k-j",
+	"buffering-spinner": "menu-bar_buffering-spinner_3HffL",
+	"bufferingSpinner": "menu-bar_buffering-spinner_3HffL",
+	"buffering-spin": "menu-bar_buffering-spin_1KyXU",
+	"bufferingSpin": "menu-bar_buffering-spin_1KyXU",
 	"file-group": "menu-bar_file-group_1_CHX",
 	"fileGroup": "menu-bar_file-group_1_CHX",
 	"menu-bar-menu": "menu-bar_menu-bar-menu_239MD",
@@ -45600,4 +46887,4 @@ module.exports = /*#__PURE__*/JSON.parse('[{"name":"Abby","tags":["people","pers
 /***/ })
 
 }]);
-//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.23161fae84cda7843831.js.map
+//# sourceMappingURL=src_containers_gui_jsx-src_lib_app-state-hoc_jsx-src_lib_hash-parser-hoc_jsx.3d50e84559e05d18c792.js.map
